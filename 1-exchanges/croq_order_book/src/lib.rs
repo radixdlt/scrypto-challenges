@@ -13,7 +13,7 @@ blueprint! {
         cash_def: ResourceDef,
         bid_list: Vec<(Address, Address, Decimal, Option<Vault>)>, // Token
         ask_list: Vec<(Address, Address, Decimal, Option<Vault>)>, // Cash
-        user_vaults: HashMap<Address, (Vault, Vault)>,     // Cash, Token
+        user_vaults: HashMap<Address, (Vault, Vault)>,             // Cash, Token
         dead_vault: Vec<Vault>,
     }
 
@@ -110,7 +110,11 @@ blueprint! {
                 let bid_price = offer.2;
                 let ask_qty = cash.amount() / bid_price;
                 let vault = offer.3.as_mut().unwrap();
-                info!("ask_qty: {:?} vault.amount(): {:?}", ask_qty, vault.amount());
+                info!(
+                    "ask_qty: {:?} vault.amount(): {:?}",
+                    ask_qty,
+                    vault.amount()
+                );
                 if ask_qty < vault.amount() {
                     self.add_cash_to_user(seller_badge, cash);
                     ret_token_bucket.put(vault.take(ask_qty));
@@ -172,41 +176,47 @@ blueprint! {
         pub fn withdraw(&mut self, user_badge: BucketRef) -> Vec<Bucket> {
             let addr = user_badge.resource_address();
             let mut ret = Vec::<Bucket>::new();
-            let opt_vaults = self
-                .user_vaults
-                .remove(&addr);
+            let opt_vaults = self.user_vaults.remove(&addr);
             if opt_vaults.is_some() {
-              let mut vaults = opt_vaults.unwrap();
-              ret.push(vaults.0.take_all());
-              ret.push(vaults.1.take_all());
-              self.user_vaults.insert(addr, vaults);
+                let mut vaults = opt_vaults.unwrap();
+                ret.push(vaults.0.take_all());
+                ret.push(vaults.1.take_all());
+                self.user_vaults.insert(addr, vaults);
             }
             ret
         }
         pub fn user_vault_content(&self, user_badge: BucketRef) -> (Decimal, Decimal) {
-          let addr = user_badge.resource_address();
-          let opt_vaults = self.user_vaults.get(&addr);
-          if opt_vaults.is_none() {
-            return (Decimal::zero(),Decimal::zero());
-          }else{
-            let vaults = opt_vaults.unwrap();
-            return (vaults.0.amount(), vaults.1.amount());
-          }
+            let addr = user_badge.resource_address();
+            let opt_vaults = self.user_vaults.get(&addr);
+            if opt_vaults.is_none() {
+                return (Decimal::zero(), Decimal::zero());
+            } else {
+                let vaults = opt_vaults.unwrap();
+                return (vaults.0.amount(), vaults.1.amount());
+            }
         }
         pub fn monitor(&self) {
             info!("token addr: {:?}", self.token_def.address());
             info!("cash addr: {:?}", self.cash_def.address());
-            
+
             info!("**bid**");
             info!("floor price, quantity of tokens");
             self.bid_list.iter().for_each(|item| {
-              info!("{:?}, {:?}", item.2, item.3.as_ref().map_or(Decimal::zero(),|v| v.amount()));
+                info!(
+                    "{:?}, {:?}",
+                    item.2,
+                    item.3.as_ref().map_or(Decimal::zero(), |v| v.amount())
+                );
             });
-            
+
             info!("**ask**");
             info!("ceilling price, amount of cash");
             self.ask_list.iter().for_each(|item| {
-              info!("{:?}, {:?}", item.2, item.3.as_ref().map_or(Decimal::zero(),|v| v.amount()));
+                info!(
+                    "{:?}, {:?}",
+                    item.2,
+                    item.3.as_ref().map_or(Decimal::zero(), |v| v.amount())
+                );
             });
         }
     }
