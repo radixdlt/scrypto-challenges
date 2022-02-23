@@ -1,41 +1,52 @@
-# Croq Order Book
+# Croq Traditional Order Book
 
-Traditional order book
+A Traditional Order Book including lists of Ask Offers and Bid Offers.
 
-a list of ack offer, a list of bid offer. When they meet the exchange happen.
+When the highest Bid is below the lowest Ask, then an exchange is made and the Order is fulfilled.
 
-the tokens and cash gained, is deposed in a vault which belong to the user if the exchange is not immediate.
+When an open offer is partially filled or fulfilled/closed, the tokens and cash gained are deposited in a vault which belongs to the user.
 
-the flow to made an offer is the following:
+**Offer Flow**
 
-- call `register` to have a user badge
-- call `push_bid` or `push_ask` if not executed in full immediately, it give you an offer_token
-- you can call `cancel` to cancel your offer and get back any money left inside (it may have been partially executed already)
-- when your offer has been fullfil, you can call `withdraw` with your user badge. You'll get back any money owe to you
+The flow to make an offer is the following:
 
-there is some read only methods:
-- to help monitor the status of the auction, for displaying the book on your webapp
-- to check if some money are owe to you
+1. Call `register` to register a user badge
+2. Call `push_bid` or `push_ask` if not executed in full immediately, this will give you an `offer_token`
+3. You can call `cancel` to cancel your offer and get back any money left inside (it may have been partially executed already)
+4. When your offer has been fullfilled, you can call `withdraw` with your user badge. You'll receive any money owed to you
 
-# Functions & Methods
+There are some read only methods:
+
+1. To help monitor the status of the auction, for displaying the book on your webapp
+2. To check if some money are owe to you
+
+## Functions & Methods
+
+### Create a new Order Book
 
 ```
 pub fn instantiate(token: Address, cash: Address) -> Component
 ```
 
-to create a new order book
+- `token`: The token this Order Book will be about
+- `cash`: The cash used in this Order Book (`RADIX_TOKEN`currently, but I dream of stable coin...)
+- `return`: The instance of created Order Book
 
-- `token`: the token this order book will be about
-- `cash`: the cash used in this order book (`RADIX_TOKEN` currently, but I dream of stable coin...)
-- `return`: the instance of created
+
+### Register a User Badge
 
 ```
 pub fn register(&self) -> Bucket
 ```
 
-to get a user badge
+- `return`: The User Badge
 
-- `return`: the user badge
+
+### Create Bid Offer
+
+To add a Bid Offer to the Order Book.
+
+It may be executed immediately (partially or in full), or, it may be just registered in the book.
 
 ```
 pub fn push_bid(
@@ -46,12 +57,17 @@ pub fn push_bid(
         ) -> Vec<Bucket>
 ```
 
-to add a bid offer to the order book. it may be executed immediately (partially or in full) Or it may be just registered in the book.
+- `user_badge`: Your User Badge, created with `register`
+- `price`: Your floor price
+- `token`: The token you want to sell
+- `return`: If executed in full, you'll immediately get a bucket of cash. If not executed immediately, you'll get an offer badge. If executed partially, you'll get cash and badge.
 
-- `user_badge`: your user badge, created with `register`
-- `price`: your floor price
-- `token`: the token you want to sell
-- `return`: if executed in full immediately you'll get a bucket of cash. if not executed immediately you'll get an offer badge. if executed partially, you'll get cash and badge.
+
+
+### Create Ask Offer
+Add a Ask Offer to the order book.
+
+It may be executed immediately (partially or in full), or, it may be just registered in the book.
 
 ```
 pub fn push_ask(
@@ -62,47 +78,53 @@ pub fn push_ask(
         ) -> Vec<Bucket>
 ```
 
-to add an ask offer to the order book. it may be executed immediately (partially or in full) Or it may be just registered in the book.
+- `user_badge`: Your User Badge, created with `register`
+- `price`: Your ceiling price
+- `token`: The cash you want to spend
+- `return`: If fulfilled immediately, you'll get a bucket of tokens. If not fulfilled immediately you'll get an offer badge. If partially fulfilled, you'll get tokens and badge.
 
-- `user_badge`: your user badge, created with `register`
-- `price`: your ceiling price
-- `token`: the cash you want to spend
-- `return`: if executed in full immediately you'll get a bucket of tokens. if not executed immediately you'll get an offer badge. if executed partially, you'll get tokens and badge.
+
+
+### Cancel an Offer
 
 ```
 pub fn cancel(&mut self, offer_badge: Bucket) -> (Bucket, Bucket)
 ```
 
-cancel an offer
+- `offer_badge`: The badge of the offer you will cancel
+- `return`: A tuple of bucket, cash and token
 
-- `offer_badge`: the badge of the offer you will cancel
-- `return`: a tuple of bucket, cash and token
+
+### Withdraw
+
+Withdraw the cash and tokens owed to you.
 
 ```
 pub fn withdraw(&mut self, user_badge: BucketRef) -> Vec<Bucket>
 ```
 
-withdraw the cash and tokens owe to you
+- `user_badge`: Your User Badge
+- `return`: A vector of bucket containing cash and tokens
 
-- `user_badge`: your user badge
-- `return`: a vector of bucket containing cash and tokens
+
+### Get Balances Owed
+Return the amount of cash and tokens owed to you.
 
 ```
 pub fn user_vault_content(&self, user_badge: BucketRef) -> (Decimal, Decimal)
 ```
 
-return the amount of cash and token owe to you
+- `user_badge`: Your user badge
+- `return`: Amount of cash and tokens owed to you
 
-- `user_badge`: your user badge
-- `return`: amount of cash and token owe to you
+
+### Monitor
+Log some information about the auction.
 
 ```
 pub fn monitor(&self)
 ```
-
-log some information about the auction
-
-example:
+**Example:**
 
 ```
 Logs: 11
