@@ -3,6 +3,8 @@ use crate::liquidity_pool::*;
 use crate::utils::*;
 
 blueprint!{
+    /// RaDEX is an implementation of an automated market maker decentralized exchange on the Radix ledger. The 
+    /// liquidity pools in this DEX use the constant market maker function `x * y = k` for the trading of tokens.
     struct RaDEX{
         /// This is a hashmap that maps a tuple of two addresses to a Scrypto component. This scrypto component is a 
         /// liquidity pool meaning that this hashmap maps a tuple of two addresses to a liquidity pool. This hashmap is
