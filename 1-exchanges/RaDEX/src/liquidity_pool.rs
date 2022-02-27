@@ -56,9 +56,14 @@ blueprint!{
         /// # Arguments:
         /// 
         /// * `address` (Address) - The address of the resource that we wish to check if it belongs to the pool.
-        /// * `message` (String) - The message to output if the assertion fails.
-        pub fn assert_belongs(&self, address: Address, message: String) {
-            assert!(self.belongs_to_pool(address), format!("{}", message));
+        /// * `label` (String) - The label of the method that called this assert method. As an example, if the swap 
+        /// method were to call this method, then the label would be `Swap` so that it's clear where the assertion error
+        /// took place.
+        pub fn assert_belongs(&self, address: Address, label: String) {
+            assert!(
+                self.belongs_to_pool(address), 
+                format!("[{}]: The provided resource address does not belong to the pool.", message)
+            );
         }
     }
 }
