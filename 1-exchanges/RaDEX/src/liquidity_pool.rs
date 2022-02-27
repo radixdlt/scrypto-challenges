@@ -162,7 +162,8 @@ blueprint!{
             let dx: Decimal = input_amount;
             let r: Decimal = (dec!("100") - self.fee_to_pool) / dec!("100");
 
-            return (dx * r * y) / ( x + r * dx );
+            let dy: Decimal = (dx * r * y) / ( x + r * dx );
+            return dy;
         }
 
         /// Calculates the amount of input required to receive the specified amount of output tokens.
@@ -206,7 +207,8 @@ blueprint!{
             let dy: Decimal = output_amount;
             let r: Decimal = (dec!("100") - self.fee_to_pool) / dec!("100");
 
-            return (dy * x) / (r * (y - dy));
+            let dx: Decimal = (dy * x) / (r * (y - dy));
+            return dx;
         }
     }
 }
