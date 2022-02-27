@@ -137,6 +137,13 @@ blueprint!{
                 liquidity_pool.into()
             );
 
+            // Adding the resource address of the tracking tokens to the hashmap that maps the tracking tokens with 
+            // the address of their token pairs
+            self.tracking_token_address_pair_mapping.insert(
+                tracking_tokens.resource_address(),
+                addresses
+            );
+
             // Returning the tracking tokens back to the caller of this method (the initial liquidity provider).
             return tracking_tokens;
         }
