@@ -30,4 +30,35 @@ blueprint!{
         /// in turn the liquidity providers) when a swap is made through this liquidity pool.
         fee_to_pool: Decimal,
     }
+
+    impl LiquidityPool {
+        /// Checks if the given address belongs to this pool or not.
+        /// 
+        /// This method is used to check if a given resource address belongs to one of the tokens in this liquidity pool
+        /// or not. A resource belongs to a liquidity pool if its address is in the addresses in the `vaults` HashMap.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `address` (Address) - The address of the resource that we wish to check if it belongs to the pool.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `bool` - A boolean of whether the address belongs to this pool or not.
+        pub fn belongs_to_pool(&self, address: Address) -> bool {
+            return self.vaults.contains_key(&address);
+        }
+
+        /// Asserts that the given address belongs to the pool.
+        /// 
+        /// This is a quick assert method that checks if a given address belongs to the pool or not. If the address does
+        /// not belong to the pool, then an assertion error (panic) occurs and the message given is outputted.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `address` (Address) - The address of the resource that we wish to check if it belongs to the pool.
+        /// * `message` (String) - The message to output if the assertion fails.
+        pub fn assert_belongs(&self, address: Address, message: String) {
+            assert!(self.belongs_to_pool(address), format!("{}", message));
+        }
+    }
 }
