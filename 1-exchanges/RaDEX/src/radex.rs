@@ -262,5 +262,78 @@ blueprint!{
             );
             return self.liquidity_pools[&sorted_addresses].swap(tokens);
         }
+
+        /// Swaps the exact amount of input tokens for tokens of the desired type.
+        /// 
+        /// This method is used to swap all of the given token (let's say Token A) for their equivalent amount of the
+        /// other token (let's say Token B). This method supports slippage in the form of the `min_amount_out` where
+        /// the caller is given the option to specify the minimum amount of Token B that they're willing to accept for
+        /// the swap to go through. If the output amount does not satisfy the `min_amount_out` specified by the user 
+        /// then this method fails and all of the parties involved get their tokens back.
+        /// 
+        /// This method performs a number of checks before the swap is performed:
+        /// 
+        /// * **Check 1:** Checks that there does exist a liquidity pool for the given pair of tokens.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tokens` (Bucket) - A bucket containing the input tokens that will be swapped for other tokens.
+        /// * `output_resource_address` (Address) - The resource address of the token to receive from the swap.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A bucket of the other tokens.
+        pub fn swap_exact_tokens_for_tokens(
+            &mut self,
+            tokens: Bucket,
+            output_resource_address: Address,
+            min_amount_out: Decimal
+        ) -> Bucket {
+            // Checking if there does exist a liquidity pool for the given pair of tokens
+            self.assert_pool_exists(tokens.resource_address(), output_resource_address, String::from("DEX Swap Exact"));
+
+            // Sorting the two addresses passed, getting the associated liquidity pool and then performing the swap.
+            let sorted_addresses: (Address, Address) = sort_addresses(
+                tokens.resource_address(), 
+                output_resource_address
+            );
+            return self.liquidity_pools[&sorted_addresses].swap_exact_tokens_for_tokens(tokens, min_amount_out);
+        }
+        
+        /// Swaps the input tokens for a specific amount of tokens of the desired type.
+        /// 
+        /// This method is used when the user wants to swap a token for a specific amount of another token. This method
+        /// calculates the input amount required to get the desired output and if the amount required is provided in the
+        /// tokens bucket then the swap takes place and the user gets back two buckets: a bucket of the remaining input
+        /// tokens and another bucket of the swapped tokens.
+        /// 
+        /// This method performs a number of checks before the swap is performed:
+        /// 
+        /// * **Check 1:** Checks that there does exist a liquidity pool for the given pair of tokens.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tokens` (Bucket) - A bucket containing the input tokens that will be swapped for other tokens.
+        /// * `output_resource_address` (Address) - The resource address of the token to receive from the swap.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A bucket of the other tokens.
+        pub fn swap_tokens_for_exact_tokens(
+            &mut self,
+            tokens: Bucket,
+            output_resource_address: Address,
+            output_amount: Decimal
+        ) -> (Bucket, Bucket) {
+            // Checking if there does exist a liquidity pool for the given pair of tokens
+            self.assert_pool_exists(tokens.resource_address(), output_resource_address, String::from("DEX Swap For Exact"));
+
+            // Sorting the two addresses passed, getting the associated liquidity pool and then performing the swap.
+            let sorted_addresses: (Address, Address) = sort_addresses(
+                tokens.resource_address(), 
+                output_resource_address
+            );
+            return self.liquidity_pools[&sorted_addresses].swap_tokens_for_exact_tokens(tokens, output_amount);
+        }
     }
 }
