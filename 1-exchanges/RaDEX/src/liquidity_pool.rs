@@ -164,7 +164,7 @@ blueprint!{
         /// * `label` (String) - The label of the method that called this assert method. As an example, if the swap 
         /// method were to call this method, then the label would be `Swap` so that it's clear where the assertion error
         /// took place.
-        pub fn assert_belongs(
+        pub fn assert_belongs_to_pool(
             &self, 
             address: Address, 
             label: String
@@ -206,7 +206,7 @@ blueprint!{
             resource_address: Address
         ) -> Address {
             // Checking if the passed resource address belongs to this pool.
-            self.assert_belongs(resource_address, String::from("Other Resource Address"));
+            self.assert_belongs_to_pool(resource_address, String::from("Other Resource Address"));
 
             // Checking which of the addresses was provided as an argument and returning the other address.
             let addresses: Vec<Address> = self.addresses();
@@ -257,7 +257,7 @@ blueprint!{
             input_amount: Decimal
         ) -> Decimal {
             // Checking if the passed resource address belongs to this pool.
-            self.assert_belongs(input_resource_address, String::from("Calculate Output"));
+            self.assert_belongs_to_pool(input_resource_address, String::from("Calculate Output"));
 
             let x: Decimal = self.vaults[&input_resource_address].amount();
             let y: Decimal = self.vaults[&self.other_resource_address(input_resource_address)].amount();
@@ -302,7 +302,7 @@ blueprint!{
             output_amount: Decimal
         ) -> Decimal {
             // Checking if the passed resource address belongs to this pool.
-            self.assert_belongs(output_resource_address, String::from("Calculate Input"));
+            self.assert_belongs_to_pool(output_resource_address, String::from("Calculate Input"));
 
             let x: Decimal = self.vaults[&self.other_resource_address(output_resource_address)].amount();
             let y: Decimal = self.vaults[&output_resource_address].amount();
@@ -331,7 +331,7 @@ blueprint!{
             bucket: Bucket 
         ) {
             // Checking if the passed resource address belongs to this pool.
-            self.assert_belongs(bucket.resource_address(), String::from("Deposit"));
+            self.assert_belongs_to_pool(bucket.resource_address(), String::from("Deposit"));
 
             self.vaults.get_mut(&bucket.resource_address()).unwrap().put(bucket);
         }
@@ -359,7 +359,7 @@ blueprint!{
             amount: Decimal
         ) -> Bucket {
             // Performing the checks to ensure tha the withdraw can actually go through
-            self.assert_belongs(resource_address, String::from("Withdraw"));
+            self.assert_belongs_to_pool(resource_address, String::from("Withdraw"));
             
             // Getting the vault of that resource and checking if there is enough liquidity to perform the withdraw.
             let vault: &mut Vault = self.vaults.get_mut(&resource_address).unwrap();
@@ -420,8 +420,8 @@ blueprint!{
             token2: Bucket,
         ) -> (Bucket, Bucket, Bucket) {
             // Checking if the tokens belong to this liquidity pool.
-            self.assert_belongs(token1.resource_address(), String::from("Add Liquidity"));
-            self.assert_belongs(token2.resource_address(), String::from("Add Liquidity"));
+            self.assert_belongs_to_pool(token1.resource_address(), String::from("Add Liquidity"));
+            self.assert_belongs_to_pool(token2.resource_address(), String::from("Add Liquidity"));
 
             // Checking that the buckets passed are not empty
             assert!(token1.is_empty(), "[Add Liquidity]: Can not add liquidity from an empty bucket");
@@ -527,7 +527,7 @@ blueprint!{
             tokens: Bucket
         ) -> Bucket {
             // Checking if the tokens belong to this liquidity pool.
-            self.assert_belongs(tokens.resource_address(), String::from("Swap"));
+            self.assert_belongs_to_pool(tokens.resource_address(), String::from("Swap"));
 
             // Calculating the output amount for the given input amount of tokens and withdrawing it from the vault
             let output_amount: Decimal = self.calculate_output_amount(tokens.resource_address(), tokens.amount());
@@ -568,7 +568,7 @@ blueprint!{
             min_amount_out: Decimal
         ) -> Bucket {
             // Checking that the bucket passed does indeed belong to this liquidity pool
-            self.assert_belongs(tokens.resource_address(), String::from("Swap Exact"));
+            self.assert_belongs_to_pool(tokens.resource_address(), String::from("Swap Exact"));
             
             // Performing the token swap and checking if the amount is suitable for the caller or not. This is one of 
             // the best and coolest things that I have seen in Scrypto so far. Even though in the `self.swap(tokens)` 
@@ -609,7 +609,7 @@ blueprint!{
             output_amount: Decimal
         ) -> (Bucket, Bucket) {
             // Checking that the bucket passed does indeed belong to this liquidity pool
-            self.assert_belongs(tokens.resource_address(), String::from("Swap For Exact"));
+            self.assert_belongs_to_pool(tokens.resource_address(), String::from("Swap For Exact"));
 
             // Calculating the amount of input tokens that would be required to produce the desired amount of output 
             // tokens
