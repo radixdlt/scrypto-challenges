@@ -19,4 +19,19 @@ blueprint!{
         /// does not belong to any of the liquidity pools in RaDEX.
         tracking_token_address_pair_mapping: HashMap<Address, (Address, Address)>
     }
+
+    impl RaDEX {
+        /// Instantiates a new RaDEX component. 
+        /// 
+        /// # Returns 
+        /// 
+        /// `Component` - A new RaDEX component.
+        pub fn new() -> Component {
+            // The RaDEX AMM does not take any arguments 
+            return Self {
+                liquidity_pools: HashMap::new(), 
+                tracking_token_address_pair_mapping: HashMap::new()
+            }.instantiate();
+        }
+    }
 }
