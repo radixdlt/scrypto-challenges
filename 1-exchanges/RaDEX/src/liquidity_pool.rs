@@ -44,7 +44,10 @@ blueprint!{
         /// # Returns:
         /// 
         /// * `bool` - A boolean of whether the address belongs to this pool or not.
-        pub fn belongs_to_pool(&self, address: Address) -> bool {
+        pub fn belongs_to_pool(
+            &self, 
+            address: Address
+        ) -> bool {
             return self.vaults.contains_key(&address);
         }
 
@@ -59,7 +62,11 @@ blueprint!{
         /// * `label` (String) - The label of the method that called this assert method. As an example, if the swap 
         /// method were to call this method, then the label would be `Swap` so that it's clear where the assertion error
         /// took place.
-        pub fn assert_belongs(&self, address: Address, label: String) {
+        pub fn assert_belongs(
+            &self, 
+            address: Address, 
+            label: String
+        ) {
             assert!(
                 self.belongs_to_pool(address), 
                 format!("[{}]: The provided resource address does not belong to the pool.", message)
