@@ -33,5 +33,45 @@ blueprint!{
                 tracking_token_address_pair_mapping: HashMap::new()
             }.instantiate();
         }
+
+        /// Checks if a liquidity pool for the given pair of tokens exists or not.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `address` (Address) - The address of the first token.
+        /// * `address` (Address) - The address of the second token.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `bool` - A boolean of whether a liquidity pool exists for this trading pair.
+        pub fn pool_exists(
+            &self,
+            address1: Address,
+            address2: Address
+        ) -> bool {
+            // Sorting the two addresses passed and then checking if the tuple of sorted addresses exists in the hashmap
+            // of liquidity pools or not.
+            let sorted_addresses: (Address, Address) = sort_addresses(address1, address2);
+            return self.liquidity_pools.contains_key(&sorted_addresses);
+        }
+
+        /// Asserts that the given address pair exists in the DEX.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `address` (Address) - The address of the first token.
+        /// * `address` (Address) - The address of the second token.
+        pub fn assert_pool_exists(
+            &self,
+            address1: Address,
+            address2: Address,
+            label: String
+        ) {
+            assert!(
+                self.pool_exists(address1, address2), 
+                "[{}]: No liquidity pool exists for the given address pair.", 
+                label
+            );
+        }
     }
 }
