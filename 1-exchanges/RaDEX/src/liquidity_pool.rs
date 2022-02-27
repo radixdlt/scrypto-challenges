@@ -69,8 +69,46 @@ blueprint!{
         ) {
             assert!(
                 self.belongs_to_pool(address), 
-                format!("[{}]: The provided resource address does not belong to the pool.", message)
+                "[{}]: The provided resource address does not belong to the pool.", 
+                label
             );
+        }
+
+        /// Gets the resource addresses of the tokens in this liquidity pool and returns them as a `Vec<Address>`.
+        /// 
+        /// # Returns:
+        /// 
+        /// `Vec<Address>` - A vector of the resource addresses of the tokens in this liquidity pool.
+        pub fn addresses(&self) -> Vec<Address> {
+            return self.vaults.keys().cloned().collect::<Vec<Address>>();
+        }
+
+        /// Gets the address of the other resource if the passed resource address belongs to the pool.
+        /// 
+        /// This method takes in a resource address and if this resource address belongs to the pool it returns the 
+        /// address of the other token in this liquidity pool.
+        /// 
+        /// This method performs a number of checks before resource address is obtained:
+        /// 
+        /// * **Check 1:** Checks that the resource address given does indeed belong to this liquidity pool.
+        /// 
+        /// # Arguments
+        /// 
+        /// * `resource_address` (Address) - The resource address for a token from the pool.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Address` - The address of the other token in this pool.
+        pub fn other_resource_address(
+            &self,
+            resource_address: Address
+        ) -> Address {
+            // Checking if the passed resource address belongs to this pool.
+            self.assert_belongs(resource_address, String::from("Other Resource Address"));
+
+            // Checking which of the addresses was provided as an argument and returning the other address.
+            let addresses: Vec<Address> = self.addresses();
+            return if addresses[0] == resource_address {addresses[1]} else {addresses[0]};
         }
     }
 }
