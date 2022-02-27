@@ -387,8 +387,8 @@ blueprint!{
         /// 
         /// # Arguments:
         /// 
-        /// * `token1_bucket` (Bucket) - A bucket containing the amount of the first token to add to the pool.
-        /// * `token2_bucket` (Bucket) - A bucket containing the amount of the second token to add to the pool.
+        /// * `token1` (Bucket) - A bucket containing the amount of the first token to add to the pool.
+        /// * `token2` (Bucket) - A bucket containing the amount of the second token to add to the pool.
         /// 
         /// # Returns:
         /// 

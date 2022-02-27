@@ -140,5 +140,48 @@ blueprint!{
             // Returning the tracking tokens back to the caller of this method (the initial liquidity provider).
             return tracking_tokens;
         }
+
+        /// Adds liquidity to a new or an already existing liquidity pool.
+        /// 
+        /// This method is used to add liquidity to a liquidity pool in the DEX. If a liquidity pool for the two tokens
+        /// passed already exists then liquidity would be directly added to it. However, if a pool doesn't exist, then a
+        /// new liquidity pool is created from the two buckets passed to this method.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `token1` (Bucket) - A bucket containing the amount of the first token to add to the pool.
+        /// * `token2` (Bucket) - A bucket containing the amount of the second token to add to the pool.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A bucket of the remaining tokens of the `token1` type.
+        /// * `Bucket` - A bucket of the remaining tokens of the `token2` type.
+        /// * `Bucket` - A bucket of the tracking tokens issued to the liquidity provider.
+        pub fn add_liquidity(
+            &mut self,
+            token1: Bucket,
+            token2: Bucket,
+        ) -> (Bucket, Bucket, Bucket) {
+            // Sorting the two buckets of tokens passed to this method and getting the addresses of their resources.
+            let (bucket1, bucket2): (Bucket, Bucket) = sort_buckets(token1, token2);
+            let addresses: (Address, Address) = (bucket1.resource_address(), bucket2.resource_address()); 
+
+            // Attempting to get the liquidity pool component associated with the provided address pair.
+            let optional_liquidity_pool: Option<&LiquidityPool> = self.liquidity_pools.get(&addresses);
+            match optional_liquidity_pool {
+                Some (liquidity_pool) => { // If it matches it means that the liquidity pool exists.
+                    info!("[DEX Add Liquidity]: Pool for {:?} already exists. Adding liquidity directly.", addresses);
+                    liquidity_pool.add_liquidity(bucket1, bucket2)
+                }
+                None => { // If this matches then there does not exist a liquidity pool for this token pair
+                    // In here we are creating a new liquidity pool for this token pair since we failed to find an 
+                    // already existing liquidity pool. The return statement below might seem somewhat redundant in 
+                    // terms of the two empty buckets being returned, but this is done to allow for the add liquidity
+                    // method to be general and allow for the possibility of the liquidity pool not being there.
+                    info!("[DEX Add Liquidity]: Pool for {:?} doesn't exist. Creating a new one.", addresses);
+                    (Bucket::new(addresses.0), Bucket::new(addresses.1), self.new_liquidity_pool(bucket1, bucket2))
+                }
+            }
+        }
     }
 }
