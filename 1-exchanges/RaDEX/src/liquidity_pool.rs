@@ -495,6 +495,11 @@ blueprint!{
             // Calculating the percentage ownership that the tracking tokens amount corresponds to
             let percentage: Decimal = tracking_tokens.amount() / self.tracking_token_def.total_supply();
 
+            // Burning the tracking tokens
+            self.tracking_token_admin_badge.authorize(|x| {
+                tracking_tokens.burn_with_auth(x);
+            });
+
             // Withdrawing the amount of tokens owed to this liquidity provider
             let addresses: Vec<Address> = self.addresses();
             let bucket1: Bucket = self.withdraw(addresses[0], self.vaults[&addresses[0]].amount() * percentage);
