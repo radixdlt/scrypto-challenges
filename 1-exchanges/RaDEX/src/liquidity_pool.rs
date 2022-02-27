@@ -200,7 +200,7 @@ blueprint!{
             output_amount: Decimal
         ) -> Decimal {
             // Checking if the passed resource address belongs to this pool.
-            self.assert_belongs(output_resource_address, String::from("Calculate Output"));
+            self.assert_belongs(output_resource_address, String::from("Calculate Input"));
 
             let x: Decimal = self.vaults[&self.other_resource_address(output_resource_address)].amount();
             let y: Decimal = self.vaults[&output_resource_address].amount();
@@ -209,6 +209,64 @@ blueprint!{
 
             let dx: Decimal = (dy * x) / (r * (y - dy));
             return dx;
+        }
+
+        /// Deposits a bucket of tokens into this liquidity pool.
+        /// 
+        /// This method determines if a given bucket of tokens belongs to the liquidity pool or not. If it's found that
+        /// they belong to the pool, then this method finds the appropriate vault to store the tokens and deposits them
+        /// to that vault.
+        /// 
+        /// This method performs a number of checks before the deposit is made:
+        /// 
+        /// * **Check 1:** Checks that the resource address given does indeed belong to this liquidity pool.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `bucket` (Bucket) - A buckets of the tokens to deposit into the liquidity pool
+        fn deposit(
+            &mut self,
+            bucket: Bucket 
+        ) {
+            // Checking if the passed resource address belongs to this pool.
+            self.assert_belongs(bucket.resource_address(), String::from("Deposit"));
+
+            self.vaults.get_mut(&bucket.resource_address()).unwrap().put(bucket);
+        }
+
+        /// Withdraws tokens from the liquidity pool.
+        /// 
+        /// This method is used to withdraw a specific amount of tokens from the liquidity pool. 
+        /// 
+        /// This method performs a number of checks before the withdraw is made:
+        /// 
+        /// * **Check 1:** Checks that the resource address given does indeed belong to this liquidity pool.
+        /// * **Check 2:** Checks that the there is enough liquidity to perform the withdraw.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `resource_address` (Address) - The address of the resource to withdraw from the liquidity pool.
+        /// * `amount` (Decimal) - The amount of tokens to withdraw from the liquidity pool.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A bucket of the withdrawn tokens.
+        fn withdraw(
+            &mut self,
+            resource_address: Address,
+            amount: Decimal
+        ) -> Bucket {
+            // Performing the checks to ensure tha the withdraw can actually go through
+            self.assert_belongs(resource_address, String::from("Withdraw"));
+            
+            // Getting the vault of that resource and checking if there is enough liquidity to perform the withdraw.
+            let vault: &mut Vault = self.vaults.get_mut(&resource_address).unwrap();
+            assert!(
+                vault.amount() >= amount,
+                "[Withdraw]: Not enough liquidity available for the withdraw."
+            );
+
+            return vault.take(amount);
         }
     }
 }
