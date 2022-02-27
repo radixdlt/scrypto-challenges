@@ -458,5 +458,49 @@ blueprint!{
             // Returning the remaining tokens from `token1`, `token2`, and the tracking tokens
             return (bucket1, bucket2, tracking_tokens);
         }
+
+        /// Removes the percentage of the liquidity owed to this liquidity provider.
+        /// 
+        /// This method is used to calculate the amount of tokens owed to the liquidity provider and take them out of
+        /// the liquidity pool and return them to the liquidity provider. If the liquidity provider wishes to only take
+        /// out a portion of their liquidity instead of their total liquidity they can provide a `tracking_tokens` 
+        /// bucket that does not contain all of their tracking tokens (example: if they want to withdraw 50% of their
+        /// liquidity, they can put 50% of their tracking tokens into the `tracking_tokens` bucket.). When the liquidity
+        /// provider is given the tokens that they are owed, the tracking tokens are burned.
+        /// 
+        /// This method performs a number of checks before liquidity removed from the pool:
+        /// 
+        /// * **Check 1:** Checks to ensure that the tracking tokens passed do indeed belong to this liquidity pool.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tracking_tokens` (Bucket) - A bucket of the tracking tokens that the liquidity provider wishes to 
+        /// exchange for their share of the liquidity.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A Bucket of the share of the liquidity provider of the first token.
+        /// * `Bucket` - A Bucket of the share of the liquidity provider of the second token.
+        pub fn remove_liquidity(
+            &mut self,
+            tracking_tokens: Bucket
+        ) -> (Bucket, Bucket) {
+            // Checking the resource address of the tracking tokens passed to ensure that they do indeed belong to this
+            // liquidity pool.
+            assert_eq!(
+                tracking_tokens.resource_address(), self.tracking_token_def.address(),
+                "[Remove Liquidity]: The tracking tokens given do not belong to this liquidity pool."
+            );
+
+            // Calculating the percentage ownership that the tracking tokens amount corresponds to
+            let percentage: Decimal = tracking_tokens.amount() / self.tracking_token_def.total_supply();
+
+            // Withdrawing the amount of tokens owed to this liquidity provider
+            let addresses: Vec<Address> = self.addresses();
+            let bucket1: Bucket = self.withdraw(addresses[0], self.vaults[&addresses[0]].amount() * percentage);
+            let bucket2: Bucket = self.withdraw(addresses[1], self.vaults[&addresses[1]].amount() * percentage);
+
+            return (bucket1, bucket2);
+        }
     }
 }
