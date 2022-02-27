@@ -55,7 +55,7 @@ blueprint!{
             return self.liquidity_pools.contains_key(&sorted_addresses);
         }
 
-        /// Asserts that the given address pair exists in the DEX.
+        /// Asserts that a liquidity pool for the given address pair exists on the DEX.
         /// 
         /// # Arguments:
         /// 
@@ -70,6 +70,25 @@ blueprint!{
             assert!(
                 self.pool_exists(address1, address2), 
                 "[{}]: No liquidity pool exists for the given address pair.", 
+                label
+            );
+        }
+        
+        /// Asserts that a liquidity pool for the given address pair doesn't exist on the DEX.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `address` (Address) - The address of the first token.
+        /// * `address` (Address) - The address of the second token.
+        pub fn assert_pool_doesnt_exists(
+            &self,
+            address1: Address,
+            address2: Address,
+            label: String
+        ) {
+            assert!(
+                !self.pool_exists(address1, address2), 
+                "[{}]: A liquidity pool with the given address pair already exists.", 
                 label
             );
         }
