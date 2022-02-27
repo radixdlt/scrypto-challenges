@@ -53,8 +53,8 @@ blueprint!{
         /// 
         /// # Arguments: 
         /// 
-        /// * `token1_bucket` (Bucket) - A bucket containing the amount of the first token used to initialize the pool.
-        /// * `token2_bucket` (Bucket) - A bucket containing the amount of the second token used to initialize the pool.
+        /// * `token1` (Bucket) - A bucket containing the amount of the first token used to initialize the pool.
+        /// * `token2` (Bucket) - A bucket containing the amount of the second token used to initialize the pool.
         /// * `fee` (Decimal) - A decimal value of the fee imposed on all swaps from this liquidity pool. This should be
         /// a value between 0 and 100.
         /// 

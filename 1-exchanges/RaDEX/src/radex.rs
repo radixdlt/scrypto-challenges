@@ -92,5 +92,53 @@ blueprint!{
                 label
             );
         }
+
+        /// Creates a new liquidity pool in the DEX.
+        /// 
+        /// This method is used to create a new liquidity pool between the two provided tokens on RaDEX.
+        /// 
+        /// This method does a number of checks before a Liquidity Pool is created, these checks are:
+        /// 
+        /// * **Check 1:** Checks that there does not already exist a liquidity pool for the two given tokens.
+        /// 
+        /// The majority of the checking is done in the `new` function of the LiquidityPool where it checks to ensure 
+        /// that the buckets are not empty, tokens are not both the same, as well as other things. The checks done here
+        /// are just DEX checks to ensure that we don't create a liquidity pool for a token pair that already has a 
+        /// liquidity pool.
+        /// 
+        /// # Arguments: 
+        /// 
+        /// * `token1` (Bucket) - A bucket containing the amount of the first token used to initialize the pool.
+        /// * `token2` (Bucket) - A bucket containing the amount of the second token used to initialize the pool.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A bucket containing the tracking tokens issued to the creator of the liquidity pool.
+        pub fn new_liquidity_pool(
+            &mut self,
+            token1: Bucket,
+            token2: Bucket,
+        ) -> Bucket {
+            // Checking if a liquidity pool already exists between these two tokens
+            self.assert_pool_doesnt_exists(
+                token1.resource_address(), token2.resource_address(), 
+                String::from("New Liquidity Pool")
+            );
+
+            // Sorting the two buckets according to their resource addresses and creating a liquidity pool from these
+            // two buckets.
+            let (bucket1, bucket2): (Bucket, Bucket) = sort_buckets(token1, token2);
+            let addresses: (Address, Address) = (bucket1.resource_address(), bucket2.resource_address()); 
+            let (liquidity_pool, tracking_tokens): (Component, Bucket) = LiquidityPool::new(bucket1, bucket2, dec!("3"));
+
+            // Adding the liquidity pool to the hashmap of all liquidity pools
+            self.liquidity_pools.insert(
+                addresses,
+                liquidity_pool
+            );
+
+            // Returning the tracking tokens back to the caller of this method (the initial liquidity provider).
+            return tracking_tokens;
+        }
     }
 }
