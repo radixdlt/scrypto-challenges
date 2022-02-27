@@ -164,5 +164,49 @@ blueprint!{
 
             return (dx * r * y) / ( x + r * dx );
         }
+
+        /// Calculates the amount of input required to receive the specified amount of output tokens.
+        /// 
+        /// This method calculates the amount of input tokens that would be required to receive the specified amount of
+        /// output tokens. This is calculated through the constant market maker function `x * y = k`. 
+        /// 
+        /// This method performs a number of checks before the calculation is done:
+        /// 
+        /// * **Check 1:** Checks that the provided resource address belongs to this liquidity pool.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `output_resource_address` (Address) - The resource address of the output token.
+        /// * `output_amount` (Decimal) - The amount of output tokens to calculate the input for.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Decimal` - The input amount for the given output.
+        /// 
+        /// # Note:
+        /// 
+        /// This method is equivalent to finding `dx` in the equation `(x + rdx)(y - dy) = xy` where the symbols used
+        /// mean the following:
+        /// 
+        /// * `x` - The amount of reserves of token x (the input token)
+        /// * `y` - The amount of reserves of token y (the output token)
+        /// * `dx` - The amount of input tokens
+        /// * `dy` - The amount of output tokens
+        /// * `r` - The fee modifier where `r = (100 - fee) / 100`
+        pub fn calculate_input_amount(
+            &self,
+            output_resource_address: Address,
+            output_amount: Decimal
+        ) -> Decimal {
+            // Checking if the passed resource address belongs to this pool.
+            self.assert_belongs(output_resource_address, String::from("Calculate Output"));
+
+            let x: Decimal = self.vaults[&self.other_resource_address(output_resource_address)].amount();
+            let y: Decimal = self.vaults[&output_resource_address].amount();
+            let dy: Decimal = output_amount;
+            let r: Decimal = (dec!("100") - self.fee_to_pool) / dec!("100");
+
+            return (dy * x) / (r * (y - dy));
+        }
     }
 }
