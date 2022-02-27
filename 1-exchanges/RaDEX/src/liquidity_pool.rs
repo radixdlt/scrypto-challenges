@@ -502,5 +502,43 @@ blueprint!{
 
             return (bucket1, bucket2);
         }
+
+        /// Performs the swap of tokens and takes the pool fee in the process
+        /// 
+        /// This method is used to perform the swapping of one token with another token. This is a low level method
+        /// that does not perform a lot of checks on the tokens being swapped, slippage, or things of that sort. It is
+        /// up to the caller of the this method (typically another method / function) to perform the checks needed. 
+        /// When swaps are performed through this method, the associated fee of the pool is taken when this swap method
+        /// is called.
+        /// 
+        /// This method performs a number of checks before the swap is performed:
+        /// 
+        /// * **Check 1:** Checks that the tokens in the bucket do indeed belong to this liquidity pool.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tokens` (Bucket) - A bucket containing the input tokens that will be swapped for other tokens.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A bucket of the other tokens.
+        fn swap(
+            &mut self,
+            tokens: Bucket
+        ) -> Bucket {
+            // Checking if the tokens belong to this liquidity pool.
+            self.assert_belongs(tokens.resource_address(), String::from("Swap"));
+
+            // Calculating the output amount for the given input amount of tokens and withdrawing it from the vault
+            let output_amount: Decimal = self.calculate_output_amount(tokens.resource_address(), tokens.amount());
+            let output_tokens: Bucket = self.withdraw(
+                self.other_resource_address(tokens.resource_address()), 
+                output_amount
+            );
+
+            // Depositing the tokens into the liquidity pool and returning a bucket of the swapped tokens.
+            self.deposit(tokens);
+            return output_tokens;
+        }
     }
 }
