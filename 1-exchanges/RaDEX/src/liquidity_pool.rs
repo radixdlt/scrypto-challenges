@@ -527,7 +527,7 @@ blueprint!{
         /// # Returns:
         /// 
         /// * `Bucket` - A bucket of the other tokens.
-        fn swap(
+        pub fn swap(
             &mut self,
             tokens: Bucket
         ) -> Bucket {

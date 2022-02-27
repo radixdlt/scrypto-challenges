@@ -228,5 +228,39 @@ blueprint!{
             let addresses: (Address, Address) = self.tracking_token_address_pair_mapping[&tracking_tokens.resource_address()];
             return self.liquidity_pools[&addresses].remove_liquidity(tracking_tokens);
         }
+
+        /// Swaps the input tokens for tokens of the desired type.
+        /// 
+        /// This method is used to swap tokens for other tokens. This method first checks that there does exist a 
+        /// liquidity pool between the input and the output tokens. If a liquidity pool is found, then the swap goes
+        /// through.
+        /// 
+        /// This method performs a number of checks before the swap is performed:
+        /// 
+        /// * **Check 1:** Checks that there does exist a liquidity pool for the given pair of tokens.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tokens` (Bucket) - A bucket containing the input tokens that will be swapped for other tokens.
+        /// * `output_resource_address` (Address) - The resource address of the token to receive from the swap.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A bucket of the other tokens.
+        pub fn swap(
+            &mut self,
+            tokens: Bucket,
+            output_resource_address: Address
+        ) -> Bucket {
+            // Checking if there does exist a liquidity pool for the given pair of tokens
+            self.assert_pool_exists(tokens.resource_address(), output_resource_address, String::from("DEX Swap"));
+
+            // Sorting the two addresses passed, getting the associated liquidity pool and then performing the swap.
+            let sorted_addresses: (Address, Address) = sort_addresses(
+                tokens.resource_address(), 
+                output_resource_address
+            );
+            return self.liquidity_pools[&sorted_addresses].swap(tokens);
+        }
     }
 }
