@@ -370,5 +370,93 @@ blueprint!{
 
             return vault.take(amount);
         }
+
+        /// Adds liquidity to this liquidity pool in exchange for liquidity provider tracking tokens.
+        /// 
+        /// This method calculates the appropriate amount of liquidity that may be added to the liquidity pool from the
+        /// two token buckets provided in this method call. This method then adds the liquidity and issues tracking 
+        /// tokens to the liquidity provider to keep track of their percentage ownership over the pool. 
+        /// 
+        /// This method performs a number of checks before liquidity is added to the pool:
+        /// 
+        /// * **Check 1:** Checks that the buckets passed are of tokens that belong to this liquidity pool.
+        /// * **Check 2:** Checks that the buckets passed are not empty.
+        /// 
+        /// From the perspective of adding liquidity, these are all of the checks that need to be done. The RaDEX 
+        /// component does not need to perform any additional checks when liquidity is being added.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `token1_bucket` (Bucket) - A bucket containing the amount of the first token to add to the pool.
+        /// * `token2_bucket` (Bucket) - A bucket containing the amount of the second token to add to the pool.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A bucket of the remaining tokens of the `token1` type.
+        /// * `Bucket` - A bucket of the remaining tokens of the `token2` type.
+        /// * `Bucket` - A bucket of the tracking tokens issued to the liquidity provider.
+        /// 
+        /// # Note:
+        /// 
+        /// This method uses the ratio of the tokens in the reserve to the ratio of the supplied tokens to determine the
+        /// appropriate amount of tokens which need to be supplied. To better explain it, let's use some symbols to make
+        /// the ratios a little bit clearer. Say that `m` and `n` are the tokens reserves of the two tokens stored in 
+        /// the vaults respectively. Say that `dm` and `dn` are positive non-zero `Decimal` numbers of the amount of 
+        /// liquidity which the provider wishes to add to the liquidity pool. If `(m / n)/(dm / dn) = 1` then all of the
+        /// tokens sent in the transactions will be added to the liquidity. However, what about the other cases where 
+        /// this is not equal to one? We could say that we have three cases in total:
+        /// 
+        /// * `(m / n) = (dm / dn)` - There is no excess of tokens and all of the tokens given to the method may be 
+        /// added to the liquidity pool.
+        /// * `(m / n) < (dm / dn)` - In this case, there would be an excess of `dm` meaning that `dn` would be consumed
+        /// fully while `dm` would be consumed partially.
+        /// * `(m / n) > (dm / dn)` - In this case, there would be an excess of `dn` meaning that `dm` would be consumed
+        /// fully while `dn` would be consumed partially.
+        /// 
+        /// This method takes into account all three of these cases and appropriately accounts for them.
+        pub fn add_liquidity(
+            &mut self,
+            token1: Bucket,
+            token2: Bucket,
+        ) -> (Bucket, Bucket, Bucket) {
+            // Checking if the tokens belong to this liquidity pool.
+            self.assert_belongs(token1.resource_address(), String::from("Add Liquidity"));
+            self.assert_belongs(token2.resource_address(), String::from("Add Liquidity"));
+
+            // Checking that the buckets passed are not empty
+            assert!(token1.is_empty(), "[Add Liquidity]: Can not add liquidity from an empty bucket");
+            assert!(token2.is_empty(), "[Add Liquidity]: Can not add liquidity from an empty bucket");
+
+            // Sorting out the two buckets passed and getting the values of `dm` and `dn`.
+            let (mut bucket1, mut bucket2): (Bucket, Bucket) = sort_buckets(token1, token2);
+            let dm: Decimal = bucket1.amount();
+            let dn: Decimal = bucket2.amount();
+
+            // Getting the values of m and n from the liquidity pool vaults
+            let m: Decimal = self.vaults[&bucket1.resource_address()].amount();
+            let n: Decimal = self.vaults[&bucket2.resource_address()].amount();
+
+            // Computing the amount of tokens to deposit into the liquidity pool from each one of the buckets passed
+            let (amount1, amount2): (Decimal, Decimal) = if (m / n) == (dm / dn) { // Case 1
+                (dm, dn)
+            } else if (m / n) < (dm / dn) { // Case 2
+                (dn * m / n, dn)
+            } else { // Case 3
+                (dm, dm * n / m)
+            };
+
+            // Depositing the amount of tokens calculated into the liquidity pool
+            self.deposit(bucket1.take(amount1));
+            self.deposit(bucket2.take(amount2));
+
+            // Computing the amount of tracking tokens that the liquidity provider is owed and minting them
+            let tracking_amount: Decimal = dm * self.tracking_token_def.total_supply() / m;
+            let tracking_tokens: Bucket = self.tracking_token_admin_badge.authorize(|x| {
+                self.tracking_token_def.mint(tracking_amount, x)
+            });
+
+            // Returning the remaining tokens from `token1`, `token2`, and the tracking tokens
+            return (bucket1, bucket2, tracking_tokens);
+        }
     }
 }
