@@ -10,7 +10,7 @@ blueprint!{
         /// liquidity pool meaning that this hashmap maps a tuple of two addresses to a liquidity pool. This hashmap is
         /// used as a way of quickly finding the liquidity pool associated with a given address pair. If a pair of 
         /// addresses does not exist in this hashmap it means that there does not exist a liquidity pool for it on RaDEX
-        liquidity_pools: HashMap<(Address, Address), Component>,
+        liquidity_pools: HashMap<(Address, Address), LiquidityPool>,
 
         /// That's quite the mouthful. This is a hashmap that is mainly used when liquidity providers are tying to 
         /// remove their portion of liquidity from the liquidity pool. This hashmap is used to find the address pair (
@@ -134,7 +134,7 @@ blueprint!{
             // Adding the liquidity pool to the hashmap of all liquidity pools
             self.liquidity_pools.insert(
                 addresses,
-                liquidity_pool
+                liquidity_pool.into()
             );
 
             // Returning the tracking tokens back to the caller of this method (the initial liquidity provider).
