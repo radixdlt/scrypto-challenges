@@ -190,5 +190,43 @@ blueprint!{
                 }
             }
         }
+
+        /// Removes liquidity from the appropriate liquidity pool in the DEX.
+        /// 
+        /// The main use of this method is to remove liquidity from one of the liquidity pools in the DEX and return 
+        /// back the liquidity provider's share of the liquidity pool. The first thing that this method does is that it
+        /// ensures that the tracking tokens are valid tracking tokens that actually belong to a liquidity pool. This 
+        /// method then finds the liquidity pool that issues the specified tracking tokens and removes the liquidity 
+        /// from it.
+        /// 
+        /// This method performs a number of checks before liquidity removed from the pool:
+        /// 
+        /// * **Check 1:** Checks to ensure that the provided tracking tokens are valid.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tracking_tokens` (Bucket) - A bucket of the tracking tokens that the liquidity provider wishes to 
+        /// exchange for their share of the liquidity.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A Bucket of the share of the liquidity provider of the first token.
+        /// * `Bucket` - A Bucket of the share of the liquidity provider of the second token.
+        pub fn remove_liquidity(
+            &mut self,
+            tracking_tokens: Bucket
+        ) -> (Bucket, Bucket) {
+            // Check to make sure that the tracking tokens provided are indeed valid tracking tokens that belong to this
+            // DEX.
+            assert!(
+                self.tracking_token_address_pair_mapping.contains_key(&tracking_tokens.resource_address()),
+                "[DEX Remove Liquidity]: The tracking tokens given do not belong to this exchange."
+            );
+
+            // Getting the address pair associated with the resource address of the tracking tokens and then requesting
+            // the removal of liquidity from the liquidity pool
+            let addresses: (Address, Address) = self.tracking_token_address_pair_mapping[&tracking_tokens.resource_address()];
+            return self.liquidity_pools[&addresses].remove_liquidity(tracking_tokens);
+        }
     }
 }
