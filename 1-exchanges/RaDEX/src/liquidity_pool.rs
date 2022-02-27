@@ -540,5 +540,92 @@ blueprint!{
             self.deposit(tokens);
             return output_tokens;
         }
+
+        /// Swaps all of the given tokens for the other token.
+        /// 
+        /// This method is used to swap all of the given token (let's say Token A) for their equivalent amount of the
+        /// other token (let's say Token B). This method supports slippage in the form of the `min_amount_out` where
+        /// the caller is given the option to specify the minimum amount of Token B that they're willing to accept for
+        /// the swap to go through. If the output amount does not satisfy the `min_amount_out` specified by the user 
+        /// then this method fails and all of the parties involved get their tokens back.
+        /// 
+        /// This method performs a number of checks before the swap is performed:
+        /// 
+        /// * **Check 1:** Checks that the tokens in the bucket do indeed belong to this liquidity pool.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tokens` (Bucket) - A bucket containing the input tokens that will be swapped for other tokens.
+        /// * `min_amount_out` (Decimal) - The minimum amount of tokens that the caller is willing to accept before the 
+        /// method fails.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A bucket of the other tokens.
+        pub fn swap_exact_tokens_for_tokens(
+            &mut self,
+            tokens: Bucket,
+            min_amount_out: Decimal
+        ) -> Bucket {
+            // Checking that the bucket passed does indeed belong to this liquidity pool
+            self.assert_belongs(tokens.resource_address(), String::from("Swap Exact"));
+            
+            // Performing the token swap and checking if the amount is suitable for the caller or not. This is one of 
+            // the best and coolest things that I have seen in Scrypto so far. Even though in the `self.swap(tokens)` 
+            // line to took the tokens from the vault and are now ready to give it to the user, if the assert statement
+            // fails then everything that took place in this method call goes back to how it was before hand. 
+            // Essentially reverting history and going back in time to say that the withdraw from the vault never took
+            // place and that the funds are still in the vault.
+            let output_tokens: Bucket = self.swap(tokens);
+            assert!(output_tokens.amount() >= min_amount_out, "[Swap Exact]: min_amount_out not satisfied.");
+
+            return output_tokens;
+        }
+
+        /// Swaps tokens for a specific amount of tokens
+        /// 
+        /// This method is used when the user wants to swap a token for a specific amount of another token. This method
+        /// calculates the input amount required to get the desired output and if the amount required is provided in the
+        /// tokens bucket then the swap takes place and the user gets back two buckets: a bucket of the remaining input
+        /// tokens and another bucket of the swapped tokens.
+        /// 
+        /// This method performs a number of checks before the swap is performed:
+        /// 
+        /// * **Check 1:** Checks that the tokens in the bucket do indeed belong to this liquidity pool.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tokens` (Bucket) - A bucket containing the tokens that the user wishes to swap.
+        /// * `output_amount` (Decimal) - A decimal of the specific amount of output that the user wishes to receive 
+        /// from this swap.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A bucket of the other tokens.
+        /// * `Bucket` - A bucket of the remaining input tokens.
+        pub fn swap_tokens_for_exact_tokens(
+            &mut self,
+            mut tokens: Bucket,
+            output_amount: Decimal
+        ) -> (Bucket, Bucket) {
+            // Checking that the bucket passed does indeed belong to this liquidity pool
+            self.assert_belongs(tokens.resource_address(), String::from("Swap For Exact"));
+
+            // Calculating the amount of input tokens that would be required to produce the desired amount of output 
+            // tokens
+            let input_required: Decimal = self.calculate_input_amount(
+                self.other_resource_address(tokens.resource_address()), 
+                output_amount
+            );
+            assert!(
+                tokens.amount() >= input_required,
+                "[Swap For Exact]: Not enough input for the desired amount of output."
+            );
+
+            // Take the amount of input tokens required to produce the output tokens, swap it, and return the output
+            // tokens as well as the remainder of the input tokens.
+            let output_tokens: Bucket = self.swap(tokens.take(input_required));
+            return (output_tokens, tokens);
+        }
     }
 }
