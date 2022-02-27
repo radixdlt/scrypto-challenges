@@ -110,5 +110,15 @@ blueprint!{
             let addresses: Vec<Address> = self.addresses();
             return if addresses[0] == resource_address {addresses[1]} else {addresses[0]};
         }
+
+        /// Calculates the k in the constant market maker equation: `x * y = k`.
+        /// 
+        /// # Returns:
+        /// 
+        /// `Decimal` - A decimal value of the reserves amount of Token A and Token B multiplied by one another.
+        pub fn k(&self) -> Decimal {
+            let addresses: Vec<Address> = self.addresses();
+            return self.vaults[&addresses[0]].amount() * self.vaults[&addresses[1]].amount()
+        }
     }
 }
