@@ -32,6 +32,108 @@ blueprint!{
     }
 
     impl LiquidityPool {
+        /// Creates a new liquidity pool of the two token types passed to this function.
+        /// 
+        /// This method is used to instantiate a new liquidity pool of the two token types that were passed to this
+        /// function in the two buckets. This token pair may be swapped and all swaps will have a fee of `fee` imposed
+        /// on it. 
+        /// 
+        /// This function does a number of checks before a Liquidity Pool is created, these checks are:
+        /// 
+        /// * **Check 1:** Checks that `token1` and `token2` are not of the same type.
+        /// * **Check 2:** Checks that both `token1` and `token2` are fungible tokens.
+        /// * **Check 3:** Checks that neither of the buckets are empty.
+        /// * **Check 4:** Checks that the fee is between 0 and 100.
+        /// 
+        /// If these checks are successful, then a new liquidity pool is created from the two buckets passed to this 
+        /// function and tracking tokens are minted for the creator of this liquidity pool. Keep in mind that this 
+        /// function has now way of checking if a liquidity pool of this kind exists or not. So, it is the job of the 
+        /// RaDEX component to only call this function if there does not already exist a liquidity pool for the given
+        /// token pair.
+        /// 
+        /// # Arguments: 
+        /// 
+        /// * `token1_bucket` (Bucket) - A bucket containing the amount of the first token used to initialize the pool.
+        /// * `token2_bucket` (Bucket) - A bucket containing the amount of the second token used to initialize the pool.
+        /// * `fee` (Decimal) - A decimal value of the fee imposed on all swaps from this liquidity pool. This should be
+        /// a value between 0 and 100.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Component` - A LiquidityPool component of the newly created liquidity pool.
+        /// * `Bucket` - A bucket containing the tracking tokens issued to the creator of the liquidity pool.
+        pub fn new(
+            token1: Bucket,
+            token2: Bucket,
+            fee_to_pool: Decimal
+        ) -> (Component, Bucket) {
+            // Performing the checks to see if this liquidity pool may be created or not.
+            assert_ne!(
+                token1.resource_address(), token2.resource_address(),
+                "[Pool Creation]: Liquidity pools may only be created between two different tokens."
+            );
+
+            assert_ne!(
+                token1.resource_def().resource_type(), ResourceType::NonFungible,
+                "[Pool Creation]: Both assets must be fungible."
+            );
+            assert_ne!(
+                token2.resource_def().resource_type(), ResourceType::NonFungible,
+                "[Pool Creation]: Both assets must be fungible."
+            );
+
+            assert!(
+                !token1.is_empty() & !token2.is_empty(), 
+                "[Pool Creation]: Can't create a pool from an empty bucket."
+            );
+
+            assert!(
+                (fee_to_pool >= Decimal::zero()) & (fee_to_pool <= dec!("100")), 
+                "[Pool Creation]: Fee must be between 0 and 100"
+            );
+
+            // At this point, we know that the pool creation can indeed go through. 
+            
+            // Sorting the buckets and then creating the hashmap of the vaults from the sorted buckets
+            let (bucket1, bucket2): (Bucket, Bucket) = sort_buckets(token1, token2);
+            let lp_id: String = format!("{}-{}", bucket1.resource_address(), bucket2.resource_address());
+            info!(
+                "[Pool Creation]: Creating new pool between tokens: {}, Ratio: {}:{}", 
+                lp_id, bucket1.amount(), bucket2.amount()
+            );
+            
+            let mut vaults: HashMap<Address, Vault> = HashMap::new();
+            vaults.insert(bucket1.resource_address(), Vault::with_bucket(bucket1));
+            vaults.insert(bucket2.resource_address(), Vault::with_bucket(bucket2));
+
+            // Creating the admin badge of the liquidity pool which will be given the authority to mint and burn the
+            // tracking tokens issued to the liquidity providers.
+            let tracking_token_admin_badge: Bucket = ResourceBuilder::new_fungible(DIVISIBILITY_NONE)
+                .metadata("name", "Tracking Token Admin Badge")
+                .metadata("symbol", "TTAB")
+                .metadata("description", "This is an admin badge that has the authority to mint and burn tracking tokens")
+                .metadata("lp_id", format!("{}", lp_id))
+                .initial_supply_fungible(1);
+
+            // Creating the tracking tokens and minting the amount owed to the initial liquidity provider
+            let tracking_tokens: Bucket = ResourceBuilder::new_fungible(DIVISIBILITY_MAXIMUM)
+                .metadata("name", "Tracking Token")
+                .metadata("symbol", "TT")
+                .metadata("description", "A tracking token used to track the percentage ownership of liquidity providers over the liquidity pool")
+                .metadata("lp_id", format!("{}", lp_id))
+                .initial_supply_fungible(100);
+
+            // Creating the liquidity pool component and instantiating it
+            let liquidity_pool: Component = Self { 
+                vaults: vaults,
+                tracking_token_def: tracking_tokens.resource_def(),
+                tracking_token_admin_badge: Vault::with_bucket(tracking_token_admin_badge),
+                fee_to_pool: fee_to_pool,
+            }.instantiate();
+
+            return (liquidity_pool, tracking_tokens);
+        }
+
         /// Checks if the given address belongs to this pool or not.
         /// 
         /// This method is used to check if a given resource address belongs to one of the tokens in this liquidity pool
