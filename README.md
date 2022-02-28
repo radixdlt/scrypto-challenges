@@ -3,6 +3,7 @@
 
 [![N|Scrypto](dTxpPi9lDf.svg)](https://www.radixdlt.com/post/scrypto-v0-3-released)
 
+<img src="https://cdn.discordapp.com/attachments/900022149153161286/938773880120705084/loader3.png" width="200">
 Our participation in the challenge is part of a decentralized Order book. Thanks to this set of blueprints you can exchange on peers defined by an administrator.
 
 
