@@ -15,13 +15,36 @@ Our participation in the challenge is part of a decentralized Order book. Thanks
 - A badge system for DEX administrators and members.
 
 ## Sources
-| src/*.rs | Description |
-| ------ | ------ |
-| lib | Handle imports |
-| duckm_test_tokens | Test Tokens blueprint |
-| order_book | OrderBook blueprint |
+| src/*.rs | Blueprint name | Description |
+| ------ | ------ | ------ |
+| lib |  | Handle imports |
+| duckm_test_tokens | TestTokens | Test Tokens blueprint |
+| order_book | OrderBook | OrderBook blueprint |
+
+
+## Components functions
+## Blueprint: `TestTokens`
+| Function | Argument | Returns
+| ------ | ------ | ------ |
+| init | nameOfTheTestToken: String | Component: Component
+
+## Blueprint: `OrderBook`
+| Function | Argument | Returns
+| ------ | ------ | ------ |
+| init | | (AdminBadge: Bucket, Component: Component)
+
 
 ## Components methods
+## Blueprint: `TestTokens`
+
+| Methods | Authorisation required | Arguments | Description
+| ------ | ------ | ------ | ------ |
+| count | |  | Writes in console the number of DUCKM test tokens in the component | 
+| get_for_free | | nbr: Decimal | Return as many duckm test tokens as requested for free
+| get_with_radix | | nbr: Decimal, payment: Bucket  | Return as many duckm test tokens as requested for 1 xrd per token. taken from the given bucket
+
+
+## Blueprint: `OrderBook`
 
 ## Scrypto v0.3
 Install the Scrypto Toolchain [docs.radixdlt.com](https://docs.radixdlt.com/main/scrypto/getting-started/install-scrypto.html) v0.3 to run. Or updating Scrypto to the latest version [docs.radixdlt.com](https://docs.radixdlt.com/main/scrypto/getting-started/updating-scrypto.html).
