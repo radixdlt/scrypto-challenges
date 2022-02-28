@@ -1,7 +1,7 @@
 # Scrypto DEX Challenge
 ## _By petitcroco for the 'xrd ducks mafia'_
 
-[![N|Scrypto](https://raw.githubusercontent.com/p3titcr0c0/scrypto-challenges/6cc5145efaa1ac473c15c32ec9e7788a3bc569c8/dTxpPi9lDf.svg)](https://www.radixdlt.com/post/scrypto-v0-3-released)
+[![N|Scrypto](dTxpPi9lDf.svg)](https://www.radixdlt.com/post/scrypto-v0-3-released)
 
 Our participation in the challenge is part of a decentralized Order book. Thanks to this set of blueprints you can exchange on peers defined by an administrator.
 
