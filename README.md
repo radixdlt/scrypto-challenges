@@ -61,6 +61,10 @@ When we talk about peer, it is simply two exchangeable Resource Addresses. For e
 |update_register_orderbook | Member badge | `input`: Address, `ouput`: Address, `amoun`t: Decimal, `price`: Decimal, `member_address`: Address | Allows you to add a given order in the book of this pair |
 |update_unsubscribe_orderbook | Member badge | `input`: Address, `ouput`: Address, `amount`: Decimal, `price`: Decimal, `member_address`: Address | Allows you to remove a given order in the book of this pair |
 
+## How are orders stored ?
+
+![alt text](stored_orders.png)
+
 ## Scrypto v0.3
 Install the Scrypto Toolchain [docs.radixdlt.com](https://docs.radixdlt.com/main/scrypto/getting-started/install-scrypto.html) v0.3 to run. Or updating Scrypto to the latest version [docs.radixdlt.com](https://docs.radixdlt.com/main/scrypto/getting-started/updating-scrypto.html).
  
