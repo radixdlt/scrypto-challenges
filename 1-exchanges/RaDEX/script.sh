@@ -46,3 +46,11 @@ echo "Created component: $COMPONENT"
 
 # Creating the liquidity pools
 resim run "$SCRIPT_DIR/transactions/creating_liquidity_pools.rtm" > /dev/null
+echo "Created the liquidity pools."
+
+# Funding the other accounts that we are using for the testing
+resim run "$SCRIPT_DIR/transactions/funding_other_accounts.rtm" > /dev/null
+echo "Funded accounts".
+
+# Switching to account 2 which is the account that will mainly perform the swaps
+resim set-default-account $ACC_ADDRESS2 $PUB_KEY2 > /dev/null
