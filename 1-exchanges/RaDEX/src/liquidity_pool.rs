@@ -627,9 +627,12 @@ blueprint!{
                 "[Swap For Exact]: Not enough input for the desired amount of output."
             );
 
-            // Take the amount of input tokens required to produce the output tokens, swap it, and return the output
-            // tokens as well as the remainder of the input tokens.
-            let output_tokens: Bucket = self.swap(tokens.take(input_required));
+            // Depositing the amount of input required into the vaults and taking out the requested amount
+            self.deposit(tokens.take(input_required));
+            let output_tokens: Bucket = self.withdraw(
+                self.other_resource_address(tokens.resource_address()), 
+                output_amount
+            );
             return (output_tokens, tokens);
         }
     }
