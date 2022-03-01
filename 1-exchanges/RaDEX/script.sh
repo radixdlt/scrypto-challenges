@@ -52,8 +52,12 @@ echo "Created the liquidity pools."
 resim run "$SCRIPT_DIR/transactions/funding_other_accounts.rtm" > /dev/null
 echo "Funded accounts".
 
-# Switching to account 2 which is the account that will mainly perform the swaps
+# Switching to account 2 and performing the simple token swap from BTC to usdt
 resim set-default-account $ACC_ADDRESS2 $PUB_KEY2 > /dev/null
-
-# Making the transaction where account two exchanges some of their BTC for USDT
 resim run "$SCRIPT_DIR/transactions/exchanging_BTC_for_USDT.rtm" > /dev/null
+echo "Simple token swap BTC -> USDT done"
+
+# Switchign to account 3 and performing a more complicated swap that goes through a number of liquidity pools 
+resim set-default-account $ACC_ADDRESS3 $PUB_KEY3 > /dev/null
+resim run "$SCRIPT_DIR/transactions/exchanging_ADA_for_DOGE.rtm" > /dev/null
+echo "Complex token swap ADA -> DOGE done"
