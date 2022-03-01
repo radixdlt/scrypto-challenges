@@ -1,0 +1,75 @@
+# In order for the trading on the DEX to begin, we first need to have liquidity in the DEX so that users can swap their
+# tokens for another tokens. In this RTM file, we are adding liquidity to the DEX from the account that created the 
+# test tokens.
+
+# When we perform the instruction `CALL_METHOD` the bucket reference passed is dropped by the Radix engine meaning that
+# the bucket reference can no longer be used again. However, the withdraw from the account requires that a badge is 
+# present on all of the withdraw instructions. Therefore, we need to clone the bucket reference as many times as we need
+# to perform the withdraw of tokens from the account.
+CLONE_BUCKET_REF BucketRef(1u32) BucketRef("XRD1");
+
+CLONE_BUCKET_REF BucketRef("XRD1") BucketRef("QNT1");
+CLONE_BUCKET_REF BucketRef("QNT1") BucketRef("QNT2");
+
+CLONE_BUCKET_REF BucketRef("QNT2") BucketRef("ADA1");
+CLONE_BUCKET_REF BucketRef("ADA1") BucketRef("ADA2");
+
+CLONE_BUCKET_REF BucketRef("ADA2") BucketRef("BTC1");
+CLONE_BUCKET_REF BucketRef("BTC1") BucketRef("BTC2");
+
+CLONE_BUCKET_REF BucketRef("BTC2") BucketRef("LTC1");
+CLONE_BUCKET_REF BucketRef("LTC1") BucketRef("LTC2");
+
+# Withdrawing 140,000 USDT tokens and 1,000,000 XRD tokens from the account and into the transaction worktop. These 
+# instructions are used to make a XRD-USDT liquidity pool.
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("1000000") Address("030000000000000000000000000000000000000000000000000004") BucketRef(1u32);
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("140000.00") Address("03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50") BucketRef("XRD1");
+
+TAKE_FROM_WORKTOP Decimal("1000000") Address("030000000000000000000000000000000000000000000000000004") Bucket("XRD");
+TAKE_FROM_WORKTOP Decimal("140000.00") Address("03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50") Bucket("USDT");
+
+CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "add_liquidity" Bucket("XRD") Bucket("USDT");
+
+# Withdrawing 100,000 USDT tokens and 865.276 QNT tokens from the account and into the transaction worktop. These 
+# instructions are used to make a QNT-USDT liquidity pool.
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("865.276") Address("03fdd7e7e7889472cd80e030c2251080a078562ed487ca3fa56fbd") BucketRef("QNT1");
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("100000.00") Address("03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50") BucketRef("QNT2");
+
+TAKE_FROM_WORKTOP Decimal("865.276") Address("03fdd7e7e7889472cd80e030c2251080a078562ed487ca3fa56fbd") Bucket("QNT");
+TAKE_FROM_WORKTOP Decimal("100000.00") Address("03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50") Bucket("USDT1");
+
+CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "add_liquidity" Bucket("QNT") Bucket("USDT1");
+
+# Withdrawing 100,000 USDT tokens and 105263.1578 ADA tokens from the account and into the transaction worktop. These 
+# instructions are used to make a ADA-USDT liquidity pool.
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("105263.1578") Address("03de9068895b2f071d39e88c18bcb9f1968499e6948277ef445783") BucketRef("ADA1");
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("100000.00") Address("03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50") BucketRef("ADA2");
+
+TAKE_FROM_WORKTOP Decimal("105263.1578") Address("03de9068895b2f071d39e88c18bcb9f1968499e6948277ef445783") Bucket("ADA");
+TAKE_FROM_WORKTOP Decimal("100000.00") Address("03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50") Bucket("USDT2");
+
+CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "add_liquidity" Bucket("ADA") Bucket("USDT2");
+
+# Withdrawing 10,000,000 USDT tokens and 232.558 BTC tokens from the account and into the transaction worktop. These 
+# instructions are used to make a BTC-USDT liquidity pool.
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("232.558") Address("031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711") BucketRef("BTC1");
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("10000000.00") Address("03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50") BucketRef("BTC2");
+
+TAKE_FROM_WORKTOP Decimal("232.558") Address("031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711") Bucket("BTC");
+TAKE_FROM_WORKTOP Decimal("10000000.00") Address("03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50") Bucket("USDT3");
+
+CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "add_liquidity" Bucket("BTC") Bucket("USDT3");
+
+# Withdrawing 23.1835 BTC tokens and 8720.6767 LTC tokens from the account and into the transaction worktop. These 
+# instructions are used to make am LTC-BTC liquidity pool.
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("8720.6767") Address("03bcc1960b6f99bae8614c3bf276ee3217f800f5cc7bdc48db9a5f") BucketRef("LTC1");
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("23.1835") Address("031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711") BucketRef("LTC2");
+
+TAKE_FROM_WORKTOP Decimal("8720.6767") Address("03bcc1960b6f99bae8614c3bf276ee3217f800f5cc7bdc48db9a5f") Bucket("LTC");
+TAKE_FROM_WORKTOP Decimal("23.1835") Address("031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711") Bucket("BTC3");
+
+CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "add_liquidity" Bucket("LTC") Bucket("BTC3");
+
+# At this point, we have made all of the add liquidity calls that we wish to make. We can now take all of the remaining
+# resources that remain in the transaction worktop (which will mainly be the tracking tokens).
+CALL_METHOD_WITH_ALL_RESOURCES Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "deposit_batch";
