@@ -28,7 +28,7 @@ TAKE_FROM_WORKTOP Decimal("100000") Address("03de9068895b2f071d39e88c18bcb9f1968
 TAKE_FROM_WORKTOP Decimal("100000") Address("0350451716768d676350e154cf3e9538f8f4c434a47be61a055b38") Bucket("xrp_bucket3");
 TAKE_FROM_WORKTOP Decimal("100000") Address("03fdd7e7e7889472cd80e030c2251080a078562ed487ca3fa56fbd") Bucket("quant_bucket3");
 
-CALL_METHOD Address("0236ca00316c8eb5ad51b0cb5e3f232cb871803a85ec3847b36bb4") "deposit_batch" Vec<Bucket>(Bucket("bitcoin_bucket3"), Bucket("cardano_bucket3"), Bucket("xrp_bucket3"), Bucket("quant_bucket3"));
+CALL_METHOD Address("02a2a79aa613da237bcda37fd79af36e09eadd195976092cb24696") "deposit_batch" Vec<Bucket>(Bucket("bitcoin_bucket3"), Bucket("cardano_bucket3"), Bucket("xrp_bucket3"), Bucket("quant_bucket3"));
 
 # Creating buckets of the tokens and depositing them into account 4
 TAKE_FROM_WORKTOP Decimal("100000") Address("031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711") Bucket("bitcoin_bucket4");
@@ -36,4 +36,4 @@ TAKE_FROM_WORKTOP Decimal("100000") Address("03de9068895b2f071d39e88c18bcb9f1968
 TAKE_FROM_WORKTOP Decimal("100000") Address("0350451716768d676350e154cf3e9538f8f4c434a47be61a055b38") Bucket("xrp_bucket4");
 TAKE_FROM_WORKTOP Decimal("100000") Address("03fdd7e7e7889472cd80e030c2251080a078562ed487ca3fa56fbd") Bucket("quant_bucket4");
 
-CALL_METHOD Address("0236ca00316c8eb5ad51b0cb5e3f232cb871803a85ec3847b36bb4") "deposit_batch" Vec<Bucket>(Bucket("bitcoin_bucket4"), Bucket("cardano_bucket4"), Bucket("xrp_bucket4"), Bucket("quant_bucket4"));
+CALL_METHOD Address("028409720f1810e607a090de34f2399f722f96f71324fcac9347fc") "deposit_batch" Vec<Bucket>(Bucket("bitcoin_bucket4"), Bucket("cardano_bucket4"), Bucket("xrp_bucket4"), Bucket("quant_bucket4"));
