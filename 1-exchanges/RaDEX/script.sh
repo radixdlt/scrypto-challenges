@@ -54,3 +54,6 @@ echo "Funded accounts".
 
 # Switching to account 2 which is the account that will mainly perform the swaps
 resim set-default-account $ACC_ADDRESS2 $PUB_KEY2 > /dev/null
+
+# Making the transaction where account two exchanges some of their BTC for USDT
+resim run "$SCRIPT_DIR/transactions/exchanging_BTC_for_USDT.rtm" > /dev/null
