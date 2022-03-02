@@ -45,7 +45,7 @@ COMPONENT=$(echo "$CP_OP" | sed -nr "s/└─ Component: ([[:alnum:]_]+)/\1/p")
 echo "Created component: $COMPONENT"
 
 # Creating the liquidity pools
-resim run "$SCRIPT_DIR/transactions/creating_liquidity_pools.rtm" > /dev/null
+resim run "$SCRIPT_DIR/transactions/creating_initial_liquidity_pools.rtm" > /dev/null
 echo "Created the liquidity pools."
 
 # Funding the other accounts that we are using for the testing
@@ -57,7 +57,11 @@ resim set-default-account $ACC_ADDRESS2 $PUB_KEY2 > /dev/null
 resim run "$SCRIPT_DIR/transactions/swap_BTC_for_USDT.rtm" > /dev/null
 echo "Simple token swap BTC -> USDT done"
 
-# Switchign to account 3 and performing a more complicated swap that goes through a number of liquidity pools 
+# Switching to account 3 and performing a more complicated swap that goes through a number of liquidity pools 
 resim set-default-account $ACC_ADDRESS3 $PUB_KEY3 > /dev/null
 resim run "$SCRIPT_DIR/transactions/swap_ADA_for_DOGE.rtm" > /dev/null
 echo "Complex token swap ADA -> DOGE done"
+
+# Switching to account 4 and performing the swap of BTC -> USDT and then providing liquidity to XRD/USDT
+resim set-default-account $ACC_ADDRESS4 $PUB_KEY4 > /dev/null
+resim run "$SCRIPT_DIR/transactions/swap_BTC_for_USDT_and_add_liquidity.rtm"
