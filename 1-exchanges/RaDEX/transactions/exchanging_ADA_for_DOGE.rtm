@@ -8,7 +8,10 @@
 # ADA -> ADA/XRD -> XRD/LTC -> LTC/BNB -> BNB/DOGE -> DOGE
 #
 # The swap can be even done in a single transaction using the RTM files to perform everything neatly and cleanly in a 
-# single transaction. 
+# single transaction. In fact, performing the swap in a single transaction gives security to the owner of account 3 that
+# this swapping between different liquidity pools won't hinder on the amount of DOGE that they get at the end. If it 
+# affected it in a deeply negative way, then the assertion check at the end of the transaction file fails and everything
+# goes back to normal almost as if nothing had happened.
 
 # The owner of account 3 wishes to exchange 100 ADA for whatever amount of DOGE they can get. So, we withdraw 100 ADA 
 # into the transaction worktop and then into a bucket.
@@ -27,6 +30,9 @@ TAKE_ALL_FROM_WORKTOP Address("03bcc1960b6f99bae8614c3bf276ee3217f800f5cc7bdc48d
 CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "swap" Bucket("LTC_bucket") Address("0365c1a4bf5d4cb7701accd82179293def647925438ef5e3f69373");
 TAKE_ALL_FROM_WORKTOP Address("0365c1a4bf5d4cb7701accd82179293def647925438ef5e3f69373") Bucket("BNB_bucket");
 
-# Swapping BNB into DOGE and then depositing everything back into the account
+# Swapping BNB into DOGE and asserting that we obtained at least 300 DOGE from this long swap. If the assertion goes 
+# through then we deposit everything in the transaction worktop into the account.
 CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "swap" Bucket("BNB_bucket") Address("0365598cd30d9363369b5270553e51e1a5898412b8b1c8dedb9856");
+ASSERT_WORKTOP_CONTAINS Decimal("300") Address("0365598cd30d9363369b5270553e51e1a5898412b8b1c8dedb9856");
+
 CALL_METHOD_WITH_ALL_RESOURCES Address("02a2a79aa613da237bcda37fd79af36e09eadd195976092cb24696") "deposit_batch";
