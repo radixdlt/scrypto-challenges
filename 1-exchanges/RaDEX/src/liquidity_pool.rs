@@ -460,9 +460,10 @@ blueprint!{
             // Computing the amount of tracking tokens that the liquidity provider is owed and minting them. In the case
             // that the liquidity pool has been completely emptied out (tracking_token_def.total_supply() == 0) then the
             // first person to supply liquidity back into the pool again would be given 100 tracking tokens.
-            let tracking_amount: Decimal = match self.tracking_token_def.total_supply() { 
-                dec!("0") => dec!("100.00"),
-                _ => dm * self.tracking_token_def.total_supply() / m
+            let tracking_amount: Decimal = if self.tracking_token_def.total_supply() == Decimal::zero() { 
+                dec!("100.00") 
+            } else {
+                self.tracking_token_def.total_supply() / m
             };
             let tracking_tokens: Bucket = self.tracking_token_admin_badge.authorize(|x| {
                 self.tracking_token_def.mint(tracking_amount, x)
