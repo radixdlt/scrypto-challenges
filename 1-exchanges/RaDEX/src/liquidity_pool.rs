@@ -409,7 +409,9 @@ blueprint!{
         /// this is not equal to one? We could say that we have three cases in total:
         /// 
         /// * `(m / n) = (dm / dn)` - There is no excess of tokens and all of the tokens given to the method may be 
-        /// added to the liquidity pool.
+        /// added to the liquidity pool. The no excess on both sides case could also happen if a liquidity pool has been
+        /// emptied out and this is the new round of new liquidity being added. In this case, the buckets of tokens will
+        /// be taken all with no excess or anything remaining.
         /// * `(m / n) < (dm / dn)` - In this case, there would be an excess of `dm` meaning that `dn` would be consumed
         /// fully while `dm` would be consumed partially.
         /// * `(m / n) > (dm / dn)` - In this case, there would be an excess of `dn` meaning that `dm` would be consumed
@@ -443,7 +445,7 @@ blueprint!{
             let n: Decimal = self.vaults[&bucket2.resource_address()].amount();
 
             // Computing the amount of tokens to deposit into the liquidity pool from each one of the buckets passed
-            let (amount1, amount2): (Decimal, Decimal) = if (m / n) == (dm / dn) { // Case 1
+            let (amount1, amount2): (Decimal, Decimal) = if ((m == Decimal::zero()) | (n == Decimal::zero())) | ((m / n) == (dm / dn)) { // Case 1
                 (dm, dn)
             } else if (m / n) < (dm / dn) { // Case 2
                 (dn * m / n, dn)
@@ -455,8 +457,13 @@ blueprint!{
             self.deposit(bucket1.take(amount1));
             self.deposit(bucket2.take(amount2));
 
-            // Computing the amount of tracking tokens that the liquidity provider is owed and minting them
-            let tracking_amount: Decimal = dm * self.tracking_token_def.total_supply() / m;
+            // Computing the amount of tracking tokens that the liquidity provider is owed and minting them. In the case
+            // that the liquidity pool has been completely emptied out (tracking_token_def.total_supply() == 0) then the
+            // first person to supply liquidity back into the pool again would be given 100 tracking tokens.
+            let tracking_amount: Decimal = match self.tracking_token_def.total_supply() { 
+                dec!("0") => dec!("100.00"),
+                _ => dm * self.tracking_token_def.total_supply() / m
+            };
             let tracking_tokens: Bucket = self.tracking_token_admin_badge.authorize(|x| {
                 self.tracking_token_def.mint(tracking_amount, x)
             });
