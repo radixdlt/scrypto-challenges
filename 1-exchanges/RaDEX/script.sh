@@ -64,4 +64,4 @@ echo "Complex token swap ADA -> DOGE done"
 
 # Switching to account 4 and performing the swap of BTC -> USDT and then providing liquidity to XRD/USDT
 resim set-default-account $ACC_ADDRESS4 $PUB_KEY4 > /dev/null
-resim run "$SCRIPT_DIR/transactions/swap_BTC_for_USDT_and_add_liquidity.rtm"
+resim run "$SCRIPT_DIR/transactions/swap_BTC_for_USDT_and_add_liquidity.rtm" > /dev/null

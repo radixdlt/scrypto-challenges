@@ -424,8 +424,8 @@ blueprint!{
             self.assert_belongs_to_pool(token2.resource_address(), String::from("Add Liquidity"));
 
             // Checking that the buckets passed are not empty
-            assert!(token1.is_empty(), "[Add Liquidity]: Can not add liquidity from an empty bucket");
-            assert!(token2.is_empty(), "[Add Liquidity]: Can not add liquidity from an empty bucket");
+            assert!(!token1.is_empty(), "[Add Liquidity]: Can not add liquidity from an empty bucket");
+            assert!(!token2.is_empty(), "[Add Liquidity]: Can not add liquidity from an empty bucket");
 
             // Sorting out the two buckets passed and getting the values of `dm` and `dn`.
             let (mut bucket1, mut bucket2): (Bucket, Bucket) = sort_buckets(token1, token2);
