@@ -121,6 +121,8 @@ blueprint!{
                 .metadata("symbol", "TT")
                 .metadata("description", "A tracking token used to track the percentage ownership of liquidity providers over the liquidity pool")
                 .metadata("lp_id", format!("{}", lp_id))
+                .flags(MINTABLE | BURNABLE)
+                .badge(tracking_token_admin_badge.resource_address(), MAY_MINT | MAY_BURN)
                 .initial_supply_fungible(100);
 
             // Creating the liquidity pool component and instantiating it
@@ -426,6 +428,10 @@ blueprint!{
             // Checking that the buckets passed are not empty
             assert!(!token1.is_empty(), "[Add Liquidity]: Can not add liquidity from an empty bucket");
             assert!(!token2.is_empty(), "[Add Liquidity]: Can not add liquidity from an empty bucket");
+            info!(
+                "[Add Liquidity]: Adding liquidity of amounts, {}: {}, {}: {}", 
+                token1.resource_address(), token1.amount(), token2.resource_address(), token2.amount()
+            );
 
             // Sorting out the two buckets passed and getting the values of `dm` and `dn`.
             let (mut bucket1, mut bucket2): (Bucket, Bucket) = sort_buckets(token1, token2);
@@ -454,6 +460,7 @@ blueprint!{
             let tracking_tokens: Bucket = self.tracking_token_admin_badge.authorize(|x| {
                 self.tracking_token_def.mint(tracking_amount, x)
             });
+            info!("[Add Liquidity]: Owed amount of tracking tokens: {}", tracking_amount);
 
             // Returning the remaining tokens from `token1`, `token2`, and the tracking tokens
             return (bucket1, bucket2, tracking_tokens);
