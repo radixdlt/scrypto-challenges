@@ -18,19 +18,19 @@
 CALL_METHOD Address("02a2a79aa613da237bcda37fd79af36e09eadd195976092cb24696") "withdraw" Decimal("100.00") Address("03de9068895b2f071d39e88c18bcb9f1968499e6948277ef445783") BucketRef(1u32);
 TAKE_ALL_FROM_WORKTOP Address("03de9068895b2f071d39e88c18bcb9f1968499e6948277ef445783") Bucket("ADA_bucket");
 
-# Swapping ADA into XRD and then putting the XRD in a bucket
+# Swapping ADA for XRD and then putting the XRD in a bucket
 CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "swap" Bucket("ADA_bucket") Address("030000000000000000000000000000000000000000000000000004");
 TAKE_ALL_FROM_WORKTOP Address("030000000000000000000000000000000000000000000000000004") Bucket("XRD_bucket");
 
-# Swapping XRD into LTC and then putting the LTC in a bucket
+# Swapping XRD for LTC and then putting the LTC in a bucket
 CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "swap" Bucket("XRD_bucket") Address("03bcc1960b6f99bae8614c3bf276ee3217f800f5cc7bdc48db9a5f");
 TAKE_ALL_FROM_WORKTOP Address("03bcc1960b6f99bae8614c3bf276ee3217f800f5cc7bdc48db9a5f") Bucket("LTC_bucket");
 
-# Swapping LTC into BNB and then putting the BNB in a bucket
+# Swapping LTC for BNB and then putting the BNB in a bucket
 CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "swap" Bucket("LTC_bucket") Address("0365c1a4bf5d4cb7701accd82179293def647925438ef5e3f69373");
 TAKE_ALL_FROM_WORKTOP Address("0365c1a4bf5d4cb7701accd82179293def647925438ef5e3f69373") Bucket("BNB_bucket");
 
-# Swapping BNB into DOGE and asserting that we obtained at least 300 DOGE from this long swap. If the assertion goes 
+# Swapping BNB for DOGE and asserting that we obtained at least 300 DOGE from this long swap. If the assertion goes 
 # through then we deposit everything in the transaction worktop into the account.
 CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "swap" Bucket("BNB_bucket") Address("0365598cd30d9363369b5270553e51e1a5898412b8b1c8dedb9856");
 ASSERT_WORKTOP_CONTAINS Decimal("300") Address("0365598cd30d9363369b5270553e51e1a5898412b8b1c8dedb9856");
