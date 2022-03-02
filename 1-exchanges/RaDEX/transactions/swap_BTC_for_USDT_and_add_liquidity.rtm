@@ -10,9 +10,9 @@
 # withdrawl for the XRD that we would like to use for the liquidity. So, we will need to clone the auth badge once
 CLONE_BUCKET_REF BucketRef(1u32) BucketRef("BTC_withdraw_badge");
 
-# Withdrawing 500,000 XRD and 5 BTC from Tim's account and into the transaction worktop
+# Withdrawing 500,000 XRD and 40 BTC from Tim's account and into the transaction worktop
 CALL_METHOD Address("028409720f1810e607a090de34f2399f722f96f71324fcac9347fc") "withdraw" Decimal("500000") Address("030000000000000000000000000000000000000000000000000004") BucketRef(1u32); # Withdrawing XRD
-CALL_METHOD Address("028409720f1810e607a090de34f2399f722f96f71324fcac9347fc") "withdraw" Decimal("5") Address("031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711") BucketRef("BTC_withdraw_badge"); # Withdrawing BTC
+CALL_METHOD Address("028409720f1810e607a090de34f2399f722f96f71324fcac9347fc") "withdraw" Decimal("40") Address("031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711") BucketRef("BTC_withdraw_badge"); # Withdrawing BTC
 
 # Creating a bucket of the withdrawn Bitcoin and then swapping it for USDT
 TAKE_ALL_FROM_WORKTOP Address("031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711") Bucket("BTC_bucket");
