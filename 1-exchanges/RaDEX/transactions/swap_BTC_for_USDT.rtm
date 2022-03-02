@@ -3,7 +3,7 @@
 # sell some of the bitcoin that they own to help them with the financial issues that they have. They're not interested 
 # in selling more than what they need and they're only willing to sell any amount of bitcoin below or equal to 20 BTC
 # to help them with their financial issues.
-
+#
 # The owner of account 2 have decided to use RaDEX to sell some of their BTC for exactly $500,000. This RTM file contains
 # the instructions that would be carried out in order to sell enough BTC to cover the financial needs of the owner of 
 # account 2.
