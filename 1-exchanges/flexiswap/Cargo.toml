@@ -6,6 +6,8 @@ edition = "2021"
 [dependencies]
 sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" }
+k256 = { version = "0.10.2", features = ["ecdsa-core"] }
+getrandom = { features = ["custom"] } # for wasm target need custom
 
 [dev-dependencies]
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" }
