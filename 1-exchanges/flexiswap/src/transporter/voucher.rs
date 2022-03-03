@@ -1,7 +1,7 @@
 use scrypto::prelude::*;
 use sbor::{Decode, Decoder, DecodeError, Describe, Encode, describe::Type, TypeId};
 
-use crate::decoder::*;
+use super::decoder::*;
 
 #[derive(TypeId, Encode, Decode, Describe, Default)]
 pub struct PassThruNFD {

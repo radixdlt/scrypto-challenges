@@ -1,9 +1,9 @@
 use scrypto::prelude::*;
 use sbor::{Decode, Describe, Encode, TypeId};
 
-use crate::authentication::*;
-use crate::decoder::*;
-use crate::voucher::*;
+use super::authentication::*;
+use super::decoder::*;
+use super::voucher::*;
 
 #[derive(TypeId, Describe, Encode, Decode)]
 pub struct SealedVoucher {
