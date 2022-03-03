@@ -548,6 +548,7 @@ blueprint!{
         ) -> Bucket {
             // Checking if the tokens belong to this liquidity pool.
             self.assert_belongs_to_pool(tokens.resource_address(), String::from("Swap"));
+            info!("[Swap]: K before swap: {}", self.k());
 
             // Calculating the output amount for the given input amount of tokens and withdrawing it from the vault
             let output_amount: Decimal = self.calculate_output_amount(tokens.resource_address(), tokens.amount());
@@ -558,6 +559,7 @@ blueprint!{
 
             // Depositing the tokens into the liquidity pool and returning a bucket of the swapped tokens.
             self.deposit(tokens);
+            info!("[Swap]: K after swap: {}", self.k());
             return output_tokens;
         }
 
@@ -643,11 +645,13 @@ blueprint!{
             );
 
             // Depositing the amount of input required into the vaults and taking out the requested amount
+            info!("[Swap For Exact]: K before swap: {}", self.k());
             self.deposit(tokens.take(input_required));
             let output_tokens: Bucket = self.withdraw(
                 self.other_resource_address(tokens.resource_address()), 
                 output_amount
             );
+            info!("[Swap For Exact]: K after swap: {}", self.k());
             return (output_tokens, tokens);
         }
     }
