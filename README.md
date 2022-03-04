@@ -57,10 +57,10 @@ When we talk about peer, it is simply two exchangeable Resource Addresses. For e
 | init_pair_orderbook | Admin badge | `input`: Address, `ouput`: Address | Initialize the pair (`input`, `output`) |
 | reset_pair_orderbook | Admin badge | `input`: Address, `ouput`: Address | Destroy all orders present for the pair (`input`, `output`)
 | withdraw | Admin badge | `tokenAddress`: Address, `amount`: Decimal | Withdraw `amount` token from the `tokenAddress` Component Vault
-| add_order_orderbook | Member badge | `input`: Address, `output`: Address, `amount`: Decimal, `price`: Decimal, `payment`: Bucket, `member_address`: Address | Place an order like this: `member_address` sell `amount` tokens of `input` for `price`*`amount` tokens of `output`.  |
-| accept_an_order | Member badge | `input`: Address, `output`: Address, `amount`: Decimal, `price`: Decimal, `payment`: Bucket | Accept an order from this pair : (`input`,`output`) if anyone wants to sell `amount` tokens of `input` for `amount`*`price` tokens of `output`. The `payment` bucket need to be filled with enough tokens `output`, you need at least: `amount`\*`price` tokens of `output`  |
-|update_register_orderbook | Member badge | `input`: Address, `ouput`: Address, `amoun`t: Decimal, `price`: Decimal, `member_address`: Address | Allows you to add a given order in the book of this pair |
-|update_unsubscribe_orderbook | Member badge | `input`: Address, `ouput`: Address, `amount`: Decimal, `price`: Decimal | Allows you to remove a given order in the book of this pair |
+| add_order_orderbook | Member badge | `input`: Address, `output`: Address, `amount`: Decimal, `output_ratio`: Decimal, `payment`: Bucket, `member_address`: Address | Place an order like this: `member_address` sell `amount` tokens of `input` for `output_ratio`*`amount` tokens of `output`.  |
+| accept_an_order | Member badge | `input`: Address, `output`: Address, `amount`: Decimal, `output_ratio`: Decimal, `payment`: Bucket | Accept an order from this pair : (`input`,`output`) if anyone wants to sell `amount` tokens of `input` for `amount`*`output_ratio` tokens of `output`. The `payment` bucket need to be filled with enough tokens `output`, you need at least: `amount`\*`output_ratio` tokens of `output`  |
+|update_register_orderbook | Member badge | `input`: Address, `ouput`: Address, `amoun`t: Decimal, `output_ratio`: Decimal, `member_address`: Address | Allows you to add a given order in the book of this pair |
+|update_unsubscribe_orderbook | Member badge | `input`: Address, `ouput`: Address, `amount`: Decimal, `output_ratio`: Decimal | Allows you to remove a given order in the book of this pair |
 
 # How are orders stored ?
 
