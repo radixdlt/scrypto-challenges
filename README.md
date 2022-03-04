@@ -80,6 +80,7 @@ To show composability and allow easier testing we use this improvement
 ```
 
 # License
-No Licence yet.
+
+*Licensed under the Apache 2.0 open-source*
 
 ** Quack, Quack 🦆 **
