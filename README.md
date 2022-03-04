@@ -7,7 +7,7 @@
 Our participation in the challenge is part of a decentralized Order book. Thanks to this set of blueprints you can exchange on peers defined by an administrator.
 
 
-## Features
+# Features
 - Place sales orders
 - Buy a certain resource by buying it back from a seller.
 - See placed orders.
@@ -15,7 +15,7 @@ Our participation in the challenge is part of a decentralized Order book. Thanks
 - Accept a secure exchange.
 - A badge system for DEX administrators and members.
 
-## Sources
+# Sources
 | src/*.rs | Blueprint name | Description |
 | ------ | ------ | ------ |
 | lib |  | Handle imports |
@@ -23,7 +23,7 @@ Our participation in the challenge is part of a decentralized Order book. Thanks
 | order_book | OrderBook | OrderBook blueprint |
 
 
-## Components functions
+# Components functions
 ## Blueprint: `TestTokens`
 | Function | Argument | Returns
 | ------ | ------ | ------ |
@@ -35,7 +35,7 @@ Our participation in the challenge is part of a decentralized Order book. Thanks
 | init | | (AdminBadge: Bucket, Component: Component)
 
 
-## Components methods
+# Components methods
 ## Blueprint: `TestTokens`
 | Methods | Authorisation required | Arguments | Description
 | ------ | ------ | ------ | ------ |
@@ -62,14 +62,14 @@ When we talk about peer, it is simply two exchangeable Resource Addresses. For e
 |update_register_orderbook | Member badge | `input`: Address, `ouput`: Address, `amoun`t: Decimal, `price`: Decimal, `member_address`: Address | Allows you to add a given order in the book of this pair |
 |update_unsubscribe_orderbook | Member badge | `input`: Address, `ouput`: Address, `amount`: Decimal, `price`: Decimal, `member_address`: Address | Allows you to remove a given order in the book of this pair |
 
-## How are orders stored ?
+# How are orders stored ?
 
 ![alt text](stored_orders.png)
 
-## Scrypto v0.3
+# Scrypto v0.3
 Install the Scrypto Toolchain [docs.radixdlt.com](https://docs.radixdlt.com/main/scrypto/getting-started/install-scrypto.html) v0.3 to run. Or updating Scrypto to the latest version [docs.radixdlt.com](https://docs.radixdlt.com/main/scrypto/getting-started/updating-scrypto.html).
  
- ## Usage of the transaction manifest
+# Usage of the transaction manifest
 
 Transaction manifest is the Radix-way of building transactions. Transaction manifests are human-readable and are translated into binary transactions by a compiler.
 
@@ -79,7 +79,7 @@ To show composability and allow easier testing we use this improvement
 ---Soon---
 ```
 
-## License
+# License
 No Licence yet.
 
 ** Quack, Quack 🦆 **
