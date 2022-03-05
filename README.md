@@ -5,7 +5,7 @@
 
 <img src="https://cdn.discordapp.com/attachments/900022149153161286/938773880120705084/loader3.png" width="200">
 Our participation in the challenge is part of a decentralized Order book. Thanks to this set of blueprints you can exchange on peers defined by an administrator.
-
+By adding an order to a pair anyone can observe the existing orders, find the best and thus fill an order. Thanks to this system, you can buy and sell tokens with Scrypto in a secure way
 
 # Features
 - Place sales orders
