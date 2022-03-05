@@ -121,7 +121,7 @@ blueprint!{
 
             // Creating the tracking tokens and minting the amount owed to the initial liquidity provider
             let tracking_tokens: Bucket = ResourceBuilder::new_fungible(DIVISIBILITY_MAXIMUM)
-                .metadata("name", format!("{} Tracking Token", pair_name))
+                .metadata("name", format!("{} LP Tracking Token", pair_name))
                 .metadata("symbol", "TT")
                 .metadata("description", "A tracking token used to track the percentage ownership of liquidity providers over the liquidity pool")
                 .metadata("lp_id", format!("{}", lp_id))
