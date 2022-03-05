@@ -30,8 +30,9 @@ export ACC_ADDRESS4=$(echo "$OP4" | sed -nr "s/Account address: ([[:alnum:]_]+)/
 echo "Created account: $ACC_ADDRESS4; Public Key: $PUB_KEY4"
 
 # Switching the default account to account 1 and creating the sample tokens using this account
+# and then funding the other accounts
 resim set-default-account $ACC_ADDRESS1 $PUB_KEY1 > /dev/null
-resim run "$SCRIPT_DIR/transactions/token_creation.rtm" > /dev/null
+resim run "$SCRIPT_DIR/transactions/token_creation_and_funding.rtm" > /dev/null
 echo "Created tokens using account: $ACC_ADDRESS1"
 
 # Publishing the package to the local simulator
@@ -47,10 +48,6 @@ echo "Created component: $COMPONENT"
 # Creating the liquidity pools
 resim run "$SCRIPT_DIR/transactions/creating_initial_liquidity_pools.rtm" > /dev/null
 echo "Created the liquidity pools."
-
-# Funding the other accounts that we are using for the testing
-resim run "$SCRIPT_DIR/transactions/funding_other_accounts.rtm" > /dev/null
-echo "Funded accounts".
 
 # Switching to account 2 and performing the simple token swap from BTC to usdt
 resim set-default-account $ACC_ADDRESS2 $PUB_KEY2 > /dev/null
