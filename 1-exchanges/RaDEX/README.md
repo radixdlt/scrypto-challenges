@@ -4,7 +4,7 @@ RaDEX is a proof-of-concept protocol of an Automated Market Maker (AMM) Decentra
 
 ## Abstract
 
-One of the key decentralized applications (dApps) typically found in layer 1 blockchains is a DEX that allows the swapping or exchange of fungible tokens for one another. DEXes are known to be among the hardest dApps to build due to a few reasons: their complexity and the fact that DEXes may handle up to millions or billions of dollars worth of tokens in a single day which means that DEXes need to have the highest levels of security to ensure that the funds of the users are safe from exploits, hacks, and bugs. While writing secure code with Solidity can be a challenge due to how the Ethereum blockchain works with assets (tokens in Ethereum are not native); Radix's Scrypto was built to be inherently more secure and better for DeFI than Solidity. RaDEX is a proof-of-concept constant function AMM DEX protocol built on the Radix ledger using v0.3.0 of Scrypto: the smart contracts language of the Radix ledger. Liquidity is the backbone of AMMs; so, RaDEX incentivizes liquidity providers to add liquidity to pre-existing pools or to create new liquidity pools by imposing a 3% fee on all token swaps which is divided across the liquidity providers of a given pool; this is otherwise known as yield farming. When liquidity providers provide liquidity to a pool they are given an amount of tracking tokens that is equivalent to the percentage ownership that they have over the liquidity pool. These tracking tokens may be used later to remove liquidity from the liquidity pool that they belong to. In the current implementation of RaDEX, three main swap types are implemented: swap, swap tokens for exact tokens, and swap exact tokens for tokens where the last two types are types that support price slippage.
+One of the key decentralized applications (dApps) typically found in layer 1 blockchains is a DEX that allows the swapping or exchange of fungible tokens for one another. DEXes are known to be among the hardest dApps to build due to a few reasons: their complexity and the fact that DEXes may handle up to millions or billions of dollars worth of tokens in a single day which means that DEXes need to have the highest levels of security to ensure that the funds of the users are safe from exploits, hacks, and bugs. While writing secure code with Solidity can be a challenge due to how the Ethereum blockchain works with assets (tokens in Ethereum are not native); Radix's Scrypto was built to be inherently more secure and better for DeFI than Solidity. RaDEX is a proof-of-concept constant function AMM DEX protocol built on the Radix ledger using v0.3.0 of Scrypto: the smart contracts language of the Radix ledger. Liquidity is the backbone of AMMs; so, RaDEX incentivizes liquidity providers to add liquidity to pre-existing pools or to create new liquidity pools by imposing a 0.3% fee on all token swaps which is divided across the liquidity providers of a given pool; this is otherwise known as yield farming. When liquidity providers provide liquidity to a pool they are given an amount of tracking tokens that is equivalent to the percentage ownership that they have over the liquidity pool. These tracking tokens may be used later to remove liquidity from the liquidity pool that they belong to. In the current implementation of RaDEX, three main swap types are implemented: swap, swap tokens for exact tokens, and swap exact tokens for tokens where the last two types are types that support price slippage.
 
 ## Motivations
 
@@ -73,7 +73,7 @@ Let's briefly touch back on the example that we gave previously of Tim who wante
 
 Liquidity pools are typically smart contracts that hold two tokens (BTC and XRD in this example) and allow for these two tokens to be traded bi-directionally for one another. The tokens stored in the liquidity pool (also known as liquidity) come from the liquidity providers who deposit liquidity into the liquidity pool. The question now is, **why do these liquidity providers deposit liquidity into liquidity pools? What incentive or benefit do they have for doing that?**
 
-As has been already mentioned, liquidity is very important for DEXes and could even be thought of as the backbone of all AMM DEXes out there. Therefore, there needs to be an incentive for liquidity providers to deposit liquidity into liquidity pools. One of the things that we did not mention in the previous section is that all swaps in the current implementation of RaDEX have a 3% fee of the input token imposed on them. This 3% fee is put back into the liquidity pool when a swap happens. Since liquidity providers get ownership of a percentage of the liquidity pool, it means that the 3% fee imposed on swaps is divided across the liquidity providers on a swap takes place. Therefore, considering the 3% fee the constant market maker function may be redefined as the following:
+As has been already mentioned, liquidity is very important for DEXes and could even be thought of as the backbone of all AMM DEXes out there. Therefore, there needs to be an incentive for liquidity providers to deposit liquidity into liquidity pools. One of the things that we did not mention in the previous section is that all swaps in the current implementation of RaDEX have a 0.3% fee of the input token imposed on them. This 0.3% fee is put back into the liquidity pool when a swap happens. Since liquidity providers get ownership of a percentage of the liquidity pool, it means that the 0.3% fee imposed on swaps is divided across the liquidity providers on a swap takes place. Therefore, considering the 0.3% fee the constant market maker function may be redefined as the following:
 
 ```math
 (x + r * dx) * (y - dy) = x * y
@@ -95,18 +95,18 @@ Let's now look at an example and try to work out some of the numbers involved. T
 
 ![A user called Rick who has provided 10 BTC and 100,000 XRD to the BTC/XRD liquidity pool in exchange for 10% ownership of the pool](./images/providing_liquidity.svg)
 
-After Rick adds liquidity to the BTC/XRD liquidity pool, the pool will have a total of 100 BTC and 1,000,000 XRD. Let's imagine that Tim's swap is about to go through now (after Rick added his liquidity) and let's try to work out some of the numbers, more specifically: the amount of XRD that Tim will get and how much the 3% pool fee equates to. Before doing the math, let's define the variables again along with their values:
+After Rick adds liquidity to the BTC/XRD liquidity pool, the pool will have a total of 100 BTC and 1,000,000 XRD. Let's imagine that Tim's swap is about to go through now (after Rick added his liquidity) and let's try to work out some of the numbers, more specifically: the amount of XRD that Tim will get and how much the 0.3% pool fee equates to. Before doing the math, let's define the variables again along with their values:
 
 * `dx`: The amount of input tokens. Equal to 10 BTC for Tim's example.
 * `dy`: The amount of output tokens. This is what we're trying to calculate.
 * `x`: The amount of input tokens current in the liquidity pool reserves. Equals 100 BTC for Tim's example.
 * `y`: The amount of output tokens current in the liquidity pool reserves. Equals 1,000,000 XRD for Tim's example.
-* `r`: The fee modifier value. At a 3% pool fee, the `r` value is equal to 97%.
+* `r`: The fee modifier value. At a 0.3% pool fee, the `r` value is equal to 99.7%.
 
 With the above defined values, we may find out how much XRD Tim will be given for his 10 BTC swap:
 
 ```math
-dy = (1000000 * 0.97 * 10) / (100 + 0.97 * 10) = 88422.9717 XRD
+dy = (1000000 * 0.997 * 10) / (100 + 0.997 * 10) = 90661.0893 XRD
 ```
 
 As we can see, based on the amount of liquidity that is currently in the BTC/XRD liquidity pool, and based on the 10 BTC that Tim wanted to exchange, Tim would get back 88422.9717 XRD from the swap.
@@ -285,10 +285,10 @@ Let's take a look at the balances of the relevant tokens in Josh's account after
 $ resim show $ACC_ADDRESS2
 Resources:
 ├─ { amount: 500000, resource_def: 03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50, name: "Tether", symbol: "USDT" }
-└─ { amount: 99987.381551817688551276, resource_def: 031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711, name: "Bitcoin", symbol: "BTC" }
+└─ { amount: 99987.72327508842316423, resource_def: 031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711, name: "Bitcoin", symbol: "BTC" }
 ```
 
-We can see form the balances shown above that about 12.6184 BTC was swapped for $500,000 USDT tokens when the transaction ran. This is the first swap to take place on RaDEX and as we can see, the swapping process was very smooth and seamless.
+We can see form the balances shown above that about 12.2767 BTC was swapped for $500,000 USDT tokens when the transaction ran. This is the first swap to take place on RaDEX and as we can see, the swapping process was very smooth and seamless.
 
 ### Example 3: Sapping Through Multiple Pools
 
@@ -314,7 +314,7 @@ Since there is no liquidity pool for the token pair that Tim wishes to swap, Tim
 ADA -> ADA/XRD -> XRD/LTC -> LTC/BNB -> BNB/DOGE -> DOGE
 ```
 
-This approach will certainly get Tim from his point A to point B. However, performing swaps across multiple different liquidity pools means that for each swap Tim will have to pay a 3% fee and will have to go through the constant market maker function a number of times which could mean that the output of DOGE that Tim gets would be somewhat lower than what he thought it would be. Tim is now faced with two options in terms of how he should perform this swap, these two options are:
+This approach will certainly get Tim from his point A to point B. However, performing swaps across multiple different liquidity pools means that for each swap Tim will have to pay a 0.3% fee and will have to go through the constant market maker function a number of times which could mean that the output of DOGE that Tim gets would be somewhat lower than what he thought it would be. Tim is now faced with two options in terms of how he should perform this swap, these two options are:
 
 1. Tim could just perform regular method calls and perfrom these 4 swaps in 4 transactions.
 2. Tim could use a transaction manifest file to perform his ADA -> DOGE swap in a single transaction.
@@ -358,10 +358,10 @@ We can now take a look at the balances of tokens in Tim's account to see if the 
 $ resim show $ACC_ADDRESS3
 Resources:
 ├─ { amount: 99900, resource_def: 03de9068895b2f071d39e88c18bcb9f1968499e6948277ef445783, name: "Cardano", symbol: "ADA" }
-└─ { amount: 335.500098222301776735, resource_def: 0365598cd30d9363369b5270553e51e1a5898412b8b1c8dedb9856, name: "Dogecoin", symbol: "DOGE" }
+└─ { amount: 374.142362410166858118, resource_def: 0365598cd30d9363369b5270553e51e1a5898412b8b1c8dedb9856, name: "Dogecoin", symbol: "DOGE" }
 ```
 
-As we can see from the balances shown above, Tim's balance of ADA decreased by a 100 and for the 100 ADA that he swapped, he was given back 335.50 DOGE tokens. The long journey of swaps that Tim went on did indeed work and it produced an amount of DOGE that was more than his 300 tokens minimum. Doing everything in a single atomic transaction gave Tim the security of knowing that even if at the end of the long swap journey the rate was bad, that he had the chance to just not accept the rate and retain his ADA.
+As we can see from the balances shown above, Tim's balance of ADA decreased by a 100 and for the 100 ADA that he swapped, he was given back 374.1423 DOGE tokens. The long journey of swaps that Tim went on did indeed work and it produced an amount of DOGE that was more than his 300 tokens minimum. Doing everything in a single atomic transaction gave Tim the security of knowing that even if at the end of the long swap journey the rate was bad, that he had the chance to just not accept the rate and retain his ADA.
 
 Optimal path algorithms can be written to run off-ledger to try to find the most optional path that a user can take to perform some kind of swap even if a direct pair exists to attempt to maximize on the output that the user gets.
 
@@ -394,13 +394,13 @@ We can now inspect the balances of Alfred's account to see what has happened now
 ```sh
 $ resim show $ACC_ADDRESS4
 Resources:
-├─ { amount: 1227994.96528444731248464, resource_def: 03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50, name: "Tether", symbol: "USDT" }
+├─ { amount: 1260665.283004458708113051, resource_def: 03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50, name: "Tether", symbol: "USDT" }
 ├─ { amount: 99960, resource_def: 031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711, name: "Bitcoin", symbol: "BTC" }
 ├─ { amount: 500, resource_def: 03e39197c5c3d205d2a0c6ea3b4c5ff262e0b1ffabf7f783755b4b, name: "USDT-XRD LP Tracking Token", symbol: "TT" }
 ├─ { amount: 500000, resource_def: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 ```
 
-As we can see from the balances shown above, 20 of Alfred's Bitcoin where sold for an undisclosed amount of USDT. Judging by the amount of XRD that was taken away from Alfred's account, it can be said that the 500,000 XRD provided was fully consumed and that the USDT tokens were in excess. Specifically, there was an excess of 1227994.96 USDT which was not used when adding the liquidity. Alfred was 500 liquidity provider tracking tokens in exchange for the liquidity that he provided. The current total supply of `03e39197c5c3d205d2a0c6ea3b4c5ff262e0b1ffabf7f783755b4b` is 600 out of which Alfred has 500. This means that alfred owns `500 / 600 = 83.33%` of the USDT-XRD liquidity pool. As long as no other liquidity is added or removed from the pool, then if a swap comes through Alfred would be owed 83.33%`of the 3% fee imposed on swaps.
+As we can see from the balances shown above, 20 of Alfred's Bitcoin where sold for an undisclosed amount of USDT. Judging by the amount of XRD that was taken away from Alfred's account, it can be said that the 500,000 XRD provided was fully consumed and that the USDT tokens were in excess. Specifically, there was an excess of 1260665.2830 USDT which was not used when adding the liquidity. Alfred was 500 liquidity provider tracking tokens in exchange for the liquidity that he provided. The current total supply of `03e39197c5c3d205d2a0c6ea3b4c5ff262e0b1ffabf7f783755b4b` is 600 out of which Alfred has 500. This means that alfred owns `500 / 600 = 83.33%` of the USDT-XRD liquidity pool. As long as no other liquidity is added or removed from the pool, then if a swap comes through Alfred would be owed 83.33%`of the 0.3% fee imposed on swaps.
 
 ### Example 4: Removing Liquidity
 
@@ -426,7 +426,7 @@ $ resim show $ACC_ADDRESS1
 Resources:
 ├─ { amount: 765030, resource_def: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 ├─ { amount: 0, resource_def: 032308b2a4f39c5927115792f51bc8f1e43cda373f41c144aff079, name: "USDT-BTC LP Tracking Token", symbol: "TT" }
-├─ { amount: 18667060.434948182311448724, resource_def: 031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711, name: "Bitcoin", symbol: "BTC" }
+├─ { amount: 18667060.09322491157683577, resource_def: 031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711, name: "Bitcoin", symbol: "BTC" }
 ```
 
 As we can see from the balances above, Lynn no longer has any USDT-BTC liquidity provider tracking tokens as she has removed all of the liquidity that she was owed from the BTC-USDT liquidity pool. Instead of the liquidity provider tokens, Lynn was given back her portion of BTC and USDT.

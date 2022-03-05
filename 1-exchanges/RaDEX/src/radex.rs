@@ -133,7 +133,7 @@ blueprint!{
             // two buckets.
             let (bucket1, bucket2): (Bucket, Bucket) = sort_buckets(token1, token2);
             let addresses: (Address, Address) = (bucket1.resource_address(), bucket2.resource_address()); 
-            let (liquidity_pool, tracking_tokens): (Component, Bucket) = LiquidityPool::new(bucket1, bucket2, dec!("3"));
+            let (liquidity_pool, tracking_tokens): (Component, Bucket) = LiquidityPool::new(bucket1, bucket2, dec!("0.3"));
 
             // Adding the liquidity pool to the hashmap of all liquidity pools
             self.liquidity_pools.insert(
