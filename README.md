@@ -1,9 +1,9 @@
 # Scrypto DEX Challenge
 ## _By petitcroco for the 'xrd ducks mafia'_
 
-[![N|Scrypto](dTxpPi9lDf.svg)](https://www.radixdlt.com/post/scrypto-v0-3-released)
+[![N|Scrypto](assets/dTxpPi9lDf.svg)](https://www.radixdlt.com/post/scrypto-v0-3-released)
 
-<img src="https://cdn.discordapp.com/attachments/900022149153161286/938773880120705084/loader3.png" width="200">
+<img src="assets/duckmlogo.png" width="200">
 Our participation in the challenge is part of a decentralized Order book. Thanks to this set of blueprints you can exchange on peers defined by an administrator.
 By adding an order to a pair anyone can observe the existing orders, find the best and thus fill an order. Thanks to this system, you can buy and sell tokens with Scrypto in a secure way !
 
@@ -65,7 +65,7 @@ When we talk about peer, it is simply two exchangeable Resource Addresses. For e
 
 # How are orders stored ?
 
-![alt text](stored_orders.png)
+![alt text](assets/stored_orders.png)
 
 Each order is stored in an vector which is the value of a pair, this pair is a tuple of the two addresses. The vector contains tuples, each of its tuples is an order. We find in the first position a table containing [number of tokens to sell, ratio of tokens in exchange on the th address in the pair], the second value of the tuple is the address to which the response to this order will be sent. In this case the chips in 2nd position in the pair
 
