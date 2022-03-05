@@ -445,7 +445,7 @@ blueprint!{
             assert!(!token1.is_empty(), "[Add Liquidity]: Can not add liquidity from an empty bucket");
             assert!(!token2.is_empty(), "[Add Liquidity]: Can not add liquidity from an empty bucket");
             info!(
-                "[Add Liquidity]: Adding liquidity of amounts, {}: {}, {}: {}", 
+                "[Add Liquidity]: Requested adding liquidity of amounts, {}: {}, {}: {}", 
                 token1.resource_address(), token1.amount(), token2.resource_address(), token2.amount()
             );
 
@@ -457,6 +457,10 @@ blueprint!{
             // Getting the values of m and n from the liquidity pool vaults
             let m: Decimal = self.vaults[&bucket1.resource_address()].amount();
             let n: Decimal = self.vaults[&bucket2.resource_address()].amount();
+            info!(
+                "[Add Liquidity]: Current reserves: {}: {}, {}: {}",
+                bucket1.resource_address(), m, bucket2.resource_address(), n
+            );
 
             // Computing the amount of tokens to deposit into the liquidity pool from each one of the buckets passed
             let (amount1, amount2): (Decimal, Decimal) = if ((m == Decimal::zero()) | (n == Decimal::zero())) | ((m / n) == (dm / dn)) { // Case 1
@@ -466,6 +470,10 @@ blueprint!{
             } else { // Case 3
                 (dm, dm * n / m)
             };
+            info!(
+                "[Add Liquidity]: Liquidity amount to add: {}: {}, {}: {}", 
+                bucket1.resource_address(), amount1, bucket2.resource_address(), amount2
+            );
 
             // Depositing the amount of tokens calculated into the liquidity pool
             self.deposit(bucket1.take(amount1));
@@ -477,7 +485,7 @@ blueprint!{
             let tracking_amount: Decimal = if self.tracking_token_def.total_supply() == Decimal::zero() { 
                 dec!("100.00") 
             } else {
-                self.tracking_token_def.total_supply() / m
+                amount1 * self.tracking_token_def.total_supply() / m
             };
             let tracking_tokens: Bucket = self.tracking_token_admin_badge.authorize(|x| {
                 self.tracking_token_def.mint(tracking_amount, x)
