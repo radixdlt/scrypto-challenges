@@ -67,6 +67,8 @@ When we talk about peer, it is simply two exchangeable Resource Addresses. For e
 
 ![alt text](stored_orders.png)
 
+Each order is stored in an vector which is the value of a pair, this pair is a tuple of the two addresses. The vector contains tuples, each of its tuples is an order. We find in the first position a table containing [number of tokens to sell, ratio of tokens in exchange on the th address in the pair], the second value of the tuple is the address to which the response to this order will be sent. In this case the chips in 2nd position in the pair
+
 # Scrypto v0.3
 Install the Scrypto Toolchain [docs.radixdlt.com](https://docs.radixdlt.com/main/scrypto/getting-started/install-scrypto.html) v0.3 to run. Or updating Scrypto to the latest version [docs.radixdlt.com](https://docs.radixdlt.com/main/scrypto/getting-started/updating-scrypto.html).
  
