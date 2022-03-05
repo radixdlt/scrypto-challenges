@@ -1,8 +1,8 @@
-# The owner of account 3 (let's call him Tim for the purposes of this example) has just heard of yield framing and how 
+# The owner of account 4 (let's call him Alfred for the purposes of this example) has just heard of yield framing and how 
 # that he could make some extra income by providing liquidity to a liquidity pool and earning a percentage of the pool
 # fees that are imposed on swaps. 
 # 
-# Tim has decided that he wants to sell some of the Bitcoin that he owns for USDT and then he wants to provide liquidity
+# Alfred has decided that he wants to sell some of the Bitcoin that he owns for USDT and then he wants to provide liquidity
 # to the XRD/USDT liquidity pool in RaDEX. This transaction manifest file contains the transaction instructions for the
 # selling of Bitcoin tokens for USDT and then providing liquidity to the XRD/USDT liquidity pool.
 
@@ -10,7 +10,7 @@
 # withdrawl for the XRD that we would like to use for the liquidity. So, we will need to clone the auth badge once
 CLONE_BUCKET_REF BucketRef(1u32) BucketRef("BTC_withdraw_badge");
 
-# Withdrawing 500,000 XRD and 40 BTC from Tim's account and into the transaction worktop
+# Withdrawing 500,000 XRD and 40 BTC from Alfred's account and into the transaction worktop
 CALL_METHOD Address("028409720f1810e607a090de34f2399f722f96f71324fcac9347fc") "withdraw" Decimal("500000") Address("030000000000000000000000000000000000000000000000000004") BucketRef(1u32); # Withdrawing XRD
 CALL_METHOD Address("028409720f1810e607a090de34f2399f722f96f71324fcac9347fc") "withdraw" Decimal("40") Address("031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711") BucketRef("BTC_withdraw_badge"); # Withdrawing BTC
 
@@ -26,5 +26,5 @@ TAKE_ALL_FROM_WORKTOP Address("0300000000000000000000000000000000000000000000000
 # Adding liquidity to the XRD/USDT liquidity pool with all of the XRD and USDT available in the transaction worktop
 CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "add_liquidity" Bucket("XRD_bucket") Bucket("USDT_bucket");
 
-# Depositing the tracking tokens we get back into Tim's account.
+# Depositing the tracking tokens we get back into Alfred's account.
 CALL_METHOD_WITH_ALL_RESOURCES Address("028409720f1810e607a090de34f2399f722f96f71324fcac9347fc") "deposit_batch";
