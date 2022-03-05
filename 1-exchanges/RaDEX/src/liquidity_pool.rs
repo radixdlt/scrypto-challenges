@@ -96,10 +96,14 @@ blueprint!{
             
             // Sorting the buckets and then creating the hashmap of the vaults from the sorted buckets
             let (bucket1, bucket2): (Bucket, Bucket) = sort_buckets(token1, token2);
-            let lp_id: String = format!("{}-{}", bucket1.resource_address(), bucket2.resource_address());
+            let addresses: (Address, Address) = (bucket1.resource_address(), bucket2.resource_address());
+            
+            let lp_id: String = format!("{}-{}", addresses.0, addresses.1);
+            let pair_name: String = address_pair_symbol(addresses.0, addresses.1);
+
             info!(
-                "[Pool Creation]: Creating new pool between tokens: {}, Ratio: {}:{}", 
-                lp_id, bucket1.amount(), bucket2.amount()
+                "[Pool Creation]: Creating new pool between tokens: {}, of name: {}, Ratio: {}:{}", 
+                lp_id, pair_name, bucket1.amount(), bucket2.amount()
             );
             
             let mut vaults: HashMap<Address, Vault> = HashMap::new();
@@ -117,7 +121,7 @@ blueprint!{
 
             // Creating the tracking tokens and minting the amount owed to the initial liquidity provider
             let tracking_tokens: Bucket = ResourceBuilder::new_fungible(DIVISIBILITY_MAXIMUM)
-                .metadata("name", "Tracking Token")
+                .metadata("name", format!("{} Tracking Token", pair_name))
                 .metadata("symbol", "TT")
                 .metadata("description", "A tracking token used to track the percentage ownership of liquidity providers over the liquidity pool")
                 .metadata("lp_id", format!("{}", lp_id))
@@ -185,6 +189,16 @@ blueprint!{
         /// `Vec<Address>` - A vector of the resource addresses of the tokens in this liquidity pool.
         pub fn addresses(&self) -> Vec<Address> {
             return self.vaults.keys().cloned().collect::<Vec<Address>>();
+        }
+
+        /// Gets the name of the given liquidity pool from the symbols of the two tokens.
+        /// 
+        /// # Returns:
+        /// 
+        /// `String` - A string of the pair symbol
+        pub fn name(&self) -> String {
+            let addresses: Vec<Address> = self.addresses();
+            return address_pair_symbol(addresses[0], addresses[1]);
         }
 
         /// Gets the address of the other resource if the passed resource address belongs to the pool.

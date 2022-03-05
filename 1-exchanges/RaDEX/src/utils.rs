@@ -51,3 +51,40 @@ pub fn sort_buckets(bucket1: Bucket, bucket2: Bucket) -> (Bucket, Bucket) {
         (bucket2, bucket1)
     }
 }
+
+/// Creates a symbol for the given address pair.
+/// 
+/// This function is used to create a symbol for a given address pair. Tokens in Radix typically have metadata associated
+/// with them. One of the things that tokens typically have is a symbol. Therefore, this function loads the resource
+/// definition of the two addresses passed and tried to find if there is a `symbol` key in the token metadata. If there
+/// is then that's good and that will be used. However, if no symbol is found then the resource address is used as the
+/// symbol of the token.
+/// 
+/// # Arguments:
+/// 
+/// * `address1` (Address) - The resource address of the first token.
+/// * `address2` (Address) - The resource address of the second token.
+/// 
+/// # Returns:
+/// 
+/// `String` - A string of the pair symbol
+pub fn address_pair_symbol(address1: Address, address2: Address) -> String {
+    // Sorting the two addresses passed to the function
+    let addresses: (Address, Address) = sort_addresses(address1, address2);
+    
+    // If the resource definition of the given address has a symbol, then we attempt to get this symbol. If not, then we 
+    // simply put in the address of the resource
+    let names: (String, String) = (
+        match ResourceDef::from(addresses.0).metadata().get("symbol") {
+            Some(s) => format!("{}", s),
+            None => format!("{}", addresses.0)
+        },
+        match ResourceDef::from(addresses.1).metadata().get("symbol") {
+            Some(s) => format!("{}", s),
+            None => format!("{}", addresses.1)
+        }
+    );
+
+    // Format the names and return them.
+    return format!("{}-{}", names.0, names.1);
+}
