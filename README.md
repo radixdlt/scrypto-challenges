@@ -50,6 +50,7 @@ Our participation in the challenge is part of a decentralized Order book. Thanks
 | get_member_badge_address | None | None | Returns the resource address of the member badge
 | become_member | None | `name`: String  | Returns your user badge allowing you to interact with the order book
 | look_orderbook | None | `input`: Address, `output`: Address | Returns the order book for the pair: (`input`,`output`)  |
+| get_best_price_orderbook | None | `input`: Address, `output`: Address | Returns the best order for the pair: (`input`,`output`)  |
 
 When we talk about peer, it is simply two exchangeable Resource Addresses. For example when using the pair (`input`, `output`). *If someone places an order with this one, it means that they want to sell the `input` resource and get in exchange the `output` ressource.*
 | Methods | Authorisation required | Arguments | Description
@@ -60,7 +61,7 @@ When we talk about peer, it is simply two exchangeable Resource Addresses. For e
 | add_order_orderbook | Member badge | `input`: Address, `output`: Address, `amount`: Decimal, `output_ratio`: Decimal, `payment`: Bucket, `member_address`: Address | Place an order like this: `member_address` sell `amount` tokens of `input` for `output_ratio`*`amount` tokens of `output`.  |
 | accept_an_order | Member badge | `input`: Address, `output`: Address, `amount`: Decimal, `output_ratio`: Decimal, `payment`: Bucket | Accept an order from this pair : (`input`,`output`) if anyone wants to sell `amount` tokens of `input` for `amount`*`output_ratio` tokens of `output`. The `payment` bucket need to be filled with enough tokens `output`, you need at least: `amount`\*`output_ratio` tokens of `output`  |
 |update_register_orderbook | Member badge | `input`: Address, `ouput`: Address, `amoun`t: Decimal, `output_ratio`: Decimal, `member_address`: Address | Allows you to add a given order in the book of this pair |
-|update_unsubscribe_orderbook | Member badge | `input`: Address, `ouput`: Address, `amount`: Decimal, `output_ratio`: Decimal | Allows you to remove a given order in the book of this pair |
+|update_unsubscribe_orderbook | Member badge | `input`: Address, `ouput`: Address, `amount`: Decimal, `output_ratio`: Decimal | Allows you to remove a given order in the book of a specific pair |
 
 # How are orders stored ?
 
