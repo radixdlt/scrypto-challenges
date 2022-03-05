@@ -73,7 +73,10 @@ pub fn address_pair_symbol(address1: Address, address2: Address) -> String {
     let addresses: (Address, Address) = sort_addresses(address1, address2);
     
     // If the resource definition of the given address has a symbol, then we attempt to get this symbol. If not, then we 
-    // simply put in the address of the resource
+    // simply put in the address of the resource. 
+    //
+    // This following block of code is implemented in a less than ideal way as tuples do not support mapping a function
+    // to them, so we need to work on each of the elements separately. 
     let names: (String, String) = (
         match ResourceDef::from(addresses.0).metadata().get("symbol") {
             Some(s) => format!("{}", s),
