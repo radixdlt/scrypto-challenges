@@ -15,12 +15,12 @@ CALL_METHOD Address("0236ca00316c8eb5ad51b0cb5e3f232cb871803a85ec3847b36bb4") "w
 TAKE_FROM_WORKTOP Decimal("20") Address("031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711") Bucket("btc_bucket");
 
 # Calling the `swap_tokens_for_exact_tokens` method on the RaDEX component to attempt to swap the 20 BTC for the 
-# $50,000 that they need.
+# $500,000 that they need.
 CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "swap_tokens_for_exact_tokens" Bucket("btc_bucket") Address("03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50") Decimal("500000");
 
-# Checking to ensure that after this method call, that $50,000 are present in the workop. If the 50,000 USDT tokens are
+# Checking to ensure that after this method call, that $500,000 are present in the workop. If the 500,000 USDT tokens are
 # not present in the transaction worktop, then the transaction fails and the owner of account 2 gets back their BTC 
-# tokens.
+# tokens. This is an extra check that's all. 
 ASSERT_WORKTOP_CONTAINS Decimal("500000") Address("03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50");
 
 # If the above method call was successful, we deposit everything from the transaction worktop and back into the account
