@@ -66,19 +66,49 @@ pub struct MatchedOrder {
     maker_callback: Callback,
 }
 
+#[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
+pub struct SignedOrder {
+    order: MatchedOrder,
+    signature: Vec<u8>,
+}
+
 blueprint! {
     struct Maker {
-        public_key: EcdsaPublicKey,
+        verifying_key: EcdsaPublicKey,
+        callback_auth: Vault,
+        //vaults: LazyMap<ResourceDef, Vault>,
     }
 
     impl Maker {
-        // private, signature verification must happen first
-        fn settle_order(matched_order: MatchedOrder, from_taker: Bucket, taker_auth: BucketRef) -> /*fromMaker*/ Bucket {
+        pub fn instantiate(verifying_key: EcdsaPublicKey, callback_auth: Bucket) -> Component {
+            // callback_auth may be empty if only used for validation not callback or if not needed
+  //          let callback_auth_resource = callback_auth.resource_def();
+            Self {
+                verifying_key,
+                callback_auth: Vault::with_bucket(callback_auth),
+ //               callback_auth_resource,
+            }.instantiate()
+        }
 
-            // check binding to taker
+        // #[auth(callback_auth_resource)]
+        // pub fn default_swap(&mut self, from_taker: Bucket) -> Bucket {
+
+        //     let maker_account_address: Address = Address::from_str("0").unwrap();
+        //     let args = vec![scrypto_encode(&from_taker)];
+        //     call_method(maker_account_address, "deposit", args);
+        //     let args = vec![scrypto_encode(&from_taker)];
+        //     let rtn = call_method(maker_account_address, "withdraw", args);
+        //     scrypto_decode(&rtn).unwrap()
+        // }
+
+
+        // private, signature verification must happen first
+        fn settle_order(&mut self, matched_order: MatchedOrder, from_taker: Bucket, taker_auth: BucketRef) -> /*fromMaker*/ Bucket {
+
+            // check binding to taker - stops frontrunning the (public) SignedOrder
             assert_eq!(matched_order.order.taker_requirement.check_ref(&taker_auth), true);
 
-            // create full taker request from each leg
+            // create full taker request to check from_taker Bucket
             let taker_request = BucketRequest {
                 resource: matched_order.order.taker_resource,
                 contents: matched_order.taker_contents
@@ -87,37 +117,50 @@ blueprint! {
             // check from_taker matches order request
             assert_eq!(taker_request.check(&from_taker), true);
 
-            // call callback .. or is this the callback?  this should be the callback which everyone uses the same one? but where to deposit?
-            // pretend this is constant and calls the per-maker callback
+            // tail call the callback with auth
+            self.callback_auth.authorize(|callback_auth| {
 
-            let result: Vec<u8> = match matched_order.maker_callback {
-                Callback::CallFunction {
-                    package_address,
-                    blueprint_name,
-                    function,
-                    mut args
-                } => {
-                    args.push(scrypto_encode(&from_taker));
-                    args.push(scrypto_encode(&taker_auth));
-                    call_function(package_address, &blueprint_name, &function, args)
-                },
-                Callback::CallMethod {
-                    component_address,
-                    method,
-                    mut args
-                } => {
-                    args.push(scrypto_encode(&from_taker));
-                    args.push(scrypto_encode(&taker_auth));
-                    call_method(component_address, &method, args)
-                },
-            };
+                // add args provided by the taker and the auth
+                let mut extra_args = vec![
+                    scrypto_encode(&from_taker), // taker tokens being sold
+                    // scrypto_encode(&taker_auth), // auth to stop front running // don't think this needs to be passed on since we've verified it here
+                    scrypto_encode(&callback_auth), // auth to (ultimately) enable release of maker tokens
+                ];
 
-            scrypto_decode(&result).unwrap()
+                // execute the callback
+                let result: Vec<u8> = match matched_order.maker_callback {
+                    Callback::CallFunction {
+                        package_address,
+                        blueprint_name,
+                        function,
+                        mut args
+                    } => {
+                        args.append(&mut extra_args);
+                        call_function(package_address, &blueprint_name, &function, args)
+                    },
+                    Callback::CallMethod {
+                        component_address,
+                        method,
+                        mut args
+                    } => {
+                        args.append(&mut extra_args);
+                        call_method(component_address, &method, args)
+                    },
+                };
+
+                // return the result
+                scrypto_decode(&result).unwrap()
+
+            })
         }
 
-        pub fn execute_order(&self, order: MatchedOrder, signature: Vec<u8>, from_taker: Bucket, taker_auth: BucketRef) -> Bucket {
-            verify(&self.public_key, &scrypto_encode(&order), &signature);
-            Maker::settle_order(order, from_taker, taker_auth)
+        pub fn execute_order(&mut self, signed_order: SignedOrder, from_taker: Bucket, taker_auth: BucketRef) -> Bucket {
+            let SignedOrder {
+                order,
+                signature,
+            } = signed_order;
+            verify(&self.verifying_key, &scrypto_encode(&order), &signature); // panics on failure
+            self.settle_order(order, from_taker, taker_auth)
         }
     }
 }
