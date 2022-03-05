@@ -74,8 +74,8 @@ If we look at the key (Add1, Add2) in the orderbook variable :
 We will find as value a vector with : [[`8`, `1.5`], `rdx1qsaaa...aaa`],[[`10`, `2`], `rdx1qszzz...zzz`]
 
 You need to understand :
-> `rdx1qsaaa...aaa` want to sell `8` Add1 tokens with a ratio of `1.5` Add2 tokens, so for 8 Add1 he want in exchange (8*1.5) Add2.
-> `rdx1qszzz...zzz` want to sell `10` Add1 tokens with a ratio of `2` Add2 tokens, so for 10 Add1 he want in exchange (8*2) Add2.
+> `rdx1qsaaa...aaa` want to sell `8` Add1 tokens with a ratio of `1.5` Add2 tokens, so for 8 Add1 he want in exchange (8x1.5) Add2.
+> `rdx1qszzz...zzz` want to sell `10` Add1 tokens with a ratio of `2` Add2 tokens, so for 10 Add1 he want in exchange (8x2) Add2.
 # Scrypto v0.3
 Install the Scrypto Toolchain [docs.radixdlt.com](https://docs.radixdlt.com/main/scrypto/getting-started/install-scrypto.html) v0.3 to run. Or updating Scrypto to the latest version [docs.radixdlt.com](https://docs.radixdlt.com/main/scrypto/getting-started/updating-scrypto.html).
  
