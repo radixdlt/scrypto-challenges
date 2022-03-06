@@ -7,8 +7,8 @@ use super::voucher::*;
 
 #[derive(TypeId, Describe, Encode, Decode)]
 pub struct SealedVoucher {
-    serialized: Vec<u8>,
-    signature: Vec<u8>
+    pub serialized: Vec<u8>,
+    pub signature: Vec<u8>
 }
 impl SealedVoucher {
     pub fn unseal(&self, public_key: &EcdsaPublicKey) -> Voucher {
@@ -25,11 +25,12 @@ blueprint! {
         mint_authority: Vault,
         burn_authority: Vault,
         count: u128,
-        public_key: EcdsaPublicKey
+        public_key: EcdsaPublicKey,
+        redeem_auth: ResourceDef, // avoid duplicates/frontrunning
     }
 
     impl Transporter {
-        pub fn instantiate(public_key: EcdsaPublicKey) -> Component {
+        pub fn instantiate(public_key: EcdsaPublicKey, redeem_auth: ResourceDef) -> Component {
             let mint_authority = ResourceBuilder::new_fungible(DIVISIBILITY_NONE)
                 .initial_supply_fungible(1);
             let burn_authority = ResourceBuilder::new_fungible(DIVISIBILITY_NONE)
@@ -47,13 +48,13 @@ blueprint! {
                 )
                 .no_initial_supply();
 
-            Transporter::instantiate_with(public_key, resource_def, mint_authority, burn_authority)
+            Transporter::instantiate_with(public_key, resource_def, mint_authority, burn_authority, redeem_auth)
         }
 
         // QUESTION: mut not needed across function boundaries?  Is that because of the macro?
 
         // burn_authority may be empty, then mint_authority will be used for both
-        pub fn instantiate_with(public_key: EcdsaPublicKey, mut resource_def: ResourceDef, mint_authority: Bucket, burn_authority: Bucket) -> Component {
+        pub fn instantiate_with(public_key: EcdsaPublicKey, mut resource_def: ResourceDef, mint_authority: Bucket, burn_authority: Bucket, redeem_auth: ResourceDef) -> Component {
             assert_eq!(resource_def.resource_type(), ResourceType::NonFungible); // TODO for now only handle NF
 
             //mint and burn to check auth works, seperate burn auth is optional
@@ -76,8 +77,13 @@ blueprint! {
                 burn_authority: Vault::with_bucket(burn_authority),
                 count: 0,
                 public_key,
+                redeem_auth,
             }
             .instantiate()
+        }
+
+        pub fn resource_def(&self) -> ResourceDef {
+            self.resource_def.clone()
         }
 
         // not public (pub would require Voucher to impl Decode which we don't want)
@@ -88,21 +94,25 @@ blueprint! {
         }
 
         // public
+        #[auth(redeem_auth)]
         pub fn redeem_without_key(&mut self, sealed_voucher: SealedVoucher) -> Bucket {
             self.voucher_redeem(sealed_voucher.unseal(&self.public_key), None)
         }
 
         // public
+        #[auth(redeem_auth)]
         pub fn redeem_with_key(&mut self, sealed_voucher: SealedVoucher, key: NonFungibleKey) -> Bucket {
             self.voucher_redeem(sealed_voucher.unseal(&self.public_key), Some(key))
         }
 
         // public
+        #[auth(redeem_auth)]
         pub fn redeem(&mut self, sealed_voucher: SealedVoucher, optional_key: Option<NonFungibleKey>) -> Bucket {
             self.voucher_redeem(sealed_voucher.unseal(&self.public_key), optional_key)
         }
 
         // public
+        #[auth(redeem_auth)]
         pub fn redeem_next(&mut self, sealed_voucher: SealedVoucher) -> Bucket {
             self.count += 1;
             self.voucher_redeem(sealed_voucher.unseal(&self.public_key), Some(self.count.into()))
