@@ -54,7 +54,7 @@ blueprint! {
             resource_address: Address,
             account_auth: BucketRef,
         ) -> Bucket {
-            assert_eq!(self.auth_requirement.check_at_least_ref(&account_auth), true, "auth requirement not met");
+            assert_eq!(self.auth_requirement.check_at_least_ref(&account_auth), true, "CustodialAccount::withdraw: account_auth requirement not met");
 
             let vault = self.vaults.get(&resource_address);
             match vault {
@@ -73,7 +73,7 @@ blueprint! {
             auth: BucketRef,
             account_auth: BucketRef,
         ) -> Bucket {
-            assert_eq!(self.auth_requirement.check_at_least_ref(&account_auth), true, "auth requirement not met");
+            assert_eq!(self.auth_requirement.check_at_least_ref(&account_auth), true, "CustodialAccount::withdraw_with_auth: account_auth requirement not met");
 
             let vault = self.vaults.get(&resource_address);
             match vault {
@@ -91,7 +91,7 @@ blueprint! {
             resource_address: Address,
             account_auth: BucketRef,
         ) -> Bucket {
-            assert_eq!(self.auth_requirement.check_at_least_ref(&account_auth), true, "auth requirement not met");
+            assert_eq!(self.auth_requirement.check_at_least_ref(&account_auth), true, "CustodialAccount::withdraw_non_fungibles: account_auth requirement not met");
 
             let vault = self.vaults.get(&resource_address);
             match vault {
@@ -116,7 +116,7 @@ blueprint! {
             auth: BucketRef,
             account_auth: BucketRef,
         ) -> Bucket {
-            assert_eq!(self.auth_requirement.check_at_least_ref(&account_auth), true, "auth requirement not met");
+            assert_eq!(self.auth_requirement.check_at_least_ref(&account_auth), true, "CustodialAccount::withdraw_non_fungibles_with_auth: account_auth requirement not met");
 
             let vault = self.vaults.get(&resource_address);
             match vault {

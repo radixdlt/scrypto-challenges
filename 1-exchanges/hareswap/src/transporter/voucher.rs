@@ -69,13 +69,13 @@ impl Voucher {
             key,
             nfd
         } = self;
-        assert_eq!(resource_def, *required_resource_def);
+        assert_eq!(resource_def, *required_resource_def, "Voucher::redeem: resource requirement not met");
         // test key against required key if both exist, otherwise use whichever is given.  panic if both are None
         let key = match required_key {
             None => {key.unwrap()}
             Some(required_key) => {
                 if let Some(voucher_key) = key {
-                    assert_eq!(voucher_key, required_key);
+                    assert_eq!(voucher_key, required_key, "Voucher::redeem: key requirement not met");
                 }
                 required_key
             }

@@ -55,13 +55,13 @@ blueprint! {
 
     impl Interpreter {
         pub fn run(txs: Bucket) -> PassThru {
-            assert_eq!(txs.amount(), Decimal::one()); // support exactly 1 tx
+            assert_eq!(txs.amount(), Decimal::one(), "Interpreter::run: exactly 1 tx is supported");
             let txs = txs.get_non_fungibles::<Transaction>();
             for entry in &txs {
                 let transaction = entry.data();
                 let tx = transaction.tx.0;
                 info!("tx is: {:?}", tx);
-                assert_eq!(tx.instructions.len(), 1); // support exactly 1 instruction
+                assert_eq!(tx.instructions.len(), 1, "Interpreter::run: exactly 1 instruction is supported"); // FUTURE: handle all/most transaction instructions with emulated workbench
                 for instruction in tx.instructions {
                     let result: Vec<u8> = match instruction {
                         Instruction::CallFunction {
@@ -79,7 +79,7 @@ blueprint! {
                         } => {
                             call_method(component_address, &method, args)
                         },
-                        _ => { panic!("unimplemented"); }
+                        _ => { panic!("unimplemented"); } // FUTURE: handle all/most transaction instructions with emulated workbench
                     };
                     return PassThru(result);
                 }

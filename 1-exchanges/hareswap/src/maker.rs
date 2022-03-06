@@ -92,7 +92,7 @@ blueprint! {
                 contents: BucketContents::Fungible(Decimal::one()) // assuming fungible otherwise use another callback
             };
 
-            assert_eq!(auth_requirement.check_ref(&callback_auth), true, "callback_auth failed");
+            assert_eq!(auth_requirement.check_ref(&callback_auth), true, "handle_order_default_callback: callback_auth failed");
 
             // create full taker request to check from_taker Bucket
             let taker_request = BucketRequirement {
@@ -101,7 +101,7 @@ blueprint! {
             };
 
             // check from_taker fills the order request.... this callback will just take everything the taker gives us even if they overpay
-            assert_eq!(taker_request.check_at_least(&from_taker), true);
+            assert_eq!(taker_request.check_at_least(&from_taker), true, "handle_order_default_callback: taker Bucket does not meet requirements");
 
             // execute Account deposit
             self.account.deposit(from_taker);
@@ -161,8 +161,8 @@ blueprint! {
 
         // call this with the order token if doing fancy things
         pub fn execute_order_token(&mut self, order_tokens: Bucket, from_taker: Bucket) -> /* from_maker */ Bucket {
-            assert_eq!(order_tokens.resource_def(), self.order_def, "invalid order token");
-            assert_eq!(order_tokens.amount(), Decimal::one(), "cannot execute multiple order tokens at once"); // TODO, another interface for multiple order tokens in the same call
+            assert_eq!(order_tokens.resource_def(), self.order_def, "execute_order_token: invalid order token");
+            assert_eq!(order_tokens.amount(), Decimal::one(), "execute_order_token: cannot execute multiple order tokens at once"); // FUTURE: add another interface for multiple order tokens in the same call
 
             let orders: Vec<NonFungible<MatchedOrder>> = order_tokens.get_non_fungibles();
             let order = orders[0].data(); // made sure we have exactly 1
@@ -182,7 +182,7 @@ blueprint! {
             } = signed_order;
             // check taker_auth matches the order before redeeming it.  (if it matches but the signature is bad it wont redeem properly anyway)
             // check binding to taker - stops frontrunning the (public) SignedOrder (along with using redeem_auth)
-            assert_eq!(order.partial_order.taker_auth.check_at_least_ref(&taker_auth), true);
+            assert_eq!(order.partial_order.taker_auth.check_at_least_ref(&taker_auth), true, "tokenize_order: taker_auth not accepted");
 
             let voucher = SealedVoucher {
                 serialized: scrypto_encode(&order),

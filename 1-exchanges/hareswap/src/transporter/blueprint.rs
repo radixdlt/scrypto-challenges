@@ -55,7 +55,7 @@ blueprint! {
 
         // burn_authority may be empty, then mint_authority will be used for both
         pub fn instantiate_with(public_key: EcdsaPublicKey, mut resource_def: ResourceDef, mint_authority: Bucket, burn_authority: Bucket, redeem_auth: ResourceDef) -> Component {
-            assert_eq!(resource_def.resource_type(), ResourceType::NonFungible); // TODO for now only handle NF
+            assert_eq!(resource_def.resource_type(), ResourceType::NonFungible, "Transporter::instantiate_with: only supports transportation of NonFungibles (for now)");
 
             //mint and burn to check auth works, seperate burn auth is optional
             let key: NonFungibleKey = 0u128.into();
@@ -120,11 +120,11 @@ blueprint! {
 
         // not public (pub would require Voucher to impl Decode which we don't want)
         fn voucher_make(&mut self, bucket: Bucket) -> Voucher {
-            assert_eq!(bucket.amount(), Decimal::one()); // TODO for now only handle single NFD
-            assert_eq!(bucket.resource_def().resource_type(), ResourceType::NonFungible); // TODO for now only handle NF
+            assert_eq!(bucket.amount(), Decimal::one(), "Transporter::voucher_make: only supports transportation of one nonFungibles per Voucher (for now)");
+            assert_eq!(bucket.resource_def().resource_type(), ResourceType::NonFungible, "Transporter::voucher_make: only supports transportation of NonFungibles (for now)");
 
             let mut resource_def = bucket.resource_def();
-            assert_eq!(self.resource_def, resource_def);
+            assert_eq!(self.resource_def, resource_def, "Transporter::voucher_make: resource mismatch");
 
             let nfds = bucket.get_non_fungibles::<PassThruNFD>();
             for entry in &nfds {
