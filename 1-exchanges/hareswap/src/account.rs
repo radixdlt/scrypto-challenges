@@ -1,5 +1,4 @@
 use scrypto::prelude::*;
-use sbor::{Decode, Describe, Encode, TypeId};
 
 use super::requirement::*;
 
