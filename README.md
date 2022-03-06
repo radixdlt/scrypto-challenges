@@ -2,7 +2,6 @@
 
 [(https://www.radixdlt.com/post/scrypto-dex-challenge-is-live)](www.radixdlt.com/post/scrypto-dex-challenge-is-live)
 ## _By petitcroco for the 'xrd ducks mafia'_
-
 [![N|Scrypto](assets/dTxpPi9lDf.svg)](https://www.radixdlt.com/post/scrypto-v0-3-released)
 <img src="assets/duckmlogo.png" width="200">
 
