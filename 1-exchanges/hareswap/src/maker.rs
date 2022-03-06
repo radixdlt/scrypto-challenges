@@ -85,16 +85,6 @@ blueprint! {
             }.instantiate()
         }
 
-        pub fn default_swap(&mut self, from_taker: Bucket) -> Bucket {
-
-            let maker_account_address: Address = Address::from_str("0").unwrap();
-            let args = vec![scrypto_encode(&from_taker)];
-            call_method(maker_account_address, "deposit", args);
-            let args = vec![scrypto_encode(&from_taker)];
-            let rtn = call_method(maker_account_address, "withdraw", args);
-            scrypto_decode(&rtn).unwrap()
-        }
-
         // example/default callback
         pub fn handle_order_default_callback(&mut self, matched_order: MatchedOrder, from_taker: Bucket, callback_auth: BucketRef) -> Bucket {
             let auth_requirement = BucketRequirement {
