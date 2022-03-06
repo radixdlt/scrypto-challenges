@@ -95,6 +95,7 @@ To show composability and allow easier testing we use this improvement
 
 # Links
 
-https://www.radixdlt.com/post/scrypto-dex-challenge-is-live
-https://assets-global.website-files.com/6053f7fca5bf627283b582c2/621e533d0ede9185ccc85192_Scrypto%20Challenges%20Competition%20Terms%20and%20Conditions.pdf
+* https://www.radixdlt.com/post/scrypto-dex-challenge-is-live
+* https://assets-global.website-files.com/6053f7fca5bf627283b582c2/621e533d0ede9185ccc85192_Scrypto%20Challenges%20Competition%20Terms%20and%20Conditions.pdf
+
 ** Quack, Quack 🦆 **
