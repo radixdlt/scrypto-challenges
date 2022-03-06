@@ -2,8 +2,9 @@
 ## _By petitcroco for the 'xrd ducks mafia'_
 
 [![N|Scrypto](assets/dTxpPi9lDf.svg)](https://www.radixdlt.com/post/scrypto-v0-3-released)
-[(https://www.radixdlt.com/post/scrypto-dex-challenge-is-live)](www.radixdlt.com/post/scrypto-dex-challenge-is-live)
 <img src="assets/duckmlogo.png" width="200">
+
+[(https://www.radixdlt.com/post/scrypto-dex-challenge-is-live)](www.radixdlt.com/post/scrypto-dex-challenge-is-live)
 Our participation in the challenge is part of a decentralized Order book. Thanks to this set of blueprints you can exchange on peers defined by an administrator.
 By adding an order to a pair anyone can observe the existing orders, find the best and thus fill an order. Thanks to this system, you can buy and sell tokens with Scrypto in a secure way !
 
