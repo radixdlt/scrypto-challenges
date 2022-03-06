@@ -93,4 +93,8 @@ To show composability and allow easier testing we use this improvement
 
 *Licensed under the Apache 2.0 open-source*
 
+# Links
+
+[(https://www.radixdlt.com/post/scrypto-dex-challenge-is-live)](www.radixdlt.com/post/scrypto-dex-challenge-is-live)
+
 ** Quack, Quack 🦆 **
