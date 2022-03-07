@@ -19,6 +19,14 @@ blueprint! {
             .instantiate()
         }
 
+        pub fn new_easy(auth_requirement_resource: Address) -> Component {
+            let requirement = BucketRequirement {
+                resource: auth_requirement_resource.into(),
+                contents: BucketContents::Fungible(Decimal::one())
+            };
+            CustodialAccount::new(requirement)
+        }
+
         pub fn with_bucket(auth_requirement: BucketRequirement, bucket: Bucket) -> Component {
             let vaults = LazyMap::new();
             vaults.insert(bucket.resource_address(), Vault::with_bucket(bucket));
