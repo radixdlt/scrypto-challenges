@@ -310,9 +310,11 @@ Well, Tim was unable to find an ADA/DOGE liquidity pool for him to perform his s
 
 Since there is no liquidity pool for the token pair that Tim wishes to swap, Tim can't just directly swap these tokens for one another. What if, instead of Tim directly swapping ADA for DOGE (which is not possible due to there not being a liquidity pool for it), he swaps his ADA for XRD, then XRD for LTC, then LTC for BNB and then BNB for DOGE? So, Tim would follow the following path of swaps to get from an input of ADA to an output of DOGE:
 
-```text
+<!-- ```text
 ADA -> ADA/XRD -> XRD/LTC -> LTC/BNB -> BNB/DOGE -> DOGE
-```
+``` -->
+
+![](./images/complex_swap_path.svg)
 
 This approach will certainly get Tim from his point A to point B. However, performing swaps across multiple different liquidity pools means that for each swap Tim will have to pay a 0.3% fee and will have to go through the constant market maker function a number of times which could mean that the output of DOGE that Tim gets would be somewhat lower than what he thought it would be. Tim is now faced with two options in terms of how he should perform this swap, these two options are:
 
