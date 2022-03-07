@@ -1,0 +1,15 @@
+[package]
+name = "hare"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" }
+k256 = { version = "0.10.2", features = ["ecdsa-core", "sha256"] }
+getrandom = { features = ["custom"] } # for wasm target need custom
+hareswap = { path = "../" }
+transaction-manifest = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" } # for CLI
+clap = "3.1.6"
