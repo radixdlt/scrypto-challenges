@@ -68,9 +68,16 @@ blueprint! {
             let transporter: Transporter = Transporter::instantiate(verifying_key, redeem_auth.resource_def()).into();
             let order_def = transporter.resource_def();  // this wont change, save it here
 
+            // default to expecting the default callback and so just make the callback_auth ourselves
+            let callback_auth = if callback_auth.is_empty() {
+                Vault::with_bucket(ResourceBuilder::new_fungible(DIVISIBILITY_NONE).initial_supply_fungible(1))
+            } else {
+                Vault::with_bucket(callback_auth)
+            };
+
             Self {
                 verifying_key,
-                callback_auth: Vault::with_bucket(callback_auth),
+                callback_auth,
                 transporter,
                 order_def,
                 redeem_auth,
