@@ -25,7 +25,7 @@ pub enum Callback {
 
 #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
 pub struct PartialOrder {
-    pub maker_request: BucketRequirement,
+    pub maker_requirement: BucketRequirement,
     pub taker_resource: ResourceDef,
     pub taker_auth: BucketRequirement,
 }
@@ -47,13 +47,7 @@ mod signed_order {
         pub signature: Vec<u8>,
     }
 }
-use signed_order::SignedOrder;
-
-#[derive(TypeId, Encode, Decode, Describe)]
-pub struct AccountInfo {
-    account: Component,
-    account_auth: Bucket
-}
+pub use signed_order::SignedOrder;
 
 blueprint! {
     struct Maker {
@@ -94,21 +88,21 @@ blueprint! {
 
             assert_eq!(auth_requirement.check_ref(&callback_auth), true, "handle_order_default_callback: callback_auth failed");
 
-            // create full taker request to check from_taker Bucket
-            let taker_request = BucketRequirement {
+            // create full taker requirement to check from_taker Bucket
+            let taker_requirement = BucketRequirement {
                 resource: matched_order.partial_order.taker_resource,
                 contents: matched_order.taker_contents
             };
 
             // check from_taker fills the order request.... this callback will just take everything the taker gives us even if they overpay
-            assert_eq!(taker_request.check_at_least(&from_taker), true, "handle_order_default_callback: taker Bucket does not meet requirements");
+            assert_eq!(taker_requirement.check_at_least(&from_taker), true, "handle_order_default_callback: taker Bucket does not meet requirements");
 
             // execute Account deposit
             self.account.deposit(from_taker);
 
             // execute Account withdrawl
-            let withdraw_address = matched_order.partial_order.maker_request.resource.address();
-            match matched_order.partial_order.maker_request.contents {
+            let withdraw_address = matched_order.partial_order.maker_requirement.resource.address();
+            match matched_order.partial_order.maker_requirement.contents {
                 BucketContents::Fungible(amount) => {
                     self.account_auth.authorize(|auth| self.account.withdraw(amount, withdraw_address, auth))
                 },
@@ -128,6 +122,7 @@ blueprint! {
 
                 // add args provided by the taker and the auth
                 let mut extra_args = vec![
+                    scrypto_encode(&matched_order), // the order
                     scrypto_encode(&from_taker), // taker tokens being sold
                     scrypto_encode(&callback_auth), // auth to (ultimately) enable release of maker tokens
                 ];

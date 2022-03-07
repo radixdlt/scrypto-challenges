@@ -1,7 +1,9 @@
 use scrypto::prelude::EcdsaPublicKey;
 use k256::{
-    ecdsa::{Signature, VerifyingKey, signature::Verifier},
+    //EncodedPoint, ecdsa::recoverable::Signature as RSignature
+    ecdsa::{Signature, SigningKey, VerifyingKey, signature::Verifier, signature::Signer},
 };
+//use sha2::Sha256;
 
 // verify or panic
 pub fn verify(public_key: &EcdsaPublicKey, serialized: &[u8], signature: &[u8]) {
@@ -18,4 +20,22 @@ pub fn verify(public_key: &EcdsaPublicKey, serialized: &[u8], signature: &[u8]) 
         Ok(_) => (), // GOOD!
         Err(_) => panic!("verify: signature verification failed"),
     }
+    // // verify with public key extraction
+    // let sig = RSignature::try_from(signature).unwrap();
+    // let prehash = Sha256::new().chain(serialized);
+    // let pk = sig.recover_verify_key_from_digest(prehash).unwrap();
+    // assert_eq!(&public_key.to_vec(), EncodedPoint::from(&pk).as_bytes(), "verify: signature verification failed, public key mismatch");
+}
+// use k256::{
+//     ecdsa::{signature::Signer, recoverable, /*signature::RandomizedSigner*/},
+// //    elliptic_curve::{Generate, rand_core::OsRng},
+// //    SecretKey, PublicKey
+// };
+
+pub fn sign(serialized: &[u8], private_key: &[u8]) -> Vec<u8> {
+    //let signer = Signer::new(&private_key).expect("private key invalid");
+    //let signature: RSignature = signer.sign(serialized);
+    let signer = SigningKey::from_bytes(&private_key).unwrap();
+    let signature: Signature = signer.sign(serialized);
+    signature.to_vec()
 }

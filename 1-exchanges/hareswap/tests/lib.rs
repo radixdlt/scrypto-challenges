@@ -2,6 +2,43 @@ use radix_engine::ledger::*;
 use radix_engine::transaction::*;
 use scrypto::prelude::*;
 
+use hareswap::api::*;
+
+// taker does this
+fn build_partial_order(maker_requirement: BucketRequirement, taker_resource: ResourceDef, taker_auth: BucketRequirement) -> PartialOrder {
+    PartialOrder {
+        maker_requirement,
+        taker_resource,
+        taker_auth,
+    }
+}
+
+// maker does this
+fn match_fungible_order_simple(partial_order: PartialOrder, maker_address: Address, amount: Decimal) -> MatchedOrder {
+    let taker_contents = BucketContents::Fungible(amount); // i'll need this much
+    let maker_callback = Callback::CallMethod { // in a bucket passed to this callback
+        component_address: maker_address,
+        method: "handle_order_default_callback".to_owned(),
+        args: vec![], // no bound custom args
+    };
+    MatchedOrder {
+        partial_order,
+        taker_contents,
+        maker_callback,
+    }
+}
+
+// maker does this
+fn sign_order(matched_order: MatchedOrder, private_key: &[u8]) -> SignedOrder {
+    let serialized = scrypto_encode(&matched_order);
+    let signature = sign(&serialized, private_key);
+    SignedOrder {
+        order: matched_order,
+        signature,
+    }
+}
+
+
 #[test]
 fn test_hello() {
     // Set up environment.
@@ -9,7 +46,7 @@ fn test_hello() {
     let mut executor = TransactionExecutor::new(&mut ledger, false);
     let key = executor.new_public_key();
     let account = executor.new_account(key);
-    let package = executor.publish_package(include_code!("flexiswap")).unwrap();
+    let package = executor.publish_package(include_code!("hareswap")).unwrap();
 
     // Test the `instantiate_hello` function.
     let transaction1 = TransactionBuilder::new(&executor)
