@@ -1,6 +1,7 @@
 # Scrypto DEX Challenge
 ## _By petitcroco for the 'xrd ducks mafia'_
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![N|Scrypto](assets/dTxpPi9lDf.svg)](https://www.radixdlt.com/post/scrypto-v0-3-released)
 
 <img src="assets/duckmlogo.png" width="200">
@@ -102,9 +103,9 @@ revup -r tests/revup.rev > tests/RESULT.txt
 
 # Special thanks
 
-For answering a question
-https://github.com/devmannic
-https://github.com/cbisaillon
+For answering a question :
+* https://github.com/devmannic
+* https://github.com/cbisaillon
 
 # Links
 
