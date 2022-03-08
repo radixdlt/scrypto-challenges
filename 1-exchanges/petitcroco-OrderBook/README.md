@@ -88,10 +88,23 @@ To show composability and allow easier testing we use this improvement
 ```sh
 ---Soon---
 ```
+# Revup usage
+
+https://github.com/RadGuild/revup
+
+```sh
+revup -r tests/revup.rev > tests/RESULT.txt
+```
 
 # License
 
 *Licensed under the Apache 2.0 open-source*
+
+# Special thanks
+
+For answering a question
+https://github.com/devmannic
+https://github.com/cbisaillon
 
 # Links
 
