@@ -119,8 +119,10 @@ use hex;
 // use transaction_manifest::generator::generate_instruction; // crap, need to either keep sbor encoded not manifest ast string, or wrap the entire thing in a real instruction (which isn't the worst idea)
 // use std::str;
 use k256::{
-    ecdsa::{VerifyingKey, Signature, signature::Verifier},
+    ecdsa::{VerifyingKey, Signature, DerSignature, signature::Verifier},
 };
+use ecdsa::der;
+
 pub fn xverify(public_key: &EcdsaPublicKey, serialized: &[u8], signature: &[u8]) {
     let pub_bytes = public_key.to_vec();
     let verifying_key: VerifyingKey = VerifyingKey::from_sec1_bytes(&pub_bytes).expect("verify: failed to parse verifying public key");
@@ -130,7 +132,7 @@ pub fn xverify(public_key: &EcdsaPublicKey, serialized: &[u8], signature: &[u8])
 
     match verifying_key.verify(serialized, &sig) {
         Ok(_) => (), // GOOD!
-        Err(_) => panic!("xverify: signature verification failed"),
+        Err(_) => panic!("xverify: signature verification failed 2"),
     }
 }
 
@@ -171,25 +173,49 @@ impl MakeSignedOrder {
 
         let signing_key = SigningKey::from_bytes(&private_key_bytes).expect("unable to create signing key (this should not happen)");
         eprintln!("SigningKey: {:?}", signing_key);
-        let rsignature: RSignature = signing_key.try_sign(&matched_order_encoded).unwrap(); // TODO map_err
-        let rsignature_bytes: &[u8] = rsignature.as_ref();
-        let signature = Vec::from(rsignature_bytes);
+        //let rsignature: RSignature = signing_key.try_sign(&matched_order_encoded).unwrap(); // TODO map_err
+        //let rsignature_bytes: &[u8] = rsignature.as_ref();
+        //let signature = Vec::from(rsignature_bytes);
+        let signature: Signature = signing_key.try_sign(&matched_order_encoded).unwrap(); // TODO map_err
+        let sig_bytes = signature.to_der().to_bytes().to_vec();
 
         eprintln!("result signature:\n{}", hex::encode(&signature));
+        eprintln!("result signature:\n{}", hex::encode(&sig_bytes));
 
         // double check sig verifies
         let verifying_key = signing_key.verifying_key();
+
+
+
+    //let rsignature = RSignature::try_from(signature).unwrap();
+    //let sig = Signature::from(rsignature);
+    //let sig_bytes: Vec<u8> = vec![];
+    //let der_sig = der::Signature::try_from(sig_bytes.as_ref()).unwrap();
+//    let der_sig = DerSignature::try_from(sig_bytes.as_ref()).unwrap();
+//    let sig = Signature::from(der_sig);
+    let sig = match Signature::from_der(&sig_bytes) {
+        Ok(s) => s.normalize_s().unwrap_or(s),
+        Err(_) => panic!("failed to parse signature ASN.1"),
+    };
+
+    match verifying_key.verify(&matched_order_encoded, &sig) {
+        Ok(_) => (), // GOOD!
+        Err(_) => panic!("xverify: signature verification failed 1"),
+    }
+
+
+
         eprintln!("verifying_key: {:?}", verifying_key);
         let compressed_point = verifying_key.to_bytes();
         eprintln!("compressed_point: {:?}", compressed_point);
         let mut public_raw = [0u8; 33];
         public_raw[..].copy_from_slice(&compressed_point);
         let public_key: EcdsaPublicKey = EcdsaPublicKey(public_raw);
-        xverify(&public_key, &matched_order_encoded, &signature);
+        xverify(&public_key, &matched_order_encoded, &sig_bytes);
 
         let signed_order = SignedOrder {
             order: matched_order,
-            signature,
+            signature: sig_bytes,
         };
 
         let signed_order_encoded = scrypto_encode(&signed_order);
