@@ -68,7 +68,7 @@ resim set-default-account $ACCOUNT1 $ACCOUNT1_PUBKEY
 ## TODO off-ledger stuff agree on order
 #taker make RFQ
 TAKER_AMOUNT=100
-$HARE request-for-quote $TAKER_AMOUNT $T $M $TAKER_AUTH > partial_order.txt
+$HARE request-for-quote partial_order.txt $TAKER_AMOUNT $T $M $TAKER_AUTH
 # simulate send to maker
 # maker decide on price and sign order
 MAKER_AMOUNT=200
@@ -78,10 +78,13 @@ SIGNED_ORDER=$(cat signed_order.txt)
 ## 4-A taker: OPTION 1 - simple execution
 FN=taker_submit_option1.rtm
 cat > $FN   <<EOF
-CLONE_BUCKET_REF BucketRef(1u32) BucketRef("account_badge");
-CLONE_BUCKET_REF BucketRef(1u32) BucketRef("auth_for_exec");
-CALL_METHOD Address("$ACCOUNT1") "withdraw" Decimal("$TAKER_AMOUNT") Address("$T") BucketRef("account_badge");
+CLONE_BUCKET_REF BucketRef(1u32) BucketRef("account_badge_t_auth");
+CALL_METHOD Address("$ACCOUNT1") "withdraw" Decimal("1") Address("$TAKER_AUTH") BucketRef("account_badge_t_auth");
+TAKE_ALL_FROM_WORKTOP Address("$TAKER_AUTH") Bucket("auth_for_exec_bucket");
+CLONE_BUCKET_REF BucketRef(1u32) BucketRef("account_badge_t");
+CALL_METHOD Address("$ACCOUNT1") "withdraw" Decimal("$TAKER_AMOUNT") Address("$T") BucketRef("account_badge_t");
 TAKE_ALL_FROM_WORKTOP Address("$T") Bucket("T");
+CREATE_BUCKET_REF Bucket("auth_for_exec_bucket") BucketRef("auth_for_exec");
 CALL_METHOD Address("$MAKER_COMPONENT") "execute_order" $SIGNED_ORDER Bucket("T") BucketRef("auth_for_exec");
 ASSERT_WORKTOP_CONTAINS Decimal("$MAKER_AMOUNT") Address("$M");
 CALL_METHOD_WITH_ALL_RESOURCES Address("$ACCOUNT1") "deposit_batch";

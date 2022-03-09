@@ -58,6 +58,7 @@ pub fn run() -> Result<(), Error> {
 /// generate a request for quote (RFQ) to buy resource "B" with amount of resource "A"
 #[derive(Parser, Debug)]
 pub struct RequestForQuote {
+    output_path: PathBuf,
     resource_b_amount: String,
     resource_b: String,
     resource_a: String,
@@ -91,9 +92,10 @@ impl RequestForQuote {
 
         let partial_order_encoded = scrypto_encode(&partial_order);
 
-        let validated_arg =
-            validate_data(&partial_order_encoded).map_err(transaction_manifest::DecompileError::DataValidationError).map_err(Error::DecompileError)?;
-        print!("{}", validated_arg);
+        //let validated_arg =
+        //    validate_data(&partial_order_encoded).map_err(transaction_manifest::DecompileError::DataValidationError).map_err(Error::DecompileError)?;
+        //print!("{}", validated_arg);
+        fs::write(&self.output_path, &partial_order_encoded).map_err(Error::IoError)?;
 
         Ok(())
     }
@@ -112,10 +114,10 @@ use k256::{
     ecdsa::{Signature, SigningKey, signature::Signer},
 };
 
-use transaction_manifest::parser::Parser as ManifestParser;
-use transaction_manifest::lexer::tokenize;
-use transaction_manifest::generator::generate_args; // crap, need to either keep sbor encoded not manifest ast string, or wrap the entire thing in a real instruction (which isn't the worst idea)
-use std::str;
+// use transaction_manifest::parser::Parser as ManifestParser;
+// use transaction_manifest::lexer::tokenize;
+// use transaction_manifest::generator::generate_instruction; // crap, need to either keep sbor encoded not manifest ast string, or wrap the entire thing in a real instruction (which isn't the worst idea)
+// use std::str;
 
 impl MakeSignedOrder {
     pub fn run(&self) -> Result<(), Error> {
@@ -126,16 +128,17 @@ impl MakeSignedOrder {
 
         // parse parital_order_txt
         // TODO -- XXX
-        let partial_order_str = str::from_utf8(&partial_order_bytes).map_err(Error::Utf8Error)?.to_owned();
-        let mut parser = ManifestParser::new(tokenize(&partial_order_str).unwrap());
-        let partial_order_value = parser.parse_value().map_err(Error::ManifestParserError)?;
-        if !parser.is_eof() {
-            return Result::Err(Error::ParserNotEOFError);
-        }
+        // let partial_order_str = str::from_utf8(&partial_order_bytes).map_err(Error::Utf8Error)?.to_owned();
+        // let mut parser = ManifestParser::new(tokenize(&partial_order_str).unwrap());
+        // let partial_order_value = parser.parse_value().map_err(Error::ManifestParserError)?;
+        // if !parser.is_eof() {
+            // return Result::Err(Error::ParserNotEOFError);
+        // }
 
-        let resolver = NameResolver::new();
-        let args = generate_args(vec![partial_order_value])?;
-        let partial_order: PartialOrder = scrypto_decode(partial_order_encoded).map_err(Error::SBORDecodeError)?;
+        //let resolver = NameResolver::new();
+        //let args = generate_instruction(vec![partial_order_value])?;
+        let partial_order_encoded = partial_order_bytes;
+        let partial_order: PartialOrder = scrypto_decode(&partial_order_encoded).map_err(Error::SBORDecodeError)?;
 
         let matched_order = MatchedOrder {
             partial_order,
