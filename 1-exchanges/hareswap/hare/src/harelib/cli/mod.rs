@@ -127,8 +127,10 @@ pub fn xverify(public_key: &EcdsaPublicKey, serialized: &[u8], signature: &[u8])
     let pub_bytes = public_key.to_vec();
     let verifying_key: VerifyingKey = VerifyingKey::from_sec1_bytes(&pub_bytes).expect("verify: failed to parse verifying public key");
 
-    let rsignature = RSignature::try_from(signature).unwrap();
-    let sig = Signature::from(rsignature);
+    let sig = match Signature::from_der(&signature) {
+        Ok(s) => s.normalize_s().unwrap_or(s),
+        Err(_) => panic!("failed to parse signature ASN.1"),
+    };
 
     match verifying_key.verify(serialized, &sig) {
         Ok(_) => (), // GOOD!

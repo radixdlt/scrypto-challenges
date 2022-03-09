@@ -157,7 +157,7 @@ blueprint! {
             panic!("unreachable"); // asserted 1 in bucket
         }
 
-        // make an unsigned voucher
+        // make an unsigned voucher, use this as a read-only function (when they exist)
         pub fn make(&mut self, bucket: Bucket) -> Vec<u8> {
             scrypto_encode(&self.voucher_make(bucket))
         }

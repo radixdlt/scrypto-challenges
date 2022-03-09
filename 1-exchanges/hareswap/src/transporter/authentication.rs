@@ -7,6 +7,22 @@ use k256::{
 //use k256::ecdsa::*;
 //use sha2::Sha256;
 
+pub fn verify(public_key: &EcdsaPublicKey, serialized: &[u8], signature: &[u8]) {
+    let pub_bytes = public_key.to_vec();
+    let verifying_key: VerifyingKey = VerifyingKey::from_sec1_bytes(&pub_bytes).expect("verify: failed to parse verifying public key");
+
+    let sig = match Signature::from_der(&signature) {
+        Ok(s) => s.normalize_s().unwrap_or(s),
+        Err(_) => panic!("failed to parse signature ASN.1"),
+    };
+
+    match verifying_key.verify(serialized, &sig) {
+        Ok(_) => (), // GOOD!
+        Err(_) => panic!("xverify: signature verification failed 2"),
+    }
+}
+
+/*
 // verify or panic
 pub fn verify(public_key: &EcdsaPublicKey, serialized: &[u8], signature: &[u8]) {
     // assuming EcdsaPublicKey will continue to be a [u8;33] and we can store the bytes in sec1 format
@@ -38,6 +54,7 @@ pub fn verify(public_key: &EcdsaPublicKey, serialized: &[u8], signature: &[u8]) 
 // //    elliptic_curve::{Generate, rand_core::OsRng},
 // //    SecretKey, PublicKey
 // };
+*/
 
 pub fn sign(serialized: &[u8], private_key: &[u8]) -> Vec<u8> {
     //let signer = Signer::new(&private_key).expect("private key invalid");
