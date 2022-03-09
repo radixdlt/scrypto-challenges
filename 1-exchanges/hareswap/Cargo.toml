@@ -9,6 +9,7 @@ scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0"
 k256 = { version = "0.10.2", features = ["ecdsa-core", "sha256"] }
 getrandom = { features = ["custom"] } # for wasm target need custom
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" } # for Instruction
+hex = "0.4.3"
 
 [dev-dependencies]
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" }

@@ -1,5 +1,6 @@
 use scrypto::prelude::*;
 use sbor::{Decode, Describe, Encode, TypeId};
+use hex;
 
 use super::authentication::*;
 use super::decoder::*;
@@ -12,6 +13,8 @@ pub struct SealedVoucher {
 }
 impl SealedVoucher {
     pub fn unseal(&self, public_key: &EcdsaPublicKey) -> Voucher {
+        info!("SealedVoucher::unseal: serialized: {}", hex::encode(&self.serialized));
+        info!("SealedVoucher::unseal:  signature: {}", hex::encode(&self.signature));
         verify(public_key, &self.serialized, &self.signature); // panics on failure
         private_decode_with_type(&self.serialized).unwrap()
     }

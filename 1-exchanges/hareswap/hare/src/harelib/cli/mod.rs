@@ -111,13 +111,28 @@ pub struct MakeSignedOrder {
 }
 
 use k256::{
-    ecdsa::{Signature, SigningKey, signature::Signer},
+    ecdsa::{recoverable::Signature as RSignature, SigningKey, signature::Signer},
 };
-
+use hex;
 // use transaction_manifest::parser::Parser as ManifestParser;
 // use transaction_manifest::lexer::tokenize;
 // use transaction_manifest::generator::generate_instruction; // crap, need to either keep sbor encoded not manifest ast string, or wrap the entire thing in a real instruction (which isn't the worst idea)
 // use std::str;
+use k256::{
+    ecdsa::{VerifyingKey, Signature, signature::Verifier},
+};
+pub fn xverify(public_key: &EcdsaPublicKey, serialized: &[u8], signature: &[u8]) {
+    let pub_bytes = public_key.to_vec();
+    let verifying_key: VerifyingKey = VerifyingKey::from_sec1_bytes(&pub_bytes).expect("verify: failed to parse verifying public key");
+
+    let rsignature = RSignature::try_from(signature).unwrap();
+    let sig = Signature::from(rsignature);
+
+    match verifying_key.verify(serialized, &sig) {
+        Ok(_) => (), // GOOD!
+        Err(_) => panic!("xverify: signature verification failed"),
+    }
+}
 
 impl MakeSignedOrder {
     pub fn run(&self) -> Result<(), Error> {
@@ -152,12 +167,29 @@ impl MakeSignedOrder {
     
         let matched_order_encoded = scrypto_encode(&matched_order);
 
+        eprintln!("signing mached_order bytes:\n{}", hex::encode(&matched_order_encoded));
+
         let signing_key = SigningKey::from_bytes(&private_key_bytes).expect("unable to create signing key (this should not happen)");
-        let signature: Signature = signing_key.sign(&matched_order_encoded);
+        eprintln!("SigningKey: {:?}", signing_key);
+        let rsignature: RSignature = signing_key.try_sign(&matched_order_encoded).unwrap(); // TODO map_err
+        let rsignature_bytes: &[u8] = rsignature.as_ref();
+        let signature = Vec::from(rsignature_bytes);
+
+        eprintln!("result signature:\n{}", hex::encode(&signature));
+
+        // double check sig verifies
+        let verifying_key = signing_key.verifying_key();
+        eprintln!("verifying_key: {:?}", verifying_key);
+        let compressed_point = verifying_key.to_bytes();
+        eprintln!("compressed_point: {:?}", compressed_point);
+        let mut public_raw = [0u8; 33];
+        public_raw[..].copy_from_slice(&compressed_point);
+        let public_key: EcdsaPublicKey = EcdsaPublicKey(public_raw);
+        xverify(&public_key, &matched_order_encoded, &signature);
 
         let signed_order = SignedOrder {
             order: matched_order,
-            signature: signature.to_vec(),
+            signature,
         };
 
         let signed_order_encoded = scrypto_encode(&signed_order);
@@ -206,9 +238,12 @@ pub fn new_public_private_pair(ledger: &mut RadixEngineDB) -> (Vec<u8>, Vec<u8>)
     private_raw[..].copy_from_slice(sha256(ledger.get_nonce().to_string()).as_ref());
     ledger.increase_nonce();
     let signing_key = SigningKey::from_bytes(&private_raw).expect("unable to create signing key (this should not happen)");
+    eprintln!("SigningKey: {:?}", signing_key);
 
     let verifying_key = signing_key.verifying_key();
+    eprintln!("verifying_key: {:?}", verifying_key);
     let compressed_point = verifying_key.to_bytes();
+    eprintln!("compressed_point: {:?}", compressed_point);
     let mut public_raw = [0u8; 33];
     public_raw[..].copy_from_slice(&compressed_point);
     let public_key: EcdsaPublicKey = EcdsaPublicKey(public_raw);

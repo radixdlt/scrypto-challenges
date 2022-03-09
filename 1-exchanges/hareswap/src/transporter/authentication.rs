@@ -1,8 +1,10 @@
 use scrypto::prelude::EcdsaPublicKey;
 use k256::{
     //EncodedPoint, ecdsa::recoverable::Signature as RSignature
-    ecdsa::{Signature, SigningKey, VerifyingKey, signature::Verifier, signature::Signer},
+    ecdsa::{recoverable::Signature as RSignature, Signature, SigningKey, VerifyingKey, signature::Verifier, signature::Signer},
+    //ecdsa::recoverable::*,
 };
+//use k256::ecdsa::*;
 //use sha2::Sha256;
 
 // verify or panic
@@ -11,10 +13,15 @@ pub fn verify(public_key: &EcdsaPublicKey, serialized: &[u8], signature: &[u8]) 
     let pub_bytes = public_key.to_vec();
     let verifying_key: VerifyingKey = VerifyingKey::from_sec1_bytes(&pub_bytes).expect("verify: failed to parse verifying public key");
 
-    let sig = match Signature::from_der(signature) {
-        Ok(s) => s,
-        Err(_) => panic!("verify: failed to parse signature ASN.1"),
-    };
+    // let sig = match Signature::from_der(signature) {
+    //     Ok(s) => s,
+    //     Err(_) => panic!("verify: failed to parse signature ASN.1"),
+    // };
+    //let rsignature:T <k256::ecdsa::Signature as TryFrom<&[u8]>>::try_from(signature);
+    //let rsignature: <Signature as TryFrom<&u8>>::try_from(signature);
+    //let rsignature: k256::ecdsa::recoverable::Signature = <k256::ecdsa::recoverable::Signature as TryFrom<&[u8]>>::try_from(signature).unwrap();
+    let rsignature = RSignature::try_from(signature).unwrap();
+    let sig = Signature::from(rsignature);
 
     match verifying_key.verify(serialized, &sig) {
         Ok(_) => (), // GOOD!
