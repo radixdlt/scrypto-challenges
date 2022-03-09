@@ -13,7 +13,9 @@ use scrypto::utils::sha256;
 use simulator::resim::*;
 use simulator::ledger::*;
 
-//use hareswap::api::*;
+use scrypto::prelude::*;
+
+use hareswap::api::*;
 
 /// hareswap CLI
 #[derive(Parser, Debug)]
@@ -26,6 +28,8 @@ pub struct Args {
 #[derive(Subcommand, Debug)]
 pub enum Command {
     NewKeyPair(NewKeyPair),
+    RequestForQuote(RequestForQuote),
+    MakeSignedOrder(MakeSignedOrder),
 }
 
 #[derive(Debug)]
@@ -33,13 +37,133 @@ pub enum Error {
     IoError(std::io::Error),
     ResimError(simulator::resim::Error),
     DecompileError(transaction_manifest::DecompileError),
+    ParseAddressError(ParseAddressError),
+    ParseDecimalError(ParseDecimalError),
+    SBORDecodeError(sbor::DecodeError),
+    Utf8Error(std::str::Utf8Error),
+    ManifestParserError(transaction_manifest::parser::ParserError),
+    ParserNotEOFError,
 }
 
 pub fn run() -> Result<(), Error> {
     let args = Args::parse();
 
     match args.command {
-        Command::NewKeyPair(cmd) => cmd.run()
+        Command::NewKeyPair(cmd) => cmd.run(),
+        Command::RequestForQuote(cmd) => cmd.run(),
+        Command::MakeSignedOrder(cmd) => cmd.run(),
+    }
+}
+
+/// generate a request for quote (RFQ) to buy resource "B" with amount of resource "A"
+#[derive(Parser, Debug)]
+pub struct RequestForQuote {
+    resource_b_amount: String,
+    resource_b: String,
+    resource_a: String,
+    resource_taker_auth: String,
+}
+
+impl RequestForQuote {
+    pub fn run(&self) -> Result<(), Error> {
+
+        let maker_resource = ResourceDef::from(Address::from_str(&self.resource_b).map_err(Error::ParseAddressError)?);
+        let maker_amount = Decimal::from_str(&self.resource_b_amount).map_err(Error::ParseDecimalError)?;
+        let taker_resource = ResourceDef::from(Address::from_str(&self.resource_a).map_err(Error::ParseAddressError)?);
+        let taker_auth_resource = ResourceDef::from(Address::from_str(&self.resource_taker_auth).map_err(Error::ParseAddressError)?);
+        let taker_auth_amount = Decimal::from_str("1").map_err(Error::ParseDecimalError)?;
+    
+        let maker_requirement = BucketRequirement {
+            resource: maker_resource,
+            contents: BucketContents::Fungible(maker_amount)
+        };
+
+        let taker_auth = BucketRequirement {
+            resource: taker_auth_resource,
+            contents: BucketContents::Fungible(taker_auth_amount)
+        };
+
+        let partial_order = PartialOrder {
+            maker_requirement,
+            taker_resource,
+            taker_auth,
+        };
+
+        let partial_order_encoded = scrypto_encode(&partial_order);
+
+        let validated_arg =
+            validate_data(&partial_order_encoded).map_err(transaction_manifest::DecompileError::DataValidationError).map_err(Error::DecompileError)?;
+        print!("{}", validated_arg);
+
+        Ok(())
+    }
+}
+
+/// creates an order from a partial order and signs it
+#[derive(Parser, Debug)]
+pub struct MakeSignedOrder {
+    partial_order_file: PathBuf,
+    resource_a_amount: String,
+    maker_component_address: String,
+    private_key_file: PathBuf,
+}
+
+use k256::{
+    ecdsa::{Signature, SigningKey, signature::Signer},
+};
+
+use transaction_manifest::parser::Parser as ManifestParser;
+use transaction_manifest::lexer::tokenize;
+use transaction_manifest::generator::generate_args; // crap, need to either keep sbor encoded not manifest ast string, or wrap the entire thing in a real instruction (which isn't the worst idea)
+use std::str;
+
+impl MakeSignedOrder {
+    pub fn run(&self) -> Result<(), Error> {
+        let partial_order_bytes = fs::read(&self.partial_order_file).map_err(Error::IoError)?;
+        let resource_a_amount = Decimal::from_str(&self.resource_a_amount).map_err(Error::ParseDecimalError)?;
+        let maker_component_address = Address::from_str(&self.maker_component_address).map_err(Error::ParseAddressError)?;
+        let private_key_bytes = fs::read(&self.private_key_file).map_err(Error::IoError)?;
+
+        // parse parital_order_txt
+        // TODO -- XXX
+        let partial_order_str = str::from_utf8(&partial_order_bytes).map_err(Error::Utf8Error)?.to_owned();
+        let mut parser = ManifestParser::new(tokenize(&partial_order_str).unwrap());
+        let partial_order_value = parser.parse_value().map_err(Error::ManifestParserError)?;
+        if !parser.is_eof() {
+            return Result::Err(Error::ParserNotEOFError);
+        }
+
+        let resolver = NameResolver::new();
+        let args = generate_args(vec![partial_order_value])?;
+        let partial_order: PartialOrder = scrypto_decode(partial_order_encoded).map_err(Error::SBORDecodeError)?;
+
+        let matched_order = MatchedOrder {
+            partial_order,
+            taker_contents: BucketContents::Fungible(resource_a_amount),
+            maker_callback: Callback::CallMethod {
+                component_address: maker_component_address,
+                method: "default_swap".to_owned(),
+                args: vec![],
+            },
+        };
+    
+        let matched_order_encoded = scrypto_encode(&matched_order);
+
+        let signing_key = SigningKey::from_bytes(&private_key_bytes).expect("unable to create signing key (this should not happen)");
+        let signature: Signature = signing_key.sign(&matched_order_encoded);
+
+        let signed_order = SignedOrder {
+            order: matched_order,
+            signature: signature.to_vec(),
+        };
+
+        let signed_order_encoded = scrypto_encode(&signed_order);
+
+        let validated_arg =
+            validate_data(&signed_order_encoded).map_err(transaction_manifest::DecompileError::DataValidationError).map_err(Error::DecompileError)?;
+        print!("{}", validated_arg);
+
+        Ok(())
     }
 }
 
@@ -68,9 +192,9 @@ impl NewKeyPair {
     }
 }
 
-use k256::{
-    ecdsa::SigningKey,
-};
+// use k256::{
+//     ecdsa::SigningKey,
+// };
 //use rand_core::OsRng; // requires 'getrandom' feature
 
 pub fn new_public_private_pair(ledger: &mut RadixEngineDB) -> (Vec<u8>, Vec<u8>) {

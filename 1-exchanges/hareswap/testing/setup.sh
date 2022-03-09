@@ -2,6 +2,8 @@
 set -x
 set -e
 
+HARE=../hare/target/debug/hare
+
 resim reset
 
 # initial
@@ -46,8 +48,9 @@ resim transfer 500,$M $MAKER_ACCOUNT
 ### probably break the rest into seperate file later
 
 # 0.2 Maker setup
-
-pubkey_arg=$(../hare/target/debug/hare new-key-pair maker.pub maker.pri)
+MAKER_OFFLINE_KEY_PUB=maker.pub
+MAKER_OFFLINE_KEY_PRI=maker.pri
+pubkey_arg=$($HARE new-key-pair $MAKER_OFFLINE_KEY_PUB $MAKER_OFFLINE_KEY_PRI)
 cat > maker_setup.rtm  <<EOF
 CLONE_BUCKET_REF BucketRef(1u32) BucketRef("account2_badge");
 CALL_METHOD Address("$ACCOUNT2") "withdraw" Decimal("1") Address("$MAKER_ACCOUNT_AUTH") BucketRef("account2_badge");
@@ -58,4 +61,32 @@ rtmc --output maker_setup.rtmc maker_setup.rtm
 resim run --trace maker_setup.rtm > maker_setup.trace 2>&1
 MAKER_COMPONENT=$(tail -n1 maker_setup.trace | cut -d' ' -f3)
 rm maker_setup.trace
+
+# switch to taker
+resim set-default-account $ACCOUNT1 $ACCOUNT1_PUBKEY
+
+## TODO off-ledger stuff agree on order
+#taker make RFQ
+TAKER_AMOUNT=100
+$HARE request-for-quote $TAKER_AMOUNT $T $M $TAKER_AUTH > partial_order.txt
+# simulate send to maker
+# maker decide on price and sign order
+MAKER_AMOUNT=200
+$HARE make-signed-order partial_order.txt $MAKER_AMOUNT $MAKER_COMPONENT $MAKER_OFFLINE_KEY_PRI > signed_order.txt
+SIGNED_ORDER=$(cat signed_order.txt)
+
+## 4-A taker: OPTION 1 - simple execution
+FN=taker_submit_option1.rtm
+cat > $FN   <<EOF
+CLONE_BUCKET_REF BucketRef(1u32) BucketRef("account_badge");
+CLONE_BUCKET_REF BucketRef(1u32) BucketRef("auth_for_exec");
+CALL_METHOD Address("$ACCOUNT1") "withdraw" Decimal("$TAKER_AMOUNT") Address("$T") BucketRef("account_badge");
+TAKE_ALL_FROM_WORKTOP Address("$T") Bucket("T");
+CALL_METHOD Address("$MAKER_COMPONENT") "execute_order" $SIGNED_ORDER Bucket("T") BucketRef("auth_for_exec");
+ASSERT_WORKTOP_CONTAINS Decimal("$MAKER_AMOUNT") Address("$M");
+CALL_METHOD_WITH_ALL_RESOURCES Address("$ACCOUNT1") "deposit_batch";
+EOF
+rtmc --output ${FN}c $FN
+resim run --trace $FN
+
 
