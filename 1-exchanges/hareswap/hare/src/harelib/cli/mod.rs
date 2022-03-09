@@ -6,6 +6,7 @@ use std::fs;
 use std::path::PathBuf;
 
 use radix_engine::ledger::*;
+use radix_engine::engine::validate_data;
 //use radix_engine::transaction::*;
 use scrypto::types::EcdsaPublicKey;
 use scrypto::utils::sha256;
@@ -30,7 +31,8 @@ pub enum Command {
 #[derive(Debug)]
 pub enum Error {
     IoError(std::io::Error),
-    ResimError(simulator::resim::Error)
+    ResimError(simulator::resim::Error),
+    DecompileError(transaction_manifest::DecompileError),
 }
 
 pub fn run() -> Result<(), Error> {
@@ -54,8 +56,13 @@ impl NewKeyPair {
 
         let (public_bytes, private_bytes) = new_public_private_pair(&mut ledger);
 
-        fs::write(&self.public_key, public_bytes).map_err(Error::IoError)?;
+        fs::write(&self.public_key, &public_bytes).map_err(Error::IoError)?;
         fs::write(&self.private_key, private_bytes).map_err(Error::IoError)?;
+
+        // print public_key bytes to stdout in rtm format
+        let validated_arg =
+            validate_data(&public_bytes).map_err(transaction_manifest::DecompileError::DataValidationError).map_err(Error::DecompileError)?;
+        print!("{}", validated_arg);
 
         Ok(())
     }

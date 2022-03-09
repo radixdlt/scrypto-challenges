@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 set -x
+set -e
 
 resim reset
 
@@ -46,28 +47,15 @@ resim transfer 500,$M $MAKER_ACCOUNT
 
 # 0.2 Maker setup
 
-# TODO: get a public key off-ledger
-
-### Ahhhh.  resim can't handle empty buckets, and RTMs cannot return Component addresses
-### so NEED to do this part in code, ie. ./hare maker --setup env_file
-### needs to know $M $MAKER_ACCOUNT $_MAKER_ACCOUNT_AUTH pubkey callback_auth_bucket
-### well WAIT, can use rtm, then do a resim command to look at the latest component!
-
-# hare cli would need $PACKAGE $ACCOUNT2 $ACCOUNT2_KEY $MAKER_ACCOUNT $MAKER_ACCOUNT_AUTH
-# and it would need to return the new Maker component address
-
-resim show-ledger > ledger_before.txt
-`hare new_key_pair --path ./maker`
-pubkey=`cat ./maker.pub`
+pubkey_arg=$(../hare/target/debug/hare new-key-pair maker.pub maker.pri)
 cat > maker_setup.rtm  <<EOF
-METHOD_CALL $ACCOUNT2 "withdraw" Decimal("1") Address("$MAKER_ACCOUNT_AUTH")
-TAKE_FROM_WORKTOP Decimal("1") Address("$MAKER_ACCOUNT_AUTH") Bucket("maker_account_auth")
-TAKE_FROM_WORKTOP Decimal("0") Address("030000000000000000000000000000000000000000000000000004") Bucket("empty_xrd")
-FUNCTION_CALL $PACKAGE "Maker" "instantiate" $pubkey" Bucket("empty_xrd") Address("$MAKER_ACCOUNT") Bucket("maker_account_auth")
+CLONE_BUCKET_REF BucketRef(1u32) BucketRef("account2_badge");
+CALL_METHOD Address("$ACCOUNT2") "withdraw" Decimal("1") Address("$MAKER_ACCOUNT_AUTH") BucketRef("account2_badge");
+TAKE_FROM_WORKTOP Decimal("1.0") Address("$MAKER_ACCOUNT_AUTH") Bucket("maker_account_auth");
+CALL_FUNCTION Address("$PACKAGE") "Maker" "instantiate" $pubkey_arg None Address("$MAKER_ACCOUNT") Bucket("maker_account_auth");
 EOF
-resim show-ledger > ledger_after.txt
-MAKER_COMPONENT=$(diff ledger_before.txt ledger_after.txt | head -n1 | cut -d' ' -f2)
-mv ledger_after.txt ledger_before.txt
+rtmc --output maker_setup.rtmc maker_setup.rtm
+resim run --trace maker_setup.rtm > maker_setup.trace 2>&1
+MAKER_COMPONENT=$(tail -n1 maker_setup.trace | cut -d' ' -f3)
+rm maker_setup.trace
 
-
-#resim call-function $HARESWAP_PACKAGE "Maker" "instantiate" public_key bucket component auth_bucket

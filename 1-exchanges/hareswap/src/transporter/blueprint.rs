@@ -19,6 +19,9 @@ impl SealedVoucher {
 
 // QUESTION:  can i mint type-mismatched NonFungibleData all for the same ResourceDef?  Probably?
 
+#[derive(NonFungibleData)]
+struct AuthTestData {}
+
 blueprint! {
     struct Transporter {
         resource_def: ResourceDef,
@@ -58,18 +61,22 @@ blueprint! {
             assert_eq!(resource_def.resource_type(), ResourceType::NonFungible, "Transporter::instantiate_with: only supports transportation of NonFungibles (for now)");
 
             //mint and burn to check auth works, seperate burn auth is optional
-            let key: NonFungibleKey = 0u128.into();
-            mint_authority.authorize(|auth| {
-                let default_nfd = PassThruNFD::default(); // TODO check this is not too degenerate, may need some data
-                let minted = resource_def.mint_non_fungible(&key, default_nfd, auth.clone());
-                if burn_authority.is_empty() {
-                    resource_def.burn_with_auth(minted, auth)
-                } else {
-                    burn_authority.authorize(|auth|
-                        resource_def.burn_with_auth(minted, auth)
-                    );
-                }
+            let minted = mint_authority.authorize(|auth| {
+                let default_nfd = AuthTestData {};
+                let key: NonFungibleKey = 0u128.into();
+                let minted = resource_def.mint_non_fungible(&key, default_nfd, auth);
+                minted
             });
+
+            if burn_authority.is_empty() {
+                mint_authority.authorize(|auth| {
+                    resource_def.burn_with_auth(minted, auth);
+                });
+            } else {
+                burn_authority.authorize(|auth| {
+                    resource_def.burn_with_auth(minted, auth);
+                });
+            }
 
             Self {
                 resource_def,

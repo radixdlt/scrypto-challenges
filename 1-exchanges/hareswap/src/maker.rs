@@ -61,18 +61,23 @@ blueprint! {
     }
 
     impl Maker {
-        pub fn instantiate(verifying_key: EcdsaPublicKey, callback_auth: Bucket, account: Component, account_auth: Bucket) -> Component {
+        // when any args are types that cannot be handled by the transport manifest, use the "_raw" version
+        // pub fn instantiate_raw(verifying_key: Vec<u8>, callback_auth: Option<Bucket>, account: Address, account_auth: Bucket) -> Component {
+            // info!("here0");
+            // Maker::instantiate(scrypto_decode(&verifying_key).unwrap(), callback_auth, account.into(), account_auth)
+        // }
 
+        pub fn instantiate(verifying_key: EcdsaPublicKey, callback_auth: Option<Bucket>, account: Component, account_auth: Bucket) -> Component {
             let redeem_auth = Vault::with_bucket(ResourceBuilder::new_fungible(DIVISIBILITY_NONE).initial_supply_fungible(1));
 
             let transporter: Transporter = Transporter::instantiate(verifying_key, redeem_auth.resource_def()).into();
             let order_def = transporter.resource_def();  // this wont change, save it here
 
             // default to expecting the default callback and so just make the callback_auth ourselves
-            let callback_auth = if callback_auth.is_empty() {
+            let callback_auth = if callback_auth.is_none() {
                 Vault::with_bucket(ResourceBuilder::new_fungible(DIVISIBILITY_NONE).initial_supply_fungible(1))
             } else {
-                Vault::with_bucket(callback_auth)
+                Vault::with_bucket(callback_auth.unwrap())
             };
 
             Self {
