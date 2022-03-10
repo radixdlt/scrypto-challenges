@@ -3,7 +3,7 @@ use sbor::{Decode, Decoder, DecodeError, Describe, Encode, describe::Type, TypeI
 
 use super::decoder::*;
 
-#[derive(TypeId, Encode, Decode, Describe)]
+#[derive(PartialEq, Eq, Debug, TypeId, Encode, Decode, Describe)]
 pub struct PassThruNFD {
     immutable_data: Vec<u8>,
     mutable_data: Vec<u8>,
@@ -52,7 +52,7 @@ impl NonFungibleData for PassThruNFD {
 
 // make the Voucher not Decode-able so it can't be (accidentally) created other than from SealedVoucher (with sig check)
 
-#[derive(TypeId, Describe, Encode)]
+#[derive(PartialEq, Eq, Debug, TypeId, Describe, Encode)]
 pub struct Voucher {
     pub resource_def: ResourceDef,
     pub key: Option<NonFungibleKey>,
@@ -60,7 +60,13 @@ pub struct Voucher {
 }
 
 impl PrivateDecode for Voucher {
+    // based on the derive Decode implementation  in sbor-derive:src/decode.rs
     fn decode_value(decoder: &mut Decoder) -> Result<Self, DecodeError> {
+        let index = decoder.read_u8()?;
+        if index != ::sbor::type_id::FIELDS_TYPE_NAMED {
+            return Err(::sbor::DecodeError::InvalidIndex(index));
+        }
+        decoder.check_len(3)?;
         let resource_def  = ResourceDef::decode(decoder)?;
         let key  = Option::<NonFungibleKey>::decode(decoder)?;
         let nfd  = <PassThruNFD as sbor::Decode>::decode(decoder)?; // cannot derive Decode for Voucher because the decode method is implemented for both  NonFungibleData and Decode traits.  Disambiguate here

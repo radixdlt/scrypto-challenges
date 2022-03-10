@@ -72,10 +72,13 @@ blueprint! {
         // }
 
         pub fn instantiate(verifying_key: EcdsaPublicKey, callback_auth: Option<Bucket>, account: Component, account_auth: Bucket) -> Component {
+            // change this redeem_auth to be a parameter
             let redeem_auth = Vault::with_bucket(ResourceBuilder::new_fungible(DIVISIBILITY_NONE).initial_supply_fungible(1));
 
             let transporter: Transporter = Transporter::instantiate(verifying_key, redeem_auth.resource_def()).into();
             let order_def = transporter.resource_def();  // this wont change, save it here
+
+            info!("tokenized order resource address: {}", order_def.address());
 
             // default to expecting the default callback and so just make the callback_auth ourselves
             let callback_auth = if callback_auth.is_none() {
@@ -131,6 +134,7 @@ blueprint! {
 
         // private, signature verification must happen first
         fn settle_order(&mut self, matched_order: MatchedOrder, from_taker: Bucket) -> /*fromMaker*/ Bucket {
+            info!("settle_order: matched_order: {:?}", matched_order);
             // just calling the callback with our auth.  It will verify and execute
 
             // tail call the callback with auth
@@ -216,6 +220,7 @@ blueprint! {
         // call this as the entrypoint for the boring way to execute the SignedOrder
         pub fn execute_order(&mut self, signed_order: SignedOrder, from_taker: Bucket, taker_auth: BucketRef) -> Bucket {
             let orders = self.tokenize_order(signed_order, taker_auth);
+            info!("execute_order: SignedOrder successfully tokenized: {:?}", orders);
             self.execute_order_token(orders, from_taker)
         }
 

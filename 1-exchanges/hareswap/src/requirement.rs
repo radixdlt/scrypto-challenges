@@ -30,10 +30,12 @@ impl PartialEq<BucketContents> for BucketRef {
 
 impl PartialOrd<BucketContents> for BucketRef {
     fn partial_cmp(&self, other: &BucketContents) -> Option<Ordering> {
+        debug!("partial_cmd: {:?} =?= {:?}", self, other);
         let bucket_type = self.resource_def().resource_type();
 
         match (bucket_type, other) {
             (ResourceType::Fungible { .. }, BucketContents::Fungible(amount)) => { 
+                debug!("partial_cmd: Fungible {:?} =?= {:?}", self.amount(), amount);
                 Some(self.amount().cmp(amount))
             },
             (ResourceType::NonFungible, BucketContents::NonFungible(keys)) => {
@@ -41,6 +43,7 @@ impl PartialOrd<BucketContents> for BucketRef {
                 let contents_keys: BTreeSet<&NonFungibleKey> = keys.iter().collect();
                 let self_keys = self.get_non_fungible_keys();
                 let self_keys: BTreeSet<&NonFungibleKey> = self_keys.iter().collect();
+                debug!("partial_cmd: NonFungible {:?} =?= {:?}", self_keys, contents_keys);
                 Some(self_keys.cmp(&contents_keys))
             },
             (_, _) => None,
@@ -67,6 +70,7 @@ impl BucketRequirement {
         bucket.authorize(|bucket_ref| self.check_ref(&bucket_ref))
     }
     pub fn check_at_least_ref(&self, bucket_ref: &BucketRef) -> bool {
+        debug!("check_at_least_ref: {:?} =?= {:?}", self, bucket_ref.resource_def());
         // same resource
         if self.resource != bucket_ref.resource_def() {
             return false;

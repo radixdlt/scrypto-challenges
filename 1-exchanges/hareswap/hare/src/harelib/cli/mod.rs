@@ -135,7 +135,7 @@ impl MakeSignedOrder {
             taker_contents: BucketContents::Fungible(resource_a_amount),
             maker_callback: Callback::CallMethod {
                 component_address: maker_component_address,
-                method: "default_swap".to_owned(),
+                method: "handle_order_default_callback".to_owned(),
                 args: vec![],
             },
         };
@@ -152,6 +152,10 @@ impl MakeSignedOrder {
         };
     
         let voucher_encoded = scrypto_encode(&voucher);
+
+        // TEST DECODE
+        let decoded_voucher = private_decode_with_type::<Voucher>(&voucher_encoded).unwrap();
+        assert_eq!(voucher, decoded_voucher, "voucher decode error");
 
         eprintln!("signing voucher bytes:\n{}", hex::encode(&voucher_encoded));
 

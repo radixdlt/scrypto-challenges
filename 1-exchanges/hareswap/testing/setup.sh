@@ -59,8 +59,10 @@ CALL_FUNCTION Address("$PACKAGE") "Maker" "instantiate" $pubkey_arg None Address
 EOF
 rtmc --output maker_setup.rtmc maker_setup.rtm
 resim run --trace maker_setup.rtm > maker_setup.trace 2>&1
+# annoying to get the return values when using resim instead of Rust APIs against the ledger...
 MAKER_COMPONENT=$(tail -n1 maker_setup.trace | cut -d' ' -f3)
-rm maker_setup.trace
+VOUCHER_ADDRESS=$(grep "INFO.*tokenized order resource address:" maker_setup.trace | cut -d':' -f2)
+#rm maker_setup.trace
 
 # switch to taker
 resim set-default-account $ACCOUNT1 $ACCOUNT1_PUBKEY
@@ -72,7 +74,6 @@ $HARE request-for-quote partial_order.txt $TAKER_AMOUNT $T $M $TAKER_AUTH
 # simulate send to maker
 # maker decide on price and sign order
 MAKER_AMOUNT=200
-# TODO get VOUCHER_ADDRESS or don't pass it along let the maker look it up
 $HARE make-signed-order partial_order.txt $MAKER_AMOUNT $MAKER_COMPONENT $VOUCHER_ADDRESS $MAKER_OFFLINE_KEY_PRI > signed_order.txt
 SIGNED_ORDER=$(cat signed_order.txt)
 
