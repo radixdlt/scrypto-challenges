@@ -67,14 +67,14 @@ VOUCHER_ADDRESS=$(grep "INFO.*tokenized order resource address:" maker_setup.tra
 # switch to taker
 resim set-default-account $ACCOUNT1 $ACCOUNT1_PUBKEY
 
-## TODO off-ledger stuff agree on order
+## off-ledger stuff agree on order
 #taker make RFQ
-TAKER_AMOUNT=100
-$HARE request-for-quote partial_order.txt $TAKER_AMOUNT $T $M $TAKER_AUTH
+MAKER_AMOUNT=200
+$HARE request-for-quote partial_order.txt $MAKER_AMOUNT $M $T $TAKER_AUTH
 # simulate send to maker
 # maker decide on price and sign order
-MAKER_AMOUNT=200
-$HARE make-signed-order partial_order.txt $MAKER_AMOUNT $MAKER_COMPONENT $VOUCHER_ADDRESS $MAKER_OFFLINE_KEY_PRI > signed_order.txt
+TAKER_AMOUNT=100
+$HARE make-signed-order partial_order.txt $TAKER_AMOUNT $MAKER_COMPONENT $VOUCHER_ADDRESS $MAKER_OFFLINE_KEY_PRI > signed_order.txt
 SIGNED_ORDER=$(cat signed_order.txt)
 
 ## 4-A taker: OPTION 1 - simple execution
