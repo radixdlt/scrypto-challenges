@@ -112,7 +112,7 @@ pub struct MakeSignedOrder {
 }
 
 use k256::{
-    ecdsa::{SigningKey, signature::Signer, VerifyingKey, signature::Verifier, Signature},
+    ecdsa::{SigningKey, signature::Signer, /* VerifyingKey, signature::Verifier, */ Signature},
 };
 use hex;
 // use transaction_manifest::parser::Parser as ManifestParser;
@@ -140,12 +140,14 @@ impl MakeSignedOrder {
             },
         };
 
+        let voucher_resource: ResourceDef = Address::from_str(&self.voucher_address).map_err(Error::ParseAddressError)?.into();
+        let voucher_key: NonFungibleKey = 1u128.into(); // TODO make this an parameter
+        //key: Some(NonFungibleKey::from_str("order1").unwrap()), // TODO choose key and map_err
         let nfd = matched_order.as_passthru();
 
         let voucher = Voucher {
-            resource_def: Address::from_str(&self.voucher_address).map_err(Error::ParseAddressError)?.into(),
-            //key: Some(NonFungibleKey::from_str("order1").unwrap()), // TODO choose key and map_err
-            key: None,
+            resource_def: voucher_resource.clone(),
+            key: Some(voucher_key.clone()),
             nfd,
         };
     
@@ -174,6 +176,8 @@ impl MakeSignedOrder {
 
         let signed_order = SignedOrder {
             order: matched_order,
+            voucher_resource,
+            voucher_key,
             signature: sig_bytes,
         };
 

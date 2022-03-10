@@ -72,7 +72,8 @@ $HARE request-for-quote partial_order.txt $TAKER_AMOUNT $T $M $TAKER_AUTH
 # simulate send to maker
 # maker decide on price and sign order
 MAKER_AMOUNT=200
-$HARE make-signed-order partial_order.txt $MAKER_AMOUNT $MAKER_COMPONENT $MAKER_OFFLINE_KEY_PRI > signed_order.txt
+# TODO get VOUCHER_ADDRESS or don't pass it along let the maker look it up
+$HARE make-signed-order partial_order.txt $MAKER_AMOUNT $MAKER_COMPONENT $VOUCHER_ADDRESS $MAKER_OFFLINE_KEY_PRI > signed_order.txt
 SIGNED_ORDER=$(cat signed_order.txt)
 
 ## 4-A taker: OPTION 1 - simple execution

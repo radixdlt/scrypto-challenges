@@ -2,6 +2,7 @@ use scrypto::prelude::*;
 use sbor::*;
 
 use super::transporter::blueprint::{Transporter, SealedVoucher};
+use super::transporter::voucher::{Voucher, IsPassThruNFD};
 use super::requirement::{BucketRequirement, BucketContents};
 use super::account::*;
 
@@ -40,10 +41,13 @@ pub struct MatchedOrder {
 // in a seperate module to deal with conflicting `decode` for sbor::Decode and NonFungibleData on MatchedOrder during derive
 mod signed_order {
     use super::MatchedOrder;
+    use super::{ResourceDef, NonFungibleKey};
     use sbor::{TypeId, Encode, Decode, Describe};
     #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
     pub struct SignedOrder {
         pub order: MatchedOrder,
+        pub voucher_resource: ResourceDef,
+        pub voucher_key: NonFungibleKey,
         pub signature: Vec<u8>,
     }
 }
@@ -185,19 +189,27 @@ blueprint! {
         pub fn tokenize_order(&mut self, signed_order: SignedOrder, taker_auth: BucketRef) -> Bucket {
             let SignedOrder {
                 order,
+                voucher_resource,
+                voucher_key,
                 signature,
             } = signed_order;
             // check taker_auth matches the order before redeeming it.  (if it matches but the signature is bad it wont redeem properly anyway)
             // check binding to taker - stops frontrunning the (public) SignedOrder (along with using redeem_auth)
             assert_eq!(order.partial_order.taker_auth.check_at_least_ref(&taker_auth), true, "tokenize_order: taker_auth not accepted");
 
-            let voucher = SealedVoucher {
-                serialized: scrypto_encode(&order),
+            let voucher = Voucher {
+                resource_def: voucher_resource,
+                key: Some(voucher_key),
+                nfd: order.as_passthru(),
+            };
+
+            let sealed_voucher = SealedVoucher {
+                serialized: scrypto_encode(&voucher),
                 signature
             };
 
             self.redeem_auth.authorize(|auth|
-                self.transporter.redeem(voucher, None, auth) // panics on bad vouchers
+                self.transporter.redeem(sealed_voucher, None, auth) // panics on bad vouchers
             )
         }
 

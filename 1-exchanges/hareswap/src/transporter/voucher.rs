@@ -9,7 +9,8 @@ pub struct PassThruNFD {
     mutable_data: Vec<u8>,
 }
 
-pub trait IsPassThruNFD: NonFungibleData {
+// note: can't implement From, this works just as well with a specific method name
+pub trait IsPassThruNFD: NonFungibleData + Sized {
     fn as_passthru(&self) -> PassThruNFD {
         PassThruNFD {
             immutable_data: self.immutable_data(),
