@@ -1,6 +1,31 @@
 # RaDEX
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 RaDEX is a proof-of-concept protocol of an Automated Market Maker (AMM) Decentralized Exchange (DEX) built on the Radix ledger using v0.3.0 of Scrypto: the smart contract language of the Radix ledger.
+
+## Taboe of Content
+
+  * [Abstract](#abstract)
+  * [Motivations](#motivations)
+  * [Features](#features)
+  * [Details of Design](#details-of-design)
+    + [Constant Function Market Makers](#constant-function-market-makers)
+    + [Liquidity Pools](#liquidity-pools)
+    + [Blueprints Overview](#blueprints-overview)
+      - [LiquidityPool blueprint](#liquiditypool-blueprint)
+      - [RaDEX blueprint](#radex-blueprint)
+  * [Examples](#examples)
+    + [Getting Started](#getting-started)
+    + [Example 1: Providing Liquidity](#example-1-providing-liquidity)
+    + [Example 2: Simple Token Swap](#example-2-simple-token-swap)
+    + [Example 3: Sapping Through Multiple Pools](#example-3-sapping-through-multiple-pools)
+    + [Example 3: Selling and Providing Liquidity](#example-3-selling-and-providing-liquidity)
+    + [Example 4: Removing Liquidity](#example-4-removing-liquidity)
+    + [Quick Examples](#quick-examples)
+  * [Future Work and Improvements](#future-work-and-improvements)
+  * [Conclusion](#conclusion)
+  * [License](#license)
 
 ## Abstract
 
@@ -22,7 +47,6 @@ The current implementation of RaDEX has quite a number of key features, which ar
 * Allows for user swaps that include slippage.
   
 The new transaction model introduced with v0.3.0 of Scrypto allows for the creation of composable transactions; this means that a concept such as slippage no longer needs to be implemented in the smart contract itself and that it can instead be an assertion in the transaction manifest file that performs the swap. In the case of RaDEX, slippage compatible methods are implemented on the liquidity pool components so that users have the choice of how they wish to add slippage to their swaps: either by using these dedicated methods or by writing their transaction manifest files for their swaps.
-
 ## Details of Design
 
 <!-- In this section we look at some of the details of the design and mathematics involved that power RaDEX. We first begin by looking at the mathematics behind swaps in Constant Function Market Makers (CFMMs) such as RaDEX, then we move into the -->
