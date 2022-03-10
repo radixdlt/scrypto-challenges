@@ -1,4 +1,4 @@
 pub mod authentication;
 pub mod blueprint;
-mod decoder;
-mod voucher;
+pub mod decoder;
+pub mod voucher;

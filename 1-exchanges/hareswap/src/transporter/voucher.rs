@@ -3,11 +3,21 @@ use sbor::{Decode, Decoder, DecodeError, Describe, Encode, describe::Type, TypeI
 
 use super::decoder::*;
 
-#[derive(TypeId, Encode, Decode, Describe, Default)]
+#[derive(TypeId, Encode, Decode, Describe)]
 pub struct PassThruNFD {
     immutable_data: Vec<u8>,
     mutable_data: Vec<u8>,
 }
+
+pub trait IsPassThruNFD: NonFungibleData {
+    fn as_passthru(&self) -> PassThruNFD {
+        PassThruNFD {
+            immutable_data: self.immutable_data(),
+            mutable_data: self.mutable_data()
+        }
+    }
+}
+impl<T: NonFungibleData> IsPassThruNFD for T {}
 
 impl NonFungibleData for PassThruNFD {
     /// Decodes `Self` from the serialized immutable and mutable parts.
@@ -43,9 +53,9 @@ impl NonFungibleData for PassThruNFD {
 
 #[derive(TypeId, Describe, Encode)]
 pub struct Voucher {
-    pub(crate) resource_def: ResourceDef,
-    pub(crate) key: Option<NonFungibleKey>,
-    pub(crate) nfd: PassThruNFD
+    pub resource_def: ResourceDef,
+    pub key: Option<NonFungibleKey>,
+    pub nfd: PassThruNFD
 }
 
 impl PrivateDecode for Voucher {

@@ -107,36 +107,18 @@ pub struct MakeSignedOrder {
     partial_order_file: PathBuf,
     resource_a_amount: String,
     maker_component_address: String,
+    voucher_address: String,
     private_key_file: PathBuf,
 }
 
 use k256::{
-    ecdsa::{recoverable::Signature as RSignature, SigningKey, signature::Signer},
+    ecdsa::{SigningKey, signature::Signer, VerifyingKey, signature::Verifier, Signature},
 };
 use hex;
 // use transaction_manifest::parser::Parser as ManifestParser;
 // use transaction_manifest::lexer::tokenize;
 // use transaction_manifest::generator::generate_instruction; // crap, need to either keep sbor encoded not manifest ast string, or wrap the entire thing in a real instruction (which isn't the worst idea)
 // use std::str;
-use k256::{
-    ecdsa::{VerifyingKey, Signature, DerSignature, signature::Verifier},
-};
-use ecdsa::der;
-
-pub fn xverify(public_key: &EcdsaPublicKey, serialized: &[u8], signature: &[u8]) {
-    let pub_bytes = public_key.to_vec();
-    let verifying_key: VerifyingKey = VerifyingKey::from_sec1_bytes(&pub_bytes).expect("verify: failed to parse verifying public key");
-
-    let sig = match Signature::from_der(&signature) {
-        Ok(s) => s.normalize_s().unwrap_or(s),
-        Err(_) => panic!("failed to parse signature ASN.1"),
-    };
-
-    match verifying_key.verify(serialized, &sig) {
-        Ok(_) => (), // GOOD!
-        Err(_) => panic!("xverify: signature verification failed 2"),
-    }
-}
 
 impl MakeSignedOrder {
     pub fn run(&self) -> Result<(), Error> {
@@ -145,17 +127,6 @@ impl MakeSignedOrder {
         let maker_component_address = Address::from_str(&self.maker_component_address).map_err(Error::ParseAddressError)?;
         let private_key_bytes = fs::read(&self.private_key_file).map_err(Error::IoError)?;
 
-        // parse parital_order_txt
-        // TODO -- XXX
-        // let partial_order_str = str::from_utf8(&partial_order_bytes).map_err(Error::Utf8Error)?.to_owned();
-        // let mut parser = ManifestParser::new(tokenize(&partial_order_str).unwrap());
-        // let partial_order_value = parser.parse_value().map_err(Error::ManifestParserError)?;
-        // if !parser.is_eof() {
-            // return Result::Err(Error::ParserNotEOFError);
-        // }
-
-        //let resolver = NameResolver::new();
-        //let args = generate_instruction(vec![partial_order_value])?;
         let partial_order_encoded = partial_order_bytes;
         let partial_order: PartialOrder = scrypto_decode(&partial_order_encoded).map_err(Error::SBORDecodeError)?;
 
@@ -168,52 +139,38 @@ impl MakeSignedOrder {
                 args: vec![],
             },
         };
-    
-        let matched_order_encoded = scrypto_encode(&matched_order);
 
-        eprintln!("signing mached_order bytes:\n{}", hex::encode(&matched_order_encoded));
+        let nfd = matched_order.as_passthru();
+
+        let voucher = Voucher {
+            resource_def: Address::from_str(&self.voucher_address).map_err(Error::ParseAddressError)?.into(),
+            //key: Some(NonFungibleKey::from_str("order1").unwrap()), // TODO choose key and map_err
+            key: None,
+            nfd,
+        };
+    
+        let voucher_encoded = scrypto_encode(&voucher);
+
+        eprintln!("signing voucher bytes:\n{}", hex::encode(&voucher_encoded));
 
         let signing_key = SigningKey::from_bytes(&private_key_bytes).expect("unable to create signing key (this should not happen)");
         eprintln!("SigningKey: {:?}", signing_key);
-        //let rsignature: RSignature = signing_key.try_sign(&matched_order_encoded).unwrap(); // TODO map_err
-        //let rsignature_bytes: &[u8] = rsignature.as_ref();
-        //let signature = Vec::from(rsignature_bytes);
-        let signature: Signature = signing_key.try_sign(&matched_order_encoded).unwrap(); // TODO map_err
+
+        let signature: Signature = signing_key.try_sign(&voucher_encoded).unwrap(); // TODO map_err
         let sig_bytes = signature.to_der().to_bytes().to_vec();
 
-        eprintln!("result signature:\n{}", hex::encode(&signature));
-        eprintln!("result signature:\n{}", hex::encode(&sig_bytes));
+//        eprintln!("result signature:\n{}", hex::encode(&signature));
+//        eprintln!("result signature:\n{}", hex::encode(&sig_bytes));
 
         // double check sig verifies
         let verifying_key = signing_key.verifying_key();
-
-
-
-    //let rsignature = RSignature::try_from(signature).unwrap();
-    //let sig = Signature::from(rsignature);
-    //let sig_bytes: Vec<u8> = vec![];
-    //let der_sig = der::Signature::try_from(sig_bytes.as_ref()).unwrap();
-//    let der_sig = DerSignature::try_from(sig_bytes.as_ref()).unwrap();
-//    let sig = Signature::from(der_sig);
-    let sig = match Signature::from_der(&sig_bytes) {
-        Ok(s) => s.normalize_s().unwrap_or(s),
-        Err(_) => panic!("failed to parse signature ASN.1"),
-    };
-
-    match verifying_key.verify(&matched_order_encoded, &sig) {
-        Ok(_) => (), // GOOD!
-        Err(_) => panic!("xverify: signature verification failed 1"),
-    }
-
-
-
-        eprintln!("verifying_key: {:?}", verifying_key);
+//        eprintln!("verifying_key: {:?}", verifying_key);
         let compressed_point = verifying_key.to_bytes();
-        eprintln!("compressed_point: {:?}", compressed_point);
+//        eprintln!("compressed_point: {:?}", compressed_point);
         let mut public_raw = [0u8; 33];
         public_raw[..].copy_from_slice(&compressed_point);
         let public_key: EcdsaPublicKey = EcdsaPublicKey(public_raw);
-        xverify(&public_key, &matched_order_encoded, &sig_bytes);
+        verify(&public_key, &voucher_encoded, &sig_bytes);
 
         let signed_order = SignedOrder {
             order: matched_order,
