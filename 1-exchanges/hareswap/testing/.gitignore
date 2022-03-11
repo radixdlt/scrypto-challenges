@@ -2,3 +2,8 @@ maker.pub
 maker.pri
 maker_setup.rtm
 maker_setup.rtmc
+maker_setup.trace
+partial_order.txt
+signed_order.txt
+taker_submit_option1.rtm
+taker_submit_option1.rtmc
