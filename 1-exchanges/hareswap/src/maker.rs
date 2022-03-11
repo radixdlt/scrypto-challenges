@@ -61,7 +61,6 @@ blueprint! {
         order_def: ResourceDef,
         redeem_auth: Vault,
         account: CustodialAccount,
-        account_component: Address,
         account_auth: Vault,
     }
 
@@ -95,7 +94,6 @@ blueprint! {
                 order_def,
                 redeem_auth,
                 account: account.clone().into(),
-                account_component: account.address(),
                 account_auth: Vault::with_bucket(account_auth)
             }.instantiate()
         }
@@ -114,46 +112,15 @@ blueprint! {
                 resource: matched_order.partial_order.taker_resource,
                 contents: matched_order.taker_contents
             };
-            // match taker_requirement.contents {
-            //     BucketContents::Fungible(ref mut amount) => *amount -= 1,
-            //     _ => (),
-            // };
-
-            // let mut from_taker = from_taker;
-            // let b0: Bucket = from_taker.take(1);
 
             // check from_taker fills the order request.... this callback will just take everything the taker gives us even if they overpay
-            debug!("trying to check from_taker: {:?}", from_taker);
-            // there's some bug where creating the bucketref makes the bucket unable to be depositted
-            // from_taker.authorize(|from_taker_ref| {
-            //     assert_eq!(taker_requirement.xxx_check_at_least_ref(&from_taker_ref), true, "handle_order_default_callback: taker Bucket does not meet requirements");
-            //     from_taker_ref.drop(); // it does not auto drop so this is needed, the scrypto_statictypes BucketRefOf<T> has a nice Drop implementation to avoid these issues :)
-            // });
+            trace!("handle_order_default_callback: from_taker: {:?}", from_taker);
             assert_eq!(taker_requirement.check_at_least(&from_taker), true, "handle_order_default_callback: taker Bucket does not meet requirements");
-            //assert_eq!(taker_requirement.check_at_least_ref(from_taker.present()), true, "handle_order_default_callback: taker Bucket does not meet requirements");
-            // let taker_actual = BucketRequirement {
-            //     resource: from_taker.resource_def(),
-            //     contents: BucketContents::Fungible(from_taker.amount()) // TODO handle NonFungible too
-            // };
-            // assert_eq!(taker_requirement.contents <= taker_actual.contents, "handle_order_default_callback: taker Bucket does not meet requirements");
 
             debug!("handle_order_default_callback: requirements passed, now deposit from_taker Bucket to Maker's account");
 
-            // let mut from_taker = from_taker;
-            // let b: Bucket = from_taker.take(1);
-
-            // debug!("take 1 worked");
-
             // execute Account deposit
             self.account.deposit(from_taker);
-            //call_method(self.account_component, "deposit", vec![scrypto_encode(&from_taker)]);
-
-            // debug!("deposit worked");
-
-            // self.account.deposit(b);
-            // debug!("deposit worked again");
-            // self.account.deposit(b0);
-            // debug!("deposit worked again again");
 
             // execute Account withdrawl
             let withdraw_address = matched_order.partial_order.maker_requirement.resource.address();

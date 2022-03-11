@@ -1,6 +1,6 @@
 # TODO
 
-* handle all code TODOs
+* [X] handle all code TODOs
 * quality
   * remove all dead code
   * convert comments to trace/debug/info logging

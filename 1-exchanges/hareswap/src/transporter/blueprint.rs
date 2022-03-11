@@ -15,7 +15,7 @@ impl SealedVoucher {
     pub fn unseal(&self, public_key: &EcdsaPublicKey) -> Voucher {
         info!("SealedVoucher::unseal: serialized: {}", hex::encode(&self.serialized));
         info!("SealedVoucher::unseal:  signature: {}", hex::encode(&self.signature));
-        verify(public_key, &self.serialized, &self.signature); // panics on failure
+        verify_or_panic(public_key, &self.serialized, &self.signature); // NOTE: panics on failure
         private_decode_with_type(&self.serialized).unwrap()
     }
 }

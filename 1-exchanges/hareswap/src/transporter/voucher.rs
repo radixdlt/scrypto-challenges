@@ -31,12 +31,12 @@ impl NonFungibleData for PassThruNFD {
 
     /// Returns the serialization of the immutable data part.
     fn immutable_data(&self) -> Vec<u8> {
-        self.immutable_data.clone() // TODO optimize to avoid this clone using RefCell<Option<...>> knowing this is only called from mint_non_fungible called from to_bucket which consumes the Voucher
+        self.immutable_data.clone() // NOTE: could optimize to avoid this clone using RefCell<Option<...>> knowing this is only called from mint_non_fungible called from to_bucket which consumes the Voucher
     }
 
     /// Returns the serialization of the mutable data part.
     fn mutable_data(&self) -> Vec<u8> {
-        self.mutable_data.clone() // TODO optimize to avoid this clone using RefCell<Option<...>> knowing this is only called from mint_non_fungible called from to_bucket which consumes the Voucher
+        self.mutable_data.clone() // NOTE: could optimize to avoid this clone using RefCell<Option<...>> knowing this is only called from mint_non_fungible called from to_bucket which consumes the Voucher
     }
 
     /// Returns the schema of the immutable data.
@@ -97,7 +97,7 @@ impl Voucher {
                 required_key
             }
         };
-        // TODO look at resource def to decide to mint non fungible or fungible, if fungible we need an amount from somewhere
+        // finally mint
         resource_def.mint_non_fungible(&key, nfd, auth)
     }
 }
