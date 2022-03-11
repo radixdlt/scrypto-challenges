@@ -211,9 +211,6 @@ fn create_trader_openorders<'a, L: radix_engine::ledger::SubstateStore>(
     trader_key: EcdsaPublicKey,
     trader_addresse: Address,
 ) -> Address {
-    let data = get_account_vaults(executor.ledger(), trader_addresse);
-    println!("create_openorders data before:{:?}\n", data);
-
     let receipt = executor
         .run(
             TransactionBuilder::new(executor)
@@ -224,15 +221,13 @@ fn create_trader_openorders<'a, L: radix_engine::ledger::SubstateStore>(
         )
         .unwrap();
     assert!(receipt.result.is_ok());
-    let data = get_account_vaults(executor.ledger(), trader_addresse);
-    println!("create_openorders data after:{:?}\n", data);
     //get new badge from account data.
     //I don't really understand why it doesn't return from the Tx.
+    let data = get_account_vaults(executor.ledger(), trader_addresse);
     let badge = data
         .into_iter()
         .filter_map(|(address, amount)| (amount == Decimal::one()).then(|| address))
         .next();
-    println!("create_openorders badge:{:?}\n", badge);
     assert!(badge.is_some());
     badge.unwrap()
 }
@@ -243,6 +238,7 @@ fn push_bid_order<'a, L: SubstateStore>(
     price: usize,
     amount_base: usize,
     amount_token: usize,
+    order_type: u8,
     trader: &Trader,
 ) {
     let receipt = executor
@@ -254,6 +250,7 @@ fn push_bid_order<'a, L: SubstateStore>(
                     vec![
                         format!("{}", price),
                         format!("{}", amount_base),
+                        format!("{}", order_type),
                         format!("{},{}", amount_token, trader.quote_token),
                         format!("{},{}", 1, trader.access_badge_address),
                     ],
@@ -273,6 +270,7 @@ fn push_ask_order<'a, L: SubstateStore>(
     instance: Address,
     price: usize,
     amount_base: usize,
+    order_type: u8,
     trader: &Trader,
 ) {
     let receipt = executor
@@ -284,6 +282,7 @@ fn push_ask_order<'a, L: SubstateStore>(
                     vec![
                         format!("{}", price),
                         format!("{}", amount_base),
+                        format!("{}", order_type),
                         format!("{},{}", amount_base, trader.base_token),
                         format!("{},{}", 1, trader.access_badge_address),
                     ],
@@ -298,18 +297,68 @@ fn push_ask_order<'a, L: SubstateStore>(
     assert!(receipt.result.is_ok());
 }
 
-#[test]
-fn test_bid() {
-    //let mut ledger = InMemorySubstateStore::with_bootstrap();
-    //let (mut env, actors) = TestEnv::new(&mut ledger);
-    let mut ledger = InMemorySubstateStore::with_bootstrap();
+fn push_withdraw<'a, L: SubstateStore>(
+    executor: &mut TransactionExecutor<'a, L>,
+    instance: Address,
+    trader: &Trader,
+) {
+    let receipt = executor
+        .run(
+            TransactionBuilder::new(executor)
+                .call_method(
+                    instance,
+                    "withdraw",
+                    vec![format!("{},{}", 1, trader.access_badge_address)],
+                    Some(trader.address),
+                )
+                .call_method_with_all_resources(trader.address, "deposit_batch")
+                .build(vec![trader.key])
+                .unwrap(),
+        )
+        .unwrap();
+    println!("{:?}\n", receipt);
+    assert!(receipt.result.is_ok());
+}
 
+fn check_wallet<'a, L: SubstateStore>(
+    executor: &mut TransactionExecutor<'a, L>,
+    index: u8,
+    trader: &Trader,
+) {
+    let wallet = get_account_vaults(executor.ledger(), trader.address);
+    let quote = *wallet.get(&trader.quote_token).unwrap_or(&Decimal::zero());
+    let base = *wallet.get(&trader.base_token).unwrap_or(&Decimal::zero());
+
+    println!("WALLET:{} quote:{:?} base:{:?}", index, quote, base);
+}
+
+#[test]
+fn test_trade1() {
+    let mut ledger = InMemorySubstateStore::with_bootstrap();
     let (mut executor, instance, traders) = init(&mut ledger);
-    push_ask_order(&mut executor, instance, 20, 10, &traders[0]);
-    push_ask_order(&mut executor, instance, 19, 10, &traders[0]);
-    push_bid_order(&mut executor, instance, 20, 20, 400, &traders[0]);
-    push_ask_order(&mut executor, instance, 20, 10, &traders[0]);
-    push_bid_order(&mut executor, instance, 20, 20, 400, &traders[0]);
+    check_wallet(&mut executor, 0, &traders[0]);
+    check_wallet(&mut executor, 1, &traders[1]);
+    push_ask_order(&mut executor, instance, 20, 10, 0, &traders[1]);
+    check_wallet(&mut executor, 1, &traders[1]);
+    push_ask_order(&mut executor, instance, 19, 10, 0, &traders[1]);
+    check_wallet(&mut executor, 0, &traders[0]);
+    check_wallet(&mut executor, 1, &traders[1]);
+    push_bid_order(&mut executor, instance, 20, 20, 400, 0, &traders[0]);
+    check_wallet(&mut executor, 0, &traders[0]);
+    check_wallet(&mut executor, 1, &traders[1]);
+    push_withdraw(&mut executor, instance, &traders[0]);
+    push_withdraw(&mut executor, instance, &traders[1]);
+    check_wallet(&mut executor, 0, &traders[0]);
+    check_wallet(&mut executor, 1, &traders[1]);
+    push_ask_order(&mut executor, instance, 20, 10, 0, &traders[1]);
+    check_wallet(&mut executor, 1, &traders[1]);
+    push_bid_order(&mut executor, instance, 20, 20, 400, 0, &traders[0]);
+    check_wallet(&mut executor, 0, &traders[0]);
+    check_wallet(&mut executor, 1, &traders[1]);
+    push_withdraw(&mut executor, instance, &traders[0]);
+    push_withdraw(&mut executor, instance, &traders[1]);
+    check_wallet(&mut executor, 0, &traders[0]);
+    check_wallet(&mut executor, 1, &traders[1]);
     //    push_bid_order(&mut executor, instance, 1, 30, 40, &traders[1]);
     //    push_bid_order(&mut executor, instance, 1, 30, 40, &traders[1]);
 }

@@ -22,17 +22,17 @@ blueprint! {
             base_token: Address,
             name: String,
         ) -> (Component, Bucket) {
+
+            // Define the admin badge
+            let admin_badge = ResourceBuilder::new_fungible(DIVISIBILITY_NONE)
+                .metadata("name", &format!("Admin challenge market {} access Badge", name))
+                .initial_supply_fungible(1);
+
             // Create a badge for internal use which will hold mint/burn authority for the admin badge we will soon create
             let orders_badge_minter: Bucket =
                 ResourceBuilder::new_fungible(DIVISIBILITY_NONE)
-                .metadata("name", &format!("market:{}", name))
+                .metadata("name", &format!("Trader challenge market:{}", name))
                 .initial_supply_fungible(1);
-
-            // Define the admin badge
-            let admin_badge: Bucket = ResourceBuilder::new_fungible(DIVISIBILITY_NONE)
-                .metadata("name", &format!("Market {} access Badge", name))
-                .initial_supply_fungible(1);
-
 
             // Create the ResourceDef for a mutable supply admin badge
             let orders_badge_def = ResourceBuilder::new_non_fungible()
@@ -64,9 +64,7 @@ blueprint! {
                 )
             });
 
-            info!("badge:{:?}", badge.get_non_fungible_keys().get(0).unwrap());
-
-            let orders = dex::UserOrders::new(self.dex.quote_token.clone(), self.dex.base_token.clone());
+            let orders = dex::UserOrders::new(self.dex.params.quote_token.clone(), self.dex.params.base_token.clone());
             self.dex.user_orders.insert(
                 badge.get_non_fungible_keys().get(0).unwrap().clone(),
                 orders,
@@ -75,8 +73,9 @@ blueprint! {
             badge
         }
 
-        //#[auth(orders_badge_def)]
-        pub fn buy_order(&mut self, price: Decimal, amount: Decimal, quote: Bucket, auth: BucketRef) -> Vec<Bucket> {
+        //use u8 for order type beacause I didn't find an example with an Option as Tx parameter.
+        #[auth(orders_badge_def)]
+        pub fn buy_order(&mut self, price: Decimal, amount: Decimal, ordre_type: u8, quote: Bucket) -> Vec<Bucket> { //, auth: BucketRef
             info!("buy_order");
             let owner_keys = auth.get_non_fungible_keys();
             let data: BadgeData = auth
@@ -88,12 +87,12 @@ blueprint! {
                 price,
                 amount,
                 quote,
-                dex::OrderType::Limit,
+                ordre_type.into(),
             ).1
         }
 
-        //#[auth(orders_badge_def)]
-        pub fn sell_order(&mut self, price: Decimal, amount: Decimal, base: Bucket, auth: BucketRef) -> Vec<Bucket> {
+        #[auth(orders_badge_def)]
+        pub fn sell_order(&mut self, price: Decimal, amount: Decimal, ordre_type: u8, base: Bucket) -> Vec<Bucket> { //, auth: BucketRef
             info!("sell order");
             let owner_keys = auth.get_non_fungible_keys();
             let data: BadgeData = auth
@@ -105,9 +104,30 @@ blueprint! {
                 price,
                 amount,
                 base,
-                dex::OrderType::PostOnly,
+                ordre_type.into(),
             ).1
         }
+
+        #[auth(orders_badge_def)]
+        pub fn withdraw(&mut self) -> (Bucket, Bucket) {
+            info!("withdraw order");
+            let owner_keys = auth.get_non_fungible_keys();
+            let data: BadgeData = auth
+                .resource_def()
+                .get_non_fungible_data(owner_keys.get(0).unwrap());
+            assert!(data.name == self.name, "Not current market open order badge");
+
+            let mut user_orders = self.dex
+            .user_orders
+            .get(&owner_keys.get(0).unwrap())
+            .ok_or_else(|| panic!("Badge provided not declared call create_openorders to get one"))
+            .unwrap();
+
+            info!("withdraw user_orders.quote_vault:{} user_orders.base_vault:{}", user_orders.quote_vault.amount(), user_orders.base_vault.amount());
+
+            (user_orders.quote_vault.take_all(), user_orders.base_vault.take_all())
+        }
+
     }
 
 }

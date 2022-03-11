@@ -3,31 +3,45 @@ use scrypto::prelude::*;
 use scrypto::rust::marker::PhantomData;
 use std::cmp::Ordering;
 
-const MAKER_FEE: Decimal = Decimal(10);
-const TAKER_FEE: Decimal = Decimal(10);
+static MAKER_FEE: usize = 5;
+static TAKER_FEE: usize = 10;
+
+#[derive(Debug, TypeId, Encode, Decode, Describe)]
+pub struct DexParameters {
+    pub quote_token: ResourceDef,
+    pub base_token: ResourceDef,
+    pub maker_fee: Decimal,
+    pub taker_fee: Decimal,
+}
 
 #[derive(Debug, TypeId, Encode, Decode, Describe)]
 pub struct Dex {
     // Define dex data
-    pub quote_token: ResourceDef,
-    pub base_token: ResourceDef,
-    pub fee_vault: Vault,
+    pub fee_quote_vault: Vault,
+    pub fee_base_vault: Vault,
     pub user_orders: LazyMap<NonFungibleKey, UserOrders>,
     pub bids: BTreeSet<Order>,
     pub asks: BTreeSet<Order>,
+    pub params: DexParameters,
     counter: u32,
 }
 
 impl Dex {
     pub fn new(quote_token: Address, base_token: Address) -> Self {
         Dex {
-            quote_token: ResourceDef::from(quote_token),
-            base_token: ResourceDef::from(base_token),
-            fee_vault: Vault::new(quote_token),
+            fee_quote_vault: Vault::new(quote_token),
+            fee_base_vault: Vault::new(base_token),
             user_orders: LazyMap::new(),
             counter: 0,
             bids: BTreeSet::new(),
             asks: BTreeSet::new(),
+            //rm I do it like that because I can't find a way to have const decimal without knowing the u128 value.
+            params: DexParameters {
+                quote_token: ResourceDef::from(quote_token),
+                base_token: ResourceDef::from(base_token),
+                maker_fee: From::<usize>::from(MAKER_FEE),
+                taker_fee: From::<usize>::from(TAKER_FEE),
+            },
         }
     }
     ///
@@ -67,6 +81,7 @@ impl Dex {
             owner: owner.clone(),
             price,
             amount,
+            locked_amount,
         };
 
         info!("bid:{:?}", self.bids.len());
@@ -76,22 +91,22 @@ impl Dex {
         //manage order type
         match order_type {
             OrderType::Limit | OrderType::ImmediateOrCancel => {
-                let mut bid = StateOrder::<BidSide, TakerPos>::new_with_order(order);
+                let mut bid =
+                    StateOrder::<BidSide, TakerPos>::new_with_order(order, self.params.taker_fee);
                 let (remain_bid, remain_ask) = loop {
-                    match bid.match_order(&mut self.asks) {
+                    match bid.match_bid_order(&mut self.asks, &self.params) {
                         None => break (Some(bid), None), //no match found
-                        Some((mut matched, ask)) => {
+                        Some((matched, ask)) => {
                             let mut ask_trader_orders = self
                                 .user_orders
                                 .get(&ask.order.owner)
                                 .unwrap_or_else(|| panic!("Provided badge not declared"));
-                            ask.apply_fee(&mut ask_trader_orders, self, &mut matched);
-                            bid.apply_fee(&mut user_orders, self, &mut matched);
                             match matched.transfert_match(
                                 bid,
                                 &mut user_orders,
                                 ask,
                                 &mut ask_trader_orders,
+                                self,
                             ) {
                                 (None, remain_ask) => {
                                     info!("bid remain_ask:{:?}", remain_ask);
@@ -147,6 +162,7 @@ impl Dex {
             owner: owner.clone(),
             price,
             amount,
+            locked_amount: Decimal::zero(),
         };
 
         let new_id = order.id;
@@ -154,22 +170,22 @@ impl Dex {
         //manage order type
         match order_type {
             OrderType::Limit | OrderType::ImmediateOrCancel => {
-                let mut ask = StateOrder::<AskSide, TakerPos>::new_with_order(order);
+                let mut ask =
+                    StateOrder::<AskSide, TakerPos>::new_with_order(order, self.params.taker_fee);
                 let (remain_bid, remain_ask) = loop {
-                    match ask.match_order(&mut self.bids) {
+                    match ask.match_ask_order(&mut self.bids, &self.params) {
                         None => break (None, Some(ask)), //no match found
-                        Some((mut matched, bid)) => {
+                        Some((matched, bid)) => {
                             let mut bid_trader_orders = self
                                 .user_orders
                                 .get(&bid.order.owner)
                                 .unwrap_or_else(|| panic!("Provided badge not declared"));
-                            bid.apply_fee(&mut bid_trader_orders, self, &mut matched);
-                            ask.apply_fee(&mut user_orders, self, &mut matched);
                             match matched.transfert_match(
                                 bid,
                                 &mut bid_trader_orders,
                                 ask,
                                 &mut user_orders,
+                                self,
                             ) {
                                 (None, remain_ask) => {
                                     info!("ask remain_ask:{:?}", remain_ask);
@@ -233,6 +249,7 @@ pub struct Order {
     pub owner: NonFungibleKey,
     pub price: Decimal,
     pub amount: Decimal, //amount in base to trade.
+    pub locked_amount: Decimal,
 }
 
 impl Ord for Order {
@@ -260,6 +277,16 @@ pub enum OrderType {
     PostOnly,
 }
 
+impl From<u8> for OrderType {
+    fn from(order_type: u8) -> Self {
+        match order_type {
+            1 => OrderType::ImmediateOrCancel,
+            2 => OrderType::PostOnly,
+            _ => OrderType::Limit,
+        }
+    }
+}
+
 /*fn find_by_side<T: std::cmp::Ord>(set: &mut BTreeSet<T>, side: Side) -> Option<T> {
     let found = match side {
         Side::Bid => set.iter().max(), //max
@@ -277,41 +304,24 @@ struct Match {
     transfert_user_quote: Decimal,
     remainder_ask_base: Decimal,
     remainder_bid_base: Decimal,
-    transfert_price: Decimal,
 }
 
 impl Match {
     fn transfert_match<POSITION1, POSITION2>(
-        self,
-        mut bid: StateOrder<BidSide, POSITION1>,
+        &self,
+        bid: StateOrder<BidSide, POSITION1>,
         bid_trader: &mut UserOrders,
-        mut ask: StateOrder<AskSide, POSITION2>,
+        ask: StateOrder<AskSide, POSITION2>,
         ask_trader: &mut UserOrders,
+        dex: &mut Dex,
     ) -> (
         Option<StateOrder<BidSide, POSITION1>>,
         Option<StateOrder<AskSide, POSITION2>>,
     ) {
-        //transfert matched order in trader's Vaults.
-        bid_trader
-            .base_vault
-            .put(ask_trader.locked_base_vault.take(self.transfert_user_base));
-        ask_trader.quote_vault.put(
-            bid_trader
-                .locked_quote_vault
-                .take(self.transfert_user_quote),
-        );
-
-        //update bid and ask order with remainding
-        bid.order.amount = self.remainder_bid_base;
-        ask.order.amount = self.remainder_ask_base;
-
-        match (bid.order.amount.0, ask.order.amount.0) {
-            //rem Decimal::zero() should be const to be matched.
-            (0, 0) => (None, None),
-            (0, _) => (None, Some(ask)),
-            (_, 0) => (Some(bid), None),
-            (_, _) => (Some(bid), Some(ask)),
-        }
+        (
+            bid.transfer_bid_match(bid_trader, ask_trader, self, dex),
+            ask.transfer_ask_match(bid_trader, ask_trader, self, dex),
+        )
     }
 }
 
@@ -328,22 +338,27 @@ struct TakerPos;
 #[derive(Debug)]
 struct StateOrder<SIDE, POSITION> {
     order: Order,
+    order_fee: Decimal,
+    amount_transfered: Decimal,
     state: PhantomData<(SIDE, POSITION)>,
 }
 
 impl<SIDE, POSITION> StateOrder<SIDE, POSITION> {
-    fn new_with_order(order: Order) -> StateOrder<SIDE, POSITION> {
+    fn new_with_order(order: Order, order_fee: Decimal) -> StateOrder<SIDE, POSITION> {
         StateOrder {
             order,
+            order_fee,
+            amount_transfered: Decimal::zero(),
             state: PhantomData,
         }
     }
 }
 
-impl<POSITION> StateOrder<BidSide, POSITION> {
-    fn match_order(
+impl StateOrder<BidSide, TakerPos> {
+    fn match_bid_order(
         &self,
         set: &mut BTreeSet<Order>,
+        dex: &DexParameters,
     ) -> Option<(Match, StateOrder<AskSide, MakerPos>)> {
         //BTreeSet min only in Nigthly.
         let found = { set.iter().cloned().min() };
@@ -359,9 +374,8 @@ impl<POSITION> StateOrder<BidSide, POSITION> {
                             transfert_user_base: base_to_transfert,
                             remainder_ask_base: ask.amount - base_to_transfert,
                             remainder_bid_base: self.order.amount - base_to_transfert,
-                            transfert_price: ask.price,
                         },
-                        StateOrder::<AskSide, MakerPos>::new_with_order(ask),
+                        StateOrder::<AskSide, MakerPos>::new_with_order(ask, dex.maker_fee),
                     ))
                 } else {
                     None
@@ -372,10 +386,52 @@ impl<POSITION> StateOrder<BidSide, POSITION> {
     }
 }
 
+impl<POSITION> StateOrder<BidSide, POSITION> {
+    fn transfer_bid_match(
+        mut self,
+        bid_trader: &mut UserOrders,
+        ask_trader: &mut UserOrders,
+        matched: &Match,
+        dex: &mut Dex,
+    ) -> Option<StateOrder<BidSide, POSITION>> {
+        //Calculate fee and transfert matched order in trader's Vaults.
+        //for bid side take fee from base because bid receive base.
+        let bid_fee_base_amount =
+            matched.transfert_user_base * self.order_fee / Into::<Decimal>::into(100);
+        dex.fee_base_vault
+            .put(ask_trader.locked_base_vault.take(bid_fee_base_amount));
+
+        info!(
+            "transfert_match bid matched.transfert_user_base:{} bid bid_fee_base_amout:{}",
+            matched.transfert_user_base, bid_fee_base_amount
+        );
+        bid_trader.base_vault.put(
+            ask_trader
+                .locked_base_vault
+                .take(matched.transfert_user_base - bid_fee_base_amount),
+        );
+
+        //update bid and ask order with remainding
+        self.amount_transfered += matched.transfert_user_quote;
+        self.order.amount = matched.remainder_bid_base;
+
+        if self.order.amount == Decimal::zero() {
+            //remove unnecessary locked quote.
+            let diff = self.order.locked_amount - self.amount_transfered;
+            bid_trader
+                .quote_vault
+                .put(bid_trader.locked_quote_vault.take(diff));
+        }
+
+        (self.order.amount == Decimal::zero()).then(|| self)
+    }
+}
+
 impl<POSITION> StateOrder<AskSide, POSITION> {
-    fn match_order(
+    fn match_ask_order(
         &self,
         set: &mut BTreeSet<Order>,
+        dex: &DexParameters,
     ) -> Option<(Match, StateOrder<BidSide, MakerPos>)> {
         //BTreeSet min only in Nigthly.
         let found = { set.iter().cloned().max() };
@@ -391,9 +447,8 @@ impl<POSITION> StateOrder<AskSide, POSITION> {
                             transfert_user_base: base_to_transfert,
                             remainder_ask_base: self.order.amount - base_to_transfert,
                             remainder_bid_base: bid.amount - base_to_transfert,
-                            transfert_price: bid.price,
                         },
-                        StateOrder::<BidSide, MakerPos>::new_with_order(bid),
+                        StateOrder::<BidSide, MakerPos>::new_with_order(bid, dex.maker_fee),
                     ))
                 } else {
                     None
@@ -404,48 +459,37 @@ impl<POSITION> StateOrder<AskSide, POSITION> {
     }
 }
 
-impl StateOrder<BidSide, MakerPos> {
-    fn apply_fee(&self, trader: &mut UserOrders, dex: &mut Dex, matched: &mut Match) {
-        //for bid side take fee from base then apply price to transform in quote.
-        let fee_base_amout = matched.transfert_user_base * MAKER_FEE / 100;
-        let fee_amount = fee_base_amout / matched.transfert_price;
-        //update matched amount with less fee
-        matched.transfert_user_base -= fee_base_amout;
-        dex.fee_vault
-            .put(trader.locked_quote_vault.take(fee_amount));
-    }
-}
+impl<POSITION> StateOrder<AskSide, POSITION> {
+    fn transfer_ask_match(
+        mut self,
+        bid_trader: &mut UserOrders,
+        ask_trader: &mut UserOrders,
+        matched: &Match,
+        dex: &mut Dex,
+    ) -> Option<StateOrder<AskSide, POSITION>> {
+        //Calculate fee and transfert matched order in trader's Vaults.
+        //for ask side take fee from quote because ask receive quote.
+        let ask_fee_base_amount =
+            matched.transfert_user_quote * self.order_fee / Into::<Decimal>::into(100);
+        dex.fee_quote_vault
+            .put(bid_trader.locked_quote_vault.take(ask_fee_base_amount));
+        info!(
+            "transfert_match ask matched.transfert_user_quote:{} bid bid_fee_base_amout:{}",
+            matched.transfert_user_quote, ask_fee_base_amount
+        );
+        ask_trader.quote_vault.put(
+            bid_trader
+                .locked_quote_vault
+                .take(matched.transfert_user_quote - ask_fee_base_amount),
+        );
+        info!(
+            "transfert_match ask ask_trader.quote_vault:{}",
+            ask_trader.quote_vault.amount()
+        );
+        //update bid and ask order with remainding
+        self.amount_transfered += matched.transfert_user_base;
+        self.order.amount = matched.remainder_ask_base;
 
-impl StateOrder<BidSide, TakerPos> {
-    fn apply_fee(&self, trader: &mut UserOrders, dex: &mut Dex, matched: &mut Match) {
-        //for bid side take fee from base then apply price to transform in quote.
-        let fee_base_amout = matched.transfert_user_base * TAKER_FEE / 100;
-        let fee_amount = fee_base_amout / matched.transfert_price;
-        //update matched amount with less fee
-        matched.transfert_user_base -= fee_base_amout;
-        dex.fee_vault
-            .put(trader.locked_quote_vault.take(fee_amount));
-    }
-}
-
-impl StateOrder<AskSide, MakerPos> {
-    fn apply_fee(&self, trader: &mut UserOrders, dex: &mut Dex, matched: &mut Match) {
-        //for ask side take fee from quote.
-        let fee_amount = matched.transfert_user_quote * MAKER_FEE / 100;
-        //update matched amount with less fee
-        matched.transfert_user_quote -= fee_amount;
-        dex.fee_vault
-            .put(trader.locked_quote_vault.take(fee_amount));
-    }
-}
-
-impl StateOrder<AskSide, TakerPos> {
-    fn apply_fee(&self, trader: &mut UserOrders, dex: &mut Dex, matched: &mut Match) {
-        //for ask side take fee from quote.
-        let fee_amount = matched.transfert_user_quote * TAKER_FEE / 100;
-        //update matched amount with less fee
-        matched.transfert_user_quote -= fee_amount;
-        dex.fee_vault
-            .put(trader.locked_quote_vault.take(fee_amount));
+        (self.order.amount == Decimal::zero()).then(|| self)
     }
 }
