@@ -4,7 +4,7 @@
 
 RaDEX is a proof-of-concept protocol of an Automated Market Maker (AMM) Decentralized Exchange (DEX) built on the Radix ledger using v0.3.0 of Scrypto: the smart contract language of the Radix ledger.
 
-## Taboe of Content
+## Table of Content
 
   * [Abstract](#abstract)
   * [Motivations](#motivations)
@@ -19,9 +19,9 @@ RaDEX is a proof-of-concept protocol of an Automated Market Maker (AMM) Decentra
     + [Getting Started](#getting-started)
     + [Example 1: Providing Liquidity](#example-1-providing-liquidity)
     + [Example 2: Simple Token Swap](#example-2-simple-token-swap)
-    + [Example 3: Sapping Through Multiple Pools](#example-3-sapping-through-multiple-pools)
-    + [Example 3: Selling and Providing Liquidity](#example-3-selling-and-providing-liquidity)
-    + [Example 4: Removing Liquidity](#example-4-removing-liquidity)
+    + [Example 3: Swapping Through Multiple Pools](#example-3-swapping-through-multiple-pools)
+    + [Example 4: Selling and Providing Liquidity](#example-3-selling-and-providing-liquidity)
+    + [Example 5: Removing Liquidity](#example-4-removing-liquidity)
     + [Quick Examples](#quick-examples)
   * [Future Work and Improvements](#future-work-and-improvements)
   * [Conclusion](#conclusion)
@@ -314,7 +314,7 @@ Resources:
 
 We can see form the balances shown above that about 12.2767 BTC was swapped for $500,000 USDT tokens when the transaction ran. This is the first swap to take place on RaDEX and as we can see, the swapping process was very smooth and seamless.
 
-### Example 3: Sapping Through Multiple Pools
+### Example 3: Swapping Through Multiple Pools
 
 This example truly showcases the power of atomically composable transactions and the power of Radix's new transaction model and how that it's truly a DeFI game changer. The example showcased here is an example that we can already see many people doing when Babylon is released to the mainnet.
 
@@ -391,7 +391,7 @@ As we can see from the balances shown above, Tim's balance of ADA decreased by a
 
 Optimal path algorithms can be written to run off-ledger to try to find the most optional path that a user can take to perform some kind of swap even if a direct pair exists to attempt to maximize on the output that the user gets.
 
-### Example 3: Selling and Providing Liquidity
+### Example 4: Selling and Providing Liquidity
 
 Let's switch gears and look at Alfred: the owner of Account 4. He has just heard of yield framing and how that he could make some extra income by providing liquidity to a liquidity pool and earning a percentage of the pool fees that are imposed on swaps.
 
@@ -428,7 +428,7 @@ Resources:
 
 As we can see from the balances shown above, 20 of Alfred's Bitcoin where sold for an undisclosed amount of USDT. Judging by the amount of XRD that was taken away from Alfred's account, it can be said that the 500,000 XRD provided was fully consumed and that the USDT tokens were in excess. Specifically, there was an excess of 1260665.2830 USDT which was not used when adding the liquidity. Alfred was 500 liquidity provider tracking tokens in exchange for the liquidity that he provided. The current total supply of `03e39197c5c3d205d2a0c6ea3b4c5ff262e0b1ffabf7f783755b4b` is 600 out of which Alfred has 500. This means that alfred owns `500 / 600 = 83.33%` of the USDT-XRD liquidity pool. As long as no other liquidity is added or removed from the pool, then if a swap comes through Alfred would be owed 83.33%`of the 0.3% fee imposed on swaps.
 
-### Example 4: Removing Liquidity
+### Example 5: Removing Liquidity
 
 With the last example we are going back to Lynn (Account 1). After providing liquidity for quite some time now, Lynn wants to withdraw her portion of the BTC-USDT liquidity from RaDEX. As always, Lynn wants to use the transaction manifest files to perform this despite it being a very simple operation to perform. The file [`remove_BTC_USDT_liquidity.rtm`](./transactions/remove_BTC_USDT_liquidity.rtm) contains the instructions that Lynn needs to remove liquidity from the BTC/USDT liquidity pool.
 
