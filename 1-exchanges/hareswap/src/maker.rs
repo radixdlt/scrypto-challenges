@@ -1,6 +1,8 @@
+//! The Maker blueprint is the core blueprint for HareSwap accepting SignedOrders and buckets to execute or tokenize an order.
+//! The signer is expected to instantiate one Component, but is of course free to instantiate many, but only one is needed for all trades.
 use scrypto::prelude::*;
 
-use super::account::*; /// import the SharedAccount blueprint for easier cross-blueprint calls
+use super::account::SharedAccount;
 use super::requirement::{BucketContents, BucketRequirement};
 use super::transporter::blueprint::Transporter;
 use super::transporter::voucher::Voucher;
@@ -23,13 +25,13 @@ blueprint! {
 
     impl Maker {
         /// Creates a new Maker component
-        /// 
+        ///
         /// Intended to be used by the HareSwap transaction signer to create the main component to handle on-ledger order submissions
         /// - verifying_key:  will be used to verify SignedOrders.
         /// - callback_auth: optional badge to use when executing Callback functions/methods that were "baked in" to the SignedOrder
         ///                  if not provided, authentication is generated internally.  NOTE:  Remember, internal does not mean private.
         ///                  A user could still read the resource address and make sure to check it in a custom Callback, that's a good thing.
-        /// 
+        ///
         /// The next 2 arguments support the default swap implementation, ie. when the Callback points back to this component:
         /// - account: a component address supporting the SharedAccount deposit and withdraw interfaces (which are the same as the builtin Account)
         /// - account_auth: assets to use for auth against account when doing withdraw(...)
@@ -61,12 +63,12 @@ blueprint! {
         }
 
         /// The default order settlement implementation
-        /// 
+        ///
         /// Checks all the requirements and details of the MatchedOrder.
         /// Deposits the from_taker assets to self.account and uses the
         /// self.account_auth to withdraw the "from Maker" assets from the same
         /// SharedAccount, finally returning them.
-        /// 
+        ///
         /// NOTE: this is a public function so it is reachable as a Callback,
         /// but it requires callback_auth to satisfy self.callback_auth The
         /// current implementation assumes a single NonFungible badge, matching
@@ -112,7 +114,7 @@ blueprint! {
 
 
         /// Settle the MatchedOrder by calling the signer's predetermined "Callback" functionality to ultimately return the "froMMaker" Bucket
-        /// 
+        ///
         /// IMPORTANT: this method MUST be private.  It trusts the MatchedOrder and that is only possible because
         /// we can be sure it has been verified already.
         fn settle_order(&mut self, matched_order: MatchedOrder, from_taker: Bucket) -> /*fromMaker*/ Bucket {
@@ -160,7 +162,7 @@ blueprint! {
         /// Ownership of the MatchedOrder NonFungible is synonymous with being
         /// allowed to execute the order (you of course also need to provide the
         /// from_taker assets)
-        /// 
+        ///
         /// NOTE: this interface only supports a single order token.  Supporting
         /// multiple orders in the same call should be possible, but left as an
         /// exercise. :)
@@ -193,7 +195,7 @@ blueprint! {
         /// token itself.  The token now includes both the authorization and the
         /// instruction all wrapped up together and can be handled freely in a
         /// truly asset oriented way.
-        /// 
+        ///
         /// This is the ultimate in DeFi flexibility!
         /// Imaging reselling the order NonFungible to someone else, or using
         /// this order as a guarentee for further multiparty trades or as a way
@@ -221,7 +223,7 @@ blueprint! {
         }
 
         /// Execute the SignedOrder sending in the "from Taker" Bucket and returning the "from Maker" Bucket.  ie. the entrypoint for doing things the easy way
-        /// 
+        ///
         /// Only the actor with taker_auth is allowed to execute the order to avoid frontrunning.
         /// Note using a real BucketRef for auth instead of forcing the originator of the PartialOrder to include
         /// some address or public key to be signed with the SignedOrder is more flexible and promotes composability

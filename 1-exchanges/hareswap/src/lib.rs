@@ -1,9 +1,9 @@
 mod account;
 mod interpreter;
 mod maker;
+mod model;
 mod requirement;
 mod transporter;
-mod model;
 
 /// The api used for off-ledger operations
 pub mod api {
