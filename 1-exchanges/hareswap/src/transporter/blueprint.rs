@@ -1,24 +1,6 @@
-use hex;
-use sbor::{Decode, Describe, Encode, TypeId};
 use scrypto::prelude::*;
 
-use super::authentication::*;
-use super::decoder::*;
 use super::voucher::*;
-
-#[derive(TypeId, Describe, Encode, Decode)]
-pub struct SealedVoucher {
-    pub serialized: Vec<u8>,
-    pub signature: Vec<u8>,
-}
-impl SealedVoucher {
-    pub fn unseal(&self, public_key: &EcdsaPublicKey) -> Voucher {
-        info!("SealedVoucher::unseal: serialized: {}", hex::encode(&self.serialized));
-        info!("SealedVoucher::unseal:  signature: {}", hex::encode(&self.signature));
-        verify_or_panic(public_key, &self.serialized, &self.signature); // NOTE: panics on failure
-        private_decode_with_type(&self.serialized).unwrap()
-    }
-}
 
 // QUESTION:  can i mint type-mismatched NonFungibleData all for the same ResourceDef?  Probably?
 
@@ -148,11 +130,7 @@ blueprint! {
                     resource_def.burn_with_auth(bucket, auth)
                 );
 
-                return Voucher {
-                    resource_def,
-                    key,
-                    nfd,
-                }
+                return Voucher::from_nfd(resource_def, key, nfd);  // purposeful "return".  More complex implemenation would handle multiple nfds
             };
             panic!("unreachable"); // asserted 1 in bucket
         }

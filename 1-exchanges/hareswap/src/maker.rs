@@ -1,80 +1,12 @@
-use sbor::*;
 use scrypto::prelude::*;
 
 use super::account::*; /// import the SharedAccount blueprint for easier cross-blueprint calls
 use super::requirement::{BucketContents, BucketRequirement};
-use super::transporter::blueprint::{SealedVoucher, Transporter};
-use super::transporter::voucher::{IsPassThruNFD, Voucher};
+use super::transporter::blueprint::Transporter;
+use super::transporter::voucher::Voucher;
 
-/// An description of a function or method call (with arguments) exactly as in a normal transaction Instruction
-/// This only allows for a subset of a Transaction and duplicates the code, but in a more full featured implementation
-/// one could imagine an entire transaction interpreter blueprint that knows how to do more than `call_function` and `call_method`
-#[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
-pub enum Callback {
-    /// Calls a blueprint function.
-    CallFunction {
-        package_address: Address,
-        blueprint_name: String,
-        function: String,
-        args: Vec<Vec<u8>>,
-    },
-
-    /// Calls a component method.
-    CallMethod {
-        component_address: Address,
-        method: String,
-        args: Vec<Vec<u8>>,
-    },
-}
-
-/// The main parts of the "request" in the request-for-quote (RFQ) coming from the sender
-#[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
-pub struct PartialOrder {
-    /// description of the assets to be provided by the signer
-    pub maker_requirement: BucketRequirement,
-    /// the resource that will be provided by the sender (but not the amount, that's the "quote" we want)
-    pub taker_resource: ResourceDef,
-    /// description of the assets (badges) which the signer bake into the SignedOrder so that only the sender can execute the order (or get an order token)
-    pub taker_auth: BucketRequirement,
-}
-
-/// the main to-be-signed parts of the response to the RFQ supplied by the signer
-#[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe, NonFungibleData)]
-pub struct MatchedOrder {
-    /// The original PartialOrder in the RFQ
-    pub partial_order: PartialOrder,
-    /// The amount the signer has decided the taker needs to provide
-    pub taker_contents: BucketContents,
-    /// A Callback which decides how the the signer's assets are to be obtained to settle the order
-    pub maker_callback: Callback,
-}
-
-/// mod signed_order contains only the SignedOrder struct
-/// 
-/// in a seperate module where we explicitly avoid importing NonFungibleData
-/// This is to work around a conflict when deriving sbor::Decode.
-/// Otherwise there are multiple `decode` functions on MatchedOrder
-/// one for the sbor::Decode trait and one for the NonFungibleData trait:
-///    multiple `decode` found
-///
-///    help: disambiguate the associated function for candidate #1: `<&mut sbor::Decoder<'_> as sbor::Decode>::`
-///    help: disambiguate the associated function for candidate #2: `<&[u8] as scrypto::prelude::NonFungibleData>::`
-mod signed_order {
-    use super::MatchedOrder;
-    use super::{NonFungibleKey, ResourceDef};
-    use sbor::{Decode, Describe, Encode, TypeId};
-
-    /// Combines a MatchedOrder with Voucher metadata and signature covering the
-    /// Voucher which can be creatd from them
-    #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
-    pub struct SignedOrder {
-        pub order: MatchedOrder,
-        pub voucher_resource: ResourceDef,
-        pub voucher_key: NonFungibleKey,
-        pub signature: Vec<u8>,
-    }
-}
-pub use signed_order::SignedOrder;
+// The HareSwap specific data types
+use super::model::{Callback, MatchedOrder, SignedOrder};
 
 blueprint! {
     /// Storage for a Maker component
@@ -277,19 +209,12 @@ blueprint! {
             assert_eq!(order.partial_order.taker_auth.check_at_least_ref(&taker_auth), true, "tokenize_order: taker_auth not accepted");
 
             // rebuild a voucher from the SignedOrder contents (ie. the MatchedOrder data and voucher metadata)
-            let voucher = Voucher {
-                resource_def: voucher_resource,
-                key: Some(voucher_key),
-                nfd: order.as_passthru(),
-            };
+            let voucher = Voucher::from_nfd(voucher_resource, Some(voucher_key), order);
 
             // and then rebuild the sealed_voucher by serializing and including the signature
-            let sealed_voucher = SealedVoucher {
-                serialized: scrypto_encode(&voucher),
-                signature
-            };
+            let sealed_voucher = voucher.to_sealed(signature);
 
-            // "transport" the MatchedOrder back into existance by redeeming the voucher.   Only this Maker is allowed to the Transporter (thanks to redeem_auth)
+            // "transport" the MatchedOrder back into existance by redeeming the voucher.   Only this Maker is allowed to use this Transporter (thanks to redeem_auth)
             self.redeem_auth.authorize(|auth|
                 self.transporter.redeem(sealed_voucher, None, auth) // panics on bad vouchers
             )

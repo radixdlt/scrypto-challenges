@@ -35,12 +35,12 @@ resim new-token-fixed 1000
 M=0398652f4eb36dd2067191845deb68e54771074f35dc78fbf820a4
 
 # 0.1 maker: account setup
-# new badge for access to CustodialAccount
+# new badge for access to SharedAccount
 resim new-badge-fixed 2
 # CallFunction { package_address: 010000000000000000000000000000000000000000000000000001, blueprint_name: "System", function: "new_resource", args: [Enum(0u8, {0u8}), HashMap<String, String>(), 0u64, 0u64, HashMap<Address, U64>(), Some(Enum(0u8, {Decimal("2")}))] }
 MAKER_ACCOUNT_AUTH=031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711
 # create the accont
-resim call-function $PACKAGE "CustodialAccount" "new_easy" $MAKER_ACCOUNT_AUTH
+resim call-function $PACKAGE "SharedAccount" "new_easy" $MAKER_ACCOUNT_AUTH
 MAKER_ACCOUNT=02d9e04ba122de13a58f80ea7a06a0e1aad665d23cbeb124c3c286
 # put half the M in there ready to trade
 resim transfer 500,$M $MAKER_ACCOUNT

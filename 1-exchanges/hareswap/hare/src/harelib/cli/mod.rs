@@ -180,20 +180,10 @@ impl MakeSignedOrder {
 
         // construct a Voucher for the MatchedOrder
 
-        let nfd = matched_order.as_passthru();
-
-        let voucher = Voucher {
-            resource_def: voucher_resource.clone(),
-            key: Some(voucher_key.clone()),
-            nfd,
-        };
+        let voucher = Voucher::from_nfd(voucher_resource.clone(), Some(voucher_key.clone()), matched_order.clone());
 
         // and encode it
         let voucher_encoded = scrypto_encode(&voucher);
-
-        // test that the decode works properly
-        let decoded_voucher = private_decode_with_type::<Voucher>(&voucher_encoded).unwrap();
-        assert_eq!(voucher, decoded_voucher, "voucher decode error");
 
         // sign the voucher
         let signing_key = SigningKey::from_bytes(&private_key_bytes).map_err(Error::BadPrivateKeyError)?;
@@ -204,7 +194,7 @@ impl MakeSignedOrder {
         let public_key = to_public_key(&signing_key);
         verify(&public_key, &voucher_encoded, &sig_bytes).map_err(Error::VerifyCheckError)?;
 
-        // create the SignedOrder for consuption by the submitter.
+        // create the SignedOrder for consumption by the submitter.
         let signed_order = SignedOrder {
             order: matched_order,
             voucher_resource,
