@@ -6,6 +6,9 @@ use super::requirement::{BucketContents, BucketRequirement};
 use super::transporter::blueprint::{SealedVoucher, Transporter};
 use super::transporter::voucher::{IsPassThruNFD, Voucher};
 
+/// An description of a function or method call (with arguments) exactly as in a normal transaction Instruction
+/// This only allows for a subset of a Transaction and duplicates the code, but in a more full featured implementation
+/// one could imagine an entire transaction interpreter blueprint that knows how to do more than `call_function` and `call_method`
 #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
 pub enum Callback {
     /// Calls a blueprint function.
@@ -24,25 +27,45 @@ pub enum Callback {
     },
 }
 
+/// The main parts of the "request" in the request-for-quote (RFQ) coming from the sender
 #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
 pub struct PartialOrder {
+    /// description of the assets to be provided by the signer
     pub maker_requirement: BucketRequirement,
+    /// the resource that will be provided by the sender (but not the amount, that's the "quote" we want)
     pub taker_resource: ResourceDef,
+    /// description of the assets (badges) which the signer bake into the SignedOrder so that only the sender can execute the order (or get an order token)
     pub taker_auth: BucketRequirement,
 }
 
+/// the main to-be-signed parts of the response to the RFQ supplied by the signer
 #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe, NonFungibleData)]
 pub struct MatchedOrder {
+    /// The original PartialOrder in the RFQ
     pub partial_order: PartialOrder,
+    /// The amount the signer has decided the taker needs to provide
     pub taker_contents: BucketContents,
+    /// A Callback which decides how the the signer's assets are to be obtained to settle the order
     pub maker_callback: Callback,
 }
 
-// in a seperate module to deal with conflicting `decode` for sbor::Decode and NonFungibleData on MatchedOrder during derive
+/// mod signed_order contains only the SignedOrder struct
+/// 
+/// in a seperate module where we explicitly avoid importing NonFungibleData
+/// This is to work around a conflict when deriving sbor::Decode.
+/// Otherwise there are multiple `decode` functions on MatchedOrder
+/// one for the sbor::Decode trait and one for the NonFungibleData trait:
+///    multiple `decode` found
+///
+///    help: disambiguate the associated function for candidate #1: `<&mut sbor::Decoder<'_> as sbor::Decode>::`
+///    help: disambiguate the associated function for candidate #2: `<&[u8] as scrypto::prelude::NonFungibleData>::`
 mod signed_order {
     use super::MatchedOrder;
     use super::{NonFungibleKey, ResourceDef};
     use sbor::{Decode, Describe, Encode, TypeId};
+
+    /// Combines a MatchedOrder with Voucher metadata and signature covering the
+    /// Voucher which can be creatd from them
     #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
     pub struct SignedOrder {
         pub order: MatchedOrder,
@@ -54,6 +77,8 @@ mod signed_order {
 pub use signed_order::SignedOrder;
 
 blueprint! {
+    /// Storage for a Maker component
+    /// See Maker::instantiate for details
     struct Maker {
         verifying_key: EcdsaPublicKey,
         callback_auth: Vault,
@@ -65,6 +90,17 @@ blueprint! {
     }
 
     impl Maker {
+        /// Creates a new Maker component
+        /// 
+        /// Intended to be used by the HareSwap transaction signer to create the main component to handle on-ledger order submissions
+        /// - verifying_key:  will be used to verify SignedOrders.
+        /// - callback_auth: optional badge to use when executing Callback functions/methods that were "baked in" to the SignedOrder
+        ///                  if not provided, authentication is generated internally.  NOTE:  Remember, internal does not mean private.
+        ///                  A user could still read the resource address and make sure to check it in a custom Callback, that's a good thing.
+        /// 
+        /// The next 2 arguments support the default swap implementation, ie. when the Callback points back to this component:
+        /// - account: a component address supporting the SharedAccount deposit and withdraw interfaces (which are the same as the builtin Account)
+        /// - account_auth: assets to use for auth against account when doing withdraw(...)
         pub fn instantiate(verifying_key: EcdsaPublicKey, callback_auth: Option<Bucket>, account: Component, account_auth: Bucket) -> Component {
             // change this redeem_auth to be a parameter
             let redeem_auth = Vault::with_bucket(ResourceBuilder::new_fungible(DIVISIBILITY_NONE).initial_supply_fungible(1));
