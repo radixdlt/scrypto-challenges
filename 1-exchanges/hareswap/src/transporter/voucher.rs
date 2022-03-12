@@ -1,5 +1,5 @@
+use sbor::{describe::Type, Decode, DecodeError, Decoder, Describe, Encode, TypeId};
 use scrypto::prelude::*;
-use sbor::{Decode, Decoder, DecodeError, Describe, Encode, describe::Type, TypeId};
 
 use super::decoder::*;
 
@@ -14,7 +14,7 @@ pub trait IsPassThruNFD: NonFungibleData + Sized {
     fn as_passthru(&self) -> PassThruNFD {
         PassThruNFD {
             immutable_data: self.immutable_data(),
-            mutable_data: self.mutable_data()
+            mutable_data: self.mutable_data(),
         }
     }
 }
@@ -25,7 +25,7 @@ impl NonFungibleData for PassThruNFD {
     fn decode(immutable_data: &[u8], mutable_data: &[u8]) -> Result<Self, DecodeError> {
         Ok(PassThruNFD {
             immutable_data: immutable_data.into(),
-            mutable_data: mutable_data.into()
+            mutable_data: mutable_data.into(),
         })
     }
 
@@ -56,7 +56,7 @@ impl NonFungibleData for PassThruNFD {
 pub struct Voucher {
     pub resource_def: ResourceDef,
     pub key: Option<NonFungibleKey>,
-    pub nfd: PassThruNFD
+    pub nfd: PassThruNFD,
 }
 
 impl PrivateDecode for Voucher {
@@ -67,29 +67,33 @@ impl PrivateDecode for Voucher {
             return Err(::sbor::DecodeError::InvalidIndex(index));
         }
         decoder.check_len(3)?;
-        let resource_def  = ResourceDef::decode(decoder)?;
-        let key  = Option::<NonFungibleKey>::decode(decoder)?;
-        let nfd  = <PassThruNFD as sbor::Decode>::decode(decoder)?; // cannot derive Decode for Voucher because the decode method is implemented for both  NonFungibleData and Decode traits.  Disambiguate here
+        let resource_def = ResourceDef::decode(decoder)?;
+        let key = Option::<NonFungibleKey>::decode(decoder)?;
+        let nfd = <PassThruNFD as sbor::Decode>::decode(decoder)?; // cannot derive Decode for Voucher because the decode method is implemented for both  NonFungibleData and Decode traits.  Disambiguate here
         decoder.check_end()?;
-        Ok(Voucher {
-            resource_def,
-            key,
-            nfd
-        })
+        Ok(Voucher { resource_def, key, nfd })
     }
 }
 
 impl Voucher {
-    pub fn redeem(self, required_resource_def: &ResourceDef, required_key: Option<NonFungibleKey>, auth: BucketRef) -> Bucket {
+    pub fn redeem(
+        self,
+        required_resource_def: &ResourceDef,
+        required_key: Option<NonFungibleKey>,
+        auth: BucketRef,
+    ) -> Bucket {
         let Voucher {
             mut resource_def,
             key,
-            nfd
+            nfd,
         } = self;
-        assert_eq!(resource_def, *required_resource_def, "Voucher::redeem: resource requirement not met");
+        assert_eq!(
+            resource_def, *required_resource_def,
+            "Voucher::redeem: resource requirement not met"
+        );
         // test key against required key if both exist, otherwise use whichever is given.  panic if both are None
         let key = match required_key {
-            None => {key.unwrap()}
+            None => key.unwrap(),
             Some(required_key) => {
                 if let Some(voucher_key) = key {
                     assert_eq!(voucher_key, required_key, "Voucher::redeem: key requirement not met");

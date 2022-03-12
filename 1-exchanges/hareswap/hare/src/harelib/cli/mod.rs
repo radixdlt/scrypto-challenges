@@ -4,12 +4,12 @@ use scrypto::buffer::scrypto_encode;
 use std::fs;
 use std::path::PathBuf;
 
-use radix_engine::ledger::*;
 use radix_engine::engine::validate_data;
+use radix_engine::ledger::*;
 use scrypto::types::EcdsaPublicKey;
 use scrypto::utils::sha256;
-use simulator::resim::*;
 use simulator::ledger::*;
+use simulator::resim::*;
 
 use scrypto::prelude::*;
 
@@ -81,21 +81,21 @@ pub struct RequestForQuote {
 
 impl RequestForQuote {
     pub fn run(&self) -> Result<(), Error> {
-
         let maker_resource = ResourceDef::from(Address::from_str(&self.resource_b).map_err(Error::ParseAddressError)?);
         let maker_amount = Decimal::from_str(&self.resource_b_amount).map_err(Error::ParseDecimalError)?;
         let taker_resource = ResourceDef::from(Address::from_str(&self.resource_a).map_err(Error::ParseAddressError)?);
-        let taker_auth_resource = ResourceDef::from(Address::from_str(&self.resource_taker_auth).map_err(Error::ParseAddressError)?);
+        let taker_auth_resource =
+            ResourceDef::from(Address::from_str(&self.resource_taker_auth).map_err(Error::ParseAddressError)?);
         let taker_auth_amount = Decimal::from_str("1").map_err(Error::ParseDecimalError)?;
-    
+
         let maker_requirement = BucketRequirement {
             resource: maker_resource,
-            contents: BucketContents::Fungible(maker_amount)
+            contents: BucketContents::Fungible(maker_amount),
         };
 
         let taker_auth = BucketRequirement {
             resource: taker_auth_resource,
-            contents: BucketContents::Fungible(taker_auth_amount)
+            contents: BucketContents::Fungible(taker_auth_amount),
         };
 
         let partial_order = PartialOrder {
@@ -134,17 +134,18 @@ pub struct MakeSignedOrder {
     private_key_file: PathBuf,
 }
 
-use k256::{
-    ecdsa::{SigningKey, signature::Signer, /* VerifyingKey, signature::Verifier, */ Signature},
-};
+use k256::ecdsa::{signature::Signer, /* VerifyingKey, signature::Verifier, */ Signature, SigningKey};
 
 impl MakeSignedOrder {
     pub fn run(&self) -> Result<(), Error> {
         // parse arguments
         let partial_order_bytes = fs::read(&self.partial_order_file).map_err(Error::IoError)?;
         let resource_a_amount = Decimal::from_str(&self.resource_a_amount).map_err(Error::ParseDecimalError)?; // FUTURE: support NonFungibleKey to trade NonFungibles too
-        let maker_component_address = Address::from_str(&self.maker_component_address).map_err(Error::ParseAddressError)?;
-        let voucher_resource: ResourceDef = Address::from_str(&self.voucher_address).map_err(Error::ParseAddressError)?.into();
+        let maker_component_address =
+            Address::from_str(&self.maker_component_address).map_err(Error::ParseAddressError)?;
+        let voucher_resource: ResourceDef = Address::from_str(&self.voucher_address)
+            .map_err(Error::ParseAddressError)?
+            .into();
         let voucher_key = NonFungibleKey::from_str(&self.voucher_key).map_err(Error::ParseNonFungibleKeyError)?;
         let private_key_bytes = fs::read(&self.private_key_file).map_err(Error::IoError)?;
 
@@ -173,7 +174,7 @@ impl MakeSignedOrder {
             key: Some(voucher_key.clone()),
             nfd,
         };
-    
+
         let voucher_encoded = scrypto_encode(&voucher);
 
         // test that the decode works properly
@@ -209,8 +210,9 @@ impl MakeSignedOrder {
         // print signed order bytes to stdout in Radix Transaction Manifest (rtm) format
         // this is so it can be interpolated into a transaction
         // care should be taken by the transaction submitter to not introduce "instruction injection" vulnerabilities
-        let validated_arg =
-            validate_data(&signed_order_encoded).map_err(transaction_manifest::DecompileError::DataValidationError).map_err(Error::DecompileError)?;
+        let validated_arg = validate_data(&signed_order_encoded)
+            .map_err(transaction_manifest::DecompileError::DataValidationError)
+            .map_err(Error::DecompileError)?;
         print!("{}", validated_arg);
 
         Ok(())
@@ -242,8 +244,9 @@ impl NewKeyPair {
         fs::write(&self.private_key, private_bytes).map_err(Error::IoError)?;
 
         // print public_key bytes to stdout in Radix Transaction Manifest (rtm) format
-        let validated_arg =
-            validate_data(&public_bytes).map_err(transaction_manifest::DecompileError::DataValidationError).map_err(Error::DecompileError)?;
+        let validated_arg = validate_data(&public_bytes)
+            .map_err(transaction_manifest::DecompileError::DataValidationError)
+            .map_err(Error::DecompileError)?;
         print!("{}", validated_arg);
 
         Ok(())
@@ -255,7 +258,8 @@ pub fn new_public_private_pair(ledger: &mut RadixEngineDB) -> (Vec<u8>, Vec<u8>)
     let mut private_raw = [0u8; 32];
     private_raw[..].copy_from_slice(sha256(ledger.get_nonce().to_string()).as_ref());
     ledger.increase_nonce();
-    let signing_key = SigningKey::from_bytes(&private_raw).expect("unable to create signing key (this should not happen)");
+    let signing_key =
+        SigningKey::from_bytes(&private_raw).expect("unable to create signing key (this should not happen)");
     eprintln!("SigningKey: {:?}", signing_key);
 
     let verifying_key = signing_key.verifying_key();
@@ -267,8 +271,5 @@ pub fn new_public_private_pair(ledger: &mut RadixEngineDB) -> (Vec<u8>, Vec<u8>)
     let public_key: EcdsaPublicKey = EcdsaPublicKey(public_raw);
     let public_key_encoded = scrypto_encode(&public_key);
 
-    (
-        public_key_encoded,
-        signing_key.to_bytes().to_vec(),
-    )
+    (public_key_encoded, signing_key.to_bytes().to_vec())
 }

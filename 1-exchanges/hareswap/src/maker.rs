@@ -1,10 +1,10 @@
-use scrypto::prelude::*;
 use sbor::*;
+use scrypto::prelude::*;
 
-use super::transporter::blueprint::{Transporter, SealedVoucher};
-use super::transporter::voucher::{Voucher, IsPassThruNFD};
-use super::requirement::{BucketRequirement, BucketContents};
 use super::account::*;
+use super::requirement::{BucketContents, BucketRequirement};
+use super::transporter::blueprint::{SealedVoucher, Transporter};
+use super::transporter::voucher::{IsPassThruNFD, Voucher};
 
 #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
 pub enum Callback {
@@ -41,8 +41,8 @@ pub struct MatchedOrder {
 // in a seperate module to deal with conflicting `decode` for sbor::Decode and NonFungibleData on MatchedOrder during derive
 mod signed_order {
     use super::MatchedOrder;
-    use super::{ResourceDef, NonFungibleKey};
-    use sbor::{TypeId, Encode, Decode, Describe};
+    use super::{NonFungibleKey, ResourceDef};
+    use sbor::{Decode, Describe, Encode, TypeId};
     #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
     pub struct SignedOrder {
         pub order: MatchedOrder,

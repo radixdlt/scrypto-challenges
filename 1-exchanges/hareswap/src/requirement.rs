@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
-use scrypto::prelude::*;
 use sbor::*;
+use scrypto::prelude::*;
 
 #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
 pub enum BucketContents {
@@ -15,14 +15,14 @@ impl PartialEq<BucketContents> for BucketRef {
         let bucket_type = self.resource_def().resource_type();
 
         match (bucket_type, other) {
-            (ResourceType::Fungible { .. }, BucketContents::Fungible(amount)) => { self.amount() == *amount },
+            (ResourceType::Fungible { .. }, BucketContents::Fungible(amount)) => self.amount() == *amount,
             (ResourceType::NonFungible, BucketContents::NonFungible(keys)) => {
                 // avoid copies by comparing sets of references.  Iterates over the sets more than strictly needed to make the code simplier
                 let contents_keys: BTreeSet<&NonFungibleKey> = keys.iter().collect();
                 let self_keys = self.get_non_fungible_keys();
                 let self_keys: BTreeSet<&NonFungibleKey> = self_keys.iter().collect();
                 self_keys == contents_keys
-            },
+            }
             (_, _) => false,
         }
     }
@@ -30,22 +30,34 @@ impl PartialEq<BucketContents> for BucketRef {
 
 impl PartialOrd<BucketContents> for BucketRef {
     fn partial_cmp(&self, other: &BucketContents) -> Option<Ordering> {
-        trace!("partial_cmp BucketRef to BucketContents: {:?} =?= {:?}", self.resource_def().resource_type(), other);
+        trace!(
+            "partial_cmp BucketRef to BucketContents: {:?} =?= {:?}",
+            self.resource_def().resource_type(),
+            other
+        );
         let bucket_type = self.resource_def().resource_type();
 
         match (bucket_type, other) {
-            (ResourceType::Fungible { .. }, BucketContents::Fungible(amount)) => { 
-                trace!("partial_cmp BucketRef to BucketContents: Fungible {:?} =?= {:?}", self.amount(), amount);
+            (ResourceType::Fungible { .. }, BucketContents::Fungible(amount)) => {
+                trace!(
+                    "partial_cmp BucketRef to BucketContents: Fungible {:?} =?= {:?}",
+                    self.amount(),
+                    amount
+                );
                 Some(self.amount().cmp(amount))
-            },
+            }
             (ResourceType::NonFungible, BucketContents::NonFungible(keys)) => {
                 // avoid copies by comparing sets of references.  Iterates over the sets more than strictly needed to make the code simplier
                 let contents_keys: BTreeSet<&NonFungibleKey> = keys.iter().collect();
                 let self_keys = self.get_non_fungible_keys();
                 let self_keys: BTreeSet<&NonFungibleKey> = self_keys.iter().collect();
-                trace!("partial_cmp BucketRef to BucketContents: NonFungible {:?} =?= {:?}", self_keys, contents_keys);
+                trace!(
+                    "partial_cmp BucketRef to BucketContents: NonFungible {:?} =?= {:?}",
+                    self_keys,
+                    contents_keys
+                );
                 Some(self_keys.cmp(&contents_keys))
-            },
+            }
             (_, _) => None,
         }
     }
@@ -68,6 +80,7 @@ impl BucketRequirement {
         // contents exactly match
         *bucket_ref == self.contents
     }
+
     pub fn check(&self, bucket: &Bucket) -> bool {
         bucket.authorize(|bucket_ref| {
             let r = self.check_ref(&bucket_ref);
@@ -75,6 +88,7 @@ impl BucketRequirement {
             r
         })
     }
+
     pub fn check_at_least_ref(&self, bucket_ref: &BucketRef) -> bool {
         debug!("check_at_least_ref: {:?} =?= {:?}", self, bucket_ref.resource_def());
         // same resource

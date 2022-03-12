@@ -1,8 +1,8 @@
 // build a callback contract
-use scrypto::prelude::*;
 use radix_engine::model::{Instruction, Transaction as RETx};
-use sbor::describe::{Type, /* Fields */};
-use sbor::{Encoder, Decoder, DecodeError, Encode, Decode, TypeId, Describe};
+use sbor::describe::Type;
+use sbor::{Decode, DecodeError, Decoder, Describe, Encode, Encoder, TypeId};
+use scrypto::prelude::*;
 
 #[derive(Describe)]
 pub struct PassThru(Vec<u8>);
@@ -14,9 +14,7 @@ impl TypeId for PassThru {
 }
 impl Encode for PassThru {
     #[inline]
-    fn encode(&self, encoder: &mut Encoder) {
-        encoder.write_slice(&self.0);
-    }
+    fn encode(&self, encoder: &mut Encoder) { encoder.write_slice(&self.0); }
 
     fn encode_value(&self, _encoder: &mut Encoder) {}
 }
@@ -47,7 +45,7 @@ impl Describe for Tx {
 
 #[derive(NonFungibleData)]
 pub struct Transaction {
-    tx: Tx
+    tx: Tx,
 }
 
 blueprint! {

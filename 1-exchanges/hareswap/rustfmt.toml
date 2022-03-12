@@ -1,0 +1,23 @@
+# Comments:
+normalize_comments = false
+wrap_comments = false
+comment_width = 120
+
+# Arguments:
+use_small_heuristics = "Default"
+fn_single_line = true
+fn_args_layout = "Tall"
+max_width = 120
+overflow_delimited_expr = true
+where_single_line = true
+
+# Compatibility:
+edition = "2021"
+
+# Misc:
+inline_attribute_width = 0
+blank_lines_upper_bound = 2
+reorder_impl_items = true
+
+# Ignored files:
+ignore = []

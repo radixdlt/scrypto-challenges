@@ -1,4 +1,4 @@
-use sbor::{Decoder, DecodeError, TypeId};
+use sbor::{DecodeError, Decoder, TypeId};
 
 /// A data structure that can be decoded from a byte array using SBOR (but not automatically derived by blueprint! macro)
 /// this is for when the macro creates conflicting code, such as the Decode traits for sbor and NonFungible

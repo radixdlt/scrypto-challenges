@@ -1,6 +1,6 @@
-use scrypto::prelude::*;
-use sbor::{Decode, Describe, Encode, TypeId};
 use hex;
+use sbor::{Decode, Describe, Encode, TypeId};
+use scrypto::prelude::*;
 
 use super::authentication::*;
 use super::decoder::*;
@@ -9,7 +9,7 @@ use super::voucher::*;
 #[derive(TypeId, Describe, Encode, Decode)]
 pub struct SealedVoucher {
     pub serialized: Vec<u8>,
-    pub signature: Vec<u8>
+    pub signature: Vec<u8>,
 }
 impl SealedVoucher {
     pub fn unseal(&self, public_key: &EcdsaPublicKey) -> Voucher {
@@ -141,7 +141,7 @@ blueprint! {
                 let nfd: PassThruNFD = entry.data();
                 let key: NonFungibleKey = entry.key();
                 let key = Some(key);
-           
+
                 let authority = if self.burn_authority.is_empty() { &mut self.mint_authority } else { &mut self.burn_authority };
 
                 authority.authorize(|auth|
