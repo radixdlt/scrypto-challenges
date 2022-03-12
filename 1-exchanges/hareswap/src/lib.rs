@@ -4,6 +4,7 @@ mod maker;
 mod requirement;
 mod transporter;
 
+/// The api used for off-ledger operations
 pub mod api {
     pub use super::maker::*;
     pub use super::requirement::*;

@@ -1,7 +1,7 @@
 use sbor::*;
 use scrypto::prelude::*;
 
-use super::account::*;
+use super::account::*; /// import the SharedAccount blueprint for easier cross-blueprint calls
 use super::requirement::{BucketContents, BucketRequirement};
 use super::transporter::blueprint::{SealedVoucher, Transporter};
 use super::transporter::voucher::{IsPassThruNFD, Voucher};
@@ -60,17 +60,11 @@ blueprint! {
         transporter: Transporter,
         order_def: ResourceDef,
         redeem_auth: Vault,
-        account: CustodialAccount,
+        account: SharedAccount,
         account_auth: Vault,
     }
 
     impl Maker {
-        // when any args are types that cannot be handled by the transport manifest, use the "_raw" version
-        // pub fn instantiate_raw(verifying_key: Vec<u8>, callback_auth: Option<Bucket>, account: Address, account_auth: Bucket) -> Component {
-            // info!("here0");
-            // Maker::instantiate(scrypto_decode(&verifying_key).unwrap(), callback_auth, account.into(), account_auth)
-        // }
-
         pub fn instantiate(verifying_key: EcdsaPublicKey, callback_auth: Option<Bucket>, account: Component, account_auth: Bucket) -> Component {
             // change this redeem_auth to be a parameter
             let redeem_auth = Vault::with_bucket(ResourceBuilder::new_fungible(DIVISIBILITY_NONE).initial_supply_fungible(1));
@@ -80,7 +74,7 @@ blueprint! {
 
             info!("tokenized order resource address: {}", order_def.address());
 
-            // default to expecting the default callback and so just make the callback_auth ourselves
+            // default without explicit callback_auth is to expect the default callback with be used, so just generate our own internal use badge.
             let callback_auth = if callback_auth.is_none() {
                 Vault::with_bucket(ResourceBuilder::new_fungible(DIVISIBILITY_NONE).initial_supply_fungible(1))
             } else {
@@ -93,12 +87,24 @@ blueprint! {
                 transporter,
                 order_def,
                 redeem_auth,
-                account: account.clone().into(),
+                account: account.into(), // convert the Component (address) passed in to a SharedAccount for use by the default callback.  If the callback and account interface mismatch, panic ensues.
                 account_auth: Vault::with_bucket(account_auth)
             }.instantiate()
         }
 
-        // example/default callback
+        /// The default order settlement implementation
+        /// 
+        /// Checks all the requirements and details of the MatchedOrder.
+        /// Deposits the from_taker assets to self.account and uses the
+        /// self.account_auth to withdraw the "from Maker" assets from the same
+        /// SharedAccount, finally returning them.
+        /// 
+        /// NOTE: this is a public function so it is reachable as a Callback,
+        /// but it requires callback_auth to satisfy self.callback_auth The
+        /// current implementation assumes a single NonFungible badge, matching
+        /// the same limitations in SharedAccount.  More complex implementations
+        /// are possible and can even be utilized without changes to HareSwap by
+        /// using an alternate Callback.
         pub fn handle_order_default_callback(&mut self, matched_order: MatchedOrder, from_taker: Bucket, callback_auth: BucketRef) -> Bucket {
             let auth_requirement = BucketRequirement {
                 resource: self.callback_auth.resource_def(),
@@ -137,12 +143,14 @@ blueprint! {
         }
 
 
-        // private, signature verification must happen first
+        /// Settle the MatchedOrder by calling the signer's predetermined "Callback" functionality to ultimately return the "froMMaker" Bucket
+        /// 
+        /// IMPORTANT: this method MUST be private.  It trusts the MatchedOrder and that is only possible because
+        /// we can be sure it has been verified already.
         fn settle_order(&mut self, matched_order: MatchedOrder, from_taker: Bucket) -> /*fromMaker*/ Bucket {
             info!("settle_order: matched_order: {:?}", matched_order);
-            // just calling the callback with our auth.  It will verify and execute
 
-            // tail call the callback with auth
+            // call the callback with auth returning it's result
             self.callback_auth.authorize(|callback_auth| {
 
                 // add args provided by the taker and the auth
@@ -152,7 +160,7 @@ blueprint! {
                     scrypto_encode(&callback_auth), // auth to (ultimately) enable release of maker tokens
                 ];
 
-                // execute the callback (ie. handle_order())
+                // execute the callback (ie. handle_order_default_callback(...) or something custom)
                 let result: Vec<u8> = match matched_order.maker_callback {
                     Callback::CallFunction {
                         package_address,
@@ -174,22 +182,32 @@ blueprint! {
                 };
 
                 // return the result
-                scrypto_decode(&result).unwrap()
+                scrypto_decode(&result).expect("settle_order Callback must result in a Bucket")
 
             })
         }
 
-        // call this with the order token if doing fancy things
+        /// Execute the MatchedOrder represented by a NonFungible by sending in the "from Taker" Bucket and returning the "from Maker" Bucket.
+        ///
+        /// Ownership of the MatchedOrder NonFungible is synonymous with being
+        /// allowed to execute the order (you of course also need to provide the
+        /// from_taker assets)
+        /// 
+        /// NOTE: this interface only supports a single order token.  Supporting
+        /// multiple orders in the same call should be possible, but left as an
+        /// exercise. :)
         pub fn execute_order_token(&mut self, order_tokens: Bucket, from_taker: Bucket) -> /* from_maker */ Bucket {
             assert_eq!(order_tokens.resource_def(), self.order_def, "execute_order_token: invalid order token");
             assert_eq!(order_tokens.amount(), Decimal::one(), "execute_order_token: cannot execute multiple order tokens at once"); // FUTURE: add another interface for multiple order tokens in the same call
 
             let orders: Vec<NonFungible<MatchedOrder>> = order_tokens.get_non_fungibles();
-            let order = orders[0].data(); // made sure we have exactly 1
+            let order = orders[0].data(); // already made sure we have exactly 1
 
+            // finally settle the MatchedOrder, this is a non-public method call
             let maker_bucket = self.settle_order(order, from_taker);
 
             debug!("execute_order_token: settle_order completed. now burn order token");
+
             // burn by giving it back to the transporter (to burn the token and turn it back into a Voucher) and then just ignore the Voucher
             let _ = self.transporter.make(order_tokens);
 
@@ -197,8 +215,21 @@ blueprint! {
             maker_bucket
         }
 
-        // call this as the entrypoint if doing fancy things
-        // effectively trading in taker_auth requirement for the order token, but don't need to execute right away
+        /// Convert a SignedOrder into a NonFungible representing the same order.  ie. the entrypoint for doing "fancy things"
+        ///
+        /// Effectively allows the actor with taker_auth to "Transport" the
+        /// off-ledger SignedOrder back on-ledger and do whatever they want with
+        /// the tokenized order.  You can think of this as converting an
+        /// authorization grant based on ownership of taker_auth to an
+        /// authorization grant based on ownership of the non-fungible order
+        /// token itself.  The token now includes both the authorization and the
+        /// instruction all wrapped up together and can be handled freely in a
+        /// truly asset oriented way.
+        /// 
+        /// This is the ultimate in DeFi flexibility!
+        /// Imaging reselling the order NonFungible to someone else, or using
+        /// this order as a guarentee for further multiparty trades or as a way
+        /// to haggle for a better deal with another counterparty.
         pub fn tokenize_order(&mut self, signed_order: SignedOrder, taker_auth: BucketRef) -> Bucket {
             let SignedOrder {
                 order,
@@ -206,27 +237,33 @@ blueprint! {
                 voucher_key,
                 signature,
             } = signed_order;
-            // check taker_auth matches the order before redeeming it.  (if it matches but the signature is bad it wont redeem properly anyway)
-            // check binding to taker - stops frontrunning the (public) SignedOrder (along with using redeem_auth)
+            // check taker_auth matches the order before redeeming it.  (if it matches but the signature is bad it wont redeem properly anyway.  This stops frontrunning)
             assert_eq!(order.partial_order.taker_auth.check_at_least_ref(&taker_auth), true, "tokenize_order: taker_auth not accepted");
 
+            // rebuild a voucher from the SignedOrder contents (ie. the MatchedOrder data and voucher metadata)
             let voucher = Voucher {
                 resource_def: voucher_resource,
                 key: Some(voucher_key),
                 nfd: order.as_passthru(),
             };
 
+            // and then rebuild the sealed_voucher by serializing and including the signature
             let sealed_voucher = SealedVoucher {
                 serialized: scrypto_encode(&voucher),
                 signature
             };
 
+            // "transport" the MatchedOrder back into existance by redeeming the voucher.   Only this Maker is allowed to the Transporter (thanks to redeem_auth)
             self.redeem_auth.authorize(|auth|
                 self.transporter.redeem(sealed_voucher, None, auth) // panics on bad vouchers
             )
         }
 
-        // call this as the entrypoint for the boring way to execute the SignedOrder
+        /// Execute the SignedOrder sending in the "from Taker" Bucket and returning the "from Maker" Bucket.  ie. the entrypoint for doing things the easy way
+        /// 
+        /// Only the actor with taker_auth is allowed to execute the order to avoid frontrunning.
+        /// Note using a real BucketRef for auth instead of forcing the originator of the PartialOrder to include
+        /// some address or public key to be signed with the SignedOrder is more flexible and promotes composability
         pub fn execute_order(&mut self, signed_order: SignedOrder, from_taker: Bucket, taker_auth: BucketRef) -> Bucket {
             let orders = self.tokenize_order(signed_order, taker_auth);
             info!("execute_order: SignedOrder successfully tokenized: {:?}", orders);
