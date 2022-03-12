@@ -1,20 +1,22 @@
-use clap::Parser;
-use clap::Subcommand;
-use scrypto::buffer::scrypto_encode;
 use std::fs;
 use std::path::PathBuf;
 
+// non-scrypto dependencies
+use clap::{Parser, Subcommand};
+use k256::ecdsa::{signature::Signer, Signature, SigningKey};
+
+// scrypto dependencies
 use radix_engine::engine::validate_data;
 use radix_engine::ledger::*;
+use scrypto::buffer::scrypto_encode;
+use scrypto::prelude::*;
 use scrypto::types::EcdsaPublicKey;
 use scrypto::utils::sha256;
 use simulator::ledger::*;
 use simulator::resim::*;
 
-use scrypto::prelude::*;
-
+// Only the imports needed to do off-ledger things, ie. the hareswap API
 use hareswap::api::*;
-
 
 /* Top Level */
 
@@ -26,6 +28,7 @@ pub struct Args {
     command: Command,
 }
 
+/// the available CLI subcommands
 #[derive(Subcommand, Debug)]
 pub enum Command {
     NewKeyPair(NewKeyPair),
@@ -33,6 +36,7 @@ pub enum Command {
     MakeSignedOrder(MakeSignedOrder),
 }
 
+/// custom errors which simply wrap explicit error types when the bubble up to the top
 #[derive(Debug)]
 pub enum Error {
     IoError(std::io::Error),
@@ -50,6 +54,7 @@ pub enum Error {
     ParserNotEOFError,
 }
 
+/// main CLI entry point
 pub fn run() -> Result<(), Error> {
     let args = Args::parse();
 
@@ -64,7 +69,7 @@ pub fn run() -> Result<(), Error> {
 
 /* Request For Quote */
 
-/// used by the taker: generate a request-for-quote (RFQ) to buy resource "B" with some amount of resource "A"
+/// used by the taker: generate a request-for-quote (RFQ) to buy exact amount resource "B" with a to-be-determined amount of resource "A"
 #[derive(Parser, Debug)]
 pub struct RequestForQuote {
     /// path to file to store the request (for simulating sending or integrating with some RFQ protocol)
@@ -75,12 +80,15 @@ pub struct RequestForQuote {
     resource_b: String,
     /// resource to sell
     resource_a: String,
-    /// resource address for a badge to control what entity is allowed to submit a SignedOrder resulting from this RFQ (protects against frontrunning)
+    /// resource address for a badge to control what entity is allowed to submit
+    /// a SignedOrder resulting from this RFQ (protects against frontrunning)
+    /// ASSUMES requirement is a single fungible
     resource_taker_auth: String,
 }
 
 impl RequestForQuote {
     pub fn run(&self) -> Result<(), Error> {
+        // parse arguments
         let maker_resource = ResourceDef::from(Address::from_str(&self.resource_b).map_err(Error::ParseAddressError)?);
         let maker_amount = Decimal::from_str(&self.resource_b_amount).map_err(Error::ParseDecimalError)?;
         let taker_resource = ResourceDef::from(Address::from_str(&self.resource_a).map_err(Error::ParseAddressError)?);
@@ -88,27 +96,34 @@ impl RequestForQuote {
             ResourceDef::from(Address::from_str(&self.resource_taker_auth).map_err(Error::ParseAddressError)?);
         let taker_auth_amount = Decimal::from_str("1").map_err(Error::ParseDecimalError)?;
 
+        // combine the rosource_b information into a BucketRequirement
         let maker_requirement = BucketRequirement {
             resource: maker_resource,
             contents: BucketContents::Fungible(maker_amount),
         };
 
+        // combine the taker_auth information into a BucketRequirement
         let taker_auth = BucketRequirement {
             resource: taker_auth_resource,
             contents: BucketContents::Fungible(taker_auth_amount),
         };
 
+        // combine the above to create the PartialOrder which is the full RFQ
         let partial_order = PartialOrder {
             maker_requirement,
             taker_resource,
             taker_auth,
         };
 
+        // and encode it
         let partial_order_encoded = scrypto_encode(&partial_order);
 
-        //let validated_arg =
-        //    validate_data(&partial_order_encoded).map_err(transaction_manifest::DecompileError::DataValidationError).map_err(Error::DecompileError)?;
-        //print!("{}", validated_arg);
+        // not outputting a textual version because we can't parse it from Rust code since some transaction manifest compiler functions are private
+        // so just writing the encoded bytes to file was cleaner
+        // but this is how you would decompile it:
+        //   let validated_arg =
+        //      validate_data(&partial_order_encoded).map_err(transaction_manifest::DecompileError::DataValidationError).map_err(Error::DecompileError)?;
+        //   print!("{}", validated_arg);
         fs::write(&self.output_path, &partial_order_encoded).map_err(Error::IoError)?;
 
         Ok(())
@@ -133,8 +148,6 @@ pub struct MakeSignedOrder {
     /// path to file containing the serialized private key which will sign the order - must match on-ledger public key
     private_key_file: PathBuf,
 }
-
-use k256::ecdsa::{signature::Signer, /* VerifyingKey, signature::Verifier, */ Signature, SigningKey};
 
 impl MakeSignedOrder {
     pub fn run(&self) -> Result<(), Error> {
@@ -165,7 +178,7 @@ impl MakeSignedOrder {
             },
         };
 
-        // construct a Voucher for the MatchedOrder (and encode it)
+        // construct a Voucher for the MatchedOrder
 
         let nfd = matched_order.as_passthru();
 
@@ -175,25 +188,20 @@ impl MakeSignedOrder {
             nfd,
         };
 
+        // and encode it
         let voucher_encoded = scrypto_encode(&voucher);
 
         // test that the decode works properly
-
         let decoded_voucher = private_decode_with_type::<Voucher>(&voucher_encoded).unwrap();
         assert_eq!(voucher, decoded_voucher, "voucher decode error");
 
         // sign the voucher
-
         let signing_key = SigningKey::from_bytes(&private_key_bytes).map_err(Error::BadPrivateKeyError)?;
         let signature: Signature = signing_key.try_sign(&voucher_encoded).map_err(Error::SigningError)?;
         let sig_bytes = signature.to_der().to_bytes().to_vec();
 
         // double check that the sig verifies (all the format conversions are ok)
-        let verifying_key = signing_key.verifying_key();
-        let compressed_point = verifying_key.to_bytes();
-        let mut public_raw = [0u8; 33];
-        public_raw[..].copy_from_slice(&compressed_point);
-        let public_key: EcdsaPublicKey = EcdsaPublicKey(public_raw);
+        let public_key = to_public_key(&signing_key);
         verify(&public_key, &voucher_encoded, &sig_bytes).map_err(Error::VerifyCheckError)?;
 
         // create the SignedOrder for consuption by the submitter.
@@ -253,23 +261,31 @@ impl NewKeyPair {
     }
 }
 
+
+/// generate (public, private) byte vectors for an ECDSA keypair using sha256(ledger.get_nonce) as the basis for the private key
+///
+/// WARNING this is insecure, used for testing with deterministic keys (similar to how new_public_key works)
 pub fn new_public_private_pair(ledger: &mut RadixEngineDB) -> (Vec<u8>, Vec<u8>) {
-    // WARNING this is insecure, used for testing with deterministic keys (similar to how new_public_key works)
     let mut private_raw = [0u8; 32];
     private_raw[..].copy_from_slice(sha256(ledger.get_nonce().to_string()).as_ref());
     ledger.increase_nonce();
     let signing_key =
         SigningKey::from_bytes(&private_raw).expect("unable to create signing key (this should not happen)");
-    eprintln!("SigningKey: {:?}", signing_key);
 
-    let verifying_key = signing_key.verifying_key();
-    eprintln!("verifying_key: {:?}", verifying_key);
-    let compressed_point = verifying_key.to_bytes();
-    eprintln!("compressed_point: {:?}", compressed_point);
-    let mut public_raw = [0u8; 33];
-    public_raw[..].copy_from_slice(&compressed_point);
-    let public_key: EcdsaPublicKey = EcdsaPublicKey(public_raw);
+    let public_key = to_public_key(&signing_key);
     let public_key_encoded = scrypto_encode(&public_key);
 
     (public_key_encoded, signing_key.to_bytes().to_vec())
+}
+
+
+/// Convert SigningKey to an EcdsaPublicKey.
+///
+/// WARNING: Makes some assumptions about the underlying type, curve paramaters etc for the SigningKey
+fn to_public_key(signing_key: &SigningKey) -> EcdsaPublicKey {
+    let verifying_key = signing_key.verifying_key();
+    let compressed_point = verifying_key.to_bytes();
+    let mut public_raw = [0u8; 33];
+    public_raw[..].copy_from_slice(&compressed_point);
+    EcdsaPublicKey(public_raw)
 }
