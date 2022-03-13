@@ -73,7 +73,7 @@ resim set-default-account $ACCOUNT1 $ACCOUNT1_PUBKEY
 ## off-ledger stuff agree on order
 #taker make RFQ
 MAKER_AMOUNT=200
-$HARE request-for-quote partial_order.txt $MAKER_AMOUNT $M $T $TAKER_AUTH
+$HARE request-for-quote buy-base partial_order.txt $MAKER_AMOUNT $M $T $TAKER_AUTH
 # simulate send to maker
 # maker decide on price and sign order
 TAKER_AMOUNT=100

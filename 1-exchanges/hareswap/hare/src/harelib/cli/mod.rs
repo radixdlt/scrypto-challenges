@@ -2,7 +2,7 @@ use std::fs;
 use std::path::PathBuf;
 
 // non-scrypto dependencies
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ArgEnum};
 use k256::ecdsa::{signature::Signer, Signature, SigningKey};
 
 // scrypto dependencies
@@ -72,6 +72,8 @@ pub fn run() -> Result<(), Error> {
 /// used by the taker: generate a request-for-quote (RFQ) to buy exact amount resource "B" with a to-be-determined amount of resource "A"
 #[derive(Parser, Debug)]
 pub struct RequestForQuote {
+    #[clap(arg_enum)]
+    quote_type: QuoteType,
     /// path to file to store the request (for simulating sending or integrating with some RFQ protocol)
     output_path: PathBuf,
     /// amount of base asset
@@ -84,6 +86,12 @@ pub struct RequestForQuote {
     /// a SignedOrder resulting from this RFQ (protects against frontrunning)
     /// ASSUMES requirement is a single fungible
     resource_taker_auth: String,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
+enum QuoteType {
+    SellBase,
+    BuyBase,
 }
 
 impl RequestForQuote {
@@ -110,7 +118,7 @@ impl RequestForQuote {
 
         // combine the above to create the PartialOrder which is the full RFQ
         let partial_order = PartialOrder {
-            inverted: false,
+            inverted: self.quote_type == QuoteType::SellBase,
             base_requirement,
             quote_resource,
             taker_auth,
