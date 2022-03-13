@@ -1,9 +1,11 @@
-//! A Voucher implementation for the Radix Engine.  Supports
+//! A [Voucher] implementation for the Radix Engine.  Supports
 //! cryptographically-secured off-ledger representions of on-ledger assets that
 //! exist or may exist in the future.
 //!
-//! This module is the most low-level and complex part of transporter.
+//! This module is the most low-level and complex part of [transporter].
 //! It uses internal details of Scrypto for fun and profit
+//! 
+//! [transporter]: super
 use hex;
 
 use sbor::{describe::Type, Decode, DecodeError, Decoder, Describe, Encode, TypeId};

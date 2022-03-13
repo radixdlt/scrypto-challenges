@@ -1,4 +1,4 @@
-//! A blueprint for a SharedAccount with configuratable withdrawl authentication
+//! A blueprint for a [SharedAccount] with configuratable withdrawl authentication
 //!
 //! This is a near duplicate of the Scrypto-builtin Account with minor changes.
 //! Instead of explicit checks against the public key virtual badge (as of Scrypto v0.3.0)
@@ -6,6 +6,8 @@
 //!
 //! WARNING: This is a proof of concept to support testing HareSwap and is not full featured.
 //! For example, there's no way to change the auth_requirement after instantiating the account.
+//! 
+//! [SharedAccount]: blueprint::SharedAccount
 use scrypto::prelude::*;
 
 // BucketRequirement is used to test explictly during withdraw

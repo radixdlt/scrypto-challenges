@@ -1,5 +1,6 @@
-//! The Transporter blueprint redeems SealedVouchers for NonFungibles
-//! effectively moving assets onto the ledger (bringing them into existance)
+//! The [Transporter] blueprint redeems [SealedVoucher]s for NonFungibles
+//! effectively moving assets onto the ledger (minting them into existance).  It
+//! can also burn assets and generate a to-be-signed [Voucher]
 //!
 //! Transporter utilizes the Voucher implemenation for most of the hard work.
 //!
@@ -8,6 +9,8 @@
 //! This prototype only supports NonFungibles and a single one per Voucher.  It
 //! wouldn't be much harder to update this (and the Voucher type) to support an
 //! entire arbitrary Bucket
+//! 
+//! [Transporter]: blueprint::Transporter
 use scrypto::prelude::*;
 
 use super::voucher::*;

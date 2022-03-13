@@ -1,4 +1,4 @@
-//! This module holds the "application layer" data types including `PartialOrder` `MatchedOrder` and `SignedOrder`
+//! This module holds the "application layer" data types including [PartialOrder] [MatchedOrder] and [SignedOrder]
 use sbor::{Decode, Describe, Encode, TypeId};
 use scrypto::prelude::*;
 
@@ -55,9 +55,9 @@ pub struct MatchedOrder {
     pub maker_callback: Callback,
 }
 
-/// mod signed_order contains only the SignedOrder struct
+/// mod signed_order contains only the SignedOrder struct because...
 ///
-/// in a seperate module where we explicitly avoid importing NonFungibleData
+/// ...we need to explicitly avoid importing NonFungibleData
 /// This is to work around a conflict when deriving sbor::Decode.
 /// Otherwise there are multiple `decode` functions on MatchedOrder
 /// one for the sbor::Decode trait and one for the NonFungibleData trait:

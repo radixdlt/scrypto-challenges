@@ -1,6 +1,19 @@
+//! Black-box (mostly) digital signature creation and verifification
+//! 
+//! WARNING: This is not audited and just about the minimum viable
+//! implemenation.
+//! 
+//! Implementation uses the "RustCrypto" crates.  This works well enough but is
+//! far from what should probably be used in production.
+//! 
+//! Those creates we depend on here (k256 and friends) are not audited, and this
+//! code is also not audited.  Additionally, the documentation for these crates
+//! leaves a lot to be desired.  This works but the choices may not be optimal
+//! for future on-ledger use
 use k256::ecdsa::{signature::Signer, signature::Verifier, Signature, SigningKey, VerifyingKey};
 use scrypto::prelude::EcdsaPublicKey;
 
+/// Possible errors while verifying a digital signature
 #[derive(Debug, Clone)]
 pub enum VerifyError {
     ParsePublicKeyError,
@@ -13,9 +26,6 @@ pub enum VerifyError {
 /// NOTE: the choice of encryption algorithm is not particularly relevent for this prototype but the EcdsaPublicKey type from Scrypto was reused.
 /// Scrypto does not yet have an implementation so this implementation may be incompatible with what is chosen to verify transactions in the future
 /// but that does not matter for how signature validation is utilized in Hareswap.  The Hareswap signatures and algorithm are completely independent.
-///
-/// WARNING: the cryptographic libraries used here are not audited, and this code is also not auditted.  Additionally, the documentation for the k256
-/// create and related crates leaves a lot to be desired.  This works but the choices may not be optimal for future on-ledger use
 pub fn verify(public_key: &EcdsaPublicKey, serialized: &[u8], signature: &[u8]) -> Result<(), VerifyError> {
     let pub_bytes = public_key.to_vec();
     let verifying_key: VerifyingKey =

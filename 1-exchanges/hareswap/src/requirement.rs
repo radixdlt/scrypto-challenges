@@ -1,15 +1,17 @@
+//! Functionality to describe and compare expectations about an asset in a bucket
 use std::cmp::Ordering;
 
 use sbor::*;
 use scrypto::prelude::*;
 
+/// Describes the type and amount of Fungible or NonFungible assets in a Bucket (not including specific resource address)
+/// Can be compared via ParitalOrd with a BucketRef (and thus with a Bucket) for easy correct checking of requirements
 #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
 pub enum BucketContents {
     Fungible(Decimal),
     NonFungible(BTreeSet<NonFungibleKey>),
 }
 
-// Implement <BucketRef> == <BucketContents> comparisons
 impl PartialEq<BucketContents> for BucketRef {
     fn eq(&self, other: &BucketContents) -> bool {
         let bucket_type = self.resource_def().resource_type();
@@ -63,6 +65,7 @@ impl PartialOrd<BucketContents> for BucketRef {
     }
 }
 
+/// Combines a BucketContents with a specific ResourceDef to create a "requirement" on a Bucket which is easliy checked
 #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
 pub struct BucketRequirement {
     pub resource: ResourceDef,
@@ -70,8 +73,8 @@ pub struct BucketRequirement {
 }
 
 
-// REMEMBER: functions outside of blueprint! wont auto drop BucketRef ... be careful, better to my statictypes wrapper with Drop trait probably
 impl BucketRequirement {
+    /// Check a BucketRef exactly matches the requirement
     pub fn check_ref(&self, bucket_ref: &BucketRef) -> bool {
         // same resource
         if self.resource != bucket_ref.resource_def() {
@@ -81,6 +84,7 @@ impl BucketRequirement {
         *bucket_ref == self.contents
     }
 
+    /// Check a Bucket exactly matches the requirement
     pub fn check(&self, bucket: &Bucket) -> bool {
         bucket.authorize(|bucket_ref| {
             let r = self.check_ref(&bucket_ref);
@@ -89,8 +93,8 @@ impl BucketRequirement {
         })
     }
 
+    /// Check a BucketRef contains at least as much as the requirement (in quantity of Fungible or subset of NonFungible) of the correct resource
     pub fn check_at_least_ref(&self, bucket_ref: &BucketRef) -> bool {
-        debug!("check_at_least_ref: {:?} =?= {:?}", self, bucket_ref.resource_def());
         // same resource
         if self.resource != bucket_ref.resource_def() {
             return false;
@@ -100,6 +104,7 @@ impl BucketRequirement {
         *bucket_ref >= self.contents
     }
 
+    /// Check a Bucket contains at least as much as the requirement (in quantity of Fungible or subset of NonFungible) of the correct resource
     pub fn check_at_least(&self, bucket: &Bucket) -> bool {
         bucket.authorize(|bucket_ref| {
             let r = self.check_at_least_ref(&bucket_ref);
