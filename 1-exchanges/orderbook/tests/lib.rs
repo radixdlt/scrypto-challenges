@@ -1,8 +1,6 @@
 use radix_engine::engine::*;
 use radix_engine::ledger::*;
-use radix_engine::model::*;
 use radix_engine::transaction::*;
-use sbor::any::*;
 use scrypto::prelude::*;
 
 fn create_account<'a, L: SubstateStore>(
@@ -262,6 +260,8 @@ fn push_bid_order<'a, L: SubstateStore>(
         )
         .unwrap();
     println!("{:?}\n", receipt);
+    println!("{:?}\n", receipt.outputs);
+    println!("{:?}\n", receipt.new_entities);
     assert!(receipt.result.is_ok());
 }
 
@@ -294,6 +294,8 @@ fn push_ask_order<'a, L: SubstateStore>(
         )
         .unwrap();
     println!("{:?}\n", receipt);
+    println!("{:?}\n", receipt.outputs);
+    println!("{:?}\n", receipt.new_entities);
     assert!(receipt.result.is_ok());
 }
 

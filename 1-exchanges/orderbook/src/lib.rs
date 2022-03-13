@@ -75,7 +75,7 @@ blueprint! {
 
         //use u8 for order type beacause I didn't find an example with an Option as Tx parameter.
         #[auth(orders_badge_def)]
-        pub fn buy_order(&mut self, price: Decimal, amount: Decimal, ordre_type: u8, quote: Bucket) -> Vec<Bucket> { //, auth: BucketRef
+        pub fn buy_order(&mut self, price: Decimal, amount: Decimal, ordre_type: u8, quote: Bucket) -> (Bucket, Bucket) { //, auth: BucketRef
             info!("buy_order");
             let owner_keys = auth.get_non_fungible_keys();
             let data: BadgeData = auth
@@ -88,11 +88,11 @@ blueprint! {
                 amount,
                 quote,
                 ordre_type.into(),
-            ).1
+            )
         }
 
         #[auth(orders_badge_def)]
-        pub fn sell_order(&mut self, price: Decimal, amount: Decimal, ordre_type: u8, base: Bucket) -> Vec<Bucket> { //, auth: BucketRef
+        pub fn sell_order(&mut self, price: Decimal, amount: Decimal, ordre_type: u8, base: Bucket) -> (Bucket, Bucket) { //, auth: BucketRef
             info!("sell order");
             let owner_keys = auth.get_non_fungible_keys();
             let data: BadgeData = auth
@@ -105,7 +105,7 @@ blueprint! {
                 amount,
                 base,
                 ordre_type.into(),
-            ).1
+            )
         }
 
         #[auth(orders_badge_def)]
@@ -128,6 +128,15 @@ blueprint! {
             (user_orders.quote_vault.take_all(), user_orders.base_vault.take_all())
         }
 
+        #[auth(orders_badge_def)]
+        pub fn cancel_order(&mut self, order_id_badge: Bucket) {
+            let owner_keys = auth.get_non_fungible_keys();
+            let data: BadgeData = auth
+                .resource_def()
+                .get_non_fungible_data(owner_keys.get(0).unwrap());
+            assert!(data.name == self.name, "Not current market open order badge");
+            self.dex.cancel_order(order_id_badge);
+        }
     }
 
 }
