@@ -36,11 +36,13 @@ pub enum Callback {
 /// The main parts of the "request" in the request-for-quote (RFQ) coming from the sender
 #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
 pub struct PartialOrder {
-    /// description of the assets to be provided by the signer
-    pub maker_requirement: BucketRequirement,
-    /// the resource that will be provided by the sender (but not the amount, that's the "quote" we want)
-    pub taker_resource: ResourceDef,
-    /// description of the assets (badges) which the signer bake into the SignedOrder so that only the sender can execute the order (or get an order token)
+    /// true if the base_requirement should be met by sender
+    pub inverted: bool,
+    /// description of the assets to be provided by the signer (resp. sender when inverted)
+    pub base_requirement: BucketRequirement,
+    /// the resource that will be provided by the sender (resp. signer) (but not the amount, that's the "quote" we want)
+    pub quote_resource: ResourceDef,
+    /// description of the assets (badges) which the signer will bake into the SignedOrder so that only the sender can execute the order (or get an order token)
     pub taker_auth: BucketRequirement,
 }
 
@@ -49,8 +51,8 @@ pub struct PartialOrder {
 pub struct MatchedOrder {
     /// The original PartialOrder in the RFQ
     pub partial_order: PartialOrder,
-    /// The amount the signer has decided the taker needs to provide
-    pub taker_contents: BucketContents,
+    /// The amount the signer has decided the sender (resp. signer) needs to provide
+    pub quote_contents: BucketContents,
     /// A Callback which decides how the the signer's assets are to be obtained to settle the order
     pub maker_callback: Callback,
     /// The order deadline, specified as the last (greatest) epoch where the order can still be executed

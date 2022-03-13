@@ -89,10 +89,20 @@ blueprint! {
             let epoch = Context::current_epoch();
             assert!(epoch <= matched_order.deadline, "The order has expired.  Current epoch ({}) is past the order deadline ({})", epoch, matched_order.deadline);
 
-            // create full taker requirement to check from_taker Bucket
-            let taker_requirement = BucketRequirement {
-                resource: matched_order.partial_order.taker_resource,
-                contents: matched_order.taker_contents
+            // create full quote requirement
+            let quote_requirement = &BucketRequirement {
+                resource: matched_order.partial_order.quote_resource,
+                contents: matched_order.quote_contents
+            };
+
+            // get the base_requirement
+            let base_requirement = &matched_order.partial_order.base_requirement;
+
+            // depending on the direction (ie. inverted or not) determine who has which requirement
+            let (taker_requirement, maker_requirement) = if matched_order.partial_order.inverted {
+                (base_requirement, quote_requirement)
+            } else {
+                (quote_requirement, base_requirement)
             };
 
             // check from_taker fills the order request.... this callback will just take everything the taker gives us even if they overpay
@@ -105,15 +115,15 @@ blueprint! {
             self.account.deposit(from_taker);
 
             // execute Account withdrawl
-            let withdraw_address = matched_order.partial_order.maker_requirement.resource.address();
-            match matched_order.partial_order.maker_requirement.contents {
+            let withdraw_address = maker_requirement.resource.address();
+            match &maker_requirement.contents {
                 BucketContents::Fungible(amount) => {
                     debug!("handle_order_default_callback: now withdraw from Maker's account {:?} and return", amount);
-                    self.account_auth.authorize(|auth| self.account.withdraw(amount, withdraw_address, auth))
+                    self.account_auth.authorize(|auth| self.account.withdraw(*amount, withdraw_address, auth))
                 },
                 BucketContents::NonFungible(keys) => {
                     debug!("handle_order_default_callback: now withdraw from Maker's account {:?} and return", keys);
-                    self.account_auth.authorize(|auth| self.account.withdraw_non_fungibles(keys, withdraw_address, auth))
+                    self.account_auth.authorize(|auth| self.account.withdraw_non_fungibles(keys.clone(), withdraw_address, auth))
                 },
             }
         }
