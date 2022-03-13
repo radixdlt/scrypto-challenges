@@ -85,6 +85,10 @@ blueprint! {
 
             assert_eq!(auth_requirement.check_ref(&callback_auth), true, "handle_order_default_callback: callback_auth failed");
 
+            // check the order has not expired  (in a world with oracles this would be based on some timestamp instead)
+            let epoch = Context::current_epoch();
+            assert!(epoch <= matched_order.deadline, "The order has expired.  Current epoch ({}) is past the order deadline ({})", epoch, matched_order.deadline);
+
             // create full taker requirement to check from_taker Bucket
             let taker_requirement = BucketRequirement {
                 resource: matched_order.partial_order.taker_resource,

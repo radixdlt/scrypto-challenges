@@ -10,7 +10,7 @@
   * run clippy
   * use scrypto_statictypes
 * features
-  * add order deadline (from signer)
+  * [x] add order deadline (from signer)
   * add direction flag to support sell request (instead of just the buy request we have now) -- compare with Airswap/Swap documentation
 * testing
   * add scenerio where the sender composes a more interesting tx, where the get the money from somewhere else first (like a flash loan) or they combine 2 RFQs to do their own routing

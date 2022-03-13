@@ -53,6 +53,8 @@ pub struct MatchedOrder {
     pub taker_contents: BucketContents,
     /// A Callback which decides how the the signer's assets are to be obtained to settle the order
     pub maker_callback: Callback,
+    /// The order deadline, specified as the last (greatest) epoch where the order can still be executed
+    pub deadline: u64,
 }
 
 /// mod signed_order contains only the SignedOrder struct because...

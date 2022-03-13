@@ -45,6 +45,9 @@ MAKER_ACCOUNT=02d9e04ba122de13a58f80ea7a06a0e1aad665d23cbeb124c3c286
 # put half the M in there ready to trade
 resim transfer 500,$M $MAKER_ACCOUNT
 
+# for consistency testing
+resim set-current-epoch 20
+
 ### probably break the rest into seperate file later
 
 # 0.2 Maker setup
@@ -75,7 +78,8 @@ $HARE request-for-quote partial_order.txt $MAKER_AMOUNT $M $T $TAKER_AUTH
 # maker decide on price and sign order
 TAKER_AMOUNT=100
 VOUCHER_KEY=AA
-$HARE make-signed-order partial_order.txt $TAKER_AMOUNT $MAKER_COMPONENT $VOUCHER_ADDRESS $VOUCHER_KEY $MAKER_OFFLINE_KEY_PRI > signed_order.txt
+DEADLINE_EPOCH=42
+$HARE make-signed-order partial_order.txt $TAKER_AMOUNT $MAKER_COMPONENT $VOUCHER_ADDRESS $VOUCHER_KEY $MAKER_OFFLINE_KEY_PRI $DEADLINE_EPOCH > signed_order.txt
 SIGNED_ORDER=$(cat signed_order.txt)
 
 ## 4-A taker: OPTION 1 - simple execution

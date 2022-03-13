@@ -147,6 +147,8 @@ pub struct MakeSignedOrder {
     voucher_key: String,
     /// path to file containing the serialized private key which will sign the order - must match on-ledger public key
     private_key_file: PathBuf,
+    /// integer value for the last epoch this order can be executed
+    deadline_epoch: u64
 }
 
 impl MakeSignedOrder {
@@ -161,6 +163,8 @@ impl MakeSignedOrder {
             .into();
         let voucher_key = NonFungibleKey::from_str(&self.voucher_key).map_err(Error::ParseNonFungibleKeyError)?;
         let private_key_bytes = fs::read(&self.private_key_file).map_err(Error::IoError)?;
+        //let deadline = u64::from_str(&self.deadline_epoch)?;//.map_err(Error::ParseDeadline)?;
+        let deadline = self.deadline_epoch;
 
         // decode the PartialOrder
         let partial_order_encoded = partial_order_bytes;
@@ -176,6 +180,7 @@ impl MakeSignedOrder {
                 method: "handle_order_default_callback".to_owned(),
                 args: vec![],
             },
+            deadline,
         };
 
         // construct a Voucher for the MatchedOrder
