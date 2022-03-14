@@ -16,7 +16,7 @@
 * testing
   * add scenerio where the sender composes a more interesting tx, where the get the money from somewhere else first (like a flash loan) or they combine 2 RFQs to do their own routing
   * add scenerio where non default maker callback is used (and they do something interesting, like maybe swap for the needed token using an AMM)
-  * delete/cleanup tests/lib.rs
+  * [x] delete/cleanup tests/lib.rs
 * documentation
   * document EVERY function
   * document every file

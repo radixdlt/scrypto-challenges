@@ -9,7 +9,6 @@
 //! - Request-for-Quote: <https://about.airswap.io/technology/request-for-quote>
 //! 
 mod account;
-mod interpreter;
 mod maker;
 mod model;
 mod requirement;
