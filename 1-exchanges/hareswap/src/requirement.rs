@@ -1,5 +1,6 @@
 //! Functionality to describe and compare expectations about an asset in a bucket
 use std::cmp::Ordering;
+use std::fmt;
 
 use sbor::*;
 use scrypto::prelude::*;
@@ -10,6 +11,13 @@ use scrypto::prelude::*;
 pub enum BucketContents {
     Fungible(Decimal),
     NonFungible(BTreeSet<NonFungibleKey>),
+}
+
+/// Implement Display in terms of Debug
+impl fmt::Display for BucketContents {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 impl PartialEq<BucketContents> for BucketRef {
@@ -114,13 +122,21 @@ impl BucketRequirement {
     }
 }
 
+/// Possible errors when parsing a BucketContents from string
 #[derive(Debug, Clone)]
 pub enum ParseBucketContentsError {
     ParseFungibleError(ParseDecimalError),
     ParseNonFungibleError(ParseNonFungibleKeyError),
 }
 
-impl FromStr for BucketContents {
+/// Implement Display in terms of Debug
+impl fmt::Display for ParseBucketContentsError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl std::str::FromStr for BucketContents {
     type Err = ParseBucketContentsError;
     /// oversimplified string to BucketContents parsing
     /// 
@@ -136,5 +152,20 @@ impl FromStr for BucketContents {
             BucketContents::NonFungible(set)
         };
         Ok(contents)
+    }
+}
+
+/// Implement TryFrom in terms of FromStr
+impl TryFrom<&str> for BucketContents {
+    type Error = ParseBucketContentsError;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        BucketContents::from_str(s)
+    }
+}
+/// Implement in terms of TryFrom<&str>
+impl TryFrom<String> for BucketContents {
+    type Error = ParseBucketContentsError;
+    fn try_from(s: String) -> Result<Self, Self::Error> {
+        BucketContents::from_str(&s)
     }
 }
