@@ -36,7 +36,7 @@ pub enum Callback {
 /// The main parts of the "request" in the request-for-quote (RFQ) coming from the sender
 #[derive(Debug, Clone, TypeId, Encode, Decode, PartialEq, Eq, Describe)]
 pub struct PartialOrder {
-    /// true if the base_requirement should be met by sender
+    /// true if the base_requirement should be met by sender (ie. selling the base asset instead of buying it)
     pub inverted: bool,
     /// description of the assets to be provided by the signer (resp. sender when inverted)
     pub base_requirement: BucketRequirement,

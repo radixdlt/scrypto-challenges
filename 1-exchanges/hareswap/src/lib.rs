@@ -1,7 +1,7 @@
 //! HareSwap (rhymes with AirSwap) is a (prototype) decentralized exchange
 //! platform that implements (a subset of) the Swap protocol, a peer-to-peer
-//! protocol for trading ~~ERC20 tokens~~ *any* resource on the ~~Ethereum
-//! Blockchain~~ Radix Ledger.
+//! protocol for trading ~~ERC20 tokens on the Ethereum Blockchain~~
+//! *any* resource (fungible and non-fungible) on the Radix Ledger.
 //! 
 //! This implementation is a subset of the Swap protocol and Request-for-Quote
 //! interactions described here:

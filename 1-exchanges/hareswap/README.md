@@ -11,7 +11,8 @@
   * use scrypto_statictypes
 * features
   * [x] add order deadline (from signer)
-  * add direction flag to support sell request (instead of just the buy request we have now) -- compare with Airswap/Swap documentation
+  * [x] add direction flag to support sell request (instead of just the buy request we have now) -- compare with Airswap/Swap documentation
+  * handle swap NFTs (should only need CLI changes?)
 * testing
   * add scenerio where the sender composes a more interesting tx, where the get the money from somewhere else first (like a flash loan) or they combine 2 RFQs to do their own routing
   * add scenerio where non default maker callback is used (and they do something interesting, like maybe swap for the needed token using an AMM)

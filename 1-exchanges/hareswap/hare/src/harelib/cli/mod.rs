@@ -42,6 +42,7 @@ pub enum Error {
     IoError(std::io::Error),
     ResimError(simulator::resim::Error),
     DecompileError(transaction_manifest::DecompileError),
+    ParseAmountError(ParseBucketContentsError),
     ParseAddressError(ParseAddressError),
     ParseDecimalError(ParseDecimalError),
     ParseNonFungibleKeyError(ParseNonFungibleKeyError),
@@ -98,7 +99,7 @@ impl RequestForQuote {
     pub fn run(&self) -> Result<(), Error> {
         // parse arguments
         let base_resource = ResourceDef::from(Address::from_str(&self.resource_b).map_err(Error::ParseAddressError)?);
-        let base_amount = Decimal::from_str(&self.resource_b_amount).map_err(Error::ParseDecimalError)?; // TODO: support at least a single key instead to trade NonFungible tokens
+        let base_contents = BucketContents::from_str(&self.resource_b_amount).map_err(Error::ParseAmountError)?;
         let quote_resource = ResourceDef::from(Address::from_str(&self.resource_q).map_err(Error::ParseAddressError)?);
         let taker_auth_resource =
             ResourceDef::from(Address::from_str(&self.resource_taker_auth).map_err(Error::ParseAddressError)?);
@@ -107,7 +108,7 @@ impl RequestForQuote {
         // combine the rosource_b information into a BucketRequirement
         let base_requirement = BucketRequirement {
             resource: base_resource,
-            contents: BucketContents::Fungible(base_amount),
+            contents: base_contents,
         };
 
         // combine the taker_auth information into a BucketRequirement
@@ -146,7 +147,7 @@ impl RequestForQuote {
 pub struct MakeSignedOrder {
     /// path to file containing the SBOR-encoded PartialOrder bytes (simulating receipt via some request-for-quote protocol)
     partial_order_file: PathBuf,
-    /// Maker's "quote" in response to the request-for-quote, ie the amount of resource_q
+    /// Maker's "quote" in response to the request-for-quote, ie the amount of resource_q.  May be Decimal amount for Fungible (requires a ".") or a comma-seperated list of NonFungibleKeys
     resource_q_amount: String,
     /// component address for the Maker component which is the entry point to be called with the SignedOrder to complete the on-ledger order settlement
     maker_component_address: String,
@@ -164,7 +165,7 @@ impl MakeSignedOrder {
     pub fn run(&self) -> Result<(), Error> {
         // parse arguments
         let partial_order_bytes = fs::read(&self.partial_order_file).map_err(Error::IoError)?;
-        let resource_q_amount = Decimal::from_str(&self.resource_q_amount).map_err(Error::ParseDecimalError)?; // TODO: support at leaset a single NonFungibleKey to trade NonFungibles too
+        let resource_q_contents = BucketContents::from_str(&self.resource_q_amount).map_err(Error::ParseAmountError)?;
         let maker_component_address =
             Address::from_str(&self.maker_component_address).map_err(Error::ParseAddressError)?;
         let voucher_resource: ResourceDef = Address::from_str(&self.voucher_address)
@@ -182,7 +183,7 @@ impl MakeSignedOrder {
         // create the MatchedOrder from the inputs
         let matched_order = MatchedOrder {
             partial_order,
-            quote_contents: BucketContents::Fungible(resource_q_amount), // FUTURE: support at least a single key instead to trade NonFungible tokens
+            quote_contents: resource_q_contents,
             // this is the default callback expected in the Maker Component
             maker_callback: Callback::CallMethod {
                 component_address: maker_component_address,

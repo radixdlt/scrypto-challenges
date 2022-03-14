@@ -113,3 +113,28 @@ impl BucketRequirement {
         })
     }
 }
+
+#[derive(Debug, Clone)]
+pub enum ParseBucketContentsError {
+    ParseFungibleError(ParseDecimalError),
+    ParseNonFungibleError(ParseNonFungibleKeyError),
+}
+
+impl FromStr for BucketContents {
+    type Err = ParseBucketContentsError;
+    /// oversimplified string to BucketContents parsing
+    /// 
+    /// A string with a "." will be parsed as a Decimal for the Funbible amount
+    /// Otherwise, a single NonFungibleKey or comma-seperated list of keys to create the set of NonFungibles
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        // treat the string as a set of NonFungibleKeys if there is a comma, otherwise Fungible
+        let contents = if s.contains(".") {
+            BucketContents::Fungible(Decimal::from_str(s).map_err(Self::Err::ParseFungibleError)?)
+        } else {
+            let set_result: Result<BTreeSet<NonFungibleKey>, _> = s.split(",").map(|s| NonFungibleKey::from_str(s)).collect();
+            let set = set_result.map_err(Self::Err::ParseNonFungibleError)?;
+            BucketContents::NonFungible(set)
+        };
+        Ok(contents)
+    }
+}
