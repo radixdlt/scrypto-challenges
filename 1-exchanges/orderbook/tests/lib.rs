@@ -238,7 +238,7 @@ fn push_bid_order<'a, L: SubstateStore>(
     amount_token: usize,
     order_type: u8,
     trader: &Trader,
-) {
+) -> Address {
     let receipt = executor
         .run(
             TransactionBuilder::new(executor)
@@ -263,6 +263,8 @@ fn push_bid_order<'a, L: SubstateStore>(
     println!("{:?}\n", receipt.outputs);
     println!("{:?}\n", receipt.new_entities);
     assert!(receipt.result.is_ok());
+    assert!(receipt.new_entities.len() > 0, "push bid no order created.");
+    receipt.new_entities[0]
 }
 
 fn push_ask_order<'a, L: SubstateStore>(
@@ -272,7 +274,7 @@ fn push_ask_order<'a, L: SubstateStore>(
     amount_base: usize,
     order_type: u8,
     trader: &Trader,
-) {
+) -> Address {
     let receipt = executor
         .run(
             TransactionBuilder::new(executor)
@@ -297,6 +299,8 @@ fn push_ask_order<'a, L: SubstateStore>(
     println!("{:?}\n", receipt.outputs);
     println!("{:?}\n", receipt.new_entities);
     assert!(receipt.result.is_ok());
+    assert!(receipt.new_entities.len() > 0, "push ask no order created.");
+    receipt.new_entities[0]
 }
 
 fn push_withdraw<'a, L: SubstateStore>(
@@ -322,45 +326,287 @@ fn push_withdraw<'a, L: SubstateStore>(
     assert!(receipt.result.is_ok());
 }
 
+fn cancel_order<'a, L: SubstateStore>(
+    executor: &mut TransactionExecutor<'a, L>,
+    instance: Address,
+    order_id: Address,
+    trader: &Trader,
+) {
+    let receipt = executor
+        .run(
+            TransactionBuilder::new(executor)
+                .call_method(
+                    instance,
+                    "cancel_order",
+                    vec![
+                        format!("{},{}", 1, order_id),
+                        format!("{},{}", 1, trader.access_badge_address),
+                    ],
+                    Some(trader.address),
+                )
+                .call_method_with_all_resources(trader.address, "deposit_batch")
+                .build(vec![trader.key])
+                .unwrap(),
+        )
+        .unwrap();
+    println!("cancel {:?}\n", receipt);
+    assert!(receipt.result.is_ok());
+}
+
 fn check_wallet<'a, L: SubstateStore>(
     executor: &mut TransactionExecutor<'a, L>,
     index: u8,
     trader: &Trader,
+    expected_quote: Decimal,
+    expected_base: Decimal,
 ) {
     let wallet = get_account_vaults(executor.ledger(), trader.address);
     let quote = *wallet.get(&trader.quote_token).unwrap_or(&Decimal::zero());
     let base = *wallet.get(&trader.base_token).unwrap_or(&Decimal::zero());
 
     println!("WALLET:{} quote:{:?} base:{:?}", index, quote, base);
+    println!(
+        "EXPECTED:{} quote:{:?} base:{:?}",
+        index, expected_quote, expected_base
+    );
+
+    assert!(
+        expected_quote == quote,
+        "{}",
+        format!(
+            "check_wallet expected quote missmatch, expected:{} found:{}",
+            expected_quote, quote
+        )
+    );
+    assert!(
+        expected_base == base,
+        "{}",
+        format!(
+            "check_wallet expected base missmatch, expected:{} found:{}",
+            expected_base, base
+        )
+    );
 }
 
 #[test]
-fn test_trade1() {
+fn test_trade_match_buy() {
     let mut ledger = InMemorySubstateStore::with_bootstrap();
     let (mut executor, instance, traders) = init(&mut ledger);
-    check_wallet(&mut executor, 0, &traders[0]);
-    check_wallet(&mut executor, 1, &traders[1]);
     push_ask_order(&mut executor, instance, 20, 10, 0, &traders[1]);
-    check_wallet(&mut executor, 1, &traders[1]);
-    push_ask_order(&mut executor, instance, 19, 10, 0, &traders[1]);
-    check_wallet(&mut executor, 0, &traders[0]);
-    check_wallet(&mut executor, 1, &traders[1]);
+    check_wallet(
+        &mut executor,
+        1,
+        &traders[1],
+        From::<u32>::from(100000),
+        From::<u32>::from(99990),
+    );
+    push_ask_order(&mut executor, instance, 18, 10, 0, &traders[1]);
+    check_wallet(
+        &mut executor,
+        0,
+        &traders[1],
+        From::<u32>::from(100000),
+        From::<u32>::from(99980),
+    );
     push_bid_order(&mut executor, instance, 20, 20, 400, 0, &traders[0]);
-    check_wallet(&mut executor, 0, &traders[0]);
-    check_wallet(&mut executor, 1, &traders[1]);
+    check_wallet(
+        &mut executor,
+        0,
+        &traders[0],
+        From::<u32>::from(99600),
+        From::<u32>::from(100000),
+    );
     push_withdraw(&mut executor, instance, &traders[0]);
     push_withdraw(&mut executor, instance, &traders[1]);
-    check_wallet(&mut executor, 0, &traders[0]);
-    check_wallet(&mut executor, 1, &traders[1]);
+    check_wallet(
+        &mut executor,
+        0,
+        &traders[0],
+        From::<u32>::from(99620),
+        From::<u32>::from(100018),
+    );
+    check_wallet(
+        &mut executor,
+        1,
+        &traders[1],
+        From::<u32>::from(100361),
+        From::<u32>::from(99980),
+    );
+
     push_ask_order(&mut executor, instance, 20, 10, 0, &traders[1]);
-    check_wallet(&mut executor, 1, &traders[1]);
+    check_wallet(
+        &mut executor,
+        1,
+        &traders[1],
+        From::<u32>::from(100361),
+        From::<u32>::from(99970),
+    );
+
     push_bid_order(&mut executor, instance, 20, 20, 400, 0, &traders[0]);
-    check_wallet(&mut executor, 0, &traders[0]);
-    check_wallet(&mut executor, 1, &traders[1]);
+    check_wallet(
+        &mut executor,
+        0,
+        &traders[0],
+        From::<u32>::from(99220),
+        From::<u32>::from(100018),
+    );
+
     push_withdraw(&mut executor, instance, &traders[0]);
     push_withdraw(&mut executor, instance, &traders[1]);
-    check_wallet(&mut executor, 0, &traders[0]);
-    check_wallet(&mut executor, 1, &traders[1]);
+    check_wallet(
+        &mut executor,
+        0,
+        &traders[0],
+        From::<u32>::from(99220),
+        From::<u32>::from(100027),
+    );
+
+    check_wallet(
+        &mut executor,
+        1,
+        &traders[1],
+        From::<u32>::from(100551),
+        From::<u32>::from(99970),
+    );
+
     //    push_bid_order(&mut executor, instance, 1, 30, 40, &traders[1]);
     //    push_bid_order(&mut executor, instance, 1, 30, 40, &traders[1]);
+}
+
+#[test]
+fn test_trade_match_sell() {
+    let mut ledger = InMemorySubstateStore::with_bootstrap();
+    let (mut executor, instance, traders) = init(&mut ledger);
+    push_bid_order(&mut executor, instance, 20, 10, 200, 0, &traders[1]);
+    check_wallet(
+        &mut executor,
+        1,
+        &traders[1],
+        From::<u32>::from(99800),
+        From::<u32>::from(100000),
+    );
+
+    push_bid_order(&mut executor, instance, 21, 10, 220, 0, &traders[1]);
+    check_wallet(
+        &mut executor,
+        0,
+        &traders[1],
+        From::<u32>::from(99580),
+        From::<u32>::from(100000),
+    );
+    push_ask_order(&mut executor, instance, 20, 20, 0, &traders[0]);
+    check_wallet(
+        &mut executor,
+        0,
+        &traders[0],
+        From::<u32>::from(100000),
+        From::<u32>::from(99980),
+    );
+    push_withdraw(&mut executor, instance, &traders[0]);
+    push_withdraw(&mut executor, instance, &traders[1]);
+    check_wallet(
+        &mut executor,
+        0,
+        &traders[0],
+        From::<u32>::from(100360),
+        From::<u32>::from(99980),
+    );
+    check_wallet(
+        &mut executor,
+        1,
+        &traders[1],
+        From::<u32>::from(99600),
+        From::<u32>::from(100019),
+    );
+
+    push_bid_order(&mut executor, instance, 20, 10, 200, 0, &traders[1]);
+    check_wallet(
+        &mut executor,
+        1,
+        &traders[1],
+        From::<u32>::from(99400),
+        From::<u32>::from(100019),
+    );
+
+    push_ask_order(&mut executor, instance, 20, 20, 0, &traders[0]);
+    check_wallet(
+        &mut executor,
+        0,
+        &traders[0],
+        From::<u32>::from(100360),
+        From::<u32>::from(99960),
+    );
+
+    push_withdraw(&mut executor, instance, &traders[0]);
+    push_withdraw(&mut executor, instance, &traders[1]);
+    check_wallet(
+        &mut executor,
+        0,
+        &traders[0],
+        From::<u32>::from(100540),
+        From::<u32>::from(99960),
+    );
+
+    //rm can't find a way to create Decimal from float.
+    let base_val: Decimal = From::<u32>::from(1000285);
+    let div: Decimal = From::<u32>::from(10);
+    check_wallet(
+        &mut executor,
+        1,
+        &traders[1],
+        From::<u32>::from(99400),
+        base_val / div,
+    );
+
+    //    push_bid_order(&mut executor, instance, 1, 30, 40, &traders[1]);
+    //    push_bid_order(&mut executor, instance, 1, 30, 40, &traders[1]);
+}
+
+#[test]
+fn test_cancel() {
+    let mut ledger = InMemorySubstateStore::with_bootstrap();
+    let (mut executor, instance, traders) = init(&mut ledger);
+    let firs_ask_id = push_ask_order(&mut executor, instance, 18, 20, 0, &traders[1]);
+    check_wallet(
+        &mut executor,
+        1,
+        &traders[1],
+        From::<u32>::from(100000),
+        From::<u32>::from(99980),
+    );
+    cancel_order(&mut executor, instance, firs_ask_id, &traders[1]);
+    push_withdraw(&mut executor, instance, &traders[1]);
+    check_wallet(
+        &mut executor,
+        1,
+        &traders[1],
+        From::<u32>::from(100000),
+        From::<u32>::from(100000),
+    );
+    push_bid_order(&mut executor, instance, 20, 20, 400, 0, &traders[0]);
+    push_withdraw(&mut executor, instance, &traders[0]);
+    check_wallet(
+        &mut executor,
+        0,
+        &traders[0],
+        From::<u32>::from(99600),
+        From::<u32>::from(100000),
+    );
+    push_ask_order(&mut executor, instance, 19, 20, 0, &traders[1]);
+    push_withdraw(&mut executor, instance, &traders[0]);
+    push_withdraw(&mut executor, instance, &traders[1]);
+    check_wallet(
+        &mut executor,
+        0,
+        &traders[0],
+        From::<u32>::from(99620),
+        From::<u32>::from(100019),
+    );
+    check_wallet(
+        &mut executor,
+        1,
+        &traders[1],
+        From::<u32>::from(100342),
+        From::<u32>::from(99980),
+    );
 }

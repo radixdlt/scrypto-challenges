@@ -1,7 +1,19 @@
-# gumball-machine
-A Radix favorite, this example covers the creation of a simple gumball machine, which allows users to purchase a gumball in exchange for XRD.
+# Order book
+This is a Serum Dex inspired Order Book.
+Trade are done on a market.
+A market allow tp transfer assert between a quote and a base. Quote and Base can be any token. They are declared during the market creation using the `instantiate_market` method.
 
-In addition to the most basic operation, this particular example allows instantiators to set the price (in XRD) of each gumball, and permits callers to submit more than the exact price required.  Callers will receive their change (if any) in addition to their tasty gumball.
+## Trading using order
+Trader push Bid(Buy base using quote) or Ask(sell base to quote) order to the Dex.
+Pushed order depending on their type are matched for all or part of its amount depending on the opposite found side order.
+For bid order if a ask price with less than the limite price is already present in the orderbook, it's matched and fund are tranfered.
+For ask order if a bid price is greater or equals to the limite price is found, it's matched.
+Bid order define a maximum limite price and Ask order a minimum price to match the order.
+
+## Trader Vault
+I push order, a trader must create a trader order vault with the `create_openorders` method.
+This methode create a quote and base vault to store asset tranfered between order.
+To get back the asset, the trader can use the `withdraw` method
 
 ## Resources and Data
 ```rust

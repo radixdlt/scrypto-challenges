@@ -129,13 +129,14 @@ blueprint! {
         }
 
         #[auth(orders_badge_def)]
-        pub fn cancel_order(&mut self, order_id_badge: Bucket) {
+        pub fn cancel_order(&mut self, order_id_badge: Bucket)  -> Bucket {
+            info!("cancel order");
             let owner_keys = auth.get_non_fungible_keys();
             let data: BadgeData = auth
                 .resource_def()
                 .get_non_fungible_data(owner_keys.get(0).unwrap());
             assert!(data.name == self.name, "Not current market open order badge");
-            self.dex.cancel_order(order_id_badge);
+            self.dex.cancel_order(order_id_badge,owner_keys.get(0).unwrap().clone())
         }
     }
 
@@ -145,62 +146,3 @@ blueprint! {
 pub struct BadgeData {
     name: String,
 }
-
-/*fn find_by_side<T: std::cmp::Ord>(set: &BTreeSet<T>, side: Side) -> Option<&T> {
-    match side {
-        Side::Bid => set.iter().max(), //max
-        Side::Ask => set.iter().min(), //min
-    }
-}
-
-
-#[derive(Debug, TypeId, Encode, Decode, Describe, NonFungibleData)]
-pub struct OpenOrders {
-    pub quote_vault: Vault,
-    pub base_vault: Vault,
-    pub orders: Vec<Order>,
-}
-
-impl OpenOrders {
-    pub fn new(quote: ResourceDef, base: ResourceDef) -> Self {
-        Self {
-            orders: vec![],
-            quote_vault: Vault::new(quote),
-            base_vault: Vault::new(base),
-        }
-    }
-}
-
-#[derive(Debug, Clone, TypeId, Encode, Decode, Describe, PartialEq, Eq)]
-pub struct Order {
-    pub id: u32,
-    pub price: Decimal,
-    pub amount: Decimal, //amount in base to trade.
-    pub provided_amount: Decimal,
-    pub order_type: OrderType,
-}
-
-impl Ord for Order {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.price.cmp(&other.price)
-    }
-}
-
-impl PartialOrd for Order {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-#[derive(Debug, Clone, TypeId, Encode, Decode, Describe, PartialEq, Eq)]
-pub enum Side {
-    Bid,
-    Ask,
-}
-
-#[derive(Debug, Clone, TypeId, Encode, Decode, Describe, PartialEq, Eq)]
-pub enum OrderType {
-    Limit,
-    ImmediateOrCancel,
-    PostOnly,
-}*/
