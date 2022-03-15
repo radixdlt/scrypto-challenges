@@ -72,23 +72,8 @@ log "Maker 'M' tokens M1000 seems like a good amount"
 resim new-token-fixed 1000 --symbol M
 M=0398652f4eb36dd2067191845deb68e54771074f35dc78fbf820a4
 
-log "Maker HareSwap pre-swap one-time setup"
-
-# 0.1 maker: account setup
-# new badge for access to SharedAccount
-log "Create badges for access to a SharedAccount"
-resim new-badge-fixed 2 --name shared_account_auth
-MAKER_ACCOUNT_AUTH=031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711
-# create the accont
-log "Create the SharedAccount"
-resim call-function $PACKAGE "SharedAccount" "new_easy" $MAKER_ACCOUNT_AUTH
-MAKER_ACCOUNT=02d9e04ba122de13a58f80ea7a06a0e1aad665d23cbeb124c3c286
-# put half the M in there ready to trade
-log "Move M500 into the SharedAccount for use with HareSwap"
-resim transfer 500,$M $MAKER_ACCOUNT
-
 log "simulate a reasonable non-zero epoch for testing"
 
 # for consistency testing
-resim set-current-epoch 20
+resim set-current-epoch 10
 
