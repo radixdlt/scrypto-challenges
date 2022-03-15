@@ -12,4 +12,42 @@ There are 3 key features in current version：
 * Low barrier-to-entry automated market making for new issued assets with little sell-side liquidity.
 * capable of supporting stablecoin trading scenarios.
 
+## BluePrint
 
+The DeXianSwap protocol is made up of two core blueprints which are: the SimplePool blueprint and the PMMPool blueprint.
+
+
+## Example
+
+#### Getting Started
+
+In order to ensure that the account and package addresses match on my local machine as well as on yours we need to first reset resim by doing the following:
+
+``` shell
+$ resim reset
+Data directory cleared.
+
+
+OP1=$(resim show-configs | grep "Default Account" | awk -F ": " '{print $2}')
+
+OP2=$(resim new-account)
+export PUB_KEY2=$(echo "$OP2" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS2=$(echo "$OP2" | sed -nr "s/Account address: ([[:alnum:]_]+)/\1/p")
+
+
+PK_OP=$(resim publish ".")
+export PACKAGE=$(echo "$PK_OP" | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
+
+
+
+```
+
+
+
+
+## Conclusion
+This work implements DeXian, An PMM DEX on the Radix ledger built with v0.3.0 of Scrypto. DeXian dedicated to be a a Scaleble, secure and atomically composable PPM protocol which is developed on Radix Ledger.
+
+
+## License
+This work is licensed under Apache 2.0 and the license file is provided [here](LICENSE).
