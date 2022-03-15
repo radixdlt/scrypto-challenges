@@ -12,7 +12,7 @@
 * features
   * [x] add order deadline (from signer)
   * [x] add direction flag to support sell request (instead of just the buy request we have now) -- compare with Airswap/Swap documentation
-  * handle swap NFTs (should only need CLI changes?)
+  * [-] handle swap NFTs (should only need CLI changes?)
 * testing
   * add scenerio where the sender composes a more interesting tx, where the get the money from somewhere else first (like a flash loan) or they combine 2 RFQs to do their own routing
   * add scenerio where non default maker callback is used (and they do something interesting, like maybe swap for the needed token using an AMM)
@@ -27,3 +27,9 @@
 # Docs
 
 Run: `cargo doc --no-deps --document-private-items --open`
+
+# HareSwap: P2P DEX protocol on Radix
+
+![](hareswap.png)
+
+Yes, inspired by AirSwap. :)
