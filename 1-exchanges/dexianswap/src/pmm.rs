@@ -84,8 +84,9 @@ blueprint! {
 
         pub fn sell_base(
             &mut self,
-            pay_base_amnt: Decimal
+            base_bucket: Bucket
         ) -> Bucket {
+            let pay_base_amnt = base_bucket.amount();
             let (quote_amnt, new_r_state) = PMMPool::sell_base_token(
                 pay_base_amnt,
                 self._r_state,
@@ -98,7 +99,71 @@ blueprint! {
             );
             self._r_state = new_r_state;
             let received_quote_amnt = quote_amnt * (Decimal::one()-self._fee);
+            self.base_vault.put(base_bucket);
             self.quote_vault.take(received_quote_amnt)
+        }
+
+        pub fn sell_quote(
+            &mut self,
+            quote_bucket: Bucket
+        ) -> Bucket {
+            let pay_quote_amnt = quote_bucket.amount();
+            let (quote_amnt, new_r_state) = PMMPool::sell_quote_token(
+                pay_quote_amnt,
+                self._r_state,
+                self.base0_amnt,
+                self.base_vault.amount(),
+                self.quote0_amnt,
+                self.quote_vault.amount(),
+                self._i,
+                self._k
+            );
+            self._r_state = new_r_state;
+            let receive_base_amnt = quote_amnt * (Decimal::one() - self._fee);
+            self.quote_vault.put(quote_bucket);
+            self.base_vault.take(receive_base_amnt)
+        }
+
+        fn sell_quote_token(
+            pay_quote_amnt: Decimal,
+            r_state: RState,
+            b0: Decimal,
+            b: Decimal,
+            q0: Decimal,
+            q: Decimal,
+            i: Decimal,
+            k: Decimal
+        ) -> (Decimal, RState){
+            match r_state{
+                RState::One => {
+                    let receive_base_amnt = PMMPool::_r_one_sell_quote(b0, pay_quote_amnt, i, k);
+                    (receive_base_amnt, RState::AboveOne)
+                },
+                RState::AboveOne => {
+                    let receive_base_amnt = PMMPool::_r_above_sell_quote(b0, b, pay_quote_amnt, i, k);
+                    (receive_base_amnt, RState::AboveOne)
+                },
+                RState::BelowOne => {
+                    let back_to_one_pay_quote = q0 - q;
+                    let back_to_one_receive_base = b - b0;
+
+                    if pay_quote_amnt < back_to_one_pay_quote{
+                        let mut receive_base_amnt = PMMPool::_r_below_sell_quote(q0, q, pay_quote_amnt, i, k);
+                        if receive_base_amnt > back_to_one_receive_base {
+                            receive_base_amnt = back_to_one_receive_base;
+                        }
+                        (receive_base_amnt, RState::BelowOne)
+                    }
+                    else if pay_quote_amnt == back_to_one_pay_quote {
+                        let receive_base_amnt = back_to_one_receive_base;
+                        (receive_base_amnt, RState::One)
+                    }
+                    else{
+                        let receive_base_amnt = back_to_one_receive_base + PMMPool::_r_one_sell_quote(b0, pay_quote_amnt, i, k);
+                        (receive_base_amnt, RState::AboveOne)
+                    }
+                }
+            }
         }
 
         fn sell_base_token(
@@ -120,10 +185,6 @@ blueprint! {
                         k
                     );
                     (received_quote_amnt, RState::AboveOne)
-                },
-                RState::BelowOne => {
-                    let received_quote_amnt = Decimal::zero();
-                    (received_quote_amnt, RState::One)
                 },
                 RState::AboveOne => {
                     // case 3: R > 1
@@ -162,6 +223,10 @@ blueprint! {
                         );
                         (received_quote_amnt, RState::BelowOne)
                     }
+                },
+                RState::BelowOne => {
+                    let received_quote_amnt = PMMPool::_r_below_sell_base(q0, q, pay_base_amnt, i, k);
+                    (received_quote_amnt, RState::BelowOne)
                 }
             }
         }
@@ -182,6 +247,16 @@ blueprint! {
             );
         }
 
+        fn _r_above_sell_quote(
+            b0: Decimal,
+            b: Decimal,
+            pay_quote_amnt: Decimal,
+            i: Decimal,
+            k: Decimal
+        ) -> Decimal {
+            return PMMPool::solve_quadratic_function_for_trade(b0, b, pay_quote_amnt, i, k);
+        }
+
         fn _r_one_sell_base(
             q0: Decimal,
             pay_base_amnt: Decimal,
@@ -189,6 +264,35 @@ blueprint! {
             k: Decimal
         ) -> Decimal{
             return PMMPool::solve_quadratic_function_for_trade(q0, q0, pay_base_amnt, i, k);
+        }
+
+        fn _r_one_sell_quote(
+            b0: Decimal,
+            pay_quote_amnt: Decimal,
+            i: Decimal,
+            k: Decimal
+        ) -> Decimal{
+            return PMMPool::solve_quadratic_function_for_trade(b0, b0, pay_quote_amnt, i, k);
+        }
+
+        fn _r_below_sell_quote(
+            q0: Decimal,
+            q: Decimal,
+            pay_quote_amnt: Decimal,
+            i: Decimal,
+            k: Decimal
+        ) -> Decimal {
+            return PMMPool::general_integrate(q0, q+pay_quote_amnt, q, i, k);
+        }
+
+        fn _r_below_sell_base(
+            q0: Decimal,
+            q: Decimal,
+            pay_base_amnt: Decimal,
+            i: Decimal,
+            k: Decimal
+        ) -> Decimal {
+            return PMMPool::solve_quadratic_function_for_trade(q0, q, pay_base_amnt, i, k);
         }
 
         fn general_integrate(
