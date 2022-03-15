@@ -1,128 +1,24 @@
+//! Functionality for managing order in the Dex.
+//!
+//! To manage the order logic, I use type state structure.
+//! I would like to make the code easier to read and more clear but I didn't find how to do all the think I wanted.
+//! I think I'll need some more time to allow more reuse of code and simplify some point.
+//! The idea is to type the state of the order to use the Rust compiler to detect bad use of data type: ex bid order transferred has a ask order.
+//! Order have 2 class of states: Side state for Bid and Ask and position state for Taker and Maker.
+//! StateOrder is temporary struct to manage order logic using type state.   
+//!
+use crate::order::BTreeSetOrder;
+use crate::order::Order;
+use crate::order::OrderType;
+use crate::order::OrdersContainer;
+use crate::order::PriceOrder;
+use crate::order::UserOrders;
 use sbor::*;
 use scrypto::prelude::*;
 use scrypto::rust::marker::PhantomData;
-use std::cmp::Ordering;
 
 static MAKER_FEE: usize = 5;
 static TAKER_FEE: usize = 10;
-
-#[derive(Debug, Clone, TypeId, Encode, Decode, Describe, PartialEq, Eq)]
-pub struct PriceOrder {
-    pub price: Decimal,
-    pub order_list: Vec<Order>,
-}
-
-impl Default for PriceOrder {
-    fn default() -> Self {
-        PriceOrder::new(Decimal::zero())
-    }
-}
-
-impl PriceOrder {
-    pub fn new(price: Decimal) -> Self {
-        PriceOrder {
-            price: price,
-            order_list: vec![],
-        }
-    }
-    pub fn take_next_order(&mut self) -> Order {
-        self.order_list.remove(0)
-    }
-
-    pub fn is_empty(&self) -> bool {
-        return self.order_list.is_empty();
-    }
-
-    pub fn take_order_with_id(&mut self, id: u32) -> Option<Order> {
-        self.order_list
-            .iter()
-            .position(|o| o.id == id)
-            .map(|pos| self.order_list.remove(pos))
-    }
-}
-
-impl Ord for PriceOrder {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.price.cmp(&other.price)
-    }
-}
-
-impl PartialOrd for PriceOrder {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-#[derive(Debug, Default, TypeId, Encode, Decode, Describe)]
-pub struct BTreeSetOrder {
-    set: BTreeSet<PriceOrder>,
-    order_index: HashMap<u32, Decimal>,
-}
-
-impl BTreeSetOrder {
-    pub fn find_match_and_take_order<F>(&mut self, find_order: F) -> Option<Order>
-    where
-        F: Fn(&BTreeSet<PriceOrder>) -> Option<PriceOrder>,
-    {
-        let found = find_order(&self.set);
-        found
-            .as_ref()
-            .and_then(|order| self.take_order_with_price(order))
-    }
-
-    fn take_order_with_price(&mut self, order: &PriceOrder) -> Option<Order> {
-        //rm not get_mut in BtreeSet
-        let found = self.set.take(order);
-        found.map(|mut found_order| {
-            let ret = found_order.take_next_order();
-            if found_order.is_empty() {
-                self.order_index.remove(&ret.id);
-                ret
-            } else {
-                self.set.insert(found_order);
-                ret
-            }
-        })
-    }
-
-    pub fn insert(&mut self, order: Order) {
-        let empty = PriceOrder::new(order.price);
-        let mut price_order = if self.set.contains(&empty) {
-            self.set.take(&empty).unwrap()
-        } else {
-            empty
-        };
-        self.order_index.insert(order.id, order.price);
-        price_order.order_list.push(order);
-        self.set.insert(price_order);
-    }
-
-    pub fn take_order_with_id(&mut self, id: u32) -> Option<Order> {
-        self.order_index.remove(&id).and_then(|price| {
-            let order = PriceOrder::new(price);
-            let found = self.set.take(&order);
-            found
-                .map(|mut found_order| {
-                    found_order.take_order_with_id(id).map(|removed_order| {
-                        if found_order.is_empty() {
-                            self.order_index.remove(&removed_order.id);
-                            removed_order
-                        } else {
-                            self.set.insert(found_order);
-                            removed_order
-                        }
-                    })
-                })
-                .flatten()
-        })
-    }
-}
-
-#[derive(Debug, Default, TypeId, Encode, Decode, Describe)]
-pub struct OrdersContainer {
-    bids: BTreeSetOrder,
-    asks: BTreeSetOrder,
-}
 
 #[derive(Debug, TypeId, Encode, Decode, Describe)]
 pub struct DexParameters {
@@ -164,6 +60,8 @@ impl Dex {
     /// To manage a bid, user must provide enougth quote to buy the base at max limite price.
     /// Provided quote is put User quote vault. Quote vault amount but be greater that needed quote to match at limite price.
     /// Needed quote is locked in a vault for the whole duration of the buy order
+    // Pushed order are BidSide and TakerPos
+    // they are matched against AskSide and MakerPos
     pub fn bid(
         &mut self,
         owner: NonFungibleKey,
@@ -209,12 +107,10 @@ impl Dex {
                             match (remain_bid, remain_ask) {
                                 (None, None) => break (None, None),
                                 (None, remain_ask) => {
-                                    info!("bid remain_ask:{:?}", remain_ask);
                                     //all bid matched
                                     break (None, remain_ask);
                                 }
                                 (remain_bid, None) => {
-                                    info!("bid remain_bid:{:?}", remain_bid);
                                     //continue to match, if ask exist
                                     bid = remain_bid.unwrap();
                                 }
@@ -237,6 +133,9 @@ impl Dex {
         (create_order_id(new_id), quote)
     }
 
+    // Same as bid but for ask.
+    // pushed order are AskSide and TakerPos
+    // they are matched against BidSide and MakerPos
     pub fn ask(
         &mut self,
         owner: NonFungibleKey,
@@ -281,11 +180,9 @@ impl Dex {
                             match (remain_bid, remain_ask) {
                                 (None, None) => break (None, None),
                                 (None, remain_ask) => {
-                                    info!("ask remain_ask:{:?}", remain_ask);
                                     ask = remain_ask.unwrap();
                                 }
                                 (remain_bid, None) => {
-                                    info!("ask remain_bid:{:?}", remain_bid);
                                     break (remain_bid, None);
                                 }
                                 (Some(_), Some(_)) => {
@@ -330,79 +227,8 @@ impl Dex {
     }
 }
 
-#[derive(Debug, TypeId, Encode, Decode, Describe, NonFungibleData)]
-pub struct UserOrders {
-    pub quote_vault: Vault,
-    pub locked_quote_vault: Vault,
-    pub base_vault: Vault,
-    pub locked_base_vault: Vault,
-    pub orders: Vec<Order>,
-}
-
-impl UserOrders {
-    pub fn new(quote: ResourceDef, base: ResourceDef) -> Self {
-        Self {
-            orders: vec![],
-            quote_vault: Vault::new(quote.clone()),
-            locked_quote_vault: Vault::new(quote),
-            base_vault: Vault::new(base.clone()),
-            locked_base_vault: Vault::new(base),
-        }
-    }
-
-    pub fn get_user_orders(owner: &NonFungibleKey, dex: &Dex) -> UserOrders {
-        dex.user_orders.get(owner).unwrap_or_else(|| {
-            panic!("Badge provided not declared call create_openorders to get one")
-        })
-    }
-}
-#[derive(Debug, Clone, TypeId, Encode, Decode, Describe, PartialEq, Eq)]
-pub struct Order {
-    pub id: u32,
-    pub owner: NonFungibleKey,
-    pub price: Decimal,
-    pub amount: Decimal, //amount in base to trade.
-    pub locked_amount: Decimal,
-}
-
-impl Ord for Order {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.price.cmp(&other.price)
-    }
-}
-
-impl PartialOrd for Order {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-#[derive(Debug, Clone, TypeId, Encode, Decode, Describe, PartialEq, Eq)]
-pub enum Side {
-    Bid,
-    Ask,
-}
-
-#[derive(Debug, Clone, TypeId, Encode, Decode, Describe, PartialEq, Eq)]
-pub enum OrderType {
-    Limit,
-    ImmediateOrCancel,
-    PostOnly,
-}
-
-impl From<u8> for OrderType {
-    fn from(order_type: u8) -> Self {
-        match order_type {
-            1 => OrderType::ImmediateOrCancel,
-            2 => OrderType::PostOnly,
-            _ => OrderType::Limit,
-        }
-    }
-}
-
 ///Match indicate that a corresponding order has been found
-// manage the transfert between the order.
-// generate the remaining order to be processed.
+// determine the amount of asset to transfer between the order.
 #[derive(Debug)]
 struct Match {
     transfert_user_base: Decimal,
@@ -439,6 +265,7 @@ impl<SIDE, POSITION> StateOrder<SIDE, POSITION> {
 }
 
 impl StateOrder<BidSide, TakerPos> {
+    /// init the StateOrder for Bid order when a order is pushed.
     fn init_match(
         owner: NonFungibleKey,
         price: Decimal,
@@ -455,7 +282,6 @@ impl StateOrder<BidSide, TakerPos> {
         //lock enought quote for the order
         let available_amount = bid_trader_orders.quote_vault.amount();
         let locked_amount = price * amount;
-        //verify there 're enougth quote to lock.
         assert!(
             available_amount >= locked_amount,
             "Not enougth quote provided."
@@ -477,29 +303,29 @@ impl StateOrder<BidSide, TakerPos> {
         )
     }
 
+    /// Code to cancel Bid order.
     fn cancel_order(order: &Order, owner: &NonFungibleKey, dex: &Dex) {
+        assert!(owner == &order.owner, "Can't cancel order, not owned.");
         let mut user_orders = UserOrders::get_user_orders(&owner, dex);
         //Remove locked quote and base for bid order.
         user_orders
             .quote_vault
             .put(user_orders.locked_quote_vault.take(order.locked_amount));
-        info!(
-            "cancel_order user_orders.quote_vault:{}, order.locked_amount:{}",
-            user_orders.quote_vault.amount(),
-            order.locked_amount
-        )
     }
 
+    /// Return true is the price of the found order is compatible with the bid price.
     fn order_match(bid_price: Decimal, found_order: &Order) -> bool {
         bid_price >= found_order.price
     }
 
+    /// Find the min order in the specified set. Bid order are matched with min Ask order.
     fn find_order(set: &BTreeSet<PriceOrder>) -> Option<PriceOrder> {
         set.iter().cloned().min()
     }
 }
 
 impl StateOrder<AskSide, TakerPos> {
+    // init the StateOrder for Ask order when a order is pushed.
     fn init_match(
         owner: NonFungibleKey,
         price: Decimal,
@@ -528,24 +354,29 @@ impl StateOrder<AskSide, TakerPos> {
         )
     }
 
-    fn cancel_order(order: &Order, _owner: &NonFungibleKey, _dex: &Dex) {
-        let mut user_orders = UserOrders::get_user_orders(&_owner, _dex);
+    /// Code to cancel Ask order.
+    fn cancel_order(order: &Order, owner: &NonFungibleKey, _dex: &Dex) {
+        assert!(owner == &order.owner, "Can't cancel order, not owned.");
+        let mut user_orders = UserOrders::get_user_orders(&owner, _dex);
         //Remove locked quote and base for bid order.
         user_orders
             .base_vault
             .put(user_orders.locked_base_vault.take(order.amount));
     }
 
+    /// Return true is the price of the found order is compatible with the ask price.
     fn order_match(ask_price: Decimal, found_order: &Order) -> bool {
         ask_price <= found_order.price
     }
 
+    /// Find the max order in the specified set. Ask order are matched with max Bis order.
     fn find_order(set: &BTreeSet<PriceOrder>) -> Option<PriceOrder> {
         set.iter().cloned().max()
     }
 }
 
 impl<POSITION> StateOrder<BidSide, POSITION> {
+    /// Transfert the asset for a bid order what ever the position is.
     fn transfer_bid_match(
         mut self,
         bid_trader: &mut UserOrders,
@@ -561,10 +392,6 @@ impl<POSITION> StateOrder<BidSide, POSITION> {
         dex.fee_base_vault
             .put(ask_trader.locked_base_vault.take(bid_fee_base_amount));
 
-        info!(
-            "transfert_match bid matched.transfert_user_base:{} bid bid_fee_base_amout:{} self.order.locked_amount:{}",
-            matched.transfert_user_base, bid_fee_base_amount,self.order.locked_amount
-        );
         bid_trader.base_vault.put(
             ask_trader
                 .locked_base_vault
@@ -577,20 +404,11 @@ impl<POSITION> StateOrder<BidSide, POSITION> {
         if self.order.amount == Decimal::zero() {
             //remove unnecessary locked quote.
             let diff = self.order.locked_amount - matched.transfert_user_quote;
-            info!(
-                "transfer_bid_match user_orders.quote_vault:{}, self.order.locked_amount:{} diff:{}",
-                bid_trader.locked_quote_vault.amount(),
-                self.order.locked_amount,diff
-            );
             bid_trader
                 .quote_vault
                 .put(bid_trader.locked_quote_vault.take(diff));
             self.order.locked_amount = Decimal::zero();
         } else {
-            info!(
-                "transfer_bid_match matched.transfert_user_quote:{}, self.order.locked_amount:{}",
-                matched.transfert_user_quote, self.order.locked_amount
-            );
             self.order.locked_amount -= matched.transfert_user_quote;
         }
 
@@ -599,6 +417,7 @@ impl<POSITION> StateOrder<BidSide, POSITION> {
 }
 
 impl<POSITION> StateOrder<AskSide, POSITION> {
+    /// Transfert the asset for an ask order what ever the position is.
     fn transfer_ask_match(
         mut self,
         bid_trader: &mut UserOrders,
@@ -613,20 +432,10 @@ impl<POSITION> StateOrder<AskSide, POSITION> {
             matched.transfert_user_quote * self.order_fee / Into::<Decimal>::into(100);
         dex.fee_quote_vault
             .put(bid_trader.locked_quote_vault.take(ask_fee_base_amount));
-        info!(
-            "transfert_match ask matched.transfert_user_quote:{} bid bid_fee_base_amout:{}",
-            matched.transfert_user_quote, ask_fee_base_amount
-        );
         ask_trader.quote_vault.put(
             bid_trader
                 .locked_quote_vault
                 .take(matched.transfert_user_quote - ask_fee_base_amount),
-        );
-        info!(
-            "transfert_match ask ask_trader.quote_vault:{} matched.remainder_ask_base:{} self.order.amount:{}",
-            ask_trader.quote_vault.amount(),
-            matched.remainder_taker_base,
-            self.order.amount
         );
         //update bid and ask order with remainding
         self.order.amount = remain_base;
@@ -635,6 +444,9 @@ impl<POSITION> StateOrder<AskSide, POSITION> {
     }
 }
 
+/// Try to find a match order for the specified order of SIDE.
+/// If an order is found calculate the asset to transfer.
+/// Transfer is done later one order after the other.
 fn match_taker_order<SIDE, SIDE2: std::fmt::Debug, F, M>(
     taker: &StateOrder<SIDE, TakerPos>,
     set: &mut BTreeSetOrder,
@@ -653,11 +465,6 @@ where
             if order_match(taker.order.price, &found_order) {
                 let match_price = std::cmp::min(taker.order.price, found_order.price);
                 let base_to_transfert = std::cmp::min(found_order.amount, taker.order.amount);
-                info!(
-                    "match_taker_order found_order.amount:{} base_to_transfert:{} taker.order.amount:{}",
-                    found_order.amount, base_to_transfert, taker.order.amount
-                );
-
                 Some((
                     Match {
                         transfert_user_quote: base_to_transfert * match_price,
@@ -671,7 +478,6 @@ where
                 None
             }
         });
-    info!("taker matched:{:?}", matched);
     matched
 }
 

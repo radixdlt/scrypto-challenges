@@ -101,7 +101,6 @@ fn create_market<'a, L: SubstateStore>(
                 .unwrap(),
         )
         .unwrap();
-    println!("{:?}\n", receipt);
     receipt.component(0).unwrap()
 }
 
@@ -172,7 +171,6 @@ fn init<'a, L: SubstateStore>(
     let traders: Vec<Trader> = (0..2)
         .map(|_| {
             let (key, address) = create_account(&mut executor);
-            //println!("create_account key:{:?}, address:{:?}\n", key, address);
             transfer_token(
                 &mut executor,
                 market_hand.1,
@@ -244,7 +242,7 @@ fn push_bid_order<'a, L: SubstateStore>(
             TransactionBuilder::new(executor)
                 .call_method(
                     instance,
-                    "buy_order",
+                    "bid_order",
                     vec![
                         format!("{}", price),
                         format!("{}", amount_base),
@@ -259,9 +257,6 @@ fn push_bid_order<'a, L: SubstateStore>(
                 .unwrap(),
         )
         .unwrap();
-    println!("{:?}\n", receipt);
-    println!("{:?}\n", receipt.outputs);
-    println!("{:?}\n", receipt.new_entities);
     assert!(receipt.result.is_ok());
     assert!(receipt.new_entities.len() > 0, "push bid no order created.");
     receipt.new_entities[0]
@@ -280,7 +275,7 @@ fn push_ask_order<'a, L: SubstateStore>(
             TransactionBuilder::new(executor)
                 .call_method(
                     instance,
-                    "sell_order",
+                    "ask_order",
                     vec![
                         format!("{}", price),
                         format!("{}", amount_base),
@@ -295,9 +290,6 @@ fn push_ask_order<'a, L: SubstateStore>(
                 .unwrap(),
         )
         .unwrap();
-    println!("{:?}\n", receipt);
-    println!("{:?}\n", receipt.outputs);
-    println!("{:?}\n", receipt.new_entities);
     assert!(receipt.result.is_ok());
     assert!(receipt.new_entities.len() > 0, "push ask no order created.");
     receipt.new_entities[0]
@@ -322,7 +314,6 @@ fn push_withdraw<'a, L: SubstateStore>(
                 .unwrap(),
         )
         .unwrap();
-    println!("{:?}\n", receipt);
     assert!(receipt.result.is_ok());
 }
 
@@ -349,13 +340,12 @@ fn cancel_order<'a, L: SubstateStore>(
                 .unwrap(),
         )
         .unwrap();
-    println!("cancel {:?}\n", receipt);
     assert!(receipt.result.is_ok());
 }
 
 fn check_wallet<'a, L: SubstateStore>(
     executor: &mut TransactionExecutor<'a, L>,
-    index: u8,
+    _index: u8,
     trader: &Trader,
     expected_quote: Decimal,
     expected_base: Decimal,
@@ -363,12 +353,6 @@ fn check_wallet<'a, L: SubstateStore>(
     let wallet = get_account_vaults(executor.ledger(), trader.address);
     let quote = *wallet.get(&trader.quote_token).unwrap_or(&Decimal::zero());
     let base = *wallet.get(&trader.base_token).unwrap_or(&Decimal::zero());
-
-    println!("WALLET:{} quote:{:?} base:{:?}", index, quote, base);
-    println!(
-        "EXPECTED:{} quote:{:?} base:{:?}",
-        index, expected_quote, expected_base
-    );
 
     assert!(
         expected_quote == quote,

@@ -1,88 +1,48 @@
 # Order book
 This is a Serum Dex inspired Order Book.
 Trade are done on a market.
-A market allow tp transfer assert between a quote and a base. Quote and Base can be any token. They are declared during the market creation using the `instantiate_market` method.
+A market allow the transfer of assert between a quote and a base. Quote and Base can be any token. They are declared during the market creation using the `instantiate_market` method.
 
 ## Trading using order
 Trader push Bid(Buy base using quote) or Ask(sell base to quote) order to the Dex.
-Pushed order depending on their type are matched for all or part of its amount depending on the opposite found side order.
-For bid order if a ask price with less than the limite price is already present in the orderbook, it's matched and fund are tranfered.
-For ask order if a bid price is greater or equals to the limite price is found, it's matched.
-Bid order define a maximum limite price and Ask order a minimum price to match the order.
+Pushed order depending on their type are matched for all or part of its amount depending on the opposite side order found.
+For bid order if a ask price with less than the limit price is already present in the orderbook, it's matched and fund are transferred.
+For ask order if a bid price is greater or equals to the limit price is found, it's matched.
+Bid order define a maximum limit price and Ask order a minimum price to match the order.
 
 ## Trader Vault
-I push order, a trader must create a trader order vault with the `create_openorders` method.
-This methode create a quote and base vault to store asset tranfered between order.
-To get back the asset, the trader can use the `withdraw` method
+To push order, a trader must create a trader order vault with the `create_openorders` method.
+This method create a quote and base vault to store asset transferred between order.
+To get back the asset, the trader can use the `withdraw` method.
 
-## Resources and Data
-```rust
-struct GumballMachine {
-  gumballs: Vault,
-  collected_xrd: Vault,
-  price: Decimal
-}
-```
-Our gumball machine will hold two kinds of resources in vaults: the gumballs to be dispensed, and any XRD which has been collected as payment.
+## Push order
+To push a bid order, use the method `bid_order` with the max limit price, amount to transfer, the order type, add quote asset to use for the transfer.
+The amount of quote asset must be equals or more that the limit price * with the amount to be sure that there is enough quote for the transfer.
+The provided quote are locked and can't be withdrew while the order is pending.
+To push a ask order, use `ask_order` with the min acceptable price, amount to transfer, the order type, add base asset to use for the transfer.
 
-We'll also need to maintain the price, which we're using `Decimal` for.  `Decimal` is a bounded type appropriate for use for resource quantities.  In Scrypto, it has a fixed precision of 10<sup>-18</sup>, and a maximum value of 2<sup>96</sup>.  Unless we're selling spectacularly expensive gumballs, this should be fine.  If we wanted an unbounded type to use for quantity, we could use `BigDecimal` instead.
+With the transfer method, the badge created with `create_openorders` must be provided to identify the orders owner.
 
-## Getting Ready for Instantiation
-In order to instantiate a new gumball machine, the only input we need from the caller is to set the price of each gumball.  After creation, we'll be returning the address of our new component, so we'll set our function signature up appropriately:
+After the order is pushed, the call return the order id that can be use to cancel it.
 
-```rust
-pub fn instantiate_gumball_machine(price: Decimal) -> Component {
-```
+Order type can be:
+ * limit: 0 when the order is push the maximum amount of quote is transferred depending on the available opposite order in the book. If some amount can't be matched, the remaining is added to the order book.
+ * Immediate or Cancel: 1 same as limit but if a remaining amount can't be matched, it's cancelled.
+ * Post: 2 the order is not matched an immediately added to the order book. It can be useful to decrease the fee (see Fee management).
+ 
+ ## Withdraw
+To get back all transferred asset from badge owner vault. Locked quote for pending bid order can be retrieve without cancelling the orders.
 
-Within the `instantiate_gumball_machine` function, the first thing we need to do is create a new supply of gumballs which we intend to populate our new component with:
+## Cancel
+The method `cancel_order`, cancel a pending order with its id. Matched order can be cancelled. Quote locked by pending bid order are unlocked. Cancelled asset are return to the vault associated to the badge provided with the method call.
 
-```rust
-let bucket_of_gumballs = ResourceBuilder::new_fungible(DIVISIBILITY_MAXIMUM)
-  .metadata("name", "Gumball")
-  .metadata("symbol", "GUM")
-  .metadata("description", "A delicious gumball")
-  .initial_supply_fungible(100);
-```
+## Fee
+Fee are withdraw from transferred asset to the market vault. When the market is created the quote and base vault is created to store fee taken from matched orders.
+Order added that match other order in the book are call taker order and order that are matched from the book are call maker order.
+Maker and taker order has different fee and often maker order are less.
+In this example, taker order is 10% and maker order 5%.
 
-All that's left is to populate our `GumballMachine` struct with our supply of gumballs, the user-specified price, and an empty Vault which we will force to contain XRD.  Then we'll instantiate it, which returns the address, and we'll return that to the caller.
+# Test
+To test at the root of the project use the cmd: `resim publish .` and `cargo test`
 
-```rust
-Self {
-  gumballs: Vault::with_bucket(bucket_of_gumballs),
-  collected_xrd: Vault::new(RADIX_TOKEN),
-  price: price
-}
-.instantiate()
-```
-
-## Allowing Callers to Buy Gumballs
-In order to sell a gumball, we just need the caller to pass us in enough XRD to cover the price.  We'll return the purchased gumball, as well as giving back their change if they overpaid, so we actually need to return _two_ buckets.  This is easily accomplished by simply returning a tuple, giving us a method signature like this:
-
-```rust
-pub fn buy_gumball(&mut self, payment: Bucket) -> (Bucket, Bucket) {
-```
-
-Note that we used `&mut self` because our reference to ourself must be mutable; we will be changing the contents of our vaults, if all goes well.
-
-Accomplishing the actual mechanics of putting the XRD in our vault, taking a gumball out, and then returning the gumball as well as whatever is left in the caller's input bucket are trivial:
-
-```rust
-let our_share = payment.take(self.price);
-self.collected_xrd.put(our_share);
-(self.gumballs.take(1), payment)
-```
-
-Note that we didn't have to check that the input bucket contained XRD...when we attempt to put tokens into our `collected_xrd` Vault (which was initialized to contain XRD), we'll get a runtime error if we try to put in anything else.
-
-Similarly, we'll get a runtime error if we try to take out a quantity matching the price, and find that there is insufficient quantity present.
-
-Finally, if the user provided exactly the correct amount of XRD as input, when we return their `payment` bucket, it will simply contain quantity 0.
-
-## Closing Thoughts
-In order to keep this as straightforward as possible in teaching a few basic concepts, we haven't made the best gumball machine that we could.
-
-First, we have provided no way to actually retrieve the collected XRD!  This would most appropriately be done by adding a withdrawal method, protected by an admin badge which ensures that only appropriate parties are able to perform the withdrawal.
-
-Second, there's no reason to force payment in XRD only...we could easily have changed the `instantiate_gumball_machine` function to accept the `ResourceDef` of the currency that we intend to collect in exchange for gumballs.
-
-Third, we could allow for greater flexibility in the gumballs themselves.  We could let the instantiator define the symbol, name, and quantity...or even directly pass in the gumballs to be sold rather than creating a new resource at instantiation time.
+Transaction manifest are in progress. 
