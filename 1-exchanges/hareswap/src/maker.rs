@@ -215,7 +215,7 @@ blueprint! {
         /// This is the ultimate in DeFi flexibility!
         /// Imaging reselling the order NonFungible to someone else, or using
         /// this order as a guarentee for further multiparty trades or as a way
-        /// to haggle for a better deal with another counterparty.
+        /// to haggle for a better deal with another counterparty. etc etc.
         pub fn tokenize_order(&mut self, signed_order: SignedOrder, taker_auth: BucketRef) -> Bucket {
             let SignedOrder {
                 order,

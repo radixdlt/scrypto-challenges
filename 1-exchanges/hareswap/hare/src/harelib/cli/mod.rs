@@ -14,6 +14,7 @@ use scrypto::types::EcdsaPublicKey;
 use scrypto::utils::sha256;
 use simulator::ledger::*;
 use simulator::resim::*;
+use radix_engine::model::{Instruction, Transaction};
 
 // Only the imports needed to do off-ledger things, ie. the hareswap API
 use hareswap::api::*;
@@ -34,6 +35,7 @@ pub enum Command {
     NewKeyPair(NewKeyPair),
     RequestForQuote(RequestForQuote),
     MakeSignedOrder(MakeSignedOrder),
+    TokenizeOrder(TokenizeOrder),
 }
 
 /// custom errors which simply wrap explicit error types when the bubble up to the top
@@ -42,6 +44,7 @@ pub enum Error {
     IoError(std::io::Error),
     ResimError(simulator::resim::Error),
     DecompileError(transaction_manifest::DecompileError),
+    CompileError(transaction_manifest::CompileError),
     ParseAmountError(ParseBucketContentsError),
     ParseAddressError(ParseAddressError),
     ParseDecimalError(ParseDecimalError),
@@ -53,6 +56,8 @@ pub enum Error {
     VerifyCheckError(VerifyError),
     BadPrivateKeyError(k256::ecdsa::Error),
     ParserNotEOFError,
+    GenerateEntrypointError(transaction_manifest::DecompileError),
+    GenerateEntrypointFormatError,
 }
 
 /// main CLI entry point
@@ -63,6 +68,7 @@ pub fn run() -> Result<(), Error> {
         Command::NewKeyPair(cmd) => cmd.run(),
         Command::RequestForQuote(cmd) => cmd.run(),
         Command::MakeSignedOrder(cmd) => cmd.run(),
+        Command::TokenizeOrder(cmd) => cmd.run(),
     }
 }
 
@@ -158,7 +164,9 @@ pub struct MakeSignedOrder {
     /// path to file containing the serialized private key which will sign the order - must match on-ledger public key
     private_key_file: PathBuf,
     /// integer value for the last epoch this order can be executed
-    deadline_epoch: u64
+    deadline_epoch: u64,
+    /// optional callback to use instead of teh handle_order_default_callback.  This should be in the form of a CALL_METHOD instruction
+    callback: Option<String>,
 }
 
 impl MakeSignedOrder {
@@ -175,6 +183,36 @@ impl MakeSignedOrder {
         let private_key_bytes = fs::read(&self.private_key_file).map_err(Error::IoError)?;
         //let deadline = u64::from_str(&self.deadline_epoch)?;//.map_err(Error::ParseDeadline)?;
         let deadline = self.deadline_epoch;
+        // set the callback by parsing the argument string or using the default
+        let maker_callback = if self.callback.is_none() {
+            // this is the default callback expected in the Maker Component
+            // It is used for "simple" swaps where the Maker has a SharedAccount
+            // managing the bought and sold assets.
+            Callback::CallMethod {
+                component_address: maker_component_address,
+                method: "handle_order_default_callback".to_owned(),
+                args: vec![],
+            }
+        } else {
+            // parse the CallMethod Instruction into the Callback type with the same args
+            let callback_str = self.callback.as_ref().unwrap(); // unwrap is safe on this branch
+            let tx: Transaction = transaction_manifest::compile(&callback_str).map_err(Error::CompileError)?;
+            assert_eq!(tx.instructions.len(), 1, "callback error, too many instructions"); // backend only supports 1 for now
+            match tx.instructions[0].clone() {
+                Instruction::CallMethod {
+                    component_address,
+                    method,
+                    args,
+                } => {
+                    Callback::CallMethod {
+                        component_address,
+                        method,
+                        args,
+                    }
+                },
+                _ => panic!("callback did not contain a CallMethod")
+            }
+        };
 
         // decode the PartialOrder
         let partial_order_encoded = partial_order_bytes;
@@ -184,12 +222,7 @@ impl MakeSignedOrder {
         let matched_order = MatchedOrder {
             partial_order,
             quote_contents: resource_q_contents,
-            // this is the default callback expected in the Maker Component
-            maker_callback: Callback::CallMethod {
-                component_address: maker_component_address,
-                method: "handle_order_default_callback".to_owned(),
-                args: vec![],
-            },
+            maker_callback,
             deadline,
         };
 
@@ -220,13 +253,93 @@ impl MakeSignedOrder {
         // and encode it
         let signed_order_encoded = scrypto_encode(&signed_order);
 
-        // print signed order bytes to stdout in Radix Transaction Manifest (rtm) format
-        // this is so it can be interpolated into a transaction
-        // care should be taken by the transaction submitter to not introduce "instruction injection" vulnerabilities
-        let validated_arg = validate_data(&signed_order_encoded)
-            .map_err(transaction_manifest::DecompileError::DataValidationError)
-            .map_err(Error::DecompileError)?;
-        print!("{}", validated_arg);
+        // create the instruction the sender will use to execute this signed order (after adding the appropriate buckets)
+        // this is not technically part of the signed order and not authenticated.  The taker/sender is free to send the
+        // signed order (along with their badge) to the more advanced "tokenize_order" method.
+        let execute_entrypoint = Instruction::CallMethod {
+            component_address: maker_component_address,
+            method: "execute_order".to_owned(), // method name matches the Maker blueprint implementation, hardcoding this here
+            args: vec![signed_order_encoded],
+        };
+        // build the transaction so we can use the available API to easily print it
+        let tx = Transaction {
+            instructions: vec![execute_entrypoint], // following code (and the taker) assumes only a single instruction
+        };
+        let manifest = transaction_manifest::decompile(&tx).map_err(Error::GenerateEntrypointError)?;
+        // drop the trailing semicolon and newline since extra args are required
+        let (result, _) = manifest.rsplit_once(";").ok_or(Error::GenerateEntrypointFormatError)?;
+
+        // print the instruction to stdout in Radix Transaction Manifest (rtm) format
+        // so the sender can compose it with whatever they want
+        print!("{}", result);
+
+        // *SECURITY NOTICE*: care should be taken by the transaction submitter to
+        // validate this upon receipt and not introduce "instruction injection" vulnerabilities
+        // or any other "component redirection" vulnerabilities
+
+        Ok(())
+    }
+}
+
+/* TokenizeOrder */
+
+/// used by the taker: Converts a SignedOrder (execute_order instruction) to a tokenize_order instruction instead, for "advanced usage"
+/// results on stdout
+/// 
+/// This implementation is rough but good enough for a proof of concept.  It creates instructions intended to be used as a subset of
+/// a larger transactions and outputs them in the manifest representation
+#[derive(Parser, Debug)]
+pub struct TokenizeOrder {
+    /// path to file containing the CALL_METHOD instruction to be converted to call tokenize_order
+    signed_order_file: PathBuf,
+    /// BucketRef name to pass to tokenize_order as authorization
+    auth_bucket: String,
+    /// bucket name to store the order token
+    order_bucket: String,
+}
+
+impl TokenizeOrder {
+    pub fn run(&self) -> Result<(), Error> {
+        // parse args
+        let mut input_tx_str = fs::read_to_string(&self.signed_order_file).map_err(Error::IoError)?;
+        // append ";" back onto the instruction so it can be compiled
+        input_tx_str.push(';');
+        // compile the transaction so the method name can be modified
+        let mut tx: Transaction = transaction_manifest::compile(&input_tx_str).map_err(Error::CompileError)?;
+        // modify the method name and add an instruction to store the result
+        assert_eq!(tx.instructions.len(), 1, "signed_order_file had too many instructions");
+        //let mut tx2: Transaction = Transaction { instructions}
+        match &mut tx.instructions[0] {
+            Instruction::CallMethod {
+                ref mut method,
+                ref mut args,
+                ..
+            } => {
+                *method = "tokenize_order".to_string();
+                args.push(scrypto_encode(&Rid(1))); // this will be the auth_bucket.  Luckly we can use 1 as the placeholder since it will always exist.  A bit of a hack
+                let signed_order: SignedOrder = scrypto_decode(&args[0]).expect("arg[0] should be a SignedOrder");
+                let new_inst = Instruction::TakeNonFungiblesFromWorktop {
+                    resource_address: signed_order.voucher_resource.address(),
+                    keys: BTreeSet::from([signed_order.voucher_key]),
+                };
+                tx.instructions.push(new_inst);
+            },
+            _ => panic!("signed_order_file did not contain a CallMethod")
+        };
+
+        // convert back to manifest text
+        let manifest = transaction_manifest::decompile(&tx).map_err(Error::GenerateEntrypointError)?;
+
+        // this next part is a little ugly, since we're using this as a template, splice in better text...
+        let result = manifest;
+        // replace the generated BucketRef name with the requested for the auth_bucket
+        let result = result.replace("BucketRef(1u32)", &vec!["BucketRef(\"", &self.auth_bucket, "\")"].join(""));
+        // replace the generated Bucket name with the requested for the order_bucket
+        let result = result.replace("Bucket(\"bucket1\")", &vec!["Bucket(\"", &self.order_bucket, "\")"].join(""));
+
+        // print the instruction to stdout in Radix Transaction Manifest (rtm) format
+        // so the sender can compose it with whatever they want
+        print!("{}", result);
 
         Ok(())
     }
@@ -234,7 +347,7 @@ impl MakeSignedOrder {
 
 /* New Key Pair */
 
-/// generate new key pair for offline signing and online verification
+/// used by the maker: generate new key pair for offline signing and online verification
 /// WARNING: this is designed for testing and creates the private key deterministically from the current on-disk ledger state.
 #[derive(Parser, Debug)]
 pub struct NewKeyPair {

@@ -35,7 +35,26 @@ xlog $HARE make-signed-order partial_order.txt $TAKER_AMOUNT $MAKER_COMPONENT $V
 log "simulate sending signed order back to Taker"
 log "Maker >>> signed_order.txt >>> Taker"
 
-log "Taker, unsurprisingly, decides to submit the order.  They construct a transaction manifest using the order"
+log "The order is actually wrapped up in a METHOD_CALL instruction as a shortcut for also sending the Maker address and method name."
+echo
+echo "Instruction to execute the signed order (missing the last arguments):"
+cat signed_order.txt
+echo
+
+######
+# A bunch of error/safety checking would go here to ensure the signed order matches the original order
+#
+# And, in this simple case, the actual component method  being executed doesn't matter because we can treat
+# it like a black box and ASSERT... we got the right result before completing the transaction.  This
+# slightly changes once we have fees to worry about, but conceptually it's still good.
+# This is some of the beauty of the transaction manifest.
+#
+# On the other hand, in a more advanced case using tokenize_order if the token were going to
+# live past this single transaction, then additional checking and guarantees would probably be needed.
+#####
+
+log "-----"
+log "Taker, unsurprisingly, decides to submit the order.  They construct a transaction manifest using the order instruction"
 log "The manifest 'simply' withdraws the correct amount from their account, call's the Maker Component function with signed order"
 log "and CRITICALLY, verifies the return bucket has the right amount before depositing in their account"
 
@@ -49,10 +68,11 @@ CLONE_BUCKET_REF BucketRef(1u32) BucketRef("account_badge_t");
 CALL_METHOD Address("$ACCOUNT1") "withdraw" Decimal("$TAKER_AMOUNT") Address("$T") BucketRef("account_badge_t");
 TAKE_ALL_FROM_WORKTOP Address("$T") Bucket("T");
 CREATE_BUCKET_REF Bucket("auth_for_exec_bucket") BucketRef("auth_for_exec");
-CALL_METHOD Address("$MAKER_COMPONENT") "execute_order" $SIGNED_ORDER Bucket("T") BucketRef("auth_for_exec");
+$SIGNED_ORDER Bucket("T") BucketRef("auth_for_exec");
 ASSERT_WORKTOP_CONTAINS Decimal("$MAKER_AMOUNT") Address("$M");
 CALL_METHOD_WITH_ALL_RESOURCES Address("$ACCOUNT1") "deposit_batch";
 EOF
+#CALL_METHOD Address("$MAKER_COMPONENT") "execute_order" $SIGNED_ORDER Bucket("T") BucketRef("auth_for_exec");
 
 log "check the manifest syntax by compiling it"
 xlog rtmc --output ${FN}c $FN && rm ${FN}c
@@ -62,10 +82,12 @@ resim run $TRACE $FN
 
 success
 log "look at the accounts:"
-
+log "Taker has changed: T: 1000-100=900, +200 M"
+log "Maker (Shared Account) has changed: M: 500-200=300, T: +100"
+log "---"
 log "The Taker's System Account"
 resim show $ACCOUNT1
-log "The Maker's System Account"
-resim show $ACCOUNT2
 log "The Maker's Shared Account"
 resim show $MAKER_ACCOUNT
+log "The Maker's System Account"
+resim show $ACCOUNT2

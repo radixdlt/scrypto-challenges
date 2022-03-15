@@ -49,13 +49,13 @@ ACCOUNT1=02e1bbfc1eb7b1fa431c9ae0b1f7ee66660a52adf2739f621ce424
 ACCOUNT1_PUBKEY=006b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
 # baseline "T" tokens
 log "Taker 'T' tokens T1000 seems like a good amount"
-resim new-token-fixed 1000
+resim new-token-fixed 1000 --symbol T
 T=03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542
 
 # 0.1 taker
 # hareswap-specific: create a taker_auth to prevent frontrunning when submitted maker-signed orders
 log "Taker: Create badge for Hareswap submission frontrunning avoidance"
-resim new-badge-fixed 1
+resim new-badge-fixed 1 --name TAKER_AUTH
 TAKER_AUTH=0347dfe3a58e8a630305f2f3df82949cd70ce49e2cde097b259f8d
 
 log "Maker baseline"
@@ -69,7 +69,7 @@ ACCOUNT2_PUBKEY=00ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe3
 resim set-default-account $ACCOUNT2 $ACCOUNT2_PUBKEY
 # baseline "M" tokens
 log "Maker 'M' tokens M1000 seems like a good amount"
-resim new-token-fixed 1000
+resim new-token-fixed 1000 --symbol M
 M=0398652f4eb36dd2067191845deb68e54771074f35dc78fbf820a4
 
 log "Maker HareSwap pre-swap one-time setup"
@@ -77,7 +77,7 @@ log "Maker HareSwap pre-swap one-time setup"
 # 0.1 maker: account setup
 # new badge for access to SharedAccount
 log "Create badges for access to a SharedAccount"
-resim new-badge-fixed 2
+resim new-badge-fixed 2 --name shared_account_auth
 MAKER_ACCOUNT_AUTH=031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711
 # create the accont
 log "Create the SharedAccount"
