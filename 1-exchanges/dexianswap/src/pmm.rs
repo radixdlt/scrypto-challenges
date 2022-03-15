@@ -82,6 +82,54 @@ blueprint! {
             (pmm_pool, lp_tokens)
         }
 
+        pub fn add_liquidity(
+            &mut self, 
+            mut base_tokens: Bucket, 
+            mut quote_tokens: Bucket,
+        ) -> (Bucket, Bucket){
+            let base_amnt = base_tokens.amount();
+            let quote_amnt = quote_tokens.amount();
+            let base_ratio = base_amnt / self.base_vault.amount();
+            let quote_ratio = quote_amnt / self.quote_vault.amount();
+            let (mint_ratio, remainder) = if base_ratio < quote_ratio {
+                self.base_vault.put(base_tokens);
+                self.quote_vault.put(quote_tokens.take(self.quote_vault.amount() * base_ratio));
+                (base_ratio, quote_tokens)
+            }
+            else{
+                self.quote_vault.put(quote_tokens);
+                self.base_vault.put(base_tokens.take(self.base_vault.amount() * quote_ratio));
+                (quote_ratio, base_tokens)
+            };
+
+            let shares = self.lp_token_def.total_supply() * mint_ratio;
+            let lp_tokens = self.lp_minter_badge.authorize(|auth| self.lp_token_def.mint(shares, auth));
+            (lp_tokens, remainder)
+        }
+
+        pub fn remove_liquidity(
+            &mut self,
+            lp_tokens: Bucket
+        ) -> (Bucket, Bucket){
+            assert!(
+                self.lp_token_def == lp_tokens.resource_def(),
+                "wrong token type passed in"
+            );
+
+            assert!(
+                !lp_tokens.is_empty() && lp_tokens.amount() <= self.lp_token_def.total_supply(),
+                "LP_NOT_ENOUGH"
+            );
+
+            let share_ratio = lp_tokens.amount() / self.lp_token_def.total_supply();
+ 
+            let base_amnt = self.base_vault.amount() * share_ratio;
+            let quote_amnt = self.quote_vault.amount() * share_ratio;
+
+            (self.base_vault.take(base_amnt), self.quote_vault.take(quote_amnt))
+
+        }
+
         pub fn sell_base(
             &mut self,
             base_bucket: Bucket
