@@ -436,6 +436,9 @@ fn to_public_key(signing_key: &SigningKey) -> EcdsaPublicKey {
 /// populates accounts with some NonFungible resources
 #[derive(Parser, Debug)]
 pub struct NFTSetup {
+    /// executor trace flag
+    #[clap(short, long)]
+    trace: bool,
     /// account to deposit newly minted NFT
     account: String,
     /// symbol for the NFT
@@ -459,7 +462,7 @@ impl NFTSetup {
 
         // get the on-disk ledger the same way resim does
         let mut ledger = RadixEngineDB::with_bootstrap(get_data_dir().map_err(Error::ResimError)?);
-        let mut executor = TransactionExecutor::new(&mut ledger, false);
+        let mut executor = TransactionExecutor::new(&mut ledger, self.trace);
 
         // inefficient to publish this every time, but this is just for demo setup
         let package = executor.publish_package(&compile(&self.helper.to_string_lossy(), "helper")).unwrap();
@@ -483,6 +486,12 @@ impl NFTSetup {
         receipt1.result.as_ref().map_err(|_|Error::RuntimeError)?;
 
         println!("{:?}\n", receipt1.resource_def(0).unwrap());
+
+        let set_keys = BTreeSet::from(keys);
+        let set_keys_encoded = scrypto_encode(&set_keys);
+        let validated_arg =
+           validate_data(&set_keys_encoded).map_err(transaction_manifest::DecompileError::DataValidationError).map_err(Error::DecompileError)?;
+        eprintln!("{}", validated_arg);
 
         Ok(())
     }

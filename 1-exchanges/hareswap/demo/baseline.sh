@@ -72,10 +72,6 @@ log "Maker 'M' tokens M1000 seems like a good amount"
 resim new-token-fixed 1000 --symbol M
 M=0398652f4eb36dd2067191845deb68e54771074f35dc78fbf820a4
 
-# # also give the Taker an NFT to sell
-# log "Airdrop a one-of-a-kind NFT to the Taker"
-# NFT_RESOURCE=$(../hare/target/debug/hare test nft-setup $ACCOUNT1 demo-nft-family 01 ./helper)
-
 log "simulate a reasonable non-zero epoch for testing"
 
 # for consistency testing
