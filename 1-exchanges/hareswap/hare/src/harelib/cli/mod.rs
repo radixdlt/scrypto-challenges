@@ -76,9 +76,12 @@ pub fn run() -> Result<(), Error> {
 
 /* Request For Quote */
 
-/// used by the taker: generate a request-for-quote (RFQ) to buy exact amount resource "B" with a to-be-determined amount of resource "A"
+/// used by the taker: generate a request-for-quote (RFQ) to buy or sell an
+/// exact amount of the resource "B" base asset with a to-be-determined amount of
+/// the resource "Q" quote asset
 #[derive(Parser, Debug)]
 pub struct RequestForQuote {
+    /// choose to buy or sell the base asset
     #[clap(arg_enum)]
     quote_type: QuoteType,
     /// path to file to store the request (for simulating sending or integrating with some RFQ protocol)
