@@ -211,7 +211,7 @@ impl<'a, L: SubstateStore> TestEnv<'a, L> {
         &mut self,
         user_badge: Address,
         price: &str,
-        amount_token: &str,
+        amount_cash: &str,
         actor: (EcdsaPublicKey, Address),
     ) -> Receipt {
         let receipt = self
@@ -224,7 +224,7 @@ impl<'a, L: SubstateStore> TestEnv<'a, L> {
                         vec![
                             format!("{},{}", 1, user_badge),
                             format!("{}", price),
-                            format!("{},{}", amount_token, self.token),
+                            format!("{},{}", amount_cash, RADIX_TOKEN),
                         ],
                         Some(actor.1),
                     )
@@ -240,10 +240,10 @@ impl<'a, L: SubstateStore> TestEnv<'a, L> {
         &mut self,
         user_badge: Address,
         price: &str,
-        amount_token: &str,
+        amount: &str,
         actor: (EcdsaPublicKey, Address),
     ) -> Address {
-        let receipt = self.push_bid_no_check(user_badge, price, amount_token, actor);
+        let receipt = self.push_bid_no_check(user_badge, price, amount, actor);
         assert!(receipt.result.is_ok());
         return receipt.resource_def(0).unwrap();
     }
@@ -251,10 +251,10 @@ impl<'a, L: SubstateStore> TestEnv<'a, L> {
         &mut self,
         user_badge: Address,
         price: &str,
-        amount_token: &str,
+        amount: &str,
         actor: (EcdsaPublicKey, Address),
     ) {
-        let receipt = self.push_bid_no_check(user_badge, price, amount_token, actor);
+        let receipt = self.push_bid_no_check(user_badge, price, amount, actor);
         assert!(receipt.result.is_ok());
         assert!(receipt.resource_def(0).is_none());
     }
@@ -273,7 +273,7 @@ impl<'a, L: SubstateStore> TestEnv<'a, L> {
         &mut self,
         user_badge: Address,
         price: &str,
-        amount_cash: &str,
+        amount_token: &str,
         actor: (EcdsaPublicKey, Address),
     ) -> Receipt {
         let receipt = self
@@ -286,7 +286,7 @@ impl<'a, L: SubstateStore> TestEnv<'a, L> {
                         vec![
                             format!("{},{}", 1, user_badge),
                             format!("{}", price),
-                            format!("{},{}", amount_cash, RADIX_TOKEN),
+                            format!("{},{}", amount_token, self.token),
                         ],
                         Some(actor.1),
                     )
@@ -302,10 +302,10 @@ impl<'a, L: SubstateStore> TestEnv<'a, L> {
         &mut self,
         user_badge: Address,
         price: &str,
-        amount_cash: &str,
+        amount: &str,
         actor: (EcdsaPublicKey, Address),
     ) -> Address {
-        let receipt = self.push_ask_no_check(user_badge, price, amount_cash, actor);
+        let receipt = self.push_ask_no_check(user_badge, price, amount, actor);
         assert!(receipt.result.is_ok());
         return receipt.resource_def(0).unwrap();
     }
@@ -313,10 +313,10 @@ impl<'a, L: SubstateStore> TestEnv<'a, L> {
         &mut self,
         user_badge: Address,
         price: &str,
-        amount_cash: &str,
+        amount: &str,
         actor: (EcdsaPublicKey, Address),
     ) {
-        let receipt = self.push_ask_no_check(user_badge, price, amount_cash, actor);
+        let receipt = self.push_ask_no_check(user_badge, price, amount, actor);
         assert!(receipt.result.is_ok());
         assert!(receipt.resource_def(0).is_none());
     }
@@ -480,8 +480,8 @@ fn test_push_bid_empty() {
     let (mut env, actors) = TestEnv::new(&mut ledger);
 
     let user_badge = env.register(actors[0]);
-    env.push_bid(user_badge, "5", "10", actors[0]);
-    env.check_wallet(actors[0].1, "-10", "0", "unexpected wallet content");
+    env.push_bid(user_badge, "5", "50", actors[0]);
+    env.check_wallet(actors[0].1, "0", "-50", "unexpected wallet content");
 }
 #[test]
 fn test_push_ask_empty() {
@@ -489,8 +489,8 @@ fn test_push_ask_empty() {
     let (mut env, actors) = TestEnv::new(&mut ledger);
 
     let user_badge = env.register(actors[0]);
-    env.push_ask(user_badge, "5", "50", actors[0]);
-    env.check_wallet(actors[0].1, "0", "-50", "unexpected wallet content");
+    env.push_ask(user_badge, "5", "10", actors[0]);
+    env.check_wallet(actors[0].1, "-10", "0", "unexpected wallet content");
 }
 #[test]
 fn test_cancel() {
@@ -512,45 +512,31 @@ fn test_withdraw_nothing() {
 }
 
 #[test]
-fn test_bid_then_ask_immediate_in_full() {
-    let mut ledger = InMemorySubstateStore::with_bootstrap();
-    let (mut env, actors) = TestEnv::new(&mut ledger);
-
-    let user_badge0 = env.register(actors[0]);
-    let user_badge1 = env.register(actors[1]);
-    env.push_bid(user_badge0, "5", "10", actors[0]);
-    env.push_ask_no_badge(user_badge1, "5", "50", actors[1]);
-    env.withdraw(user_badge0, actors[0]);
-    env.check_wallet(actors[0].1, "-10", "50", "unexpected wallet content");
-    env.check_wallet(actors[1].1, "10", "-50", "unexpected wallet content");
-}
-
-#[test]
 fn test_ask_then_bid_immediate_in_full() {
     let mut ledger = InMemorySubstateStore::with_bootstrap();
     let (mut env, actors) = TestEnv::new(&mut ledger);
 
     let user_badge0 = env.register(actors[0]);
     let user_badge1 = env.register(actors[1]);
-    env.push_ask(user_badge0, "5", "50", actors[0]);
-    env.push_bid_no_badge(user_badge1, "5", "10", actors[1]);
+    env.push_ask(user_badge0, "5", "10", actors[0]);
+    env.push_bid_no_badge(user_badge1, "5", "50", actors[1]);
     env.withdraw(user_badge0, actors[0]);
-    env.check_wallet(actors[0].1, "10", "-50", "unexpected wallet content");
-    env.check_wallet(actors[1].1, "-10", "50", "unexpected wallet content");
+    env.check_wallet(actors[0].1, "-10", "50", "unexpected wallet content");
+    env.check_wallet(actors[1].1, "10", "-50", "unexpected wallet content");
 }
 
 #[test]
-fn test_2x_bid_then_ask_immediate_in_full() {
+fn test_bid_then_ask_immediate_in_full() {
     let mut ledger = InMemorySubstateStore::with_bootstrap();
     let (mut env, actors) = TestEnv::new(&mut ledger);
 
     let user_badge0 = env.register(actors[0]);
     let user_badge1 = env.register(actors[1]);
-    env.push_bid(user_badge0, "5", "20", actors[0]);
-    env.push_ask_no_badge(user_badge1, "5", "50", actors[1]);
+    env.push_bid(user_badge0, "5", "50", actors[0]);
+    env.push_ask_no_badge(user_badge1, "5", "10", actors[1]);
     env.withdraw(user_badge0, actors[0]);
-    env.check_wallet(actors[0].1, "-20", "50", "unexpected wallet content");
-    env.check_wallet(actors[1].1, "10", "-50", "unexpected wallet content");
+    env.check_wallet(actors[0].1, "10", "-50", "unexpected wallet content");
+    env.check_wallet(actors[1].1, "-10", "50", "unexpected wallet content");
 }
 
 #[test]
@@ -560,27 +546,25 @@ fn test_2x_ask_then_bid_immediate_in_full() {
 
     let user_badge0 = env.register(actors[0]);
     let user_badge1 = env.register(actors[1]);
-    env.push_ask(user_badge0, "5", "100", actors[0]);
-    env.push_bid_no_badge(user_badge1, "5", "10", actors[1]);
+    env.push_ask(user_badge0, "5", "20", actors[0]);
+    env.push_bid_no_badge(user_badge1, "5", "50", actors[1]);
     env.withdraw(user_badge0, actors[0]);
-    env.check_wallet(actors[0].1, "10", "-100", "unexpected wallet content");
-    env.check_wallet(actors[1].1, "-10", "50", "unexpected wallet content");
+    env.check_wallet(actors[0].1, "-20", "50", "unexpected wallet content");
+    env.check_wallet(actors[1].1, "10", "-50", "unexpected wallet content");
 }
 
 #[test]
-fn test_bid_then_2x_ask_partial_filled() {
+fn test_2x_bid_then_ask_immediate_in_full() {
     let mut ledger = InMemorySubstateStore::with_bootstrap();
     let (mut env, actors) = TestEnv::new(&mut ledger);
 
     let user_badge0 = env.register(actors[0]);
     let user_badge1 = env.register(actors[1]);
-    env.push_bid(user_badge0, "5", "10", actors[0]);
-    let offer_badge = env.push_ask(user_badge1, "5", "100", actors[1]);
+    env.push_bid(user_badge0, "5", "100", actors[0]);
+    env.push_ask_no_badge(user_badge1, "5", "10", actors[1]);
     env.withdraw(user_badge0, actors[0]);
-    env.check_wallet(actors[0].1, "-10", "50", "unexpected wallet content");
-    env.check_wallet(actors[1].1, "10", "-100", "unexpected wallet content");
-    env.cancel(offer_badge, actors[1]);
-    env.check_wallet(actors[1].1, "10", "-50", "unexpected wallet content");
+    env.check_wallet(actors[0].1, "10", "-100", "unexpected wallet content");
+    env.check_wallet(actors[1].1, "-10", "50", "unexpected wallet content");
 }
 
 #[test]
@@ -590,8 +574,24 @@ fn test_ask_then_2x_bid_partial_filled() {
 
     let user_badge0 = env.register(actors[0]);
     let user_badge1 = env.register(actors[1]);
-    env.push_ask(user_badge0, "5", "50", actors[0]);
-    let offer_badge = env.push_bid(user_badge1, "5", "20", actors[1]);
+    env.push_ask(user_badge0, "5", "10", actors[0]);
+    let offer_badge = env.push_bid(user_badge1, "5", "100", actors[1]);
+    env.withdraw(user_badge0, actors[0]);
+    env.check_wallet(actors[0].1, "-10", "50", "unexpected wallet content");
+    env.check_wallet(actors[1].1, "10", "-100", "unexpected wallet content");
+    env.cancel(offer_badge, actors[1]);
+    env.check_wallet(actors[1].1, "10", "-50", "unexpected wallet content");
+}
+
+#[test]
+fn test_bid_then_2x_ask_partial_filled() {
+    let mut ledger = InMemorySubstateStore::with_bootstrap();
+    let (mut env, actors) = TestEnv::new(&mut ledger);
+
+    let user_badge0 = env.register(actors[0]);
+    let user_badge1 = env.register(actors[1]);
+    env.push_bid(user_badge0, "5", "50", actors[0]);
+    let offer_badge = env.push_ask(user_badge1, "5", "20", actors[1]);
     env.withdraw(user_badge0, actors[0]);
     env.check_wallet(actors[0].1, "10", "-50", "unexpected wallet content");
     env.check_wallet(actors[1].1, "-20", "50", "unexpected wallet content");
@@ -609,11 +609,11 @@ fn test_no_touching() {
     let user_badge2 = env.register(actors[2]);
     let user_badge3 = env.register(actors[3]);
     let user_badge4 = env.register(actors[4]);
-    env.push_ask(user_badge0, "3", "100", actors[0]);
-    env.push_ask(user_badge1, "4", "25", actors[1]);
-    env.push_bid(user_badge2, "5", "20", actors[2]);
-    env.push_bid(user_badge3, "5", "20", actors[3]);
-    env.push_bid(user_badge4, "6", "200", actors[4]);
+    env.push_bid(user_badge0, "3", "100", actors[0]);
+    env.push_bid(user_badge1, "4", "25", actors[1]);
+    env.push_ask(user_badge2, "5", "20", actors[2]);
+    env.push_ask(user_badge3, "5", "20", actors[3]);
+    env.push_ask(user_badge4, "6", "200", actors[4]);
     env.withdraw(user_badge0, actors[0]);
     env.withdraw(user_badge1, actors[1]);
     env.withdraw(user_badge2, actors[2]);
@@ -627,57 +627,6 @@ fn test_no_touching() {
 }
 
 #[test]
-fn test_sorting_ask() {
-    let mut ledger = InMemorySubstateStore::with_bootstrap();
-    let (mut env, actors) = TestEnv::new(&mut ledger);
-
-    let user_badge0 = env.register(actors[0]);
-    let user_badge1 = env.register(actors[1]);
-    let user_badge2 = env.register(actors[2]);
-    let user_badge3 = env.register(actors[3]);
-    let user_badge4 = env.register(actors[4]);
-    env.push_ask(user_badge0, "5", "100", actors[0]);
-    env.push_ask(user_badge1, "3", "25", actors[1]);
-    env.push_ask(user_badge2, "4", "20", actors[2]);
-    env.push_ask(user_badge3, "2", "20", actors[3]);
-    env.push_bid_no_badge(user_badge4, "4", "10", actors[4]); // Should hit immediately the @5 ask offer
-    env.withdraw(user_badge0, actors[0]);
-    env.withdraw(user_badge1, actors[1]);
-    env.withdraw(user_badge2, actors[2]);
-    env.withdraw(user_badge3, actors[3]);
-    env.withdraw(user_badge4, actors[4]);
-    env.check_wallet(actors[0].1, "10", "-100", "unexpected wallet content");
-    env.check_wallet(actors[1].1, "0", "-25", "unexpected wallet content");
-    env.check_wallet(actors[2].1, "0", "-20", "unexpected wallet content");
-    env.check_wallet(actors[3].1, "0", "-20", "unexpected wallet content");
-    env.check_wallet(actors[4].1, "-10", "50", "unexpected wallet content");
-
-    env.push_bid(user_badge4, "4", "20", actors[4]); // will deplete @5 and @4 then stay as a bid at @4 with 5 tokens
-    env.withdraw(user_badge0, actors[0]);
-    env.withdraw(user_badge1, actors[1]);
-    env.withdraw(user_badge2, actors[2]);
-    env.withdraw(user_badge3, actors[3]);
-    env.withdraw(user_badge4, actors[4]);
-    env.check_wallet(actors[0].1, "20", "-100", "unexpected wallet content");
-    env.check_wallet(actors[1].1, "0", "-25", "unexpected wallet content");
-    env.check_wallet(actors[2].1, "5", "-20", "unexpected wallet content");
-    env.check_wallet(actors[3].1, "0", "-20", "unexpected wallet content");
-    env.check_wallet(actors[4].1, "-30", "120", "unexpected wallet content");
-
-    env.push_ask_no_badge(user_badge0, "4", "20", actors[0]); // take user4 leftover
-    env.withdraw(user_badge0, actors[0]);
-    env.withdraw(user_badge1, actors[1]);
-    env.withdraw(user_badge2, actors[2]);
-    env.withdraw(user_badge3, actors[3]);
-    env.withdraw(user_badge4, actors[4]);
-    env.check_wallet(actors[0].1, "25", "-120", "unexpected wallet content");
-    env.check_wallet(actors[1].1, "0", "-25", "unexpected wallet content");
-    env.check_wallet(actors[2].1, "5", "-20", "unexpected wallet content");
-    env.check_wallet(actors[3].1, "0", "-20", "unexpected wallet content");
-    env.check_wallet(actors[4].1, "-30", "140", "unexpected wallet content");
-}
-
-#[test]
 fn test_monitoring() {
     let mut ledger = InMemorySubstateStore::with_bootstrap();
     let (mut env, actors) = TestEnv::new(&mut ledger);
@@ -687,11 +636,11 @@ fn test_monitoring() {
     let user_badge2 = env.register(actors[2]);
     let user_badge3 = env.register(actors[3]);
     let user_badge4 = env.register(actors[4]);
-    env.push_ask(user_badge0, "3", "100", actors[0]);
-    env.push_ask(user_badge1, "4", "25", actors[1]);
-    env.push_bid(user_badge2, "5", "20", actors[2]);
-    env.push_bid(user_badge3, "5", "20", actors[3]);
-    env.push_bid(user_badge4, "6", "200", actors[4]);
+    env.push_bid(user_badge0, "3", "100", actors[0]);
+    env.push_bid(user_badge1, "4", "25", actors[1]);
+    env.push_ask(user_badge2, "5", "20", actors[2]);
+    env.push_ask(user_badge4, "6", "200", actors[4]);
+    env.push_ask(user_badge3, "5", "20", actors[3]);
 
     env.monitor(actors[0]);
 }
@@ -703,10 +652,61 @@ fn test_user_vault_content() {
 
     let user_badge0 = env.register(actors[0]);
     let user_badge1 = env.register(actors[1]);
-    env.push_ask(user_badge0, "5", "50", actors[0]);
-    env.push_bid_no_badge(user_badge1, "5", "10", actors[1]);
+    env.push_bid(user_badge0, "5", "50", actors[0]);
+    env.push_ask_no_badge(user_badge1, "5", "10", actors[1]);
 
     let (cash, token) = env.user_vault_content(user_badge0, actors[0]);
     assert!(cash == dec!(0), "no cash should be present");
     assert!(token == dec!(10), "10 tokens should be present");
+}
+
+#[test]
+fn test_sorting_bid() {
+    let mut ledger = InMemorySubstateStore::with_bootstrap();
+    let (mut env, actors) = TestEnv::new(&mut ledger);
+
+    let user_badge0 = env.register(actors[0]);
+    let user_badge1 = env.register(actors[1]);
+    let user_badge2 = env.register(actors[2]);
+    let user_badge3 = env.register(actors[3]);
+    let user_badge4 = env.register(actors[4]);
+    env.push_bid(user_badge0, "5", "100", actors[0]);
+    env.push_bid(user_badge1, "3", "25", actors[1]);
+    env.push_bid(user_badge2, "4", "20", actors[2]);
+    env.push_bid(user_badge3, "2", "20", actors[3]);
+    env.push_ask_no_badge(user_badge4, "4", "10", actors[4]); // Should hit immediately the @5 ask offer
+    env.withdraw(user_badge0, actors[0]);
+    env.withdraw(user_badge1, actors[1]);
+    env.withdraw(user_badge2, actors[2]);
+    env.withdraw(user_badge3, actors[3]);
+    env.withdraw(user_badge4, actors[4]);
+    env.check_wallet(actors[0].1, "10", "-100", "unexpected wallet content");
+    env.check_wallet(actors[1].1, "0", "-25", "unexpected wallet content");
+    env.check_wallet(actors[2].1, "0", "-20", "unexpected wallet content");
+    env.check_wallet(actors[3].1, "0", "-20", "unexpected wallet content");
+    env.check_wallet(actors[4].1, "-10", "50", "unexpected wallet content");
+
+    env.push_ask(user_badge4, "4", "20", actors[4]); // will deplete @5 and @4 then stay as a bid at @4 with 5 tokens
+    env.withdraw(user_badge0, actors[0]);
+    env.withdraw(user_badge1, actors[1]);
+    env.withdraw(user_badge2, actors[2]);
+    env.withdraw(user_badge3, actors[3]);
+    env.withdraw(user_badge4, actors[4]);
+    env.check_wallet(actors[0].1, "20", "-100", "unexpected wallet content");
+    env.check_wallet(actors[1].1, "0", "-25", "unexpected wallet content");
+    env.check_wallet(actors[2].1, "5", "-20", "unexpected wallet content");
+    env.check_wallet(actors[3].1, "0", "-20", "unexpected wallet content");
+    env.check_wallet(actors[4].1, "-30", "120", "unexpected wallet content");
+
+    env.push_bid_no_badge(user_badge0, "4", "20", actors[0]); // take user4 leftover
+    env.withdraw(user_badge0, actors[0]);
+    env.withdraw(user_badge1, actors[1]);
+    env.withdraw(user_badge2, actors[2]);
+    env.withdraw(user_badge3, actors[3]);
+    env.withdraw(user_badge4, actors[4]);
+    env.check_wallet(actors[0].1, "25", "-120", "unexpected wallet content");
+    env.check_wallet(actors[1].1, "0", "-25", "unexpected wallet content");
+    env.check_wallet(actors[2].1, "5", "-20", "unexpected wallet content");
+    env.check_wallet(actors[3].1, "0", "-20", "unexpected wallet content");
+    env.check_wallet(actors[4].1, "-30", "140", "unexpected wallet content");
 }
