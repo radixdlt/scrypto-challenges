@@ -8,6 +8,7 @@ use k256::ecdsa::{signature::Signer, Signature, SigningKey};
 // scrypto dependencies
 use radix_engine::engine::validate_data;
 use radix_engine::ledger::*;
+use radix_engine::transaction::*;
 use scrypto::buffer::scrypto_encode;
 use scrypto::prelude::*;
 use scrypto::types::EcdsaPublicKey;
@@ -36,6 +37,20 @@ pub enum Command {
     RequestForQuote(RequestForQuote),
     MakeSignedOrder(MakeSignedOrder),
     TokenizeOrder(TokenizeOrder),
+    Test(TestCommands),
+}
+
+/// testing CLI to aid with demos etc
+#[derive(Parser, Debug)]
+pub struct TestCommands {
+    #[clap(subcommand)]
+    command: TestCommand,
+}
+
+/// the available testing subcommands
+#[derive(Subcommand, Debug)]
+pub enum TestCommand {
+    NFTSetup(NFTSetup),
 }
 
 /// custom errors which simply wrap explicit error types when the bubble up to the top
@@ -58,6 +73,8 @@ pub enum Error {
     ParserNotEOFError,
     GenerateEntrypointError(transaction_manifest::DecompileError),
     GenerateEntrypointFormatError,
+    TestError,
+    RuntimeError,
 }
 
 /// main CLI entry point
@@ -69,6 +86,11 @@ pub fn run() -> Result<(), Error> {
         Command::RequestForQuote(cmd) => cmd.run(),
         Command::MakeSignedOrder(cmd) => cmd.run(),
         Command::TokenizeOrder(cmd) => cmd.run(),
+        Command::Test(cmd) => {
+            match cmd.command {
+                TestCommand::NFTSetup(cmd) => cmd.run(),
+            }
+        }
     }
 }
 
@@ -409,4 +431,75 @@ fn to_public_key(signing_key: &SigningKey) -> EcdsaPublicKey {
     let mut public_raw = [0u8; 33];
     public_raw[..].copy_from_slice(&compressed_point);
     EcdsaPublicKey(public_raw)
+}
+
+/// populates accounts with some NonFungible resources
+#[derive(Parser, Debug)]
+pub struct NFTSetup {
+    /// account to deposit newly minted NFT
+    account: String,
+    /// symbol for the NFT
+    symbol: String,
+    /// Set of keys to create, in comma-seperated hex values
+    amount: String,
+    /// path to helper package
+    helper: PathBuf,
+}
+
+impl NFTSetup {
+    pub fn run(&self) -> Result<(), Error> {
+        let account = Address::from_str(&self.account).map_err(Error::ParseAddressError)?;
+        let amount = BucketContents::from_str(&self.amount).map_err(Error::ParseAmountError)?;
+
+        let keys = match amount {
+            BucketContents::NonFungible(keys) => keys,
+            _ => return Err(Error::TestError)
+        };
+        let args = vec![scrypto_encode(&self.symbol), scrypto_encode(&keys)];
+
+        // get the on-disk ledger the same way resim does
+        let mut ledger = RadixEngineDB::with_bootstrap(get_data_dir().map_err(Error::ResimError)?);
+        let mut executor = TransactionExecutor::new(&mut ledger, false);
+
+        // inefficient to publish this every time, but this is just for demo setup
+        let package = executor.publish_package(&compile(&self.helper.to_string_lossy(), "helper")).unwrap();
+
+        // call function Helper "new_nft" keys
+        let key = executor.new_public_key(); // doesn't actually matter
+        let transaction1 = TransactionBuilder::new(&executor)
+            //.call_function(package, "Helper", "new_nft", scrypto_encode(args), None)
+            .add_instruction(Instruction::CallFunction {
+                package_address: package,
+                blueprint_name: "Helper".to_owned(),
+                function: "new_nft".to_owned(),
+                args
+            }).0
+            .call_method_with_all_resources(account, "deposit_batch")
+            .build(vec![key])
+            .unwrap();
+        let receipt1 = executor.run(transaction1).unwrap();
+//        println!("{:?}\n", receipt1);
+        //assert!(receipt1.result.is_ok());
+        receipt1.result.as_ref().map_err(|_|Error::RuntimeError)?;
+
+        println!("{:?}\n", receipt1.resource_def(0).unwrap());
+
+        Ok(())
+    }
+}
+
+/// compiles a package at path with name in the same way scrypto build
+/// Copied from some scyrypto tests
+pub fn compile(path: &str, name: &str) -> Vec<u8> {
+    std::process::Command::new("cargo")
+        .current_dir(format!("{}", path))
+        .args(["build", "--target", "wasm32-unknown-unknown", "--release"])
+        .status()
+        .unwrap();
+    fs::read(format!(
+        "{}/target/wasm32-unknown-unknown/release/{}.wasm",
+        path,
+        name.replace("-", "_")
+    ))
+    .unwrap()
 }
