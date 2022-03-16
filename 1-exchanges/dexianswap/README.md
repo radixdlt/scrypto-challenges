@@ -31,14 +31,37 @@ Data directory cleared.
 OP1=$(resim show-configs | grep "Default Account" | awk -F ": " '{print $2}')
 
 OP2=$(resim new-account)
-export PUB_KEY2=$(echo "$OP2" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
-export ACC_ADDRESS2=$(echo "$OP2" | sed -nr "s/Account address: ([[:alnum:]_]+)/\1/p")
+export pub_key2=$(echo "$OP2" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export acct2=$(echo "$OP2" | sed -nr "s/Account address: ([[:alnum:]_]+)/\1/p")
 
 
 PK_OP=$(resim publish ".")
 export PACKAGE=$(echo "$PK_OP" | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
 
+export bucket_t1="10000,03ad8ad4fa972bca8ee488458f0c67a1dc95e91ced95e3e0e70634"
+export bucket_xrd="5000,030000000000000000000000000000000000000000000000000004"
+export simple_url="https://goxrd.com"
+export fee=0.002
+export initial_supply=10000
 
+resim call-function $PACKAGE SimplePool new $bucket_t1 $bucket_xrd $initial_supply $simple_url $fee
+
+
+export simple_pool="027217a5820825527b0a9691184894c03f9d348e187cd833818c3a"
+resim set-default-account $acct2 $pub_key2
+
+resim call-method $simple 'swap' "10,030000000000000000000000000000000000000000000000000004"
+
+resim show $acct2
+Component: 024cd90412a91302949e533738ad69c7eb559aca1fe2ba70986957
+Blueprint: { package_address: 010000000000000000000000000000000000000000000000000003, blueprint_name: "Account" }
+State: Struct({Struct((Array<U8>(0u8, 83u8, 95u8, 163u8, 13u8, 126u8, 37u8, 221u8, 138u8, 73u8, 241u8, 83u8, 103u8, 121u8, 115u8, 78u8, 200u8, 40u8, 97u8, 8u8, 209u8, 21u8, 218u8, 80u8, 69u8, 215u8, 127u8, 59u8, 65u8, 133u8, 216u8, 247u8, 144u8))), LazyMap("c2356069e9d1e79ca924378153cfbbfb4d4416b1f99d41a2940bfdb66c5319db01040000")})
+Lazy Map: 024cd90412a91302949e533738ad69c7eb559aca1fe2ba70986957c2356069e9d1e79ca924378153cfbbfb4d4416b1f99d41a2940bfdb66c5319db01040000
+├─ Address("03ad8ad4fa972bca8ee488458f0c67a1dc95e91ced95e3e0e70634") => Vault("b7a56873cd771f2c446d369b649430b65a756ba278ff97ec81bb6f55b2e7356903040000")
+└─ Address("030000000000000000000000000000000000000000000000000004") => Vault("c2356069e9d1e79ca924378153cfbbfb4d4416b1f99d41a2940bfdb66c5319db02040000")
+Resources:
+├─ { amount: 19.920239202551706794, resource_def: 03ad8ad4fa972bca8ee488458f0c67a1dc95e91ced95e3e0e70634, name: "T1", symbol: "TEST1" }
+└─ { amount: 999990, resource_def: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 
 ```
 
