@@ -122,6 +122,7 @@ blueprint! {
             );
 
             let share_ratio = lp_tokens.amount() / self.lp_token_def.total_supply();
+            self.lp_minter_badge.authorize(|auth| lp_tokens.burn_with_auth(auth));
  
             let base_amnt = self.base_vault.amount() * share_ratio;
             let quote_amnt = self.quote_vault.amount() * share_ratio;

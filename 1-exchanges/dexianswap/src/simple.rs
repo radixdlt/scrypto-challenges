@@ -107,6 +107,7 @@ blueprint! {
             );
 
             let share = lp_tokens.amount() / self.lp_token_def.total_supply();
+            self.lp_minter_badge.authorize(|auth| lp_tokens.burn_with_auth(auth));
 
             let base_withdraw = self.base_vault.take(self.base_vault.amount() * share);
             let quote_withdraw = self.quote_vault.take(self.quote_vault.amount() * share);
