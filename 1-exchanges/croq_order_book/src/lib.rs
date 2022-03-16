@@ -12,15 +12,17 @@ fn create_badge(name: &str) -> Bucket {
 blueprint! {
     struct CroqOrderBook {
         token_def: ResourceDef, // token to be buy or sell in this exchange
-        cash_def: ResourceDef, // currency used to buy or sell in this exchange
-        bid_list: Vec<(Address, Address, Decimal, Option<Vault>)>, // list of bid offers: offer badge address, user badge address, price, Token Vault
-        ask_list: Vec<(Address, Address, Decimal, Option<Vault>)>, // list of ask offers: offer badge address, user badge address, price, Cash Vault
-        user_vaults: HashMap<Address, (Vault, Vault)>, // this map hold the ressources that need to be collected by the users: user badge address, Cash Vault, Token Vault
+        cash_def: ResourceDef,  // currency used to buy or sell in this exchange
+        bid_list: Vec<(Address, Address, Decimal, Option<Vault>)>, // list of bid offers:
+                  // offer badge address, user badge address, price, Token Vault
+        ask_list: Vec<(Address, Address, Decimal, Option<Vault>)>, // list of ask offers:
+                  // offer badge address, user badge address, price, Cash Vault
+        user_vaults: HashMap<Address, (Vault, Vault)>, // this map hold the ressources that need to be collected:
+                  // user badge address, Cash Vault, Token Vault
         dead_vault: Vec<Vault>, // just a vector of dead vault because we can't delete empty vault currenlty
     }
 
     impl CroqOrderBook {
-      
         // instantiation of the component with provided token address and cash, and empty structures
         pub fn instantiate(token: Address, cash: Address) -> Component {
             Self {
@@ -33,10 +35,11 @@ blueprint! {
             }
             .instantiate()
         }
-        
+
         // this helper method add tokens to the vault of tokens that the user can collect
         fn add_token_to_user(&mut self, badge: Address, token: Bucket) {
-            // first we remove the vaults from te user_vautls hash map, the remove is needed to grab the ownership of the variable
+            // first we remove the vaults from te user_vautls hash map, the remove is needed to grab the ownership of
+            //  the variable
             let mut vaults = self.user_vaults.remove(&badge);
             if vaults.is_none() {
                 // if the user doesn't exist in our map, we create vaults for him
@@ -48,7 +51,7 @@ blueprint! {
             // put vaults in the user_vaults hashmap with the user badge as the key
             self.user_vaults.insert(badge, vaults.unwrap());
         }
-        
+
         // this helper method add cash to the vault of cash that the user can collect
         // the logic is identical to add_token_to_user
         fn add_cash_to_user(&mut self, badge: Address, cash: Bucket) {
@@ -60,12 +63,13 @@ blueprint! {
             }
             self.user_vaults.insert(badge, vaults.unwrap());
         }
-        
-        // this public method allow the caller to get a badge, the badge will be used to identify him and allow him to collect the money he has made on the offers which has been completed
+
+        // this public method allow the caller to get a badge, the badge will be used to identify him and allow him to 
+        //  collect the money he has made on the offers which has been completed
         pub fn register(&self) -> Bucket {
             create_badge("user")
         }
-        
+
         // this public method allow the user to add a bid offer (buy)
         pub fn push_bid(
             &mut self,
@@ -75,10 +79,11 @@ blueprint! {
         ) -> Vec<Bucket> {
             assert!(cash.resource_def() == self.cash_def, "wrong cash type");
             assert!(price > Decimal::zero(), "negative or zero price");
-            
+
             // prepare a new bucket to return tokens to the user if the order is executed immediately
             let mut ret_token_bucket = Bucket::new(self.token_def.clone());
-            // the ask_list is sorted in decreasing order of price, so we check if the last one has a selling price which is superior or equal to the amount our user is ready to buy
+            // the ask_list is sorted in decreasing order of price, so we check if the last one has a selling price 
+            //  which is superior or equal to the amount our user is ready to buy
             while !self.ask_list.is_empty() && self.ask_list[self.ask_list.len() - 1].2 <= price {
                 // if we enter in the loop it mean that our order will be at least partially filled
                 // we remove the most interesting offer from the list
@@ -87,10 +92,10 @@ blueprint! {
                 let ask_price = offer.2;
                 // we compute the amount of token which can be buyed at this price by our buyer
                 let offer_qty = cash.amount() / ask_price;
-                let vault = offer.3.as_mut().unwrap();                
+                let vault = offer.3.as_mut().unwrap();
                 if offer_qty < vault.amount() {
                     // if there is more tokens in the offer vault than needed
-                    
+
                     // we add the money to the vault of the seller
                     self.add_cash_to_user(seller_badge, cash);
                     // we take what we need
@@ -101,7 +106,7 @@ blueprint! {
                     return vec![ret_token_bucket];
                 } else if offer_qty == vault.amount() {
                     // if there is the exact amount of token we want on the vault
-                    
+
                     // we add the money to the vault of the seller
                     self.add_cash_to_user(seller_badge, cash);
                     // we take what we need (all)
@@ -140,7 +145,7 @@ blueprint! {
             // and we return the tokens (if it has been partially filled) and offer badge
             vec![ret_token_bucket, badge]
         }
-                
+
         // this public method allow the user to add a ask offer (sell)
         // logic is similar to the push_bid method, so no comments
         pub fn push_ask(
@@ -188,7 +193,7 @@ blueprint! {
             self.ask_list.sort_by(|a, b| b.2.partial_cmp(&a.2).unwrap());
             vec![ret_cash_bucket, badge]
         }
-        
+
         // this method allow the user to cancel an offer
         pub fn cancel(&mut self, offer_badge: Bucket) -> (Bucket, Bucket) {
             let mut cash_bucket = Bucket::new(self.cash_def.clone());
@@ -229,8 +234,9 @@ blueprint! {
             // and we return to our caller the tokens and cash stored in the cancelled offer
             (cash_bucket, token_bucket)
         }
-        
-        // this method is called by the user to collect the cash and tokens which has been generated by the successful fullfillement of offers
+
+        // this method is called by the user to collect the cash and tokens which has been generated by the successful 
+        //  fullfillement of offers
         pub fn withdraw(&mut self, user_badge: BucketRef) -> Vec<Bucket> {
             let addr = user_badge.resource_address();
             let mut ret = Vec::<Bucket>::new();
@@ -245,7 +251,7 @@ blueprint! {
             }
             ret
         }
-        
+
         // this method is used by a user who want to know he content of his vaults to check if he need to call withdraw
         pub fn user_vault_content(&self, user_badge: BucketRef) -> (Decimal, Decimal) {
             let addr = user_badge.resource_address();
@@ -260,8 +266,9 @@ blueprint! {
                 return (vaults.0.amount(), vaults.1.amount());
             }
         }
-        
-        // this method is used to monitor the current state of the auction, we can easily build a UI around it to display the order book
+
+        // this method is used to monitor the current state of the auction, we can easily build a UI around it to
+        //  display the order book
         pub fn monitor(&self) {
             info!("token addr: {:?}", self.token_def.address());
             info!("cash addr: {:?}", self.cash_def.address());

@@ -29,7 +29,7 @@ pub fn instantiate(token: Address, cash: Address) -> Component
 ```
 
 - `token`: The token this Order Book will be about
-- `cash`: The cash used in this Order Book (`RADIX_TOKEN`currently, but I dream of stable coin...)
+- `cash`: The cash used in this Order Book (`RADIX_TOKEN` currently, but I dream of stable coin...)
 - `return`: The instance of created Order Book
 
 
@@ -53,14 +53,14 @@ pub fn push_bid(
             &mut self,
             user_badge: BucketRef,
             price: Decimal,
-            mut token: Bucket,
+            mut cash: Bucket,
         ) -> Vec<Bucket>
 ```
 
 - `user_badge`: Your User Badge, created with `register`
-- `price`: Your floor price
-- `token`: The token you want to sell
-- `return`: If executed in full, you'll immediately get a bucket of cash. If not executed immediately, you'll get an offer badge. If executed partially, you'll get cash and badge.
+- `price`: Your ceilling price
+- `cash`: The cash you want to spend
+- `return`: If executed in full, you'll immediately get a bucket of token. If not executed immediately, you'll get an offer badge. If executed partially, you'll get token and badge.
 
 
 
@@ -79,9 +79,9 @@ pub fn push_ask(
 ```
 
 - `user_badge`: Your User Badge, created with `register`
-- `price`: Your ceiling price
-- `token`: The cash you want to spend
-- `return`: If fulfilled immediately, you'll get a bucket of tokens. If not fulfilled immediately you'll get an offer badge. If partially fulfilled, you'll get tokens and badge.
+- `price`: Your floor price
+- `token`: The token you want to sell
+- `return`: If fulfilled immediately, you'll get a bucket of cash. If not fulfilled immediately you'll get an offer badge. If partially fulfilled, you'll get cash and badge.
 
 
 
@@ -127,16 +127,15 @@ pub fn monitor(&self)
 **Example:**
 
 ```
-Logs: 11
 ├─ [INFO ] token addr: 03de6e411593dcb3817187562c26c972cb024524f7b798f1c2980c
 ├─ [INFO ] cash addr: 030000000000000000000000000000000000000000000000000004
 ├─ [INFO ] **bid**
 ├─ [INFO ] floor price, quantity of tokens
-├─ [INFO ] 6, 200
-├─ [INFO ] 5, 20
-├─ [INFO ] 5, 20
+├─ [INFO ] 3, 100
+├─ [INFO ] 4, 25
 ├─ [INFO ] **ask**
 ├─ [INFO ] ceilling price, amount of cash
-├─ [INFO ] 3, 100
-└─ [INFO ] 4, 25
+├─ [INFO ] 6, 200
+├─ [INFO ] 5, 20
+└─ [INFO ] 5, 20
 ```
