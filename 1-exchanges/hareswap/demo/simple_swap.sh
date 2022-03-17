@@ -72,7 +72,6 @@ $SIGNED_ORDER Bucket("T") BucketRef("auth_for_exec");
 ASSERT_WORKTOP_CONTAINS Decimal("$MAKER_AMOUNT") Address("$M");
 CALL_METHOD_WITH_ALL_RESOURCES Address("$ACCOUNT1") "deposit_batch";
 EOF
-#CALL_METHOD Address("$MAKER_COMPONENT") "execute_order" $SIGNED_ORDER Bucket("T") BucketRef("auth_for_exec");
 
 log "check the manifest syntax by compiling it"
 xlog rtmc --output ${FN}c $FN && rm ${FN}c
