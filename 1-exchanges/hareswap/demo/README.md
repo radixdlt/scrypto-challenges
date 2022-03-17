@@ -21,9 +21,10 @@ Make sure to build first by running `./build.sh` in the root folder (up one dire
 ## Other Details
 
 * `baseline.sh` - sets up accounts and things not specific to HareSwap but required for the demos.  
-                  Includes hardcoded values instead of parsing resim out. It may break in the 
-                  future.
+                  Includes hardcoded values instead of parsing resim output.
 * `logging.sh` - makes the text output a little prettier
+* `maker*_setup.sh` - common setup work for Makers
+* `helper/` - a package with blueprint to airdrop an NFT for the demos since `resim new-token-fixed` does not work with NFTs
 
 ## Limitations
 
