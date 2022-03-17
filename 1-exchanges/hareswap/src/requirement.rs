@@ -15,9 +15,7 @@ pub enum BucketContents {
 
 /// Implement Display in terms of Debug
 impl fmt::Display for BucketContents {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{:?}", self) }
 }
 
 impl PartialEq<BucketContents> for BucketRef {
@@ -80,7 +78,6 @@ pub struct BucketRequirement {
     pub contents: BucketContents,
 }
 
-
 impl BucketRequirement {
     /// Check a BucketRef exactly matches the requirement
     pub fn check_ref(&self, bucket_ref: &BucketRef) -> bool {
@@ -131,15 +128,14 @@ pub enum ParseBucketContentsError {
 
 /// Implement Display in terms of Debug
 impl fmt::Display for ParseBucketContentsError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{:?}", self) }
 }
 
 impl std::str::FromStr for BucketContents {
     type Err = ParseBucketContentsError;
+
     /// oversimplified string to BucketContents parsing
-    /// 
+    ///
     /// A string with a "." will be parsed as a Decimal for the Funbible amount
     /// Otherwise, a single NonFungibleKey or comma-seperated list of keys to create the set of NonFungibles
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -147,7 +143,8 @@ impl std::str::FromStr for BucketContents {
         let contents = if s.contains(".") {
             BucketContents::Fungible(Decimal::from_str(s).map_err(Self::Err::ParseFungibleError)?)
         } else {
-            let set_result: Result<BTreeSet<NonFungibleKey>, _> = s.split(",").map(|s| NonFungibleKey::from_str(s)).collect();
+            let set_result: Result<BTreeSet<NonFungibleKey>, _> =
+                s.split(",").map(|s| NonFungibleKey::from_str(s)).collect();
             let set = set_result.map_err(Self::Err::ParseNonFungibleError)?;
             BucketContents::NonFungible(set)
         };
@@ -158,14 +155,12 @@ impl std::str::FromStr for BucketContents {
 /// Implement TryFrom in terms of FromStr
 impl TryFrom<&str> for BucketContents {
     type Error = ParseBucketContentsError;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        BucketContents::from_str(s)
-    }
+
+    fn try_from(s: &str) -> Result<Self, Self::Error> { BucketContents::from_str(s) }
 }
 /// Implement in terms of TryFrom<&str>
 impl TryFrom<String> for BucketContents {
     type Error = ParseBucketContentsError;
-    fn try_from(s: String) -> Result<Self, Self::Error> {
-        BucketContents::from_str(&s)
-    }
+
+    fn try_from(s: String) -> Result<Self, Self::Error> { BucketContents::from_str(&s) }
 }

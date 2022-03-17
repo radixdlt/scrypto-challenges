@@ -6,7 +6,7 @@
 //!
 //! WARNING: This is a proof of concept to support testing HareSwap and is not full featured.
 //! For example, there's no way to change the auth_requirement after instantiating the account.
-//! 
+//!
 //! [SharedAccount]: blueprint::SharedAccount
 use scrypto::prelude::*;
 

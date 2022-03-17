@@ -9,7 +9,7 @@
 //! This prototype only supports NonFungibles and a single one per Voucher.  It
 //! wouldn't be much harder to update this (and the Voucher type) to support an
 //! entire arbitrary Bucket
-//! 
+//!
 //! [Transporter]: blueprint::Transporter
 use scrypto::prelude::*;
 

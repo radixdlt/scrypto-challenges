@@ -1,6 +1,6 @@
 //! The [Maker] blueprint is the core blueprint for HareSwap.  It accepts SignedOrders and buckets and can execute or tokenize an order.
 //! The signer is expected to instantiate one Maker Component, but is of course free to instantiate many, but only one is needed for all trades.
-//! 
+//!
 //! [Maker]: blueprint::Maker
 use scrypto::prelude::*;
 

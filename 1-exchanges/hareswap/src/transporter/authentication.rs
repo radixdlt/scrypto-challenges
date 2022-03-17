@@ -1,11 +1,11 @@
 //! Black-box (mostly) digital signature creation and verifification
-//! 
+//!
 //! WARNING: This is not audited and just about the minimum viable
 //! implemenation.
-//! 
+//!
 //! Implementation uses the "RustCrypto" crates.  This works well enough but is
 //! far from what should probably be used in production.
-//! 
+//!
 //! Those creates we depend on here (k256 and friends) are not audited, and this
 //! code is also not audited.  Additionally, the documentation for these crates
 //! leaves a lot to be desired.  This works but the choices may not be optimal

@@ -2,12 +2,13 @@ use std::fs;
 use std::path::PathBuf;
 
 // non-scrypto dependencies
-use clap::{Parser, Subcommand, ArgEnum};
+use clap::{ArgEnum, Parser, Subcommand};
 use k256::ecdsa::{signature::Signer, Signature, SigningKey};
 
 // scrypto dependencies
 use radix_engine::engine::validate_data;
 use radix_engine::ledger::*;
+use radix_engine::model::{Instruction, Transaction};
 use radix_engine::transaction::*;
 use scrypto::buffer::scrypto_encode;
 use scrypto::prelude::*;
@@ -15,7 +16,6 @@ use scrypto::types::EcdsaPublicKey;
 use scrypto::utils::sha256;
 use simulator::ledger::*;
 use simulator::resim::*;
-use radix_engine::model::{Instruction, Transaction};
 
 // Only the imports needed to do off-ledger things, ie. the hareswap API
 use hareswap::api::*;
@@ -86,11 +86,9 @@ pub fn run() -> Result<(), Error> {
         Command::RequestForQuote(cmd) => cmd.run(),
         Command::MakeSignedOrder(cmd) => cmd.run(),
         Command::TokenizeOrder(cmd) => cmd.run(),
-        Command::Test(cmd) => {
-            match cmd.command {
-                TestCommand::NFTSetup(cmd) => cmd.run(),
-            }
-        }
+        Command::Test(cmd) => match cmd.command {
+            TestCommand::NFTSetup(cmd) => cmd.run(),
+        },
     }
 }
 
@@ -228,14 +226,12 @@ impl MakeSignedOrder {
                     component_address,
                     method,
                     args,
-                } => {
-                    Callback::CallMethod {
-                        component_address,
-                        method,
-                        args,
-                    }
+                } => Callback::CallMethod {
+                    component_address,
+                    method,
+                    args,
                 },
-                _ => panic!("callback did not contain a CallMethod")
+                _ => panic!("callback did not contain a CallMethod"),
             }
         };
 
@@ -253,7 +249,11 @@ impl MakeSignedOrder {
 
         // construct a Voucher for the MatchedOrder
 
-        let voucher = Voucher::from_nfd(voucher_resource.clone(), Some(voucher_key.clone()), matched_order.clone());
+        let voucher = Voucher::from_nfd(
+            voucher_resource.clone(),
+            Some(voucher_key.clone()),
+            matched_order.clone(),
+        );
 
         // and encode it
         let voucher_encoded = scrypto_encode(&voucher);
@@ -310,7 +310,7 @@ impl MakeSignedOrder {
 
 /// used by the taker: Converts a SignedOrder (execute_order instruction) to a tokenize_order instruction instead, for "advanced usage"
 /// results on stdout
-/// 
+///
 /// This implementation is rough but good enough for a proof of concept.  It creates instructions intended to be used as a subset of
 /// a larger transactions and outputs them in the manifest representation
 #[derive(Parser, Debug)]
@@ -348,8 +348,8 @@ impl TokenizeOrder {
                     keys: BTreeSet::from([signed_order.voucher_key]),
                 };
                 tx.instructions.push(new_inst);
-            },
-            _ => panic!("signed_order_file did not contain a CallMethod")
+            }
+            _ => panic!("signed_order_file did not contain a CallMethod"),
         };
 
         // convert back to manifest text
@@ -358,9 +358,15 @@ impl TokenizeOrder {
         // this next part is a little ugly, since we're using this as a template, splice in better text...
         let result = manifest;
         // replace the generated BucketRef name with the requested for the auth_bucket
-        let result = result.replace("BucketRef(1u32)", &vec!["BucketRef(\"", &self.auth_bucket, "\")"].join(""));
+        let result = result.replace(
+            "BucketRef(1u32)",
+            &vec!["BucketRef(\"", &self.auth_bucket, "\")"].join(""),
+        );
         // replace the generated Bucket name with the requested for the order_bucket
-        let result = result.replace("Bucket(\"bucket1\")", &vec!["Bucket(\"", &self.order_bucket, "\")"].join(""));
+        let result = result.replace(
+            "Bucket(\"bucket1\")",
+            &vec!["Bucket(\"", &self.order_bucket, "\")"].join(""),
+        );
 
         // print the instruction to stdout in Radix Transaction Manifest (rtm) format
         // so the sender can compose it with whatever they want
@@ -456,7 +462,7 @@ impl NFTSetup {
 
         let keys = match amount {
             BucketContents::NonFungible(keys) => keys,
-            _ => return Err(Error::TestError)
+            _ => return Err(Error::TestError),
         };
         let args = vec![scrypto_encode(&self.symbol), scrypto_encode(&keys)];
 
@@ -465,7 +471,9 @@ impl NFTSetup {
         let mut executor = TransactionExecutor::new(&mut ledger, self.trace);
 
         // inefficient to publish this every time, but this is just for demo setup
-        let package = executor.publish_package(&compile(&self.helper.to_string_lossy(), "helper")).unwrap();
+        let package = executor
+            .publish_package(&compile(&self.helper.to_string_lossy(), "helper"))
+            .unwrap();
 
         // call function Helper "new_nft" keys
         let key = executor.new_public_key(); // doesn't actually matter
@@ -475,22 +483,24 @@ impl NFTSetup {
                 package_address: package,
                 blueprint_name: "Helper".to_owned(),
                 function: "new_nft".to_owned(),
-                args
-            }).0
+                args,
+            })
+            .0
             .call_method_with_all_resources(account, "deposit_batch")
             .build(vec![key])
             .unwrap();
         let receipt1 = executor.run(transaction1).unwrap();
-//        println!("{:?}\n", receipt1);
+        //        println!("{:?}\n", receipt1);
         //assert!(receipt1.result.is_ok());
-        receipt1.result.as_ref().map_err(|_|Error::RuntimeError)?;
+        receipt1.result.as_ref().map_err(|_| Error::RuntimeError)?;
 
         println!("{:?}\n", receipt1.resource_def(0).unwrap());
 
         let set_keys = BTreeSet::from(keys);
         let set_keys_encoded = scrypto_encode(&set_keys);
-        let validated_arg =
-           validate_data(&set_keys_encoded).map_err(transaction_manifest::DecompileError::DataValidationError).map_err(Error::DecompileError)?;
+        let validated_arg = validate_data(&set_keys_encoded)
+            .map_err(transaction_manifest::DecompileError::DataValidationError)
+            .map_err(Error::DecompileError)?;
         eprintln!("{}", validated_arg);
 
         Ok(())

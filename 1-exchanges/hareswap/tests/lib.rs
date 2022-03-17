@@ -1,5 +1,5 @@
 //! It's pretty hard write complex intergration tests, and they are slow to complie/link
-//! So the integration testing is happening externally utilizing resim and hare cli and 
+//! So the integration testing is happening externally utilizing resim and hare cli and
 //! a bunch of shell scripts
 use radix_engine::ledger::*;
 use radix_engine::transaction::*;

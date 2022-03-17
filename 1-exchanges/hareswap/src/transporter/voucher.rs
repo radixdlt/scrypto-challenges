@@ -4,7 +4,7 @@
 //!
 //! This module is the most low-level and complex part of [transporter].
 //! It uses internal details of Scrypto for fun and profit
-//! 
+//!
 //! [transporter]: super
 use hex;
 
@@ -88,7 +88,6 @@ pub struct Voucher {
     nfd: PassThruNFD,
 }
 
-
 impl Voucher {
     /// Mint the asset represented by this Voucher and return it.
     ///
@@ -151,7 +150,6 @@ impl Voucher {
     }
 }
 
-
 impl PrivateDecode for Voucher {
     /// Decode a SBOR byte stream representing a Voucher back into one.
     ///
@@ -176,7 +174,6 @@ impl PrivateDecode for Voucher {
         Ok(Voucher { resource_def, key, nfd })
     }
 }
-
 
 /// An opaque data structure which can (only) be converted back into a Voucher by validating the digital signature
 #[derive(TypeId, Describe, Encode, Decode)]
