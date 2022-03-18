@@ -53,6 +53,8 @@ pub struct MatchedOrder {
     pub partial_order: PartialOrder,
     /// The amount the signer has decided the sender (resp. signer) needs to provide
     pub quote_contents: BucketContents,
+    /// The address for the component that will handle this order
+    pub maker_address: Address,
     /// A Callback which decides how the the signer's assets are to be obtained to settle the order
     pub maker_callback: Callback,
     /// The order deadline, specified as the last (greatest) epoch where the order can still be executed

@@ -34,6 +34,8 @@ log "Setting up baseline"
 log "start with fresh ledger state"
 resim reset
 
+XRD=030000000000000000000000000000000000000000000000000004
+
 # initial
 log "publish HareSwap"
 resim publish ../target/wasm32-unknown-unknown/release/hareswap.wasm

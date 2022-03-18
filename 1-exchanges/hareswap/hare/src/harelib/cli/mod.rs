@@ -243,6 +243,7 @@ impl MakeSignedOrder {
         let matched_order = MatchedOrder {
             partial_order,
             quote_contents: resource_q_contents,
+            maker_address: maker_component_address,
             maker_callback,
             deadline,
         };

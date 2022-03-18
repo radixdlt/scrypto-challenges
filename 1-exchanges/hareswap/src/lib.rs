@@ -22,3 +22,6 @@ pub mod api {
     pub use super::transporter::authentication::{sign, verify, VerifyError};
     pub use super::transporter::voucher::Voucher;
 }
+
+/// only used for a demo probably would be in a seperate package if this were production-ready
+mod middleman;

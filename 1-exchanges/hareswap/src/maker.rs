@@ -38,7 +38,6 @@ blueprint! {
         /// - account: a component address supporting the SharedAccount deposit and withdraw interfaces (which are the same as the builtin Account)
         /// - account_auth: assets to use for auth against account when doing withdraw(...)
         pub fn instantiate(verifying_key: EcdsaPublicKey, callback_auth: Option<Bucket>, account: Component, account_auth: Bucket) -> Component {
-            // change this redeem_auth to be a parameter
             let redeem_auth = Vault::with_bucket(ResourceBuilder::new_fungible(DIVISIBILITY_NONE).initial_supply_fungible(1));
 
             let transporter: Transporter = Transporter::instantiate(verifying_key, redeem_auth.resource_def()).into();
@@ -61,6 +60,33 @@ blueprint! {
                 redeem_auth,
                 account: account.into(), // convert the Component (address) passed in to a SharedAccount for use by the default callback.  If the callback and account interface mismatch, panic ensues.
                 account_auth: Vault::with_bucket(account_auth)
+            }.instantiate()
+        }
+
+        /// See `instantiate`  Works the same but this instance can only handle orders with custom callbacks
+        pub fn instantiate_custom(verifying_key: EcdsaPublicKey, callback_auth: Bucket) -> Component {
+            let redeem_auth = Vault::with_bucket(ResourceBuilder::new_fungible(DIVISIBILITY_NONE).initial_supply_fungible(1));
+
+            let transporter: Transporter = Transporter::instantiate(verifying_key, redeem_auth.resource_def()).into();
+            let order_def = transporter.resource_def();  // this wont change, save it here
+
+            info!("tokenized order resource address: {}", order_def.address());
+
+            // default without explicit callback_auth is to expect the default callback with be used, so just generate our own internal use badge.
+            let callback_auth = Vault::with_bucket(callback_auth);
+
+            // unused in this "complex" use case.  deserves a refactor, but that's for another day
+            let account = Context::package_address(); // just a placehold
+            let account_auth = Vault::new(callback_auth.resource_def()); // placeholder
+
+            Self {
+                verifying_key,
+                callback_auth,
+                transporter,
+                order_def,
+                redeem_auth,
+                account: account.into(),
+                account_auth,
             }.instantiate()
         }
 

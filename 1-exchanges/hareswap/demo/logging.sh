@@ -17,7 +17,7 @@ xlogp () {
 
 xlog () {
     (>&2 echo -e "$PRE $@")
-    $@ || exit 1;
+    "$@" || exit 1;
     (>&2 echo -e "$POST")
 }
 
