@@ -26,7 +26,7 @@ This Dex P2P was born to teach Scrypto to the students of [www.academiaScrypto.c
 
 ### DEX P2P - Episodio 5 (Transaction Manifest)
 - Date: 17/03/2022
-Creamos un manifiesto de transacción para emular la situación en que la persona que ejecuta una orden de compra directamente en la misma transacción retira los fondos comprados a su cuenta. Ya sabes solo tienes que cambiar aquello dentro de <> corchetes para ejecutar el guion. 
+Creamos un manifiesto de transacción para emular la situación en que la persona que ejecuta una orden de compra directamente en la misma transacción retira los fondos comprados a su cuenta. Ya sabes solo tienes que cambiar aquello dentro de <> corchetes para ejecutar el guion. Subimos el video pronto!!!
 
 ```rust 
 # Extraemos de nuestra cuenta los XRD y los ponemos encima de la mesa
