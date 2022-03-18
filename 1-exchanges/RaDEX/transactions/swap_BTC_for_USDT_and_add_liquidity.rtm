@@ -1,0 +1,30 @@
+# The owner of account 4 (let's call him Alfred for the purposes of this example) has just heard of yield framing and how 
+# that he could make some extra income by providing liquidity to a liquidity pool and earning a percentage of the pool
+# fees that are imposed on swaps. 
+# 
+# Alfred has decided that he wants to sell some of the Bitcoin that he owns for USDT and then he wants to provide liquidity
+# to the XRD/USDT liquidity pool in RaDEX. This transaction manifest file contains the transaction instructions for the
+# selling of Bitcoin tokens for USDT and then providing liquidity to the XRD/USDT liquidity pool.
+
+# In this example, we will need to perform two withdraws, one for the bitcoin that we wish to sell, and then another 
+# withdrawl for the XRD that we would like to use for the liquidity. So, we will need to clone the auth badge once
+CLONE_BUCKET_REF BucketRef(1u32) BucketRef("BTC_withdraw_badge");
+
+# Withdrawing 500,000 XRD and 40 BTC from Alfred's account and into the transaction worktop
+CALL_METHOD Address("028409720f1810e607a090de34f2399f722f96f71324fcac9347fc") "withdraw" Decimal("500000") Address("030000000000000000000000000000000000000000000000000004") BucketRef(1u32); # Withdrawing XRD
+CALL_METHOD Address("028409720f1810e607a090de34f2399f722f96f71324fcac9347fc") "withdraw" Decimal("40") Address("031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711") BucketRef("BTC_withdraw_badge"); # Withdrawing BTC
+
+# Creating a bucket of the withdrawn Bitcoin and then swapping it for USDT
+TAKE_ALL_FROM_WORKTOP Address("031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711") Bucket("BTC_bucket");
+CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "swap" Bucket("BTC_bucket") Address("03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50");
+
+# At this point, the transaction worktop should include USDT tokens if the swap has indeed gone through correctly, so 
+# we take the USDT tokens and put them in a bucket and we also put the XRD from the worktop into a bucket.
+TAKE_ALL_FROM_WORKTOP Address("03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50") Bucket("USDT_bucket");
+TAKE_ALL_FROM_WORKTOP Address("030000000000000000000000000000000000000000000000000004") Bucket("XRD_bucket");
+
+# Adding liquidity to the XRD/USDT liquidity pool with all of the XRD and USDT available in the transaction worktop
+CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "add_liquidity" Bucket("XRD_bucket") Bucket("USDT_bucket");
+
+# Depositing the tracking tokens we get back into Alfred's account.
+CALL_METHOD_WITH_ALL_RESOURCES Address("028409720f1810e607a090de34f2399f722f96f71324fcac9347fc") "deposit_batch";

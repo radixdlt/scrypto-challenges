@@ -1,0 +1,4 @@
+# Creating a new RaDEX component from the package address by calling the `new` function on the blueprint. This `new`
+# function is a function which does not take any arguments nor does it return anything. Meaning that to create a new
+# RaDEX all that we need to do is to call the function.
+CALL_FUNCTION Address("01aedb7960d1f87dc25138f4cd101da6c98d57323478d53c5fb951") "RaDEX" "new";

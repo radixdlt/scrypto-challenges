@@ -1,0 +1,38 @@
+# The owner of account 3 wants to exchange some of the ADA that they own for some DOGE and wants to use RaDEX for this
+# swap. However, they can't find a direct pair for the swapping of ADA to DOGE.
+# 
+# Luckily, even though there does not exist a liquidity pool for ADA/DOGE, there does exist a path that can be taken to
+# swap ADA for DOGE tokens by going through a number of liquidity pools that connect these two tokens. The path of 
+# liquidity pools that will be taken to swap ADA for DOGE is as follows:
+# 
+# ADA -> ADA/XRD -> XRD/LTC -> LTC/BNB -> BNB/DOGE -> DOGE
+#
+# The swap can be even done in a single transaction using the RTM files to perform everything neatly and cleanly in a 
+# single transaction. In fact, performing the swap in a single transaction gives security to the owner of account 3 that
+# this swapping between different liquidity pools won't hinder on the amount of DOGE that they get at the end. If it 
+# affected it in a deeply negative way, then the assertion check at the end of the transaction file fails and everything
+# goes back to normal almost as if nothing had happened.
+
+# The owner of account 3 wishes to exchange 100 ADA for whatever amount of DOGE they can get. So, we withdraw 100 ADA 
+# into the transaction worktop and then into a bucket.
+CALL_METHOD Address("02a2a79aa613da237bcda37fd79af36e09eadd195976092cb24696") "withdraw" Decimal("100.00") Address("03de9068895b2f071d39e88c18bcb9f1968499e6948277ef445783") BucketRef(1u32);
+TAKE_ALL_FROM_WORKTOP Address("03de9068895b2f071d39e88c18bcb9f1968499e6948277ef445783") Bucket("ADA_bucket");
+
+# Swapping ADA for XRD and then putting the XRD in a bucket
+CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "swap" Bucket("ADA_bucket") Address("030000000000000000000000000000000000000000000000000004");
+TAKE_ALL_FROM_WORKTOP Address("030000000000000000000000000000000000000000000000000004") Bucket("XRD_bucket");
+
+# Swapping XRD for LTC and then putting the LTC in a bucket
+CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "swap" Bucket("XRD_bucket") Address("03bcc1960b6f99bae8614c3bf276ee3217f800f5cc7bdc48db9a5f");
+TAKE_ALL_FROM_WORKTOP Address("03bcc1960b6f99bae8614c3bf276ee3217f800f5cc7bdc48db9a5f") Bucket("LTC_bucket");
+
+# Swapping LTC for BNB and then putting the BNB in a bucket
+CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "swap" Bucket("LTC_bucket") Address("0365c1a4bf5d4cb7701accd82179293def647925438ef5e3f69373");
+TAKE_ALL_FROM_WORKTOP Address("0365c1a4bf5d4cb7701accd82179293def647925438ef5e3f69373") Bucket("BNB_bucket");
+
+# Swapping BNB for DOGE and asserting that we obtained at least 300 DOGE from this long swap. If the assertion goes 
+# through then we deposit everything in the transaction worktop into the account.
+CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "swap" Bucket("BNB_bucket") Address("0365598cd30d9363369b5270553e51e1a5898412b8b1c8dedb9856");
+ASSERT_WORKTOP_CONTAINS Decimal("300") Address("0365598cd30d9363369b5270553e51e1a5898412b8b1c8dedb9856");
+
+CALL_METHOD_WITH_ALL_RESOURCES Address("02a2a79aa613da237bcda37fd79af36e09eadd195976092cb24696") "deposit_batch";
