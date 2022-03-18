@@ -65,7 +65,7 @@ resim call-method $comp ejecutar_orden afbdb1bccf11f11c4df0a2281bb1efb1 10000,$x
 resim call-method $comp retirar_orden "#5fb3609e8e98973516885c65469b7a12,034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782" 
 ```
 
-# To Be Continue ...
+# [ To Be Continue ... ](https://academiascrypto.com/academia/eventos.html)
 
 
 
