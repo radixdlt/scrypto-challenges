@@ -1,3 +1,5 @@
+// Licensed under the Apache 2.0 open-source licence https://www.apache.org/licenses/LICENSE-2.0
+
 use scrypto::prelude::*;
 
 #[derive(NonFungibleData)]
