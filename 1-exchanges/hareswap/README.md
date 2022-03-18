@@ -84,7 +84,7 @@ Now, per-swap, once a Taker/Sender decides to initiate a buy/sell order the foll
   1. Taker/Sender initiates a "Request For Quote" to one or more possible Makers/Signers.
       * See `hare request-for-quote --help`
   2. Maker/Signer(s) decides on the price and responds with a SignedOrder (and makes sure the on-ledger state is ready to settle the order)
-      * See `hare make-sign-order --help`
+      * See `hare make-signed-order --help`
   3. Taker/Sender decides to accept the order and submits it in a transaction (along with their Buckets).  This can have a few steps, depending on the scenerio....  Let's build the transaction
 
 ### Taker/Sender Transaction Options
