@@ -24,4 +24,4 @@ Claims filled part of order then refunds remaining part of order. Return (remain
 
 ## License
 
-This work is licensed under Apache 2.0 found [here](./LICENSE.txt)
+This work is licensed under Apache 2.0 found [here](./LICENSE).
