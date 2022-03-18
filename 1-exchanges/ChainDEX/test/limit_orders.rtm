@@ -1,0 +1,44 @@
+# withdraw tokens to worktop
+CLONE_BUCKET_REF BucketRef(1u32) BucketRef("badge1");
+CLONE_BUCKET_REF BucketRef(1u32) BucketRef("badge2");
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("8") Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") BucketRef("badge1");
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("80000") Address("0347dfe3a58e8a630305f2f3df82949cd70ce49e2cde097b259f8d") BucketRef("badge2");
+
+# create sell orders
+TAKE_FROM_WORKTOP Decimal("1") Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") Bucket("bucket1");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket1") Decimal("39000");
+TAKE_FROM_WORKTOP Decimal("1") Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") Bucket("bucket2");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket2") Decimal("40000");
+TAKE_FROM_WORKTOP Decimal("1") Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") Bucket("bucket3");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket3") Decimal("42000");
+TAKE_FROM_WORKTOP Decimal("1") Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") Bucket("bucket4");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket4") Decimal("38000");
+TAKE_FROM_WORKTOP Decimal("1") Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") Bucket("bucket5");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket5") Decimal("43000");
+TAKE_FROM_WORKTOP Decimal("1") Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") Bucket("bucket6");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket6") Decimal("41000");
+TAKE_FROM_WORKTOP Decimal("1") Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") Bucket("bucket7");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket7") Decimal("40000");
+TAKE_FROM_WORKTOP Decimal("1") Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") Bucket("bucket8");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket8") Decimal("40000");
+
+# create buy orders
+TAKE_FROM_WORKTOP Decimal("10000") Address("0347dfe3a58e8a630305f2f3df82949cd70ce49e2cde097b259f8d") Bucket("bucket9");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket9") Decimal("36000");
+TAKE_FROM_WORKTOP Decimal("10000") Address("0347dfe3a58e8a630305f2f3df82949cd70ce49e2cde097b259f8d") Bucket("bucket10");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket10") Decimal("35000");
+TAKE_FROM_WORKTOP Decimal("10000") Address("0347dfe3a58e8a630305f2f3df82949cd70ce49e2cde097b259f8d") Bucket("bucket11");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket11") Decimal("33000");
+TAKE_FROM_WORKTOP Decimal("10000") Address("0347dfe3a58e8a630305f2f3df82949cd70ce49e2cde097b259f8d") Bucket("bucket12");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket12") Decimal("37000");
+TAKE_FROM_WORKTOP Decimal("10000") Address("0347dfe3a58e8a630305f2f3df82949cd70ce49e2cde097b259f8d") Bucket("bucket13");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket13") Decimal("32000");
+TAKE_FROM_WORKTOP Decimal("10000") Address("0347dfe3a58e8a630305f2f3df82949cd70ce49e2cde097b259f8d") Bucket("bucket14");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket14") Decimal("34000");
+TAKE_FROM_WORKTOP Decimal("10000") Address("0347dfe3a58e8a630305f2f3df82949cd70ce49e2cde097b259f8d") Bucket("bucket15");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket15") Decimal("35000");
+TAKE_FROM_WORKTOP Decimal("10000") Address("0347dfe3a58e8a630305f2f3df82949cd70ce49e2cde097b259f8d") Bucket("bucket16");
+CALL_METHOD Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b") "create_order" Bucket("bucket16") Decimal("35000");
+
+# deposit returned buckets
+CALL_METHOD_WITH_ALL_RESOURCES Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "deposit_batch";
