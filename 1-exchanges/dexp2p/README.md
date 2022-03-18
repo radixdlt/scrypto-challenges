@@ -26,7 +26,9 @@ This Dex P2P was born to teach Scrypto to the students of [www.academiaScrypto.c
 
 ### DEX P2P - Episodio 5 (Transaction Manifest)
 - Date: 17/03/2022
-```
+Creamos un manifiesto de transacción para emular la situación en que la persona que ejecuta una orden de compra directamente en la misma transacción retira los fondos comprados a su cuenta. Ya sabes solo tienes que cambiar aquello dentro de <> corchetes para ejecutar el guion. 
+
+```rust 
 # Extraemos de nuestra cuenta los XRD y los ponemos encima de la mesa
 CALL_METHOD Address("<Address cuenta>") "withdraw" Decimal("10001") Address("<XRD Address>") BucketRef(1u32);
 # Tomamos del la mesa los XRD y los guardamos en un contenedor temporal
@@ -44,7 +46,7 @@ CALL_METHOD Address("<Componente Address>") "retirar_orden" BucketRef("retirar_d
 CALL_METHOD_WITH_ALL_RESOURCES Address("<direccion cuenta>") "deposit_batch";
 ```
 
-Pasos:
+Step by Step:
 ```
 resim new-account
 set acct 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a
@@ -63,6 +65,7 @@ resim call-method $comp ejecutar_orden afbdb1bccf11f11c4df0a2281bb1efb1 10000,$x
 resim call-method $comp retirar_orden "#5fb3609e8e98973516885c65469b7a12,034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782" 
 ```
 
+# To Be Continue ...
 
 
 
