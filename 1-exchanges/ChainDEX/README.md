@@ -1,3 +1,5 @@
+# ChainDEX
+
 ChainDEX is a decentralized order book exchange. It uses two one-way linked lists of Order NFTs to represent the order book. One for buys and one for sells. When someone places a order their tokens are deposited into the ChainBook vault and a Order NFT is returned to them. This NFT can be returned to the ChainBook to claim tokens if it is filled. It can also be returned to ChainBook to cancel the order and refund tokens if the order is not filled. If there is a better price than the order asks at the time it is placed then it completes instantly and returns tokens without creating a Order NFT. This can happen in part or in full.
 
 ```math
@@ -19,3 +21,7 @@ Gives tokens for filled part of order, burns order if completed else returns upd
 pub fn cancel_order(&mut self, order: Bucket) -> (Bucket, Bucket)
 ```
 Claims filled part of order then refunds remaining part of order. Return (remaining_tokens, filled_tokens).
+
+## License
+
+This work is licensed under Apache 2.0 found [here](./LICENSE.txt)
