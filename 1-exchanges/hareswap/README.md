@@ -25,7 +25,7 @@ License: Apache + MIT
 
 ## The Code
 
-This implementation is only a small part of a full P2P system and intentionally cuts some corners  compared to a production implementation.  What it does not cut corners on is documentation.  The code is fully commented with a complete "simple" example.  The blueprint implementation can also do more advanced things not all shown in the demos (due to time constraints).
+This implementation is only a small part of a full P2P system and intentionally cuts some corners  compared to a production implementation.  What it does not cut corners on is documentation.  The code is fully commented with a complete "simple" example, and some more complex examples in the [./demo](./demo) directory.  See the [./demo/README.md](./demo/README.md) for details.
 
 ## Why a P2P DEX?
 
