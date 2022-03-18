@@ -1,0 +1,16 @@
+[package]
+name = "hare"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+hareswap = { path = "../" }
+clap = "3.1.6"
+k256 = { version = "0.10.2", features = ["ecdsa", "keccak256", "sha256"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" }
+transaction-manifest = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" }
+simulator = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.3.0" }
