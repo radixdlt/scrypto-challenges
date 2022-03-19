@@ -6,7 +6,7 @@ Unfortunately, I noticed the challenge at the last minute, so I didn't get to do
 It's exciting to be a part of this so I'm submitting anyway.
 
 Usage (after debugging):
-1) By intrantiating the component the caller gets 100 shares (resource). 
+1) By instantiating the component the caller gets 100 shares (resource). 
 He/she distributes or sell the shares in any way they like, and then there are multiple owners.
 2) Every owner submits (by method place_trade) his/her shares together with enough XRD to buy the shares of anyone who might sell, such that the value he/she has for a share is derived from the amount of XRD needed to buy all the shares and the total number of shares.
 3) The exchange picks who becomes a buyer and who becomes a seller (by method redistribute).
