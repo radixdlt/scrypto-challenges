@@ -14,14 +14,14 @@ blueprint!{
         /// liquidity pool meaning that this hashmap maps a tuple of two addresses to a liquidity pool. This hashmap is
         /// used as a way of quickly finding the liquidity pool associated with a given address pair. If a pair of 
         /// addresses does not exist in this hashmap it means that there does not exist a liquidity pool for it on RaDEX
-        liquidity_pools: HashMap<(Address, Address), LiquidityPool>,
+        liquidity_pools: HashMap<(ResourceAddress, ResourceAddress), LiquidityPool>,
 
         /// That's quite the mouthful. This is a hashmap that is mainly used when liquidity providers are tying to 
         /// remove their portion of liquidity from the liquidity pool. This hashmap is used to find the address pair (
         /// and in turn the liquidity pool) associated with a given tracking token. If the resource address of a given
         /// tracking token does not exist as one of the keys to this hashmap, then this means that this tracking token
         /// does not belong to any of the liquidity pools in RaDEX.
-        tracking_token_address_pair_mapping: HashMap<Address, (Address, Address)>
+        tracking_token_address_pair_mapping: HashMap<ResourceAddress, (ResourceAddress, ResourceAddress)>
     }
 
     impl RaDEX {
@@ -30,32 +30,34 @@ blueprint!{
         /// # Returns 
         /// 
         /// `Component` - A new RaDEX component.
-        pub fn new() -> Component {
+        pub fn new() -> ComponentAddress {
             // The RaDEX AMM does not take any arguments 
             return Self {
                 liquidity_pools: HashMap::new(), 
                 tracking_token_address_pair_mapping: HashMap::new()
-            }.instantiate();
+            }
+            .instantiate()
+            .globalize();
         }
 
         /// Checks if a liquidity pool for the given pair of tokens exists or not.
         /// 
         /// # Arguments:
         /// 
-        /// * `address` (Address) - The address of the first token.
-        /// * `address` (Address) - The address of the second token.
+        /// * `address` (ResourceAddress) - The resource address of the first token.
+        /// * `address` (ResourceAddress) - The resource address of the second token.
         /// 
         /// # Returns:
         /// 
         /// * `bool` - A boolean of whether a liquidity pool exists for this trading pair.
         pub fn pool_exists(
             &self,
-            address1: Address,
-            address2: Address
+            address1: ResourceAddress,
+            address2: ResourceAddress
         ) -> bool {
             // Sorting the two addresses passed and then checking if the tuple of sorted addresses exists in the hashmap
             // of liquidity pools or not.
-            let sorted_addresses: (Address, Address) = sort_addresses(address1, address2);
+            let sorted_addresses: (ResourceAddress, ResourceAddress) = sort_addresses(address1, address2);
             return self.liquidity_pools.contains_key(&sorted_addresses);
         }
 
@@ -63,12 +65,12 @@ blueprint!{
         /// 
         /// # Arguments:
         /// 
-        /// * `address` (Address) - The address of the first token.
-        /// * `address` (Address) - The address of the second token.
+        /// * `address` (ResourceAddress) - The resource address of the first token.
+        /// * `address` (ResourceAddress) - The resource address of the second token.
         pub fn assert_pool_exists(
             &self,
-            address1: Address,
-            address2: Address,
+            address1: ResourceAddress,
+            address2: ResourceAddress,
             label: String
         ) {
             assert!(
@@ -82,12 +84,12 @@ blueprint!{
         /// 
         /// # Arguments:
         /// 
-        /// * `address` (Address) - The address of the first token.
-        /// * `address` (Address) - The address of the second token.
+        /// * `address` (ResourceAddress) - The resource address of the first token.
+        /// * `address` (ResourceAddress) - The resource address of the second token.
         pub fn assert_pool_doesnt_exists(
             &self,
-            address1: Address,
-            address2: Address,
+            address1: ResourceAddress,
+            address2: ResourceAddress,
             label: String
         ) {
             assert!(
@@ -132,8 +134,10 @@ blueprint!{
             // Sorting the two buckets according to their resource addresses and creating a liquidity pool from these
             // two buckets.
             let (bucket1, bucket2): (Bucket, Bucket) = sort_buckets(token1, token2);
-            let addresses: (Address, Address) = (bucket1.resource_address(), bucket2.resource_address()); 
-            let (liquidity_pool, tracking_tokens): (Component, Bucket) = LiquidityPool::new(bucket1, bucket2, dec!("0.3"));
+            let addresses: (ResourceAddress, ResourceAddress) = (bucket1.resource_address(), bucket2.resource_address()); 
+            let (liquidity_pool, tracking_tokens): (ComponentAddress, Bucket) = LiquidityPool::new(
+                bucket1, bucket2, dec!("0.3")
+            );
 
             // Adding the liquidity pool to the hashmap of all liquidity pools
             self.liquidity_pools.insert(
@@ -175,7 +179,7 @@ blueprint!{
         ) -> (Bucket, Bucket, Bucket) {
             // Sorting the two buckets of tokens passed to this method and getting the addresses of their resources.
             let (bucket1, bucket2): (Bucket, Bucket) = sort_buckets(token1, token2);
-            let addresses: (Address, Address) = (bucket1.resource_address(), bucket2.resource_address()); 
+            let addresses: (ResourceAddress, ResourceAddress) = (bucket1.resource_address(), bucket2.resource_address()); 
 
             // Attempting to get the liquidity pool component associated with the provided address pair.
             let optional_liquidity_pool: Option<&LiquidityPool> = self.liquidity_pools.get(&addresses);
@@ -229,7 +233,7 @@ blueprint!{
 
             // Getting the address pair associated with the resource address of the tracking tokens and then requesting
             // the removal of liquidity from the liquidity pool
-            let addresses: (Address, Address) = self.tracking_token_address_pair_mapping[&tracking_tokens.resource_address()];
+            let addresses: (ResourceAddress, ResourceAddress) = self.tracking_token_address_pair_mapping[&tracking_tokens.resource_address()];
             return self.liquidity_pools[&addresses].remove_liquidity(tracking_tokens);
         }
 
@@ -246,7 +250,7 @@ blueprint!{
         /// # Arguments:
         /// 
         /// * `tokens` (Bucket) - A bucket containing the input tokens that will be swapped for other tokens.
-        /// * `output_resource_address` (Address) - The resource address of the token to receive from the swap.
+        /// * `output_resource_address` (ResourceAddress) - The resource address of the token to receive from the swap.
         /// 
         /// # Returns:
         /// 
@@ -254,13 +258,13 @@ blueprint!{
         pub fn swap(
             &mut self,
             tokens: Bucket,
-            output_resource_address: Address
+            output_resource_address: ResourceAddress
         ) -> Bucket {
             // Checking if there does exist a liquidity pool for the given pair of tokens
             self.assert_pool_exists(tokens.resource_address(), output_resource_address, String::from("DEX Swap"));
 
             // Sorting the two addresses passed, getting the associated liquidity pool and then performing the swap.
-            let sorted_addresses: (Address, Address) = sort_addresses(
+            let sorted_addresses: (ResourceAddress, ResourceAddress) = sort_addresses(
                 tokens.resource_address(), 
                 output_resource_address
             );
@@ -282,7 +286,7 @@ blueprint!{
         /// # Arguments:
         /// 
         /// * `tokens` (Bucket) - A bucket containing the input tokens that will be swapped for other tokens.
-        /// * `output_resource_address` (Address) - The resource address of the token to receive from the swap.
+        /// * `output_resource_address` (ResourceAddress) - The resource address of the token to receive from the swap.
         /// 
         /// # Returns:
         /// 
@@ -290,14 +294,14 @@ blueprint!{
         pub fn swap_exact_tokens_for_tokens(
             &mut self,
             tokens: Bucket,
-            output_resource_address: Address,
+            output_resource_address: ResourceAddress,
             min_amount_out: Decimal
         ) -> Bucket {
             // Checking if there does exist a liquidity pool for the given pair of tokens
             self.assert_pool_exists(tokens.resource_address(), output_resource_address, String::from("DEX Swap Exact"));
 
             // Sorting the two addresses passed, getting the associated liquidity pool and then performing the swap.
-            let sorted_addresses: (Address, Address) = sort_addresses(
+            let sorted_addresses: (ResourceAddress, ResourceAddress) = sort_addresses(
                 tokens.resource_address(), 
                 output_resource_address
             );
@@ -318,7 +322,7 @@ blueprint!{
         /// # Arguments:
         /// 
         /// * `tokens` (Bucket) - A bucket containing the input tokens that will be swapped for other tokens.
-        /// * `output_resource_address` (Address) - The resource address of the token to receive from the swap.
+        /// * `output_resource_address` (ResourceAddress) - The resource address of the token to receive from the swap.
         /// 
         /// # Returns:
         /// 
@@ -326,14 +330,14 @@ blueprint!{
         pub fn swap_tokens_for_exact_tokens(
             &mut self,
             tokens: Bucket,
-            output_resource_address: Address,
+            output_resource_address: ResourceAddress,
             output_amount: Decimal
         ) -> (Bucket, Bucket) {
             // Checking if there does exist a liquidity pool for the given pair of tokens
             self.assert_pool_exists(tokens.resource_address(), output_resource_address, String::from("DEX Swap For Exact"));
 
             // Sorting the two addresses passed, getting the associated liquidity pool and then performing the swap.
-            let sorted_addresses: (Address, Address) = sort_addresses(
+            let sorted_addresses: (ResourceAddress, ResourceAddress) = sort_addresses(
                 tokens.resource_address(), 
                 output_resource_address
             );

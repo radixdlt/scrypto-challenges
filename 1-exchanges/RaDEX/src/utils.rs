@@ -4,12 +4,12 @@ use scrypto::prelude::*;
 /// 
 /// # Arguments:
 /// 
-/// * `address1` (Address) - The first address
-/// * `address2` (Address) - The second address
+/// * `address1` (ResourceAddress) - The first resource address
+/// * `address2` (ResourceAddress) - The second resource address
 /// 
 /// # Returns:
 /// 
-/// * (Address, Address) - A tuple containing the two addresses passed after they had been sorted.
+/// * (ResourceAddress, ResourceAddress) - A tuple containing the two addresses passed after they had been sorted.
 /// 
 /// # Notes:
 ///    
@@ -19,7 +19,7 @@ use scrypto::prelude::*;
 /// in the same way. The reason as to why the sorting is not as important as determinism is because this function will 
 /// mainly be used for the keys and values of the hashmap storing the liquidity pools. As long as this function output
 /// is deterministic, the way of sorting the addresses is irrelevant. 
-pub fn sort_addresses(address1: Address, address2: Address) -> (Address, Address) {
+pub fn sort_addresses(address1: ResourceAddress, address2: ResourceAddress) -> (ResourceAddress, ResourceAddress) {
     return if address1.to_vec() > address2.to_vec() {
         (address1, address2)
     } else {
@@ -39,7 +39,7 @@ pub fn sort_addresses(address1: Address, address2: Address) -> (Address, Address
 /// * (Bucket, Bucket) - A tuple of the two buckets sorted according to their resource addresses.
 pub fn sort_buckets(bucket1: Bucket, bucket2: Bucket) -> (Bucket, Bucket) {
     // Getting the sorted addresses of the two buckets given
-    let sorted_addresses: (Address, Address) = sort_addresses(
+    let sorted_addresses: (ResourceAddress, ResourceAddress) = sort_addresses(
         bucket1.resource_address(), 
         bucket2.resource_address()
     );
@@ -56,33 +56,33 @@ pub fn sort_buckets(bucket1: Bucket, bucket2: Bucket) -> (Bucket, Bucket) {
 /// 
 /// This function is used to create a symbol for a given address pair. Tokens in Radix typically have metadata associated
 /// with them. One of the things that tokens typically have is a symbol. Therefore, this function loads the resource
-/// definition of the two addresses passed and tried to find if there is a `symbol` key in the token metadata. If there
+/// manager of the two addresses passed and tried to find if there is a `symbol` key in the token metadata. If there
 /// is then that's good and that will be used. However, if no symbol is found then the resource address is used as the
 /// symbol of the token.
 /// 
 /// # Arguments:
 /// 
-/// * `address1` (Address) - The resource address of the first token.
-/// * `address2` (Address) - The resource address of the second token.
+/// * `address1` (ResourceAddress) - The resource address of the first token.
+/// * `address2` (ResourceAddress) - The resource address of the second token.
 /// 
 /// # Returns:
 /// 
 /// `String` - A string of the pair symbol
-pub fn address_pair_symbol(address1: Address, address2: Address) -> String {
+pub fn address_pair_symbol(address1: ResourceAddress, address2: ResourceAddress) -> String {
     // Sorting the two addresses passed to the function
-    let addresses: (Address, Address) = sort_addresses(address1, address2);
+    let addresses: (ResourceAddress, ResourceAddress) = sort_addresses(address1, address2);
     
-    // If the resource definition of the given address has a symbol, then we attempt to get this symbol. If not, then we 
+    // If the resource manager of the given address has a symbol, then we attempt to get this symbol. If not, then we 
     // simply put in the address of the resource. 
     //
     // This following block of code is implemented in a less than ideal way as tuples do not support mapping a function
     // to them, so we need to work on each of the elements separately. 
     let names: (String, String) = (
-        match ResourceDef::from(addresses.0).metadata().get("symbol") {
+        match borrow_resource_manager!(addresses.0).metadata().get("symbol") {
             Some(s) => format!("{}", s),
             None => format!("{}", addresses.0)
         },
-        match ResourceDef::from(addresses.1).metadata().get("symbol") {
+        match borrow_resource_manager!(addresses.1).metadata().get("symbol") {
             Some(s) => format!("{}", s),
             None => format!("{}", addresses.1)
         }

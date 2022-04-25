@@ -13,13 +13,13 @@ blueprint!{
         /// and more dynamic way of manipulating and making use of the vaults inside the liquidity pool. Keep in mind 
         /// that this `vaults` hashmap will always have exactly two vaults for the two assets being traded against one 
         /// another.
-        vaults: HashMap<Address, Vault>,
+        vaults: HashMap<ResourceAddress, Vault>,
 
         /// When liquidity providers provide liquidity to the liquidity pool, they are given a number of tokens that is
         /// equivalent to the percentage ownership that they have in the liquidity pool. The tracking token is the token
         /// that the liquidity providers are given when they provide liquidity to the pool and this is the resource 
-        /// definition of the token.
-        tracking_token_def: ResourceDef,
+        /// address of the token.
+        tracking_token_address: ResourceAddress,
 
         /// The tracking tokens are mutable supply tokens that may be minted and burned when liquidity is supplied or 
         /// removed from the liquidity pool. This badge is the badge that has the authority to mint and burn the tokens
@@ -66,7 +66,7 @@ blueprint!{
             token1: Bucket,
             token2: Bucket,
             fee_to_pool: Decimal
-        ) -> (Component, Bucket) {
+        ) -> (ComponentAddress, Bucket) {
             // Performing the checks to see if this liquidity pool may be created or not.
             assert_ne!(
                 token1.resource_address(), token2.resource_address(),
@@ -74,11 +74,11 @@ blueprint!{
             );
 
             assert_ne!(
-                token1.resource_def().resource_type(), ResourceType::NonFungible,
+                borrow_resource_manager!(token1.resource_address()).resource_type(), ResourceType::NonFungible,
                 "[Pool Creation]: Both assets must be fungible."
             );
             assert_ne!(
-                token2.resource_def().resource_type(), ResourceType::NonFungible,
+                borrow_resource_manager!(token2.resource_address()).resource_type(), ResourceType::NonFungible,
                 "[Pool Creation]: Both assets must be fungible."
             );
 
@@ -96,7 +96,7 @@ blueprint!{
             
             // Sorting the buckets and then creating the hashmap of the vaults from the sorted buckets
             let (bucket1, bucket2): (Bucket, Bucket) = sort_buckets(token1, token2);
-            let addresses: (Address, Address) = (bucket1.resource_address(), bucket2.resource_address());
+            let addresses: (ResourceAddress, ResourceAddress) = (bucket1.resource_address(), bucket2.resource_address());
             
             let lp_id: String = format!("{}-{}", addresses.0, addresses.1);
             let pair_name: String = address_pair_symbol(addresses.0, addresses.1);
@@ -106,36 +106,40 @@ blueprint!{
                 lp_id, pair_name, bucket1.amount(), bucket2.amount()
             );
             
-            let mut vaults: HashMap<Address, Vault> = HashMap::new();
+            let mut vaults: HashMap<ResourceAddress, Vault> = HashMap::new();
             vaults.insert(bucket1.resource_address(), Vault::with_bucket(bucket1));
             vaults.insert(bucket2.resource_address(), Vault::with_bucket(bucket2));
 
             // Creating the admin badge of the liquidity pool which will be given the authority to mint and burn the
             // tracking tokens issued to the liquidity providers.
-            let tracking_token_admin_badge: Bucket = ResourceBuilder::new_fungible(DIVISIBILITY_NONE)
+            let tracking_token_admin_badge: Bucket = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Tracking Token Admin Badge")
                 .metadata("symbol", "TTAB")
                 .metadata("description", "This is an admin badge that has the authority to mint and burn tracking tokens")
                 .metadata("lp_id", format!("{}", lp_id))
-                .initial_supply_fungible(1);
+                .initial_supply(1);
 
             // Creating the tracking tokens and minting the amount owed to the initial liquidity provider
-            let tracking_tokens: Bucket = ResourceBuilder::new_fungible(DIVISIBILITY_MAXIMUM)
+            let tracking_tokens: Bucket = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_MAXIMUM)
                 .metadata("name", format!("{} LP Tracking Token", pair_name))
                 .metadata("symbol", "TT")
                 .metadata("description", "A tracking token used to track the percentage ownership of liquidity providers over the liquidity pool")
                 .metadata("lp_id", format!("{}", lp_id))
-                .flags(MINTABLE | BURNABLE)
-                .badge(tracking_token_admin_badge.resource_address(), MAY_MINT | MAY_BURN)
-                .initial_supply_fungible(100);
+                .mintable(rule!(require(tracking_token_admin_badge.resource_address())), LOCKED)
+                .burnable(rule!(require(tracking_token_admin_badge.resource_address())), LOCKED)
+                .initial_supply(100);
 
             // Creating the liquidity pool component and instantiating it
-            let liquidity_pool: Component = Self { 
+            let liquidity_pool: ComponentAddress = Self { 
                 vaults: vaults,
-                tracking_token_def: tracking_tokens.resource_def(),
+                tracking_token_address: tracking_tokens.resource_address(),
                 tracking_token_admin_badge: Vault::with_bucket(tracking_token_admin_badge),
                 fee_to_pool: fee_to_pool,
-            }.instantiate();
+            }
+            .instantiate()
+            .globalize();
 
             return (liquidity_pool, tracking_tokens);
         }
@@ -147,14 +151,14 @@ blueprint!{
         /// 
         /// # Arguments:
         /// 
-        /// * `address` (Address) - The address of the resource that we wish to check if it belongs to the pool.
+        /// * `address` (ResourceAddress) - The address of the resource that we wish to check if it belongs to the pool.
         /// 
         /// # Returns:
         /// 
         /// * `bool` - A boolean of whether the address belongs to this pool or not.
         pub fn belongs_to_pool(
             &self, 
-            address: Address
+            address: ResourceAddress
         ) -> bool {
             return self.vaults.contains_key(&address);
         }
@@ -166,13 +170,13 @@ blueprint!{
         /// 
         /// # Arguments:
         /// 
-        /// * `address` (Address) - The address of the resource that we wish to check if it belongs to the pool.
+        /// * `address` (ResourceAddress) - The address of the resource that we wish to check if it belongs to the pool.
         /// * `label` (String) - The label of the method that called this assert method. As an example, if the swap 
         /// method were to call this method, then the label would be `Swap` so that it's clear where the assertion error
         /// took place.
         pub fn assert_belongs_to_pool(
             &self, 
-            address: Address, 
+            address: ResourceAddress, 
             label: String
         ) {
             assert!(
@@ -182,13 +186,13 @@ blueprint!{
             );
         }
 
-        /// Gets the resource addresses of the tokens in this liquidity pool and returns them as a `Vec<Address>`.
+        /// Gets the resource addresses of the tokens in this liquidity pool and returns them as a `Vec<ResourceAddress>`.
         /// 
         /// # Returns:
         /// 
-        /// `Vec<Address>` - A vector of the resource addresses of the tokens in this liquidity pool.
-        pub fn addresses(&self) -> Vec<Address> {
-            return self.vaults.keys().cloned().collect::<Vec<Address>>();
+        /// `Vec<ResourceAddress>` - A vector of the resource addresses of the tokens in this liquidity pool.
+        pub fn addresses(&self) -> Vec<ResourceAddress> {
+            return self.vaults.keys().cloned().collect::<Vec<ResourceAddress>>();
         }
 
         /// Gets the name of the given liquidity pool from the symbols of the two tokens.
@@ -197,7 +201,7 @@ blueprint!{
         /// 
         /// `String` - A string of the pair symbol
         pub fn name(&self) -> String {
-            let addresses: Vec<Address> = self.addresses();
+            let addresses: Vec<ResourceAddress> = self.addresses();
             return address_pair_symbol(addresses[0], addresses[1]);
         }
 
@@ -212,20 +216,20 @@ blueprint!{
         /// 
         /// # Arguments
         /// 
-        /// * `resource_address` (Address) - The resource address for a token from the pool.
+        /// * `resource_address` (ResourceAddress) - The resource address for a token from the pool.
         /// 
         /// # Returns:
         /// 
-        /// * `Address` - The address of the other token in this pool.
+        /// * `ResourceAddress` - The address of the other token in this pool.
         pub fn other_resource_address(
             &self,
-            resource_address: Address
-        ) -> Address {
+            resource_address: ResourceAddress
+        ) -> ResourceAddress {
             // Checking if the passed resource address belongs to this pool.
-            self.assert_belongs_to_pool(resource_address, String::from("Other Resource Address"));
+            self.assert_belongs_to_pool(resource_address, String::from("Other Resource ResourceAddress"));
 
             // Checking which of the addresses was provided as an argument and returning the other address.
-            let addresses: Vec<Address> = self.addresses();
+            let addresses: Vec<ResourceAddress> = self.addresses();
             return if addresses[0] == resource_address {addresses[1]} else {addresses[0]};
         }
 
@@ -235,7 +239,7 @@ blueprint!{
         /// 
         /// `Decimal` - A decimal value of the reserves amount of Token A and Token B multiplied by one another.
         pub fn k(&self) -> Decimal {
-            let addresses: Vec<Address> = self.addresses();
+            let addresses: Vec<ResourceAddress> = self.addresses();
             return self.vaults[&addresses[0]].amount() * self.vaults[&addresses[1]].amount()
         }
 
@@ -250,7 +254,7 @@ blueprint!{
         /// 
         /// # Arguments:
         /// 
-        /// * `input_resource_address` (Address) - The resource address of the input token.
+        /// * `input_resource_address` (ResourceAddress) - The resource address of the input token.
         /// * `input_amount` (Decimal) - The amount of input tokens to calculate the output for.
         /// 
         /// # Returns:
@@ -269,7 +273,7 @@ blueprint!{
         /// * `r` - The fee modifier where `r = (100 - fee) / 100`
         pub fn calculate_output_amount(
             &self,
-            input_resource_address: Address,
+            input_resource_address: ResourceAddress,
             input_amount: Decimal
         ) -> Decimal {
             // Checking if the passed resource address belongs to this pool.
@@ -295,7 +299,7 @@ blueprint!{
         /// 
         /// # Arguments:
         /// 
-        /// * `output_resource_address` (Address) - The resource address of the output token.
+        /// * `output_resource_address` (ResourceAddress) - The resource address of the output token.
         /// * `output_amount` (Decimal) - The amount of output tokens to calculate the input for.
         /// 
         /// # Returns:
@@ -314,7 +318,7 @@ blueprint!{
         /// * `r` - The fee modifier where `r = (100 - fee) / 100`
         pub fn calculate_input_amount(
             &self,
-            output_resource_address: Address,
+            output_resource_address: ResourceAddress,
             output_amount: Decimal
         ) -> Decimal {
             // Checking if the passed resource address belongs to this pool.
@@ -363,7 +367,7 @@ blueprint!{
         /// 
         /// # Arguments:
         /// 
-        /// * `resource_address` (Address) - The address of the resource to withdraw from the liquidity pool.
+        /// * `resource_address` (ResourceAddress) - The address of the resource to withdraw from the liquidity pool.
         /// * `amount` (Decimal) - The amount of tokens to withdraw from the liquidity pool.
         /// 
         /// # Returns:
@@ -371,7 +375,7 @@ blueprint!{
         /// * `Bucket` - A bucket of the withdrawn tokens.
         fn withdraw(
             &mut self,
-            resource_address: Address,
+            resource_address: ResourceAddress,
             amount: Decimal
         ) -> Bucket {
             // Performing the checks to ensure tha the withdraw can actually go through
@@ -480,15 +484,16 @@ blueprint!{
             self.deposit(bucket2.take(amount2));
 
             // Computing the amount of tracking tokens that the liquidity provider is owed and minting them. In the case
-            // that the liquidity pool has been completely emptied out (tracking_token_def.total_supply() == 0) then the
-            // first person to supply liquidity back into the pool again would be given 100 tracking tokens.
-            let tracking_amount: Decimal = if self.tracking_token_def.total_supply() == Decimal::zero() { 
+            // that the liquidity pool has been completely emptied out (tracking_tokens_manager.total_supply() == 0)  
+            // then the first person to supply liquidity back into the pool again would be given 100 tracking tokens.
+            let tracking_tokens_manager: &ResourceManager = borrow_resource_manager!(self.tracking_token_address);
+            let tracking_amount: Decimal = if tracking_tokens_manager.total_supply() == Decimal::zero() { 
                 dec!("100.00") 
             } else {
-                amount1 * self.tracking_token_def.total_supply() / m
+                amount1 * tracking_tokens_manager.total_supply() / m
             };
-            let tracking_tokens: Bucket = self.tracking_token_admin_badge.authorize(|x| {
-                self.tracking_token_def.mint(tracking_amount, x)
+            let tracking_tokens: Bucket = self.tracking_token_admin_badge.authorize(|| {
+                tracking_tokens_manager.mint(tracking_amount)
             });
             info!("[Add Liquidity]: Owed amount of tracking tokens: {}", tracking_amount);
 
@@ -525,20 +530,21 @@ blueprint!{
             // Checking the resource address of the tracking tokens passed to ensure that they do indeed belong to this
             // liquidity pool.
             assert_eq!(
-                tracking_tokens.resource_address(), self.tracking_token_def.address(),
+                tracking_tokens.resource_address(), self.tracking_token_address,
                 "[Remove Liquidity]: The tracking tokens given do not belong to this liquidity pool."
             );
 
             // Calculating the percentage ownership that the tracking tokens amount corresponds to
-            let percentage: Decimal = tracking_tokens.amount() / self.tracking_token_def.total_supply();
+            let tracking_tokens_manager: &ResourceManager = borrow_resource_manager!(self.tracking_token_address);
+            let percentage: Decimal = tracking_tokens.amount() / tracking_tokens_manager.total_supply();
 
             // Burning the tracking tokens
-            self.tracking_token_admin_badge.authorize(|x| {
-                tracking_tokens.burn_with_auth(x);
+            self.tracking_token_admin_badge.authorize(|| {
+                tracking_tokens.burn();
             });
 
             // Withdrawing the amount of tokens owed to this liquidity provider
-            let addresses: Vec<Address> = self.addresses();
+            let addresses: Vec<ResourceAddress> = self.addresses();
             let bucket1: Bucket = self.withdraw(addresses[0], self.vaults[&addresses[0]].amount() * percentage);
             let bucket2: Bucket = self.withdraw(addresses[1], self.vaults[&addresses[1]].amount() * percentage);
 
