@@ -15,24 +15,24 @@
 
 # The owner of account 3 wishes to exchange 100 ADA for whatever amount of DOGE they can get. So, we withdraw 100 ADA 
 # into the transaction worktop and then into a bucket.
-CALL_METHOD ComponentAddress("02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364") "withdraw_by_amount" Decimal("100.00") ResourceAddress("03adad18349e8266c34e3d4aa3ee7a2e638c276b5f3055acf0c16c");
-TAKE_FROM_WORKTOP ResourceAddress("03adad18349e8266c34e3d4aa3ee7a2e638c276b5f3055acf0c16c") Bucket("ADA_bucket");
+CALL_METHOD ComponentAddress("<<<account3_address>>>") "withdraw_by_amount" Decimal("100.00") ResourceAddress("<<<cardano_resource_address>>>");
+TAKE_FROM_WORKTOP ResourceAddress("<<<cardano_resource_address>>>") Bucket("ADA_bucket");
 
 # Swapping ADA for XRD and then putting the XRD in a bucket
-CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "swap" Bucket("ADA_bucket") ResourceAddress("030000000000000000000000000000000000000000000000000004");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "swap" Bucket("ADA_bucket") ResourceAddress("030000000000000000000000000000000000000000000000000004");
 TAKE_FROM_WORKTOP ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("XRD_bucket");
 
 # Swapping XRD for LTC and then putting the LTC in a bucket
-CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "swap" Bucket("XRD_bucket") ResourceAddress("0379dfcc9d7c08acf52d8f9f61f3164b880a2019d2d372d1686a43");
-TAKE_FROM_WORKTOP ResourceAddress("0379dfcc9d7c08acf52d8f9f61f3164b880a2019d2d372d1686a43") Bucket("LTC_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "swap" Bucket("XRD_bucket") ResourceAddress("<<<litecoin_resource_address>>>");
+TAKE_FROM_WORKTOP ResourceAddress("<<<litecoin_resource_address>>>") Bucket("LTC_bucket");
 
 # Swapping LTC for BNB and then putting the BNB in a bucket
-CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "swap" Bucket("LTC_bucket") ResourceAddress("0315ef51fae19677dd3b13bc352747c0c10bdabae12660221c4b3a");
-TAKE_FROM_WORKTOP ResourceAddress("0315ef51fae19677dd3b13bc352747c0c10bdabae12660221c4b3a") Bucket("BNB_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "swap" Bucket("LTC_bucket") ResourceAddress("<<<bnb_resource_address>>>");
+TAKE_FROM_WORKTOP ResourceAddress("<<<bnb_resource_address>>>") Bucket("BNB_bucket");
 
 # Swapping BNB for DOGE and asserting that we obtained at least 300 DOGE from this long swap. If the assertion goes 
 # through then we deposit everything in the transaction worktop into the account.
-CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "swap" Bucket("BNB_bucket") ResourceAddress("035e45ed44cce6324816ec153d0548535c2bd5843e03a1b45a2d75");
-ASSERT_WORKTOP_CONTAINS_BY_AMOUNT Decimal("300") ResourceAddress("035e45ed44cce6324816ec153d0548535c2bd5843e03a1b45a2d75");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "swap" Bucket("BNB_bucket") ResourceAddress("<<<doge_resource_address>>>");
+ASSERT_WORKTOP_CONTAINS_BY_AMOUNT Decimal("300") ResourceAddress("<<<doge_resource_address>>>");
 
-CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364") "deposit_batch";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("<<<account3_address>>>") "deposit_batch";

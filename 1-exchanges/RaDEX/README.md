@@ -186,30 +186,34 @@ The first thing that we need to do now is to create four different accounts to u
 
 ```sh
 OP1=$(resim new-account)
+export PRIV_KEY1=$(echo "$OP1" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
 export PUB_KEY1=$(echo "$OP1" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
-export ACC_ADDRESS1=$(echo "$OP1" | sed -nr "s/Account address: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS1=$(echo "$OP1" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 OP2=$(resim new-account)
+export PRIV_KEY2=$(echo "$OP2" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
 export PUB_KEY2=$(echo "$OP2" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
-export ACC_ADDRESS2=$(echo "$OP2" | sed -nr "s/Account address: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS2=$(echo "$OP2" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 OP3=$(resim new-account)
+export PRIV_KEY3=$(echo "$OP3" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
 export PUB_KEY3=$(echo "$OP3" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
-export ACC_ADDRESS3=$(echo "$OP3" | sed -nr "s/Account address: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS3=$(echo "$OP3" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 OP4=$(resim new-account)
+export PRIV_KEY4=$(echo "$OP4" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
 export PUB_KEY4=$(echo "$OP4" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
-export ACC_ADDRESS4=$(echo "$OP4" | sed -nr "s/Account address: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS4=$(echo "$OP4" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 ```
 
 With the four accounts created, let's give some context as to what we will be doing next. The first thing that we wish to do is to create a number of test tokens that we can use to test out the functionality of the DEX. We would like Account 1 to be the creator of these test tokens and for it to then send some of these tokens to the other accounts so that they can test the DEX. Since Account 1 is the account that will be used for hte creation of the tokens, we need to set it as the default account:
 
 ```sh
-$ resim set-default-account $ACC_ADDRESS1 $PUB_KEY1
+$ resim set-default-account $ACC_ADDRESS1 $PUB_KEY1 $PRIV_KEY1
 Default account updated!
 ```
 
-The file [`token_creation_and_funding.rtm`](./transactions/token_creation_and_funding.rtm) contains the instructions needed for account 1 to create 8 different tokens (we will have a total of 9 tokens after this transaction as we do not need to create XRD) and then fund the 3 other accounts created before depositing all of the remaining tokens back into account 1. All of this will be done in one single neat atomically composed transaction that creates the tokens and deposits them into the accounts. To run the transaction file, run the following command:
+The files [`token_creation.rtm`](./transactions/token_creation.rtm), and [`token_funding.rtm`](./transactions/token_funding.rtm) contain the instructions needed for account 1 to create 8 different tokens (we will have a total of 9 tokens after this transaction as we do not need to create XRD) and then fund the 3 other accounts created before depositing all of the remaining tokens back into account 1. To run the transaction file, run the following command:
 
 ```sh
-resim run transactions/token_creation_and_funding.rtm
+resim run transactions/token_creation.rtm && resim run transactions/token_funding.rtm
 ```
 
 When this transaction runs, all of the accounts that we had created would now have 100,000 of some of the tokens that we will be using for the testing of the DEX. We can now publish the RaDEX package and also instantiate a new RaDEX component by running the following commands:
@@ -250,7 +254,7 @@ The [`creating_initial_liquidity_pools.rtm`](./transactions/creating_initial_liq
 Now that the process that we will be following is somewhat clear, let's get into running this transaction using Lynn's account. First things first, let's make sure that Lynn's account (Account 1) is set the default account in resim:
 
 ```sh
-$ resim set-default-account $ACC_ADDRESS1 $PUB_KEY1
+$ resim set-default-account $ACC_ADDRESS1 $PUB_KEY1 $PRIV_KEY1
 Default account updated!
 ```
 
@@ -293,7 +297,7 @@ Josh has decided to use RaDEX to perform the swap of BTC for USDT as RaDEX has t
 Let's now run the needed transaction manifest file for Josh to perform his swap of BTC for USDT. We first need to switch the default account in resim to Josh's account by doing the following:
 
 ```sh
-$ resim set-default-account $ACC_ADDRESS2 $PUB_KEY2
+$ resim set-default-account $ACC_ADDRESS2 $PUB_KEY2 $PRIV_KEY2
 Default account updated!
 ```
 
@@ -368,7 +372,7 @@ As can be seen in the diagram above, the first step in the transaction is the wi
 Let's now to get to work and try out this transaction. Let's begin by switching to Tim's account:
 
 ```sh
-$ resim set-default-account $ACC_ADDRESS3 $PUB_KEY3
+$ resim set-default-account $ACC_ADDRESS3 $PUB_KEY3 $PRIV_KEY3
 Default account updated!
 ```
 
@@ -405,7 +409,7 @@ Alfred has decided that he wants to sell some of the Bitcoin that he owns for US
 Now that we understand what will be done, we can go ahead and perform this transaction. Let's begin by switching over to Alfred's account:
 
 ```sh
-$ resim set-default-account $ACC_ADDRESS4 $PUB_KEY4
+$ resim set-default-account $ACC_ADDRESS4 $PUB_KEY4 $PRIV_KEY4
 Default account updated!
 ```
 
@@ -435,7 +439,7 @@ With the last example we are going back to Lynn (Account 1). After providing liq
 Let's begin by switching the default account in resim to be Lynn's account:
 
 ```sh
-$ resim set-default-account $ACC_ADDRESS1 $PUB_KEY1
+$ resim set-default-account $ACC_ADDRESS1 $PUB_KEY1 $PRIV_KEY1
 Default account updated!
 ```
 

@@ -1,0 +1,12 @@
+# The owner of account 1 had created a number of liquidity pools and now wishes to withdraw the liquidity that they
+# had provided to RaDEX so that they can get their portion of the swap fees into their wallet.
+
+# Withdrawing all of the tracking tokens of the BTC/USDT pool from account 1 and creating a bucket of them
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw_by_amount" Decimal("100") ResourceAddress("<<<btc_usdt_resource_address>>>");
+TAKE_FROM_WORKTOP ResourceAddress("<<<btc_usdt_resource_address>>>") Bucket("tracking_tokens_bucket");
+
+# Calling the `remove_liquidity` on the RaDEX component with the tracking tokens
+CALL_METHOD ComponentAddress("<<<component_address>>>") "remove_liquidity" Bucket("tracking_tokens_bucket");
+
+# Depositing all of the tokens on the worktop into the account
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("<<<account1_address>>>") "deposit_batch";

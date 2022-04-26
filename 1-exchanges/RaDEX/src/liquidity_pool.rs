@@ -680,6 +680,7 @@ blueprint!{
                 output_amount
             );
             info!("[Swap For Exact]: K after swap: {}", self.k());
+            info!("[Swap For Exact]: Amount gievn out: {}", output_tokens.amount());
             return (output_tokens, tokens);
         }
     }

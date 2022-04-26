@@ -176,7 +176,7 @@ blueprint!{
             &mut self,
             token1: Bucket,
             token2: Bucket,
-        ) -> (Bucket, Bucket, Bucket) {
+        ) -> (Option<Bucket>, Option<Bucket>, Bucket) {
             // Sorting the two buckets of tokens passed to this method and getting the addresses of their resources.
             let (bucket1, bucket2): (Bucket, Bucket) = sort_buckets(token1, token2);
             let addresses: (ResourceAddress, ResourceAddress) = (bucket1.resource_address(), bucket2.resource_address()); 
@@ -186,7 +186,8 @@ blueprint!{
             match optional_liquidity_pool {
                 Some (liquidity_pool) => { // If it matches it means that the liquidity pool exists.
                     info!("[DEX Add Liquidity]: Pool for {:?} already exists. Adding liquidity directly.", addresses);
-                    liquidity_pool.add_liquidity(bucket1, bucket2)
+                    let returns: (Bucket, Bucket, Bucket) = liquidity_pool.add_liquidity(bucket1, bucket2);
+                    (Some(returns.0), Some(returns.1), returns.2)
                 }
                 None => { // If this matches then there does not exist a liquidity pool for this token pair
                     // In here we are creating a new liquidity pool for this token pair since we failed to find an 
@@ -194,7 +195,7 @@ blueprint!{
                     // terms of the two empty buckets being returned, but this is done to allow for the add liquidity
                     // method to be general and allow for the possibility of the liquidity pool not being there.
                     info!("[DEX Add Liquidity]: Pool for {:?} doesn't exist. Creating a new one.", addresses);
-                    (Bucket::new(addresses.0), Bucket::new(addresses.1), self.new_liquidity_pool(bucket1, bucket2))
+                    (None, None, self.new_liquidity_pool(bucket1, bucket2))
                 }
             }
         }

@@ -2,11 +2,11 @@
 # had provided to RaDEX so that they can get their portion of the swap fees into their wallet.
 
 # Withdrawing all of the tracking tokens of the BTC/USDT pool from account 1 and creating a bucket of them
-CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("100") Address("032308b2a4f39c5927115792f51bc8f1e43cda373f41c144aff079") BucketRef(1u32);
-TAKE_ALL_FROM_WORKTOP Address("032308b2a4f39c5927115792f51bc8f1e43cda373f41c144aff079") Bucket("tracking_tokens_bucket");
+CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "withdraw_by_amount" Decimal("100") ResourceAddress("031efc1d11368cf2443b35644e6a8f755251a33c1e3235896058bf");
+TAKE_FROM_WORKTOP ResourceAddress("031efc1d11368cf2443b35644e6a8f755251a33c1e3235896058bf") Bucket("tracking_tokens_bucket");
 
 # Calling the `remove_liquidity` on the RaDEX component with the tracking tokens
-CALL_METHOD Address("02f4f72853d2c0b13b10c0421bcbae6baddc12d15e0e0d41ff3310") "remove_liquidity" Bucket("tracking_tokens_bucket");
+CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "remove_liquidity" Bucket("tracking_tokens_bucket");
 
 # Depositing all of the tokens on the worktop into the account
-CALL_METHOD_WITH_ALL_RESOURCES Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "deposit_batch";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "deposit_batch";

@@ -7,20 +7,20 @@
 # selling of Bitcoin tokens for USDT and then providing liquidity to the XRD/USDT liquidity pool.
 
 # Withdrawing 500,000 XRD and 40 BTC from Alfred's account and into the transaction worktop
-CALL_METHOD ComponentAddress("0200098f161a7691fa7ae380e41aed27ab5c4f969e8e563ce4275a") "withdraw_by_amount" Decimal("500000") ResourceAddress("030000000000000000000000000000000000000000000000000004");
-CALL_METHOD ComponentAddress("0200098f161a7691fa7ae380e41aed27ab5c4f969e8e563ce4275a") "withdraw_by_amount" Decimal("40") ResourceAddress("0397eed9dd1a3ca82e098f746a8d15cc0f74a6cd4f559433beac7e");
+CALL_METHOD ComponentAddress("<<<account4_address>>>") "withdraw_by_amount" Decimal("500000") ResourceAddress("030000000000000000000000000000000000000000000000000004");
+CALL_METHOD ComponentAddress("<<<account4_address>>>") "withdraw_by_amount" Decimal("40") ResourceAddress("<<<bitcoin_resource_address>>>");
 
 # Creating a bucket of the withdrawn Bitcoin and then swapping it for USDT
-TAKE_FROM_WORKTOP ResourceAddress("0397eed9dd1a3ca82e098f746a8d15cc0f74a6cd4f559433beac7e") Bucket("BTC_bucket");
-CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "swap" Bucket("BTC_bucket") ResourceAddress("030baa629533524fd32c69b680a2d023930bf4ffdb2ea8b64c46d3");
+TAKE_FROM_WORKTOP ResourceAddress("<<<bitcoin_resource_address>>>") Bucket("BTC_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "swap" Bucket("BTC_bucket") ResourceAddress("<<<tether_resource_address>>>");
 
 # At this point, the transaction worktop should include USDT tokens if the swap has indeed gone through correctly, so 
 # we take the USDT tokens and put them in a bucket and we also put the XRD from the worktop into a bucket.
-TAKE_FROM_WORKTOP ResourceAddress("030baa629533524fd32c69b680a2d023930bf4ffdb2ea8b64c46d3") Bucket("USDT_bucket");
+TAKE_FROM_WORKTOP ResourceAddress("<<<tether_resource_address>>>") Bucket("USDT_bucket");
 TAKE_FROM_WORKTOP ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("XRD_bucket");
 
 # Adding liquidity to the XRD/USDT liquidity pool with all of the XRD and USDT available in the transaction worktop
-CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "add_liquidity" Bucket("XRD_bucket") Bucket("USDT_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "add_liquidity" Bucket("XRD_bucket") Bucket("USDT_bucket");
 
 # Depositing the tracking tokens we get back into Alfred's account.
-CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("0200098f161a7691fa7ae380e41aed27ab5c4f969e8e563ce4275a") "deposit_batch";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("<<<account4_address>>>") "deposit_batch";
