@@ -1,0 +1,5 @@
+CALL_METHOD ComponentAddress("02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364") "create_proof_by_ids" TreeSet<NonFungibleId>(NonFungibleId("8c2d8a38c34e60bb2951da2adb20b2f0")) ResourceAddress("0355f298a3bc3b5d1c6591a6a1807bde2f5a0690ed43accf3747eb");
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS TreeSet<NonFungibleId>(NonFungibleId("8c2d8a38c34e60bb2951da2adb20b2f0")) ResourceAddress("0355f298a3bc3b5d1c6591a6a1807bde2f5a0690ed43accf3747eb") Proof("proof_of_participation");
+
+CALL_METHOD ComponentAddress("02501f4db0d683cfb619a440883502cbdceba5cb521252ba02fdd2") "withdraw_outbidded" Proof("proof_of_participation");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364") "deposit_batch";
