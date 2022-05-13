@@ -1,0 +1,16 @@
+reset
+new-account -> act
+
+publish . -> package
+// Provide public key of off-chain oracle node when calling VrfOracleContract::new for the component to store
+call-function $package VrfOracleContract new 0360fed4ba255a9d31c961eb74c6356d68c049b8923b61fa6ce669622e60f29fb6 -> vrf r1 r2 receiptaddr
+show $r1
+show $r2
+show $receiptaddr
+
+call-method $vrf request_randomness_by_counter 5,030000000000000000000000000000000000000000000000000004
+
+// Send calculated vrf proof for input seed
+call-method $vrf fullfill_randomness_request 0000000000000000 02c964e837f153a67f51b87354796c9f1c8ca2436a6568e26f9d740d305a554c8e99eb6802c6b541355b3b9b20a89fb9d384c0bc32603e4e5e1f92bb41b88a3548ef8a0eb0aefbb85918c5ca386f1ffe34
+
+call-method $vrf fetch_randomness "#0000000000000000,$receiptaddr"
