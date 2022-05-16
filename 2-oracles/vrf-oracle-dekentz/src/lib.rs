@@ -361,6 +361,43 @@ blueprint! {
             receipt
         }
 
+        // Allow user to set seed. Provided to verify against VRF Specification examples in scrypto oracles challenge.
+        // DO NOT USE IN PRODUCTION.
+        pub fn request_randomness_with_seed(&mut self, payment: Bucket, input_bytes: String) -> Bucket {
+            // take payment and add to fee_vault
+            self.fee_vault.put(payment);
+            // generate UUID as random input seed and use as jobId
+            // let alpha = Runtime::generate_uuid();
+            // self.jobs.insert(alpha, caller);
+            // make off-chain oracle node request for random number
+            // info!("Requesting VRF with input {} for caller component {}", alpha, caller);
+
+            // mint new non-fungible receipt
+            let receipt = self.receipt_minter.authorize(|| {
+                let receipt_nft_manager: &ResourceManager =
+                    borrow_resource_manager!(self.receipt_nft_address);
+
+                // Would be nice to have a description of the NFT receipt
+                receipt_nft_manager
+                    // .mint_non_fungible(&NonFungibleId::from_u64(self.counter), MemberData {})
+                    .mint_non_fungible(&NonFungibleId::from_bytes(hex::decode(input_bytes).unwrap()), MemberData {})
+            });
+            self.counter += 1;
+
+            let receipt_id = receipt.non_fungible::<MemberData>().id();
+
+            // use random receipt id as alpha input seed
+            let alpha = receipt_id.clone();
+            // make off-chain oracle node request for random number
+            info!(
+                "Requesting VRF with input {} for receipt {}",
+                alpha, receipt_id
+            );
+
+            receipt
+        }
+
+
         // Function for the off-chain oracle to call to provide vrf proof for given input seed alpha.
         pub fn fullfill_randomness_request(
             &mut self,
@@ -372,7 +409,7 @@ blueprint! {
             let alpha_bytes = alpha_bytes.unwrap();
 
             let proof_bytes = hex::decode(proof_hex_string);
-            assert!(proof_bytes.is_ok(), "Job id hex string decode error");
+            assert!(proof_bytes.is_ok(), "proof hex string decode error");
             let proof_bytes = proof_bytes.unwrap();
 
             let p256_vrf = EcvrfCiphersuite::new(0x02, b"P256_XMD:SHA-256_SSWU_NU_");
@@ -381,7 +418,7 @@ blueprint! {
             let random_bytes = randomness.unwrap();
             let job_id = NonFungibleId::from_bytes(alpha_bytes);
             info!(
-                "VRF proof accepted, storing random bytes {:?} for job_id {:?}",
+                "VRF proof accepted, storing random bytes {:x?} for job_id {:?}",
                 random_bytes, job_id
             );
             self.jobs.insert(job_id, random_bytes.to_vec());
