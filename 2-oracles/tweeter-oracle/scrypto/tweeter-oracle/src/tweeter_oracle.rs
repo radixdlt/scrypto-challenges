@@ -3,14 +3,14 @@ use scrypto::prelude::*;
 
 blueprint! {
 
-    // This oracle stores data from the twitter API. Instantiating this blueprint makes it possible to administer this data and make it available to those who need it within the data ledger
-    // For example is the fuserleer user account tracked by the cyover user account? Or has a tweet been liked by such user etc...
+    // This oracle stores data from the twitter API. Instantiating this component makes it possible to administer this data and make it available to those who need it within the data ledger
+    // For example is the radixdlt user account followed by the cyover user account? Or has a tweet been liked by cyover user account ? 
     // This data can be useful for automating airdrops. An example of component automating the airdrop was created to test this Oracle (AirdropWithTweeterOracle)
     struct TweeterOracle {
         // Defines the administrator badge which gives the right to administer the data by calling the methods provided for this purpose 
         admin_badge: ResourceAddress,
         //This field is used to store the followers of an account. for example: 
-        //[{"fuseler",["cyover","toto","titi"]},{"cyover",["toto"]}]  
+        //[{"radixdlt",["cyover","toto","titi"]},{"cyover",["toto"]}]  
         tweeter_account_followers: HashMap<String, HashSet<String>>,
         //This field is used to store the likers of a tweet. for example: 
         //[{"tweet-1",["cyover","toto","titi"]},{"tweet2",["toto"]}]
@@ -58,7 +58,7 @@ blueprint! {
                 )
                 .default(rule!(allow_all));
 
-            // Instantiate TweeterOracle component and return it with the admin badge to instanciator
+            // Instantiate TweeterOracle component and return it with the admin badge to caller
             let component = Self {
                 admin_badge: admin_badge.resource_address(),
                 tweeter_account_followers: HashMap::new(),
@@ -82,7 +82,7 @@ blueprint! {
             new_followers: HashSet<String>,
         ) {
 
-            // checking the parameter
+            // checking the arguments
             assert!(!tweeter_account_user_name.is_empty(), "tweeter account user name can not be empty");
             assert!(new_followers.len() > 0 ,"followers hashset can not be empty");
 
@@ -104,10 +104,11 @@ blueprint! {
             delete_followers: HashSet<String>,
         ) {
 
-            // checking the parameter
+            // checking the arguments
             assert!(!twitter_account_user_name.is_empty(), "tweeter account user name can not be empty");
             assert!(delete_followers.len() > 0 ,"delete_followers hashset can not be empty");
             
+            // remove folowers 
             remove_items(
                 twitter_account_user_name,
                 &mut self.tweeter_account_followers,
@@ -126,9 +127,10 @@ blueprint! {
         ) -> bool {
 
 
-            // checking the parameter
+            // checking the arguments
             assert!(!twitter_account_user_name.is_empty(), "tweeter account user name can not be empty");
             assert!(!follower_user_name.is_empty(), "follower user name can not be empty");
+            
 
             return is_item_exist(
                 twitter_account_user_name,
@@ -143,7 +145,7 @@ blueprint! {
         // * `new_likers` String -  A tweeter user account likers
         pub fn insert_tweets_likers(&mut self, tweet_id: String, new_likers: HashSet<String>) {
 
-            // checking the parameter
+            // checking the arguments
             assert!(!tweet_id.is_empty(), "tweet_id can not be empty");
             assert!(new_likers.len() > 0 ,"new_likers hashset can not be empty");
 
@@ -157,7 +159,7 @@ blueprint! {
         // * `remove_likers` String -  A tweeter user account likers
         pub fn remove_tweets_likers(&mut self, tweet_id: String, remove_likers: HashSet<String>) {
             
-            // Checking parameter 
+            // Checking atguments 
             assert!(!tweet_id.is_empty(), "tweet_id can not be empty");
             assert!(remove_likers.len() > 0 ,"remove_likers hashset can not be empty");
 
@@ -188,7 +190,7 @@ blueprint! {
             tweet_id: String,
             new_retweeters: HashSet<String>,
         ) {
-              //Checking parameter 
+              //Checking the aguments 
               assert!(!tweet_id.is_empty(), "tweet_id can not be empty");
               assert!(!new_retweeters.is_empty(), "new_retweeters can not be empty");
 
@@ -205,7 +207,7 @@ blueprint! {
             tweet_id: String,
             remove_retweeters: HashSet<String>,
         ) {
-            //Checking parameter 
+            //Checking the arguments 
             assert!(!tweet_id.is_empty(), "tweet_id can not be empty");
             assert!(!remove_retweeters.is_empty(), "new_retweeters can not be empty");
             // remove retweeters
@@ -215,13 +217,60 @@ blueprint! {
         // this method Allow to check if an tweet is retweet by an tweeter account
         // # Arguments :  
         // * `tweet_id` String - A tweeterid
-        // * `liker_user_name` String -  A liker tweeter account 
+        // * `retweeter_user_name` String -  A retweeter tweeter account 
         pub fn is_tweet_retweeter(
             &mut self,
             tweet_id: String,
             retweeter_user_name: String,
         ) -> bool {
+
+            //Checking the arguments 
+            assert!(!tweet_id.is_empty(), "tweet_id can not be empty");
+            assert!(!retweeter_user_name.is_empty(), "retweeter_user_name can not be empty");
+
             return is_item_exist(tweet_id, &mut self.tweets_retweeters, retweeter_user_name);
+        }
+
+        //
+        pub fn add_followers_to_update(&mut self, followers : Vec<String>)
+        {
+            for follower in followers
+            {
+                insert_keys(follower, &mut self.tweeter_account_followers); 
+            }
+        }
+
+        pub fn add_likers_to_update(&mut self, likers : Vec<String>)
+        {
+            for liker in likers
+            {
+                insert_keys(liker, &mut self.tweets_likers); 
+            }
+        }
+
+        //
+        pub fn add_retweeters_to_update(&mut self, retweeters : Vec<String>)
+        {
+            for retweeter in retweeters
+            {
+                insert_keys(retweeter, &mut self.tweets_likers); 
+            }
+        }
+
+        
+        //
+        pub fn get_datas_to_updates(&mut self) -> HashMap<String, Vec<String>>
+        {
+            let mut result : HashMap<String, Vec<String>> = HashMap::new(); 
+            let followers  : String = String::from("FOLLOWERS");
+            let likers  : String =  String::from("LIKERS"); 
+            let  retweeters : String = String::from("RETWEETERS");
+
+            result.insert(followers, self.tweeter_account_followers.keys().cloned().collect());
+            result.insert(likers, self.tweets_likers.keys().cloned().collect()); 
+            result.insert(retweeters, self.tweets_retweeters.keys().cloned().collect()); 
+
+            return result;
         }
     }
 }

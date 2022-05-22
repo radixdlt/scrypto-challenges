@@ -1,5 +1,11 @@
 use scrypto::prelude::*;
 
+
+pub fn insert_keys(key : String, hashmap: &mut HashMap<String, HashSet<String>>)
+{
+    hashmap.entry(key).or_insert(HashSet::new());
+}
+
 pub fn insert_items(
     key: String,
     hashmap: &mut HashMap<String, HashSet<String>>,
