@@ -39,6 +39,10 @@ pub fn is_item_exist(
     hashmap: &mut HashMap<String, HashSet<String>>,
     item: String,
 ) -> bool {
-    let collections = hashmap.entry(key).or_insert(HashSet::new());
-    return collections.contains(&item);
+    
+    if hashmap.contains_key(&key) {
+        let collections = hashmap.get(&key).unwrap();
+        return collections.contains(&item);
+    }
+    return false;
 }

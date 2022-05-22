@@ -232,45 +232,51 @@ blueprint! {
         }
 
         //
-        pub fn add_followers_to_update(&mut self, followers : Vec<String>)
+        pub fn add_accounts_to_follows(&mut self, accounts : Vec<String>)
         {
-            for follower in followers
+            for account in accounts
             {
-                insert_keys(follower, &mut self.tweeter_account_followers); 
+                insert_keys(account, &mut self.tweeter_account_followers); 
             }
         }
 
-        pub fn add_likers_to_update(&mut self, likers : Vec<String>)
+        pub fn add_tweets_to_like(&mut self, tweets : Vec<String>)
         {
-            for liker in likers
+            for tweet in tweets
             {
-                insert_keys(liker, &mut self.tweets_likers); 
+                insert_keys(tweet, &mut self.tweets_likers); 
             }
         }
 
         //
-        pub fn add_retweeters_to_update(&mut self, retweeters : Vec<String>)
+        pub fn add_tweets_to_retweet(&mut self, tweets : Vec<String>)
         {
-            for retweeter in retweeters
+            for tweet in tweets
             {
-                insert_keys(retweeter, &mut self.tweets_likers); 
+                insert_keys(tweet, &mut self.tweets_retweeters); 
             }
         }
 
-        
         //
-        pub fn get_datas_to_updates(&mut self) -> HashMap<String, Vec<String>>
+        pub fn get_datas_to_update(&mut self) -> HashMap<String, Vec<String>>
         {
+            //let mut log :String = String::new(); 
             let mut result : HashMap<String, Vec<String>> = HashMap::new(); 
-            let followers  : String = String::from("FOLLOWERS");
-            let likers  : String =  String::from("LIKERS"); 
-            let  retweeters : String = String::from("RETWEETERS");
+            let accounts_to_follow  : String = String::from("ACCOUNTS_TO_FOLLOW");
+            let tweets_to_like  : String =  String::from("TWEETS_TO_LIKE"); 
+            let tweets_to_retweet : String = String::from("TWEETS_TO_RETWEETS");
 
-            result.insert(followers, self.tweeter_account_followers.keys().cloned().collect());
-            result.insert(likers, self.tweets_likers.keys().cloned().collect()); 
-            result.insert(retweeters, self.tweets_retweeters.keys().cloned().collect()); 
+            result.insert(accounts_to_follow.clone(), self.tweeter_account_followers.keys().cloned().collect());
+            let accounts_to_follow_log = format!("{}:{}", accounts_to_follow,result.get(&accounts_to_follow).unwrap().join(";"));
+            result.insert(tweets_to_like.clone(), self.tweets_likers.keys().cloned().collect()); 
+            let tweets_to_like_log =  format!("{}:{}", tweets_to_like,result.get(&tweets_to_like).unwrap().join(";"));
+            result.insert(tweets_to_retweet.clone(), self.tweets_retweeters.keys().cloned().collect()); 
+            let tweets_to_retweet_log = format!("{}:{}", tweets_to_retweet,result.get(&tweets_to_retweet).unwrap().join(";"));
+            
+            info!("{}|{}|{}",accounts_to_follow_log,tweets_to_like_log,tweets_to_retweet_log);
 
             return result;
+
         }
     }
 }

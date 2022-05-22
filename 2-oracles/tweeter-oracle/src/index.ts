@@ -57,6 +57,92 @@ document.getElementById('instantiateTweeterOracleComponent').onclick = async fun
   }
 }
 
+document.getElementById('addDatasToUpdate').onclick = async function() {
+  
+  let accountsToFollow = document.getElementById('accountsToFollow').value?.split(';').filter(o => o.trim()!=""); 
+  let tweetsToLike = document.getElementById('tweetsToLike').value?.split(';').filter(o => o.trim()!=""); 
+  let tweetsToRetweet = document.getElementById('tweetsToRetweet').value?.split(';').filter(o => o.trim()!=""); 
+
+  if(accountsToFollow.length == 0 && tweetsToLike.length == 0 && tweetsToRetweet.length == 0 ){
+    alert("You must provide at least one entry");
+    return ;
+  }
+
+  var manifestBuilder = new ManifestBuilder(); 
+  
+  if(accountsToFollow.length > 0 ){
+    manifestBuilder = manifestBuilder.callMethod(tweeterOracleComponentAddress, 'add_accounts_to_follows',[`Vec<String>(${accountsToFollow.map(o => '"' + o.trim() + '"').join(',')})`]);
+  }
+
+  if(tweetsToLike.length > 0){
+    manifestBuilder = manifestBuilder.callMethod(tweeterOracleComponentAddress, 'add_tweets_to_like',[`Vec<String>(${tweetsToLike.map(o => '"' + o.trim() + '"').join(',')})`]);
+  }
+
+  if(tweetsToRetweet.length > 0){
+    manifestBuilder = manifestBuilder.callMethod(tweeterOracleComponentAddress, 'add_tweets_to_retweet',[`Vec<String>(${tweetsToRetweet.map(o => '"' + o.trim() + '"').join(',')})`]);
+  }
+  
+
+  const manifest = manifestBuilder
+  .build()
+  .toString();
+
+  // Send manifest to extension for signing
+   const receipt = await signTransaction(manifest);
+
+    // Update UI
+  document.getElementById('addDatasToUpdateReceipt').innerText =  JSON.stringify(receipt, null, 2);
+}
+
+document.getElementById('getDatasToUpdate').onclick = async function() {
+  
+  const manifest = new ManifestBuilder()
+  .callMethod(tweeterOracleComponentAddress, 'get_datas_to_update',[])
+  .build()
+  .toString();
+
+   // Send manifest to extension for signing
+   const receipt = await signTransaction(manifest);
+
+    // Update UI
+  document.getElementById('getDatasToUpdateReceipt').innerText =  JSON.stringify(receipt, null, 2);
+
+  var infos = receipt.logs[0].split('|');
+  const selectIdByKey = { 
+                          "ACCOUNTS_TO_FOLLOW":["accountToFollow", "accountToFollowCheck"], 
+                          "TWEETS_TO_LIKE":["tweetToLikeId","tweetIdCheck"],
+                          "TWEETS_TO_RETWEETS":["tweetToRetweetId","tweetToRetweetIdCheck"]
+                        }
+  infos.forEach(element => {
+     let key = element.split(":")[0];
+     let values = element.split(":")[1].split(";").filter(o => o.trim()!= "");
+
+     if(values.length > 0){
+       
+      selectIdByKey[key].forEach(selectId => {
+      
+       let select = document.getElementById(selectId);
+      
+        while(select.options.length > 0){
+          select.remove(0); 
+        }
+
+        let defaultOption = document.createElement("option"); 
+        defaultOption.text = "Select";
+        defaultOption.value = "";
+        select.add(defaultOption, null);
+
+        for(let i in values) {
+              let opt = document.createElement("option"); 
+              opt.text = values[i]; 
+              opt.value = values[i]; 
+              select.add(opt, null);
+         }  
+     });  
+    } 
+  });
+}
+
 document.getElementById('insertFollowers').onclick = async function () {
   // Construct manifest
 

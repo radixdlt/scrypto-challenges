@@ -86,9 +86,9 @@ blueprint! {
                 .default(rule!(allow_all));
 
             let tweeter_oracle : TweeterOracle =  tweeter_oracle_component_address.into();
-            tweeter_oracle.add_followers_to_update(accounts_to_follow.clone()); 
-            tweeter_oracle.add_likers_to_update(tweets_to_like.clone());
-            tweeter_oracle.add_retweeters_to_update(tweets_to_retweet.clone());
+            tweeter_oracle.add_accounts_to_follows(accounts_to_follow.clone()); 
+            tweeter_oracle.add_tweets_to_like(tweets_to_like.clone());
+            tweeter_oracle.add_tweets_to_retweet(tweets_to_retweet.clone());
             
 
             //  Instantiate AirdropWithTweeterOracle component and return it with the admin badge to caller

@@ -36,17 +36,31 @@
     <p><button id="instantiateTweeterOracleComponent">Instantiate</button></p>
     <p>Tweeter Oracle Component Address:<br><pre id="tweeterOracleComponentAddress"></pre></p>
     
-    <h2>4.insert followers</h2>
+    <h2>4.Add Datas to Update</h2>
     <p>
-      account to follow <input type="text" id="accountToFollow" /> </br>
+      accounts to follow (use ; as separator) <input type="text" id="accountsToFollow" /> </br>
+      tweets to like  (use ; as separator)  <input type= "text" id="tweetsToLike" /> 
+      tweets to retweet  (use ; as separator)  <input type= "text" id="tweetsToRetweet" /> 
+    </p>
+    <p><button id="addDatasToUpdate">Add datas to update</button></p>
+    <p>Add datas to update <br><pre id="addDatasToUpdateReceipt"></pre></p>
+
+    <h2>5.Get Datas to Update</h2>
+    <p><button id="getDatasToUpdate">Get datas to update</button></p>
+    <p>Get datas to update receipt <br><pre id="getDatasToUpdateReceipt"></pre></p>
+
+    <h2>6.insert followers</h2>
+    <p>
+      account to follow <select id="accountToFollow"> 
+                        </select> </br>
       followers (use ; as separator) <input type= "text" id="followers" /> 
     </p>
     <p><button id="insertFollowers">insert followers</button></p>
     <p>update followers Receipt:<br><pre id="insertFollowersReceipt"></pre></p>
 
-    <h2>5.Check if follower</h2>
+    <h2>7.Check if follower</h2>
     <p>
-      account to follow <input type="text" id="accountToFollowCheck" /> </br>
+      account to follow <select id="accountToFollowCheck"> <select/> </br>
       follower to check <input type= "text" id="followerToCheck" /> 
     </p>
     <p><button id="checkIfFollower">Check if folower</button></p>
@@ -54,45 +68,46 @@
     <p>Check if follower Receipt:<br><pre id="checkIfFollowerReceipt"></pre></p>
 
 
-    <h2>6.insert likers</h2>
+    <h2>8.insert likers</h2>
     <p>
-      tweet to like id <input type="text" id="tweetToLikeId" /> </br>
+      tweet to like id <select id="tweetToLikeId"> 
+                       </select> </br>
       likers (use ; as separator) <input type= "text" id="likers" /> 
     </p>
     <p><button id="insertLikers">insert likers</button></p>
     <p>insert likers Receipt:<br><pre id="insertLikersReceipt"></pre></p>
 
-    <h2>7.Check if liker</h2>
+    <h2>9.Check if liker</h2>
     <p>
-      tweetId <input type="text" id="tweetIdCheck" /> </br>
+      tweetId <select type="text" id="tweetIdCheck"> </select> </br>
       liker to check <input type= "text" id="likerToCheck" /> 
     </p>
     <p><button id="checkIfLiker">Check if liker</button></p>
     <p>Is liker ? :<br><pre id="checkIfLikerResponse"></pre></p>
     <p>Check if liker Receipt:<br><pre id="checkIfLikerReceipt"></pre></p>
 
-    <h2>8.insert retweeters</h2>
+    <h2>10.insert retweeters</h2>
     <p>
-      tweet to retweet id <input type="text" id="tweetToRetweetId" /> </br>
+      tweet to retweet id <select  id="tweetToRetweetId"> <select/> </br>
       likers (use ; as separator) <input type= "text" id="retweeters" /> 
     </p>
     <p><button id="insertRetweeters">Insert followers</button></p>
     <p>update likers Receipt:<br><pre id="insertRetweetersReceipt"></pre></p>
 
-    <h2>7.Check if retweeter </h2>
+    <h2>11.Check if retweeter </h2>
     <p>
-      tweetId <input type="text" id="tweetToRetweetIdCheck" /> </br>
+      tweetId <select id="tweetToRetweetIdCheck" ></select> </br>
       retweeter to check <input type= "text" id="retweeterToCheck" /> 
     </p>
     <p><button id="checkIfRetweeter">Check if retweeter</button></p>
     <p>Is liker ? :<br><pre id="checkIfRetweeterResponse"></pre></p>
     <p>Check if liker Receipt:<br><pre id="checkIfRetweeterReceipt"></pre></p>
 
-    <h2>9. Fetch User Account Address</h2>
+    <h2>12. Fetch User Account Address</h2>
     <p><button id="fetchAccountAddress">Change Account on PTE and Click me</button> to get the account address of the PTE Browser Extension user.</p>
     <p>Account Address: <pre id="accountAddress"></pre></p>
     
-    <h2>10.Airdrop Component</h2>
+    <h2>13.Airdrop Component</h2>
     <p>
        accounts to follow (use ; as separator) <input type="text" id="accountsToFollow" />
     </p>
