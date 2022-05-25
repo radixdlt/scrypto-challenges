@@ -1,6 +1,3 @@
-.snowpack
-build
-node_modules
+build.sh
 **/target/*
-snowpack-app/node_modules/*
-snowpack-app/package-lock.json
+**.manifest

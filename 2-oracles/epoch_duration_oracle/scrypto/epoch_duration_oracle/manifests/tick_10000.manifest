@@ -1,2 +1,0 @@
-CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "create_proof_by_amount" Decimal("1") ResourceAddress("03f1820412ec5c07b54ff0407eb00bfc54f58d0784f3eabc2df9c7");
-CALL_METHOD ComponentAddress("028b858b202333e09f6bf24756b17e51cb6f6882d8bde08a47bdf1") "tick" 10000u64;

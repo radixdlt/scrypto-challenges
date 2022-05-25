@@ -1,2 +1,0 @@
-CALL_FUNCTION PackageAddress("01eef8c6ce05a5e69a9e0825a7501ac8f4d0cadd478c8b3334a51b") "EpochDurationOracle" "new_with_bootstrap" 633u64 1653439366547u64;
-CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "deposit_batch";

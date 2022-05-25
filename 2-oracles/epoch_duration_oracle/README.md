@@ -2,7 +2,19 @@
 
 The goal of this oracle is to provide an on-ledger duration of all passed epoch since creation of the component as well as a way to compute time elapsed between an epoch and the current epoch.
 
-All durations are currently in milliseconds.
+This does not mean to be a precise clock ticking every seconds, but more of an on-ledger information on whether a time milestone was reached or not. This can not be used as a precise timer for short delays, but can show useful to request time between multiple epochs (the bigger the range, the less significant will be the potential error).
+
+> All durations are currently in milliseconds.
+
+## Use cases
+
+An example of usage could be a timed auction. We would:
+
+- create the auction with a duration
+- during creation, mark the current epoch
+- when doing various auction actions, we could call the oracle to know whether the time spent between current timestamp and creation timestamp is higher than auction duration, in which case we would end the auction
+
+Instead of providing an "erratic" epoch duration, this would make that auction more precise in terms of human intelligible duration.
 
 ## Running
 
@@ -10,11 +22,10 @@ All durations are currently in milliseconds.
 
 To run and test the epoch oracle, you can run one of the following:
 
-> - update the oracle only once per epoch:
+> - update the oracle only once per epoch (epochs are synchronized with PTE):
 >
 > ```
 > foo@coolUseri:~ $ (cd scrypto/epoch_duration_oracle && ./tick_on_epoch.sh)
->     Current epoch 633, last epoch 633...
 >     Current epoch 633, last epoch 633...
 >     Current epoch 633, last epoch 633...
 >     Current epoch set!
@@ -30,16 +41,14 @@ To run and test the epoch oracle, you can run one of the following:
 >     New Entities: 0
 >     Current epoch 634, last epoch 634...
 >     Current epoch 634, last epoch 634...
->     Current epoch 634, last epoch 634...
->     Current epoch 634, last epoch 634...
 > ```
 
-> - update the oracle each second (to avoid locking on scrypto local resource, a 1 second sleep is necessary if we want to request the component while script runs):
+> - update the oracle each second (starts with epoch from PTE then increments epoch each seconds):
 > ```bash
 > (cd scrypto/epoch_duration_oracle && ./tick_asap.sh)
 > ```
 
-### Query time
+### Query time since epoch
 
 To query from the start of the oracle state, you can use:
 
@@ -47,7 +56,13 @@ To query from the start of the oracle state, you can use:
 resim run scrypto/epoch_duration_oracle/manifests/since_epoch_0.manifest
 ```
 
-To see the difference, there is also a `since_epoch_2.manifest` and a `since_epoch_633.manifest` to compute time elapsed since different epoch.
+To see the difference, there is also a `since_epoch_{current_epoch_on_pte01 + 1}.manifest` to compute time elapsed from different epoch and a `since_epoch_0.manifest` to query elapsed time from the start of the oracle.
+
+> *e.g.*:
+> ```bash
+> resim run scrypto/epoch_duration_oracle/manifests/since_epoch_9.manifest | grep 'Instruction Outputs' -A 1;
+> resim run scrypto/epoch_duration_oracle/manifests/since_epoch_10.manifest | grep 'Instruction Outputs' -A 1;
+> ```
 
 ## ABI
 
@@ -63,12 +78,18 @@ The available method for oracle creator is:
   - add the tick amount to the epoch being currently counted down
   - this always return the current ledger epoch
 
-The available open method is:
+The available open methods are:
 
 - `EpochDurationOracle::millis_since_epoch(epoch: u64)`: measure time passed between provided `epoch` and current epoch. This can give birth to few cases:
-  - the provided `epoch` is higher than on-ledger epoch: we will return the time spent on the current epoch
+  - the provided `epoch` is higher than on-ledger epoch: we will return an error
   - the provided `epoch` is equal to the on-ledger epoch: we will return the time spent on the current epoch
   - the provided `epoch` is lower than the on-ledger epoch: we will return the time spent between provided epoch and current epoch
-  - the provided `epoch` does not appear for oracle was not created yet: we will return the time spent since the creation of the oracle and the current epoch
+  - the provided `epoch` does not appear for oracle was not created yet: we will return the time spent from the closest lower bound epoch and current epoch (*e.g.*: if you request time spent from epoch `10` and oracle missed it, but we have epoch `11` and `12` and are in epoch `13`, we will compute time spent between epoch `13` and `11` and consider epoch `10` lasted `0`. This is acceptable since we are using timestamp, the actual duration will remain correct)
 
-> Note: we will be adding a method to get duration of a provided epoch and duration between two epochs.
+- `EpochDurationOracle::millis_in_epoch(epoch: u64)`: measure duration of provided `epoch`. This can give birth to few cases:
+  - the provided `epoch` is higher than on-ledger epoch: we return an error
+  - the provided `epoch` is equal to the on-ledger epoch: we will return the time spent on the current epoch
+  - the provided `epoch` is lower than the on-ledger epoch: we will return the time spent between provided epoch and current epoch
+  - the provided `epoch` is passed but not present on oracle: we will return 0 and suggest calling the `millis_since_epoch` method
+
+> Note: we will be adding a method to get duration between two epochs provided.

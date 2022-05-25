@@ -14,6 +14,7 @@ export package=$(resim publish target/wasm32-unknown-unknown/release/epoch_durat
 
 export timestamp=$(date +"%s%3N")
 export epoch=$(curl -s GET -k 'https://pte01.radixdlt.com/epoch' | jq --raw-output .epoch)
+export epoch_right_after=$((epoch + 1))
 
 cat <<EOT > manifests/create_epoch_duration_oracle.manifest
 CALL_FUNCTION PackageAddress("${package}") "EpochDurationOracle" "new_with_bootstrap" ${epoch}u64 ${timestamp}u64;
@@ -24,21 +25,16 @@ export oracle=$(resim run manifests/create_epoch_duration_oracle.manifest | grep
 
 export owner_badge=$(resim show ${owner} | grep "Owner of" | cut -d: -f3 | cut -d, -f1 | xargs)
 
-cat <<EOT > manifests/tick_10000.manifest
-CALL_METHOD ComponentAddress("${owner}") "create_proof_by_amount" Decimal("1") ResourceAddress("${owner_badge}");
-CALL_METHOD ComponentAddress("${oracle}") "tick" 10000u64;
-EOT
-
 cat <<EOT > manifests/since_epoch_0.manifest
 CALL_METHOD ComponentAddress("${oracle}") "millis_since_epoch" 0u64;
 EOT
 
-cat <<EOT > manifests/since_epoch_2.manifest
-CALL_METHOD ComponentAddress("${oracle}") "millis_since_epoch" 2u64;
-EOT
-
 cat <<EOT > manifests/since_epoch_${epoch}.manifest
 CALL_METHOD ComponentAddress("${oracle}") "millis_since_epoch" ${epoch}u64;
+EOT
+
+cat <<EOT > manifests/since_epoch_${epoch_right_after}.manifest
+CALL_METHOD ComponentAddress("${oracle}") "millis_since_epoch" ${epoch_right_after}u64;
 EOT
 
 last_epoch=${epoch}
