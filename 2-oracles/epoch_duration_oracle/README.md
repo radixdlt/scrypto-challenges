@@ -11,8 +11,27 @@ All durations are currently in milliseconds.
 To run and test the epoch oracle, you can run one of the following:
 
 > - update the oracle only once per epoch:
-> ```bash
-> (cd scrypto/epoch_duration_oracle && ./tick_on_epoch.sh)
+>
+> ```
+> foo@coolUseri:~ $ (cd scrypto/epoch_duration_oracle && ./tick_on_epoch.sh)
+>     Current epoch 633, last epoch 633...
+>     Current epoch 633, last epoch 633...
+>     Current epoch 633, last epoch 633...
+>     Current epoch set!
+>     Transaction Status: SUCCESS
+>     Execution Time: 16 ms
+>     Instructions:
+>     ├─ CallMethod { component_address: 020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a, method: "create_proof_by_amount", args: [Decimal("1"), ResourceAddress("03f1820412ec5c07b54ff0407eb00bfc54f58d0784f3eabc2df9c7")] }
+>     └─ CallMethod { component_address: 028b858b202333e09f6bf24756b17e51cb6f6882d8bde08a47bdf1, method: "tick", args: [1035068u64] }
+>     Instruction Outputs:
+>     ├─ Proof(1024u32)
+>     └─ 634u64
+>     Logs: 0
+>     New Entities: 0
+>     Current epoch 634, last epoch 634...
+>     Current epoch 634, last epoch 634...
+>     Current epoch 634, last epoch 634...
+>     Current epoch 634, last epoch 634...
 > ```
 
 > - update the oracle each second (to avoid locking on scrypto local resource, a 1 second sleep is necessary if we want to request the component while script runs):
