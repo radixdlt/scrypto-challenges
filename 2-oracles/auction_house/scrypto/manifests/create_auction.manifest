@@ -1,5 +1,0 @@
-CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "withdraw_by_amount" Decimal("1") ResourceAddress("030000000000000000000000000000000000000000000000000004");
-TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("auction_bucket");
-
-CALL_FUNCTION PackageAddress("011c6a3ffede3359e932910e3f6bb35acdfae0e051db95dac18c80") "Auction" "new" Decimal("1") Decimal("10") Bucket("auction_bucket");
-CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "deposit_batch";

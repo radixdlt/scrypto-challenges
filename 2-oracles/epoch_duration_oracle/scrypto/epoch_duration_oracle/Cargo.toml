@@ -1,5 +1,5 @@
 [package]
-name = "auction"
+name = "epoch_duration_oracle"
 version = "0.1.0"
 edition = "2021"
 
