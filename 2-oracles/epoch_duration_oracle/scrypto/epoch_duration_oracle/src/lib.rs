@@ -3,8 +3,8 @@ use scrypto::prelude::*;
 blueprint! {
     struct EpochDurationOracle {
         epochs_duration_millis: HashMap<u64, u64>,
-        last_epoch: u64,
-        millis_in_last_epoch: u64,
+        current_epoch: u64,
+        millis_in_current_epoch: u64,
 
         // Owner
         owner_badge_ref: ResourceAddress
@@ -15,7 +15,7 @@ blueprint! {
             Self::new_with_bootstrap(0, 0)
         }
 
-        pub fn new_with_bootstrap(last_epoch: u64, millis_in_last_epoch: u64) -> (ComponentAddress, Bucket) {
+        pub fn new_with_bootstrap(current_epoch: u64, millis_in_current_epoch: u64) -> (ComponentAddress, Bucket) {
 
             // Owner relative
             let owner_badge: Bucket = ResourceBuilder::new_fungible()
@@ -25,8 +25,8 @@ blueprint! {
 
             let component = Self {
                 epochs_duration_millis: HashMap::new(),
-                last_epoch,
-                millis_in_last_epoch,
+                current_epoch,
+                millis_in_current_epoch,
                 owner_badge_ref: owner_badge.resource_address()
             }.instantiate();
 
@@ -40,22 +40,25 @@ blueprint! {
         }
 
         pub fn tick(&mut self, millis_since_last_tick: u64) -> u64 {
-            if self.last_epoch >= Runtime::current_epoch() {
-                self.millis_in_last_epoch += millis_since_last_tick;
+            if self.current_epoch >= Runtime::current_epoch() {
+                self.millis_in_current_epoch += millis_since_last_tick;
             }
             else {
-                self.epochs_duration_millis.insert(self.last_epoch, self.millis_in_last_epoch + millis_since_last_tick);
-                self.last_epoch = Runtime::current_epoch();
-                self.millis_in_last_epoch = 0;
+                self.epochs_duration_millis.insert(self.current_epoch, self.millis_in_current_epoch + millis_since_last_tick);
+                self.current_epoch = Runtime::current_epoch();
+                self.millis_in_current_epoch = 0;
             }
 
-            return self.last_epoch
+            return self.current_epoch
         }
 
         pub fn millis_since_epoch(&self, epoch: u64) -> u64 {
-            if epoch >= self.last_epoch {
-                trace!("Requested elapsed on the current or not yet ticked epoch");
-                return self.millis_in_last_epoch
+
+            assert!(epoch <= self.current_epoch, "The requested epoch has not yet happened or was not yet registered on ledger.");
+
+            if epoch == self.current_epoch {
+                trace!("Requested elapsed millis since the current epoch");
+                return self.millis_in_current_epoch
             }
 
             trace!("Requested elapsed on a passed epoch");
@@ -64,7 +67,30 @@ blueprint! {
             .map(|(_k, v)| v)
             .sum();
 
-            elapsed + self.millis_in_last_epoch
+            elapsed + self.millis_in_current_epoch
+        }
+
+        pub fn millis_in_epoch(&self, epoch: u64) -> u64 {
+
+            assert!(epoch <= self.current_epoch, "The requested epoch has not yet happened or was not yet registered on ledger.");
+
+            if epoch == self.current_epoch {
+                trace!("Requested elapsed millis on the current epoch");
+                return self.millis_in_current_epoch
+            }
+
+            trace!("Requested elapsed on a passed epoch");
+            let elapsed: &u64 = self.epochs_duration_millis.get(&epoch)
+            .unwrap_or_else(|| {
+                warn!("Epoch was not registered on the oracle, sorry for the inconvenience. We are returning 0 and suggest you call millis_since_epoch or contact an administrator if you absolutely need this epoch duration.");
+                &0u64
+            });
+
+            if self.epochs_duration_millis.contains_key(&epoch){
+                return elapsed + self.millis_in_current_epoch
+            }
+
+            *elapsed
         }
     }
 }
