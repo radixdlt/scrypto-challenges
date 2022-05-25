@@ -24,8 +24,8 @@ To run and test the epoch oracle, you can run one of the following:
 
 > - update the oracle only once per epoch (epochs are synchronized with PTE):
 >
-> ```
-> foo@coolUseri:~ $ (cd scrypto/epoch_duration_oracle && ./tick_on_epoch.sh)
+> ```console
+> me@os:~$ (cd scrypto/epoch_duration_oracle && ./tick_on_epoch.sh)
 >     Current epoch 633, last epoch 633...
 >     Current epoch 633, last epoch 633...
 >     Current epoch set!
@@ -44,8 +44,31 @@ To run and test the epoch oracle, you can run one of the following:
 > ```
 
 > - update the oracle each second (starts with epoch from PTE then increments epoch each seconds):
-> ```bash
-> (cd scrypto/epoch_duration_oracle && ./tick_asap.sh)
+>
+> ```console
+> me@os:~$ (cd scrypto/epoch_duration_oracle && ./tick_asap.sh)
+>     Current epoch set!
+>     Transaction Status: SUCCESS
+>     Execution Time: 14 ms
+>     Instructions:
+>     ├─ CallMethod { component_address: 020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a, method: "create_proof_by_amount", args: >     [Decimal("1"), ResourceAddress("0384a3fa191c5506fe5df8a4622cb6eead59deab9d7fc48f64fc98")] }
+>     └─ CallMethod { component_address: 0244e8cb7761a9b1980e52d70999b4075f182839cec77bfffc1f6c, method: "tick", args: [781u64] }
+>     Instruction Outputs:
+>     ├─ Proof(1024u32)
+>     └─ 10u64
+>     Logs: 0
+>     New Entities: 0
+>     Current epoch set!
+>     Transaction Status: SUCCESS
+>     Execution Time: 17 ms
+>     Instructions:
+>     ├─ CallMethod { component_address: 020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a, method: "create_proof_by_amount", args: >     [Decimal("1"), ResourceAddress("0384a3fa191c5506fe5df8a4622cb6eead59deab9d7fc48f64fc98")] }
+>     └─ CallMethod { component_address: 0244e8cb7761a9b1980e52d70999b4075f182839cec77bfffc1f6c, method: "tick", args: [1063u64] }
+>     Instruction Outputs:
+>     ├─ Proof(1024u32)
+>     └─ 10u64
+>     Logs: 0
+>     New Entities: 0
 > ```
 
 ### Query time since epoch
