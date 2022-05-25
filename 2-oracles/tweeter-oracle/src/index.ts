@@ -4,9 +4,10 @@ import { getAccountAddress, signTransaction } from 'pte-browser-extension-sdk';
 // Global states
 const XRD_ADDRESS = '030000000000000000000000000000000000000000000000000004';
 let accountAddress = undefined; // User account address
-let packageAddress = undefined; // GumballMachine package address
-let tweeterOracleComponentAddress = undefined; //oracle component address 
+let packageAddress = undefined; // TweeterOracle package address
+let tweeterOracleComponentAddress = undefined; //TweeterOracle component address 
 let airdropComponentAddress = undefined ; // airdrop component address
+let airdropComponentAdminBadgeResourceAddress = undefined;
 let componentAddress = undefined; // GumballMachine component address
 let tweeterOracleAdminBadgeResourceAddress = undefined; // tweeterOracle admin badge resource address
 
@@ -106,6 +107,9 @@ document.getElementById('getDatasToUpdate').onclick = async function() {
 
     // Update UI
   document.getElementById('getDatasToUpdateReceipt').innerText =  JSON.stringify(receipt, null, 2);
+
+  if(receipt.status != "Success")
+      return; 
 
   var infos = receipt.logs[0].split('|');
   const selectIdByKey = { 
@@ -353,46 +357,25 @@ document.getElementById('instantiateAirdropComponent').onclick = async function 
 
   // Update UI
   if (receipt.status == 'Success') {
-    tweeterOracleComponentAddress = receipt.newComponents[0];
-    tweeterOracleAdminBadgeResourceAddress = receipt.newResources[0];
-    document.getElementById('airdropComponentAddress').innerText = tweeterOracleComponentAddress;
+    airdropComponentAddress = receipt.newComponents[0];
+    airdropComponentAdminBadgeResourceAddress = receipt.newResources[0];
+    document.getElementById('airdropComponentAddress').innerText = airdropComponentAddress;
   } else {
     document.getElementById('airdropComponentAddress').innerText = 'Error: ' + receipt.status;
   }
 }
 
+document.getElementById('findAndStoreAirdropRecipients').onclick = async function(){
+  
+  const manifest = new ManifestBuilder()
+  .createProofFromAccountByAmount(accountAddress, 1, airdropComponentAdminBadgeResourceAddress)
+  .callMethod(airdropComponentAddress, 'find_and_store_airdrop_recipients',[])
+  .build()
+  .toString();
 
-// document.getElementById('buyGumball').onclick = async function () {
-//   // Construct manifest
-//   const manifest = new ManifestBuilder()
-//     .withdrawFromAccountByAmount(accountAddress, 1, '030000000000000000000000000000000000000000000000000004')
-//     .takeFromWorktop('030000000000000000000000000000000000000000000000000004', 'xrd')
-//     .callMethod(componentAddress, 'buy_gumball', ['Bucket("xrd")'])
-//     .callMethodWithAllResources(accountAddress, 'deposit_batch')
-//     .build()
-//     .toString();
+  // Send manifest to extension for signing
+  const receipt = await signTransaction(manifest);
 
-//   // Send manifest to extension for signing
-//   const receipt = await signTransaction(manifest);
-
-//   // Update UI
-//   document.getElementById('receipt').innerText = JSON.stringify(receipt, null, 2);
-// };
-
-// document.getElementById('checkBalance').onclick = async function () {
-//   // Retrieve component info from PTE service
-//   const api = new DefaultApi();
-//   const userComponent = await api.getComponent({
-//     address: accountAddress
-//   });
-//   const machineComponent = await api.getComponent({
-//     address: componentAddress
-//   });
-
-//   // Update UI
-//   document.getElementById('userBalance').innerText = userComponent.ownedResources
-//     .filter(e => e.resourceAddress == tweeterOracleAdminBadgeResourceAddress)
-//     .map(e => e.amount)[0] || '0';
-//   document.getElementById('machineBalance').innerText = machineComponent.ownedResources
-//     .filter(e => e.resourceAddress == tweeterOracleAdminBadgeResourceAddress).map(e => e.amount)[0];
-// };
+  // Update UI
+  document.getElementById('findAndStoreAirdropRecipientsReceipt').innerText =  JSON.stringify(receipt, null, 2);
+}

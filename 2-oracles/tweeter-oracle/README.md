@@ -2,8 +2,6 @@
 
 > ✨ Bootstrapped with Create Snowpack App (CSA).
 
-### ./scrypto/build.sh 
-
 ## Available Scripts
 
 ### npm start
