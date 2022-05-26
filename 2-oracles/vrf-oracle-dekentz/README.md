@@ -17,7 +17,7 @@ For a random number requestor/consumer, the process is as follows:
 
 1. Identify a VRF Oracle Contract component that an oracle operator is running.
 2. Call the request_randomness method with a payment of (TBD) XRD. (For the sake of the challenge submission, the amount is anything you want, there are no checks.) The method will return a receipt badge of your random number request.
-3. At a later point in time, call the fetch_randomness method. If the off-chain oracle correctly serviced your request with a valid proof, then the method will return a vector of random bytes.
+3. At a later point in time, call the fetch_randomness method with your receipt badge. If the off-chain oracle correctly serviced your request with a valid proof, then the method will return a vector of random bytes. The badge will be burnt, as all random numbers are one time use.
 
 Example usage can be seen in the vrf_verify.rev revup script. 
 
