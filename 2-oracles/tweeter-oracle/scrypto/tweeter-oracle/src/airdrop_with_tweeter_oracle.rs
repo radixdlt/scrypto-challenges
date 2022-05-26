@@ -6,6 +6,8 @@ pub struct AirdropWithTweeterOracleData {
     token_type: ResourceAddress,
     #[scrypto(mutable)]
     is_collected: bool,
+    #[scrypto(mutable)]
+    is_recipient: bool
 }
 
 blueprint! {
@@ -159,6 +161,7 @@ blueprint! {
                     AirdropWithTweeterOracleData {
                         token_type: self.tokens.resource_address(),
                         is_collected: false,
+                        is_recipient: false
                     },
                 )
             });
@@ -202,22 +205,32 @@ blueprint! {
                 "token address must match"
             );
 
+             // Check if the airdrop have already been finalized
+             assert!(
+                self.amount_per_recipient == Decimal::zero(),
+                "The airdrop have already been finalized"
+            );
+
             //clear the recipients
             self.recipients.clear();
 
             // find and store recipients
             self.find_and_store_airdrop_recipients();
 
+            for nft_id in self.recipients.iter() {
+                let mut nft_data : AirdropWithTweeterOracleData =  borrow_resource_manager!(self.participant_badge_address)
+                                                                    .get_non_fungible_data(nft_id);
+                        nft_data.is_recipient = true; 
+                        self.minter_badge_vault.authorize(|| {
+                            borrow_resource_manager!(self.participant_badge_address)
+                                .update_non_fungible_data(nft_id , nft_data);
+                        });                                    
+            }
+
             // check recipients
             assert!(
                 self.recipients.len() > 0,
                 "there is no recipient for the airdrop"
-            );
-
-            // Check if the airdrop have already been finalized
-            assert!(
-                self.amount_per_recipient == Decimal::zero(),
-                "The airdrop have already been finalized"
             );
 
             // Calculate the amount of tokens each recipient can receive
@@ -254,14 +267,15 @@ blueprint! {
             );
             // checking badge amount
             assert_eq!(auth.amount(), dec!("1"), "Invalid Badge Provided");
-            let nft_id = auth.non_fungible::<AirdropWithTweeterOracleData>().id();
+            
+            let mut nft_data = auth.non_fungible::<AirdropWithTweeterOracleData>().data();
 
             // checking if current user completed all tasks
             assert!(
-                self.recipients.contains(&nft_id),
+                nft_data.is_recipient,
                 "you cannot receive the airdrop because you have not excuted all tasks"
             );
-            let mut nft_data = auth.non_fungible::<AirdropWithTweeterOracleData>().data();
+            
 
             // checking if withdrawal is already done
             assert!(!nft_data.is_collected, "withdraw is already done");

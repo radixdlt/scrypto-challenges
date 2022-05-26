@@ -45,7 +45,7 @@ rm tx.rtm
 
 #withdraw
 
-#cyover withdraw is success 
+#cyover withdrawal is a success
 echo 'cyover withdrawal is a success '
 resim show $AIRDROP_REGISTER_ADDRESS_CYOVER 
 resim set-default-account $AIRDROP_REGISTER_ADDRESS_CYOVER  $AIRDROP_REGISTER_PVKEY_CYOVER
@@ -53,7 +53,7 @@ resim call-method $AIRDROP_WITH_TWEETER_ORACLE_COMPONENT "withdraw" 1,$AIRDROP_W
 resim show $AIRDROP_REGISTER_ADDRESS_CYOVER 
 
 
-#cyrolsi try to withdraw and get error
+#cyrolsi withdrawal is a failure
 echo 'cyrolsi withdrawal is a failure'
 resim show $AIRDROP_REGISTER_ADDRESS_CYROLSI
 resim set-default-account $AIRDROP_REGISTER_ADDRESS_CYROLSI  $AIRDROP_REGISTER_PVKEY_CYROLSI
