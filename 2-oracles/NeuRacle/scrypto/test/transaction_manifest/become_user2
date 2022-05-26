@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${USER2_ACC}") "withdraw_by_amount" Decimal("234") ResourceAddress("${NEURA}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("123") ResourceAddress("${NEURA}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${COMP}") "become_new_user" Bucket("bucket1") "https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Ho_Chi_Minh";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${USER2_ACC}") "deposit_batch";

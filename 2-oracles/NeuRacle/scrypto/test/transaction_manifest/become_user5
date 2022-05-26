@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${USER5_ACC}") "withdraw_by_amount" Decimal("234") ResourceAddress("${NEURA}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("57") ResourceAddress("${NEURA}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${COMP}") "become_new_user" Bucket("bucket1") "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${USER5_ACC}") "deposit_batch";

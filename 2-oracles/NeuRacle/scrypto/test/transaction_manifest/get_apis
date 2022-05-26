@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${COMP}") "get_apis";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${VALUP_ACC}") "deposit_batch";

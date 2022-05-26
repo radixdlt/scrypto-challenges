@@ -1,0 +1,2 @@
+CALL_FUNCTION PackageAddress("${package}") "NeuraToken" "new_token" "Neura" "NAR" Decimal("10000000") 18u8;
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ADMIN_ACC}") "deposit_batch";
