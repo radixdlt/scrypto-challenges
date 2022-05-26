@@ -1,7 +1,7 @@
 # VRF Oracle
 
 - This implementation of VRF follows the [draft-irtf-cfrg-vrf-11](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-vrf-11) publication. This publication is an updated version of the VRF implementation that the [Chainlink VRF v1](https://github.com/smartcontractkit/chainlink/blob/ff56c1657a48bb7f9782e407412b4e5aa10ff2fc/contracts/src/v0.6/VRF.sol#L6) uses. Version 12 was released on May 26th, 2022, right before the deadline of the Scrypto Oracle submissions challenge, and the implementation in this repo has not yet been updated to use the most current draft publication.
-- This implementation uses the NistP256 curve as this is the curve that the publication has the most details regarding the VRF implementation, specifically encoding random input seeds to points on the P256 curve, a required step in generating proofs.
+- This implementation uses the NistP256 curve as this is the curve that the publication has the most details regarding the VRF implementation, specifically encoding random input seeds to points on the P256 curve, a required step in generating proofs. This curve is also the the curve with the most support for the required VRF ECC math in the Rust elliptic-curves [p256](https://docs.rs/p256/latest/p256/#) crate.
 - This model follows the the architecture where a random number requestor will request a random number from a VrfOracleContract component, which returns a receipt badge. The requestor will then need to fetch the result of the random number generation from the VrfOracleContract component at a later time. The VrfOracle internally verifies the proof that it receives from the off-chain oracle VRF prover, so the random number requestor may directly use the returned random bytes.
 
 # Usage
