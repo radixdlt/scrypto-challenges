@@ -13,7 +13,7 @@ resim set-default-account $VAL1_ACC $VAL1_PIV
 export VALUP_ADDRESS=$VAL1_ADDRESS
 export VALUP_ACC=$VAL1_ACC
 
-export RESULTS=`./neuracle_gateway.exe`
+export RESULTS=`./neuracle_gateway_prototype.exe`
 
 resim run ./transaction_manifest/update_data
 
