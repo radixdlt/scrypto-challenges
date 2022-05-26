@@ -2,29 +2,6 @@
 set -x
 set -e
 
-# Setup a baseline environment with 2 users each holding a resource they would
-# trade.
-#
-# To avoid parsing resim output I've manually set the variables based on their
-# (deterministic) values.
-#
-# The "Maker" has a pre-swap setup phase where they make sure they have an
-# account to fund trades from and instantate the Maker Component to handle
-# exzecution of their orders by a sender.  This only needs to be done once, no
-# matter how many trades they sign of any resource type.
-#
-# The "Taker" has a pre-swap setup phase where they nominate (or create) a
-# unique resource they own to act as a badge to prevent frontrunning the
-# transaction submission.  Note their transaction signing key could be used as
-# a virtual badge for this purpose to avoid a pre-swap ledger interaction by
-# the Taker.  But, I'm choosing to be explicit for readability/flexibility to
-# show this need not be directly tied to a given public key.  Anyone with the
-# badge could submit the signed order.
-
-
-##############################
-
-
 resim reset
 
 XRD=030000000000000000000000000000000000000000000000000004

@@ -137,10 +137,10 @@ blueprint! {
                 "already registered to this airdrop"
             );
 
-            // Check if the airdrop were already finalize
+            // Check if the airdrop has already been finalized
             assert!(
                 self.amount_per_recipient == Decimal::zero(),
-                "The airdrop were already finalize"
+                "The airdrop has already been finalized"
             );
             // Generate NonFungibleId for participant
             let id = NonFungibleId::random();
@@ -167,7 +167,7 @@ blueprint! {
             return participant_badge;
         }
 
-        //This find the participants that have completed the tasks and to store them
+        //This find the participants who have completed the tasks and to store them
         pub fn find_and_store_airdrop_recipients(&mut self) -> usize {
             //find partcipants who made all tasks
             for nft_id in self.airdrop_participants.keys() {
@@ -185,7 +185,7 @@ blueprint! {
             return self.recipients.len();
         }
 
-        // this method makes it possible to finalize the airdrop
+        // this method allows to finalize the airdrop
         // #Arguments
         // * `tokens` Bucket containing the tokens to distribute
         pub fn finalize_airdrop(&mut self, mut tokens: Bucket) -> Bucket {
@@ -202,36 +202,27 @@ blueprint! {
                 "token address must match"
             );
 
+            //clear the recipients
+            self.recipients.clear();
+
+            // find and store recipients
+            self.find_and_store_airdrop_recipients();
+
             // check recipients
             assert!(
                 self.recipients.len() > 0,
                 "there is no recipient for the airdrop"
             );
 
-            // Check if the airdrop were already finalize
+            // Check if the airdrop have already been finalized
             assert!(
                 self.amount_per_recipient == Decimal::zero(),
-                "The airdrop were already finalize"
+                "The airdrop have already been finalized"
             );
 
-            // check tokens quantity for NonFungible
-            // assert!(
-            //     borrow_resource_manager!(tokens.resource_address()).resource_type()
-            //             == ResourceType::NonFungible && tokens.amount() >= Decimal::from(self.recipients.len() as i128 ) ,
-            //     "For non-fungible tokens, a number at least equal to the number of recipients is required"
-            // );
-
             // Calculate the amount of tokens each recipient can receive
-            let mut amount_per_recipient =
+            let amount_per_recipient =
                 tokens.amount() / Decimal::from(self.recipients.len() as i128);
-            
-            // // Special case for NonFongible Token
-            // if borrow_resource_manager!(tokens.resource_address()).resource_type()
-            //     == ResourceType::NonFungible
-            // {
-            //     amount_per_recipient =
-            //         Decimal::from(amount_per_recipient.round(18, RoundingMode::TowardsZero));
-            // }
 
             self.amount_per_recipient = amount_per_recipient;
 
@@ -246,7 +237,7 @@ blueprint! {
 
         //This method allows recipients to withdraw their tokens
         //#Arguments
-        //* `auth` Aidrop registration proof
+        //* `auth` Airdrop registration proof
         //#Return
         // This function return a  bucket containing the quantity of tokens to be distributed
         pub fn withdraw(&mut self, auth: Proof) -> Bucket {
@@ -264,14 +255,16 @@ blueprint! {
             // checking badge amount
             assert_eq!(auth.amount(), dec!("1"), "Invalid Badge Provided");
             let nft_id = auth.non_fungible::<AirdropWithTweeterOracleData>().id();
+
             // checking if current user completed all tasks
             assert!(
                 self.recipients.contains(&nft_id),
                 "you cannot receive the airdrop because you have not excuted all tasks"
             );
             let mut nft_data = auth.non_fungible::<AirdropWithTweeterOracleData>().data();
+
             // checking if withdrawal is already done
-            assert!(!nft_data.is_collected, "withdraw already done");
+            assert!(!nft_data.is_collected, "withdraw is already done");
             nft_data.is_collected = true;
             let amount = self.amount_per_recipient;
             // update nft data
@@ -280,13 +273,13 @@ blueprint! {
                     auth.non_fungible().update_data(nft_data);
                 }
             });
+
             info!("withdraw_token : {}", amount);
             // return tokens to caller
             return self.tokens.take(amount);
         }
 
         fn has_completed_all_tasks(&self, participant_tweeter_account: String) -> bool {
-            
             let is_follower = self.accounts_to_follow.len() == 0
                 || self.accounts_to_follow.clone().into_iter().all(|x| {
                     self.tweeter_oracle
