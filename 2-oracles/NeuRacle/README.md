@@ -197,9 +197,11 @@ Although such a bad thing might happen on NeuRacle, it wouldn't be a critical pr
 
 **Slow finality before sharded Cerberus**: As explained above, before Radix network is fully sharded, validators has to make data feed transactions in sequence.
 
-### Can NeuRacle do VRF?
+### What can't this NeuRacle prototype do yet?
 
-Unfortunately, current NeuRacle prototype can't do VRF. In the future, NeuRacle will include a function to generate random number from a verified seed: "Unix time from NeuRacle service", "Crypto, asset price from NeuRacle service", "The middle address that update NeuRacle datas in the stream of data validation transactions done at almost the same time",... All these data are verified to have a degree of "entropy".
+- **VRF**: Unfortunately, current NeuRacle prototype can't do VRF. In the future, NeuRacle will include a function to generate random number from a verified seed: "Unix time from NeuRacle service", "Crypto, asset price from NeuRacle service", "The middle address that update NeuRacle datas in the stream of data validation transactions done at almost the same time",... All these data are verified to have a degree of "entropy".
+
+- **Private data feeding**: Currently, all data verified on NeuRacle prototype is stored on NeuRacle component state and is available for any off-chain reading. In the future, NeuRacle will include an Encrypt - Decrypt tool for this specific usecase.
 
 ## License & P/s
 
