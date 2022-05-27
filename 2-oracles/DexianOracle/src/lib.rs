@@ -61,6 +61,7 @@ blueprint! {
 
             let access_rules = AccessRules::new()
                 .method("feed_price", rule!(require(admin_badge.resource_address())))
+                .method("withdraw_fee", rule!(require(admin_badge.resource_address())))
                 .method("request_price", rule!(allow_all))
                 .method("get_price", rule!(allow_all));
                 // .method("register_dataprovider", rule(!require(admin_badge.resource_address())))
@@ -86,6 +87,7 @@ blueprint! {
         pub fn request_price(&mut self,  fee: Bucket,  pair: String, component: ComponentAddress, 
             method: String, args: Vec<Vec<u8>>) -> NonFungibleId {
             assert!(fee.amount() <  self.fee, "Fees are lower than required!");
+            self.vault.put(fee);
 
             let callback_id = NonFungibleId::random();
             let callback_data = CallbackData::new_instance(callback_id.clone(), component, method, pair, args);
@@ -98,6 +100,12 @@ blueprint! {
             self.callback_vaults.put(callback);
             self.unfilful_vec.push(callback_id.clone());
             callback_id
+        }
+
+        pub fn withdraw_fee(&mut self, amount: Decimal) -> Bucket{
+            assert!(self.vault.amount () < amount, "balance insufficient!");
+
+            self.vault.take(amount)
         }
 
         fn filfull_request(&mut self, pair: &String, price: String, epoch_at: u64) {
