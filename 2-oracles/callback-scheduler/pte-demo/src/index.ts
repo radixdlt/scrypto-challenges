@@ -14,17 +14,6 @@ let dummyComponentAdminBadgeAddress = undefined; // DummyComponent AdminBadge ad
 let demoTokensAddress = undefined; // Address of the demo token that is created by the DummyComponent
 let callbackId = undefined; // The ID of a Callback NFR and its associated handles
 
-accountAddress = "023a4775747773924433d494878c989eb8d78a41c8e8b317286395"
-packageAddress = "013790291d6cf21f56f43746d563a7a47b11cda795e9600b9481ed"
-//
-schedulerComponentAddress = "03a88164834e49de82947159a3d1ba7fd7471838202e66775414c1"
-// schedulerComponentAdminBadgeAddress = "03faccb756f996045bc1cc886d8afbf9a937d7c1a2c061792cb161"
-// callbackAdminHandleAddress = "03d1bcc8a4a96f8178ca0c24d0aa77d77df88bc079c8035762c8aa"
-// callbackHandleAddress = "0319cdef83413ac3e62b46d5cc0ae799ffa42798d3922cea71e32e"
-//
-// dummyComponentAddress = "03a88164834e49de82947159a3d1ba7fd7471838202e66775414c1"
-// dummyComponentAdminBadgeAddress = "03674826458328d42ca25205c4e1d0642df7ddb357737bec71b167"
-// demoTokensAddress = "034715c22f2b3e2225750f9ad66b3b2ad848726d2ad7fc126f08ad"
 
 function assertTransactionSuccessful(receipt: Receipt) {
     const receiptJson = JSON.stringify(receipt, null, 2);
