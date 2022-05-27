@@ -163,7 +163,7 @@ Off-chain identity can also do data aggregration and ensure some degree of decen
 
 ### Why don't just use those off-chain decentralized data?
 
-To feed any off-chain data, the oracle still need to rely on "a trusted bridge" or "a trusted medium", lead to a single point of failure, eg: [Ronin bridge](https://cointelegraph.com/news/the-aftermath-of-axie-infinity-s-650m-ronin-bridge-hack). However, NeuRacle use a large set of validators to ensure decentralized, trustless data feeding.
+To feed any off-chain data, the oracle still need to rely on "a trusted bridge" or "a trusted medium", lead to a single point of failure or highly centralized, eg: [Ronin bridge](https://cointelegraph.com/news/the-aftermath-of-axie-infinity-s-650m-ronin-bridge-hack). However, NeuRacle use a large set of validators to ensure decentralized, trustless data feeding.
 
 ### Other approach
 
