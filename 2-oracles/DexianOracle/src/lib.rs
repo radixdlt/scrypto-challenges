@@ -71,8 +71,10 @@ blueprint! {
         }
 
         pub fn feed_price(&mut self, pair: String, price: String) -> bool {
-            self.price_map.insert(pair.clone(), (Decimal::from(price), Runtime::current_epoch()));
-            self.filfull_request(&pair);
+            let epoch_at = Runtime::current_epoch();
+            let dec_price = Decimal::from(price.clone());
+            self.price_map.insert(pair.clone(), (dec_price, epoch_at));
+            self.filfull_request(&pair, price.clone(), epoch_at);
             true
         }
 
@@ -98,14 +100,14 @@ blueprint! {
             callback_id
         }
 
-        fn filfull_request(&mut self, pair: &String) {
+        fn filfull_request(&mut self, pair: &String, price: String, epoch_at: u64) {
             let mut i = 0;
             while i < self.unfilful_vec.len() {
                 if self.callback_vaults.non_fungible_ids().contains(&self.unfilful_vec[i]){
                     let callback = self.callback_vaults.take_non_fungible(&self.unfilful_vec[i]);
                     let callback_data = callback.non_fungible::<CallbackData>().data();
                     if callback_data.pair.eq(pair) {
-                        callback_data.call();
+                        callback_data.call(&price, epoch_at);
                         self.unfilful_vec.remove(i);
                     }
                     i += 1;
@@ -147,7 +149,7 @@ impl CallbackData {
         }
     }
 
-    pub fn call(&self){
-        Runtime::call_method(self.component, &self.method, self.args.to_vec());
+    pub fn call(&self, price: &String, epoch_at: u64){
+        Runtime::call_method(self.component, &self.method, args![price.clone(), epoch_at, self.args.to_vec()]);
     }
 }
