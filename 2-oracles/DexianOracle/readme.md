@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-## Oracle Basic Request Model
+## Basic Request Model
 
 ![Basic Request Model](res/basic_req_model.png)
 
@@ -37,7 +37,7 @@
 2. 授权与取消授权管理
 
 
-基于scrypto的badge设计模式实现的
+基于scrypto的badge设计模式实现， 数据提供者需要先注册到预言机
 
 
 ## Decentralized Model
@@ -47,5 +47,16 @@
 
 Each data feed is updated by a decentralized oracle network. Each oracle in the set publishes data during an aggregation round. 
 
-## VFC
+```
+
+RESULT=$(resim publish ".")
+export PACKAGE=$(echo "$RESULT" | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
+
+export pkg=015586c1be716163cfbd2128ecebae7026ad2dee38c0b91b1b1fb9
+
+resim call-function $pkg DeXianOracle new 20
+
+export comp=0269b1040c49308764fef17ff5b53e5f3a72d5aca766e7233b1b23
+export badge=033a8a6d4e1e20c0da6a8db3c7754c2e83d32d90b781b6581553a0
+
 
