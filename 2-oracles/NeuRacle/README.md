@@ -41,7 +41,7 @@ Components = Components.
 
 ## Quick Start
 
-***For a simple showcase**, this prototype will be un-sharded, that mean each validators will validate all datas at the same time (Not divided into validator sets to bring more scalability or divided into data sources to bring more security). Datas will also be validated (Reaching Consensus) in 1 round of voting. The prototype also won't use **NeuRacle Storage** or **User Incentive Program** (more detail on **System Explaination**)
+***For a simple showcase**, this prototype will be un-sharded, that mean each validators will validate all datas at the same time (Not divided into validator sets to bring more scalability or divided into data sources to bring more security). Datas will also be validated (Reaching Consensus) in 1 round of voting. The prototype also won't use **NeuRacle Storage** or **User Incentive Program** (more detail on **System Explaination**)*
 
 *For windows user:* if you has git installed with [git bash](https://www.stanleyulili.com/git/how-to-install-git-bash-on-windows/) and [VSCode](https://code.visualstudio.com/), you should be able to run .sh file through git bash
 
