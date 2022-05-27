@@ -40,16 +40,34 @@ Callback as requested by the caller of 'request_price`
 
 It directly calls `get_price` to get the corresponding price and the epoch (timestamp) when the price was generated.
 
+
+
+## Test (command line)
+
+``` shell
+resim reset
+result=$(resim new-account)
+export user_account=$(echo $result|grep "Account component address: "|awk -F ": " '{print $2}'|awk -F " " '{print $1}')
+
+result=$(resim publish ".")
+export pkg=$(echo $result | awk -F ": " '{print $2}')
+
+result=$(resim call-function $pkg DeXianOracle new 20)
+export comp=$(echo $result | awk -F "Component: " '{print $2}' | awk -F " " '{print $1}')
+badge=$(echo $result | awk -F "Resource: " '{print $2}' | awk -F " " '{print $1}')
+
+resim run transactions/user_account_feed.rtm
+
+result=$(resim new-account)
+export user_account2=$(echo $result|grep "Account component address: "|awk -F ": " '{print $2}'|awk -F " " '{print $1}')
+export user_account2_private=$(echo $result|grep "Account component address: "|awk -F "Private key: " '{print $2}')
+
+resim  set-default-account $user_account2 $user_account2_private
+
+resim call-method $comp 'get_price' 'XRD/USD'
+
+
+# resim call-method $comp 'request_price' 'XRD/USD' "xxx" "yyy"
+
 ```
-
-RESULT=$(resim publish ".")
-export PACKAGE=$(echo "$RESULT" | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
-
-export pkg=015586c1be716163cfbd2128ecebae7026ad2dee38c0b91b1b1fb9
-
-resim call-function $pkg DeXianOracle new 20
-
-export comp=0269b1040c49308764fef17ff5b53e5f3a72d5aca766e7233b1b23
-export badge=033a8a6d4e1e20c0da6a8db3c7754c2e83d32d90b781b6581553a0
-
 
