@@ -4,7 +4,7 @@ import {Configuration, DefaultApi, ManifestBuilder, SubmitTransactionRequest} fr
 
 // set to false to use the real pte (not well tested)
 // true means the localpte
-const USE_LOCAL_PTE = true;
+const USE_LOCAL_PTE = false;
 
 let PTE_BASE_PATH = undefined;
 if (USE_LOCAL_PTE) {
