@@ -12,7 +12,7 @@
 
 `. users_and_apis.sh` set a testing environment of data demands, also test refund account examples. 
 
-*In real case, the data source feed to NeuRacle Gateway should return only 1 specific data that user need. The Gateway prototype only work for this test environment, you shouldn't try changing api source request from users.*
+*In real case, the data source feed to NeuRacle Gateway should return only 1 specific data that user need. This test environment assume that user need 1 specific data from the datas chunk in which api return. The Gateway prototype do the extra work of data parsing, so it only work for this test environment, you shouldn't try changing api source request from users.*
 
 ### Utility
 
