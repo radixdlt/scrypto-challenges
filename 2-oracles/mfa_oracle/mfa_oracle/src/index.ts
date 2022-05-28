@@ -2,22 +2,40 @@ import {getAccountAddress, signTransaction} from 'pte-browser-extension-sdk';
 import {Configuration, DefaultApi, ManifestBuilder, SubmitTransactionRequest} from 'pte-sdk';
 //import { updateCommaList } from 'typescript';
 
+// set to false to use the real pte (not well tested)
+// true means the localpte
+const USE_LOCAL_PTE = true;
+
+let PTE_BASE_PATH = undefined;
+if (USE_LOCAL_PTE) {
+  PTE_BASE_PATH = 'http://localhost:3500';
+} else {
+  PTE_BASE_PATH = 'https://pte02.radixdlt.com';
+}
+
 // wrapper around the API to create "getTransactions" and interact locally instead of remotely
-// expects a "localpte" server running at TCP 3500 on localhost
 class LocalPTE extends DefaultApi {
   async getTransactions() {
-      const queryParameters: any = {};
-      const headerParameters: any = {};
-      const response = await this.request({
-          path: `/transactions`,
-          method: 'GET',
-          headers: headerParameters,
-          query: queryParameters,
-      }, {});
-      return response.json();
+      if (!USE_LOCAL_PTE) {
+        if (txhash_to_validate === undefined) {
+          return []
+        } else {
+          return [txhash_to_validate]
+        }
+      } else {
+        const queryParameters: any = {};
+        const headerParameters: any = {};
+        const response = await this.request({
+            path: `/transactions`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, {});
+        return response.json();
+      }
   }
   constructor(
-      config = new Configuration({basePath: 'http://localhost:3500'})) {
+      config = new Configuration({basePath: PTE_BASE_PATH})) {
     super(config);
   }
 }
