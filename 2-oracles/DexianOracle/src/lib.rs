@@ -33,7 +33,7 @@ blueprint! {
         pub fn new(
             fee: Decimal
         ) -> (ComponentAddress, Bucket) {
-            assert!( fee >= Decimal::zero(), "invalid fee value.");
+            assert!( fee > Decimal::zero(), "invalid fee value.");
 
             let admin_badge : Bucket = ResourceBuilder::new_fungible()
                 .metadata("name","DeXianOracle Admin Badge").metadata("symbol","DXADM")
@@ -85,12 +85,12 @@ blueprint! {
         }
 
         pub fn request_price(&mut self,  fee: Bucket,  pair: String, component: ComponentAddress, 
-            method: String, args: Vec<Vec<u8>>) -> NonFungibleId {
-            assert!(fee.amount() <  self.fee, "Fees are lower than required!");
+            method: String, arg: String) -> NonFungibleId {
+            assert!(fee.amount() >= self.fee, "Fees are lower than required!");
             self.vault.put(fee);
 
             let callback_id = NonFungibleId::random();
-            let callback_data = CallbackData::new_instance(callback_id.clone(), component, method, pair, args);
+            let callback_data = CallbackData::new_instance(callback_id.clone(), component, method, pair, args!(arg));
 
             let callback = self.callback_minter.authorize(|| {
                 let rm = borrow_resource_manager!(self.callback_vaults.resource_address());

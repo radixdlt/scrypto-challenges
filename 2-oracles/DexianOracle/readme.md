@@ -48,13 +48,14 @@ It directly calls `get_price` to get the corresponding price and the epoch (time
 resim reset
 result=$(resim new-account)
 export user_account=$(echo $result|grep "Account component address: "|awk -F ": " '{print $2}'|awk -F " " '{print $1}')
+export user_account_private=$(echo $result|grep "Account component address: "|awk -F "Private key: " '{print $2}')
 
 result=$(resim publish ".")
 export pkg=$(echo $result | awk -F ": " '{print $2}')
 
 result=$(resim call-function $pkg DeXianOracle new 20)
 export comp=$(echo $result | awk -F "Component: " '{print $2}' | awk -F " " '{print $1}')
-badge=$(echo $result | awk -F "Resource: " '{print $2}' | awk -F " " '{print $1}')
+export badge=$(echo $result | awk -F "Resource: " '{print $2}' | awk -F " " '{print $1}')
 
 resim run transactions/user_account_feed.rtm
 
@@ -66,8 +67,10 @@ resim  set-default-account $user_account2 $user_account2_private
 
 resim call-method $comp 'get_price' 'XRD/USD'
 
+resim  set-default-account $user_account $user_account_private
 
-# resim call-method $comp 'request_price' 'XRD/USD' "xxx" "yyy"
+resim run transactions/user_account2_request.rtm 
+
 
 ```
 
