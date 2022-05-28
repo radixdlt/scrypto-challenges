@@ -115,7 +115,7 @@ The *incentive percent* will be a hard choice for NeuRacle operator, since if th
 
 Undoubtedly, the *incentive percent* is the minimum threshold in which third-party will re-route NeuRacle datas make their user has to pay (based on game-theory). And as the consequence, those third-party also won't have any method to prevent their user won't do the same. In the end, third data market competetion will just destroy themselves and come back to NeuRacle (The loop will make them reduce their data price to the minimum threshold).
 
-That's only possible with a incentive program. As long as the third-party can get enough benefit from re-routing the data, they will continue to do so.
+That's only possible with an incentive program. As long as the third-party can get enough benefit from re-routing the data, they will continue to do so.
 
 ### Delegated Proof of Stake
 
