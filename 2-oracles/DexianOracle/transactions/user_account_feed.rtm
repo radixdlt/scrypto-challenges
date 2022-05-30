@@ -1,0 +1,7 @@
+CALL_METHOD 
+    ComponentAddress("${user_account}") 
+    "create_proof" 
+    ResourceAddress("${badge}");
+
+
+CALL_METHOD ComponentAddress("${comp}") "feed_price" "XRD/USD" "0.0813";
