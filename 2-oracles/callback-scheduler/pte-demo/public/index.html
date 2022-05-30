@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Web site created using create-snowpack-app" />
+    <link rel="stylesheet" type="text/css" href="/index.css" />
+    <title>Callback Scheduler Machine</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script type="module" src="/dist/index.js"></script>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+
+    <h1>Callback Scheduler</h1>
+
+    <h2>1. Fetch User Account Address</h2>
+    <pre>Please note that you will be using a single account for this demo when in actuality there would be at least
+two parties involved. However, for the sake of simplicity, you will take on both the role of the operator of the
+CallbackScheduler as well as the role of one of its users.</pre>
+    <p><button id="fetchAccountAddress">Click me</button> to get the account address of the PTE Browser Extension user.</p>
+    <pre>Account address: <span id="accountAddress"></span></pre>
+
+    <h2>2. Publish Package</h2>
+    <p><button id="publishPackage">Publish</button></p>
+    <pre>Package address: <span id="packageAddress"></span></pre>
+
+    <h2>3. Instantiate a Callback Scheduler</h2>
+    <pre>Instantiate a new CallbackScheduler component - the component that is actually demoed here.
+A CallbackScheduler component is typically instantiated by a single operator and may then serve many individual users.</pre>
+    <p><button id="instantiateSchedulerComponent">Instantiate CallbackScheduler</button></p>
+    <pre>CallbackScheduler component address: <span id="schedulerComponentAddress"></span></pre>
+
+    <h2>4. Instantiate a DummyComponent</h2>
+    <pre>For this demonstration a DummyComponent is used that holds some tokens in a vault.
+It has a burn_tokens method that may be used to burn a specified amount of the component's tokens.
+You will schedule a call to this method in the next step.</pre>
+    <p><button id="instantiateDummyComponent">Instantiate DummyComponent</button></p>
+    <pre>DummyComponent address: <span id="dummyComponentAddress"></span></pre>
+    <pre>DummyComponent's token balance: <span id="tokenBalance1"></span></pre>
+
+    <h2>5. Schedule a callback</h2>
+    <pre>Here, a callback to the DummyComponent's burn_tokens method is scheduled
+by sending the following CallbackRequest struct to the CallbackScheduler component:
+
+    Struct(
+            Enum("AtDateTime", "2022-10-01T12:30:55+00", 120u8), // [1] The trigger
+            ComponentAddress("${dummyComponentAddress}"), // [2] The target component of the callback
+            "burn_tokens", // [3] The target method of the callback
+            Vec&lt;Vec>(Bytes("a1100000000000a0dec5adc9353600000000000000")), // [4] The argument to the burn_tokens method
+            None // [5] Don't use a different component for authorizing the callback
+    )
+
+1:   The callback should be executed at 2022-10-01T12:30:55+00 with a tolerance of 120 seconds.
+     This is just an arbitrary example. You will execute the callback much earlier than specified here.
+     This only works, though, because it would need a timer oracle to validate the correct execution
+     time and that is not yet built into the present implementation.
+     It would also be possible to set the execution time to a specific epoch. In this case, the
+     CallbackScheduler component would validate that the call occurs in just that epoch and not in another.
+     However, this is difficult to demonstrate here because one cannot influence the epoch of the demo environment.
+2/3: The target of the callback will be the burn_tokens method of the DummyComponent
+4:   This specifies that 1000 tokens should be burnt. What you see is just the encoded form of [Decimal("1000")]
+5:   It is possible to have another component handle the callback authorization. This makes it possible to
+     schedule callbacks for components, which code one cannot change. But, by passing None here, the
+     DummyComponent that is the target of the callback will handle callback authorization by itself.
+
+After calling the schedule_callback method one ends up with a CallbackHandle NFR on the transaction worktop.
+If you take a look at how the transaction manifest is built you will see that this NFR is transferred to the
+DummyComponent immediately. Without the CallbackHandle the DummyComponent would not be able to authorize the callback.</pre>
+    <p><button id="scheduleCallback">Schedule Callback</button></p>
+    <pre>Callback ID: <span id="callbackId"></span></pre>
+
+    <h2>6. Check the token balance</h2>
+    <pre>Check that the token balance is still 1000000 tokens and nothing has been  burnt yet.</pre>
+    <p><button id="checkTokenBalance2">Get Balance</button></p>
+    <pre>DummyComponent's token balance: <span id="tokenBalance2"></span></pre>
+
+    <h2>7. Retrieve the CallbackAdminHandle</h2>
+    <pre>In this step you will retrieve the CallbackAdminHandle NFR that is needed to execute the callback.</pre>
+    <p><button id="getNewCallbackAdminHandles">Retrieve CallbackAdminHandle</button></p>
+    <pre id="callbackAdminHandleRetrieved"></pre>
+
+    <h2>7. Execute the callback</h2>
+    <pre>Finally you will execute the callback. As stated above, the trigger condition is most likely
+not met yet. However it still works as the trigger condition is not yet enforced in this implementation.</pre>
+    <p><button id="executeCallback">Execute Callback</button></p>
+    <pre id="callbackExecuted"></pre>
+
+    <h2>8. Check the token balance</h2>
+    <pre>Check the DummyComponent's token balance one last time. Observe that it has reduced by 1000 tokens.</pre>
+    <p><button id="checkTokenBalance3">Get Balance</button></p>
+    <pre>DummyComponent's token balance: <span id="tokenBalance3"></span></pre>
+  </body>
+</html>
