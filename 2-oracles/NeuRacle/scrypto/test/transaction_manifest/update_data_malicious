@@ -1,0 +1,12 @@
+CALL_METHOD 
+    ComponentAddress("${VALUP_ACC}") "withdraw_by_amount" Decimal("1") ResourceAddress("${VALIDATOR_BADGE}");
+TAKE_FROM_WORKTOP 
+    ResourceAddress("${VALIDATOR_BADGE}") Bucket("bucket");
+CREATE_PROOF_FROM_BUCKET 
+    Bucket("bucket") Proof("validator_proof");
+PUSH_TO_AUTH_ZONE 
+    Proof("validator_proof");
+CALL_METHOD 
+    ComponentAddress("${VALUP_ADDRESS}") "update_data" TreeMap<String, String>("https://api.bitfinex.com/v2/ticker/tXRDUSD", "111", "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd", "222", "https://api.coingecko.com/api/v3/simple/price?ids=radix&vs_currencies=usd", "333", "https://www.timeapi.io/api/Time/current/zone?timeZone=Asia/Ho_Chi_Minh", "4444", "https://www.timeapi.io/api/Time/current/zone?timeZone=Europe/London", "555");
+CALL_METHOD_WITH_ALL_RESOURCES 
+    ComponentAddress("${VALUP_ACC}") "deposit_batch";

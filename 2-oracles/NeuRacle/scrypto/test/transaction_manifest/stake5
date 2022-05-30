@@ -1,0 +1,24 @@
+CALL_METHOD 
+    ComponentAddress("${VAL5_ACC}") "withdraw_by_amount" Decimal("900") ResourceAddress("${NEURA}");
+TAKE_FROM_WORKTOP_BY_AMOUNT 
+    Decimal("42") ResourceAddress("${NEURA}") Bucket("bucket1");
+CALL_METHOD 
+    ComponentAddress("${VAL1_ADDRESS}") "stake" Bucket("bucket1");
+TAKE_FROM_WORKTOP_BY_AMOUNT 
+    Decimal("57") ResourceAddress("${NEURA}") Bucket("bucket2");
+CALL_METHOD 
+    ComponentAddress("${VAL2_ADDRESS}") "stake" Bucket("bucket2");
+TAKE_FROM_WORKTOP_BY_AMOUNT 
+    Decimal("67") ResourceAddress("${NEURA}") Bucket("bucket3");
+CALL_METHOD 
+    ComponentAddress("${VAL3_ADDRESS}") "stake" Bucket("bucket3");
+TAKE_FROM_WORKTOP_BY_AMOUNT 
+    Decimal("43") ResourceAddress("${NEURA}") Bucket("bucket4");
+CALL_METHOD 
+    ComponentAddress("${VAL4_ADDRESS}") "stake" Bucket("bucket4");
+TAKE_FROM_WORKTOP_BY_AMOUNT 
+    Decimal("654") ResourceAddress("${NEURA}") Bucket("bucket5");
+CALL_METHOD 
+    ComponentAddress("${VAL5_ADDRESS}") "stake" Bucket("bucket5");
+CALL_METHOD_WITH_ALL_RESOURCES 
+    ComponentAddress("${VAL5_ACC}") "deposit_batch";
