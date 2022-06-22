@@ -1,0 +1,16 @@
+# Take 25 XRD from the account
+CALL_METHOD ComponentAddress("${account}") "withdraw_by_amount" Decimal("25") ResourceAddress("${xrd}");
+
+# Lend some XRD token to the LendingApp
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("2") ResourceAddress("${xrd}") Bucket("xrd_payment");
+CALL_METHOD ComponentAddress("${component}") "lend_money" Bucket("xrd_payment");
+
+# Take back XRD token back from the pool
+TAKE_FROM_WORKTOP ResourceAddress("${lnd_token}") Bucket("lnd");
+CALL_METHOD ComponentAddress("${component}") "take_money_back" Bucket("lnd");
+
+# Make sure we get more than 10 BTC
+ASSERT_WORKTOP_CONTAINS_BY_AMOUNT Decimal("5") ResourceAddress("${xrd}");
+
+# Deposit all resources back into the account
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";
