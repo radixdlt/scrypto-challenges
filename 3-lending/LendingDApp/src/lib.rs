@@ -2,8 +2,7 @@ use scrypto::prelude::*;
 use sha2::{Digest, Sha256};
 
 // Here, we define the data that will be present in
-// each of the ticket NFTs. Note that only the "used" data will
-// be updateable
+// each of the lending ticket NFTs.
 #[derive(NonFungibleData)]
 struct LendingTicket {
     #[scrypto(mutable)]
@@ -17,12 +16,13 @@ struct LendingTicket {
 }
 
 // Here, we define the data that will be present in
-// each of the ticket NFTs. Note that only the "used" data will
-// be updateable
+// each of the borrowing ticket NFTs. 
 #[derive(NonFungibleData)]
 struct BorrowingTicket {
     #[scrypto(mutable)]
     number_of_borrowings: u16,
+    #[scrypto(mutable)]   
+    xrds_to_give_back: Decimal,    
     #[scrypto(mutable)]   
     l1: bool,
     #[scrypto(mutable)]   
@@ -156,6 +156,24 @@ blueprint! {
             // Return the NFT
             lending_nft
         }
+
+        // Allow someone to register its account for borrowings
+        pub fn registerBorrower(&self) -> Bucket {
+            let epoch = Runtime::current_epoch();    
+            let mut hasher = Sha256::new();
+            hasher.update(epoch.to_string());
+            let epoch_hash = hasher.finalize();
+            let lend_id = NonFungibleId::from_bytes(epoch_hash.to_vec());                    
+
+            // Create a borrowing NFT. Note that this contains the number of borrowing and the level arwarded
+            let borrowing_nft = self.loan_admin_badge.authorize(|| {
+                borrow_resource_manager!(self.borrowing_nft_resource_def)
+                    .mint_non_fungible(&lend_id, BorrowingTicket {number_of_borrowings: 0, xrds_to_give_back: Decimal::zero(), l1: false, l2: false, in_progress: false  })
+                }); 
+
+            // Return the NFT
+            borrowing_nft
+        }        
         
 
         /// Lend XRD token to then pool and get back Loan tokens plus reward
@@ -166,6 +184,7 @@ blueprint! {
             info!("Actual ratio is: {}", ratio.floor());
             
             //check if lend is acceptable
+            //bucket size has to be between 5% and 20% of the main vault size
             let min_ratio: Decimal = dec!("5");
             let max_ratio: Decimal = dec!("20");
             let min_level: Decimal = min_ratio * self.main_pool.amount() / percent;
@@ -178,6 +197,14 @@ blueprint! {
                 ratio < max_ratio,
                 "Lend is above the minimum level, actual maximum is: {} Max tokens you can lend is {}", ratio.floor(), max_level.floor()
             );               
+
+            //check if pool vault size is above 75% 
+            let min_pool_size: Decimal = dec!("75");
+            assert!(
+                self.loan_pool.amount() > self.start_amount*min_pool_size/percent,
+                "Pool size is below its limit, no more lendings are accepted now"
+            );             
+            
             //put xrd token in main pool
             let num_xrds = xrd_tokens.amount();
             self.main_pool.put(xrd_tokens);
@@ -251,6 +278,92 @@ blueprint! {
 
             xrds_to_give_back
         }        
+
+        /// Borrow money to anyone requesting it, without asking for collaterals
+        pub fn borrow_money(&mut self, xrd_requested: Decimal, ticket: Proof) -> Bucket {
+            // Get the data associated with the Borrowing NFT and update the variable values (in_progress=false)
+            let non_fungible: NonFungible<BorrowingTicket> = ticket.non_fungible();
+            let mut borrowing_nft_data = non_fungible.data();
+            //check if no operation is already in place            
+            assert!(!borrowing_nft_data.in_progress, "You have a borrow open!");
+            let percent: Decimal = dec!("100");
+            let minimum: Decimal = dec!("50");
+            assert!(
+                self.main_pool.amount() > self.start_amount*minimum/percent,
+                "Main pool is below limit, borrowings are suspendend "
+            );  
+
+            // The amount of $xrd token to be repaid back (fee included)
+            info!("Gettin from main pool xrd tokens size: {}", xrd_requested);
+            //take $xrd from main pool
+            let xrds_to_give_back = self.main_pool.take(xrd_requested);
+
+            let fee_value = xrd_requested*self.fee/percent;
+            let xrd_to_be_returned = xrd_requested + fee_value;
+
+            info!("Loan pool size is: {}", self.main_pool.amount());
+            info!("Current pool size is: {}", self.main_pool.amount());
+    
+            borrowing_nft_data.in_progress = true;
+            info!("NFT size is: {} L1 : {} L2 : {}", borrowing_nft_data.number_of_borrowings, borrowing_nft_data.l1, borrowing_nft_data.l2);
+            let number_of_borrowings = 1 + borrowing_nft_data.number_of_borrowings;
+            borrowing_nft_data.number_of_borrowings = number_of_borrowings;
+            info!("New NFT size is: {}", borrowing_nft_data.number_of_borrowings);
+            if number_of_borrowings > 10 {
+                borrowing_nft_data.l1 = true;
+                println!("L1 reached !");
+            } else if number_of_borrowings > 20 {
+                borrowing_nft_data.l2 = true;
+                println!("L2 reached !");
+            }            
+            borrowing_nft_data.xrds_to_give_back = xrd_to_be_returned;
+            info!("XRDs to be repaid back is: {}", borrowing_nft_data.xrds_to_give_back);
+            // Update the data on that NFT globally         
+            self.loan_admin_badge.authorize(|| {
+                borrow_resource_manager!(self.borrowing_nft_resource_def).update_non_fungible_data(&non_fungible.id(), borrowing_nft_data)
+            });            
+            info!("Process complete !");
+
+            xrds_to_give_back
+        }        
+
+        /// Repay back XRD token 
+        pub fn repay_money(&mut self, xrd_tokens: Bucket, ticket: Proof) {
+            let percent: Decimal = dec!("100");
+            // Get the data associated with the Borrowing NFT and update the variable values (in_progress=false)
+            let non_fungible: NonFungible<BorrowingTicket> = ticket.non_fungible();
+            let mut borrowing_nft_data = non_fungible.data();
+            //check if no operation is in place            
+            assert!(borrowing_nft_data.in_progress, "You have not a borrow open!");
+            
+            let xrd_returned = xrd_tokens.amount();
+            self.main_pool.put(xrd_tokens);
+            if xrd_returned > borrowing_nft_data.xrds_to_give_back {
+                borrowing_nft_data.xrds_to_give_back = Decimal::zero();
+                borrowing_nft_data.in_progress = false;
+                info!("All xrd tokens being repaid !");
+            } else  {
+                borrowing_nft_data.xrds_to_give_back -= xrd_returned;
+                info!("Some xrd tokens are to be repaid yet !");
+            }
+
+            //mint the fee as lnd token and put in the loan vault
+            let lnd_to_be_minted = (self.fee*xrd_returned)/(percent+self.fee);
+            //self.loan_admin_badge.authorize(|| {
+              //  self.loan_pool.mint(lnd_to_be_minted);
+            //}); 
+
+            let new_tokens = self.loan_admin_badge.authorize(|| {
+                borrow_resource_manager!(self.loan_resource_def).mint(lnd_to_be_minted)
+            });
+            self.loan_pool.put(new_tokens);
+
+            // Update the data on that NFT globally
+            self.loan_admin_badge.authorize(|| {
+                borrow_resource_manager!(self.borrowing_nft_resource_def).update_non_fungible_data(&non_fungible.id(), borrowing_nft_data);
+                info!("Updates Borrowing NFT !");
+            });
+        }
      
     }
 }

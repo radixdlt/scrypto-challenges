@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+
 
 #set -x
 set -e
@@ -31,3 +31,5 @@ echo 'LND = ' $lnd
 
 resim call-method $component register
 
+
+resim call-method $component registerBorrower
