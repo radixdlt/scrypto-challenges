@@ -1,0 +1,7 @@
+CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "withdraw_by_amount" Decimal("80") ResourceAddress("${xrd}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("80") ResourceAddress("${xrd}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "create_proof_by_amount" Decimal("1") ResourceAddress("${lend_nft}");
+POP_FROM_AUTH_ZONE Proof("proof1");
+CALL_METHOD ComponentAddress("${component}") "lend_money" Bucket("bucket1") Proof("proof1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS1}") "deposit_batch";
+

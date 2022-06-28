@@ -58,8 +58,6 @@ blueprint! {
         reward: Decimal
     }
 
-
-    ///resim call-function $radiswap_package Radiswap instantiate_pool 100,$btc 3,$gumball 100 0.01)
     impl LendingApp {
         /// Creates a LendingApp component for token pair A/B and returns the component address
         /// along with the initial LP tokens.
@@ -111,6 +109,8 @@ blueprint! {
             .metadata("url", "https://lendingapp.com")
             .mintable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
             .burnable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
+            //.updateable_metadata(rule!(require(loan_admin_badge.resource_address())), LOCKED)
+            //.restrict_withdraw(rule!(require(loan_admin_badge.resource_address())), LOCKED)
             .initial_supply(start_amount);
 
             let loan_allocated = Vec::new();
@@ -141,11 +141,11 @@ blueprint! {
 
         // Allow someone to register its account
         pub fn register(&self) -> Bucket {
-            let epoch = Runtime::current_epoch();    
+            let uuid = Runtime::generate_uuid();    
             let mut hasher = Sha256::new();
-            hasher.update(epoch.to_string());
-            let epoch_hash = hasher.finalize();
-            let lend_id = NonFungibleId::from_bytes(epoch_hash.to_vec());                    
+            hasher.update(uuid.to_string());
+            let uuid_hash = hasher.finalize();
+            let lend_id = NonFungibleId::from_bytes(uuid_hash.to_vec());                      
 
             // Create a lending NFT. Note that this contains the number of lending and the level arwarded
             let lending_nft = self.loan_admin_badge.authorize(|| {
@@ -159,11 +159,11 @@ blueprint! {
 
         // Allow someone to register its account for borrowings
         pub fn registerBorrower(&self) -> Bucket {
-            let epoch = Runtime::current_epoch();    
+            let uuid = Runtime::generate_uuid();    
             let mut hasher = Sha256::new();
-            hasher.update(epoch.to_string());
-            let epoch_hash = hasher.finalize();
-            let lend_id = NonFungibleId::from_bytes(epoch_hash.to_vec());                    
+            hasher.update(uuid.to_string());
+            let uuid_hash = hasher.finalize();
+            let lend_id = NonFungibleId::from_bytes(uuid_hash.to_vec());                    
 
             // Create a borrowing NFT. Note that this contains the number of borrowing and the level arwarded
             let borrowing_nft = self.loan_admin_badge.authorize(|| {
