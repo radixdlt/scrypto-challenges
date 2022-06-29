@@ -19,20 +19,20 @@ LendingApp is a proof-of-concept protocol of an uncollateralized Lending Applica
   * [Motivations](#motivations)
   * [Features](#features)
   * [Details of Design](#details-of-design)
-    + [Constant Function Market Makers](#constant-function-market-makers)
-    + [Liquidity Pools](#liquidity-pools)
+    + [Lending Engine](#lending-engine)
+    + [LendingApp blueprint](#lendingapp-blueprint)
     + [Blueprints Overview](#blueprints-overview)
-      - [LiquidityPool blueprint](#liquiditypool-blueprint)
   * [Examples](#examples)
     + [Getting Started](#getting-started)
-    + [Example 1: Providing Liquidity](#example-1-providing-liquidity)
-    + [Example 2: Simple Token Swap](#example-2-simple-token-swap)
-    + [Example 3: Swapping Through Multiple Pools](#example-3-swapping-through-multiple-pools)
-    + [Example 4: Selling and Providing Liquidity](#example-3-selling-and-providing-liquidity)
+    + [Example 1: Lending tokens and getting back](#example-1-lending-tokens-and-getting-back)
+    + [Example 2: Borrow tokens and repay](#example-2-borrow-tokens-and-repay)
+    + [Example 3: Multiple operation with different accounts](#example-3-multiple-operations-with-different-accounts)
+    + [Example 4: Lending App rules overview](#example-3-lending-app-rules-overview)
     + [Quick Examples](#quick-examples)
   * [Future Work and Improvements](#future-work-and-improvements)
-  * [Conclusion](#conclusion)
+
   * [License](#license)
+
 
 ## Abstract
 
@@ -50,37 +50,6 @@ Uncollateralized lendings aim to incentivizes rewards to lenders granting them a
  - No borrowing is allowed if it is below 1% or above 5% of the main vault
 
  The Lending Engine rules are fixed and in a subsequent rework of this proof of concept they should become dynamic with respect to the size of the vaults and the number of debtors/creditors.
-
-## Setting up the environment
-We will show how you can use the LendingApp blueprint. For this example, we will build a transaction that will first lend some money to the pool, then take the money back. 
-
-## How to run
-0. Export xrd resource: `export xrd=030000000000000000000000000000000000000000000000000004` -> save into **$xrd**
-1. Reset your environment: `resim reset`
-2. Create a new account: `resim new-account` -> save into **$account**
-3. Build and deploy the blueprint on the local ledger: `resim publish .` -> save into **$package**
-4. Call the `instantiate_pool` function to instantiate a component: `resim call-function $package LendingApp instantiate_pool 1000,$xrd 1000 10 7` -> save component[0] into **$component**, resources[1] -> into **$lend_nft**, resources[2]  -> into **$borrow_nft**, resources[3]  -> into **$lnd**
-
-## How to run for lenders example
-6. Call the `register` method on the component: `resim call-method $component register` to get the `lending nft`
-7. Call `resim show $account` to look at the received nft
-8. Call the `lend_money` method on the component: `resim call-method $component lend_money 100,$xrd 1,$lend_nft`
-9. Call the `take_money_back` method on the component: `resim call-method $component take_money_back 107,$lnd 1,$lend_nft`
-10. Verify that you received a reward for the lending `resim show $account`
-
-## How to run for borrower example
-11. Call the `registerBorrower` method on the component: `resim call-method $component registerBorrower` to get the `borrower nft`
-12. Call `resim show $account` to look at the received nft
-13. Call the `borrow_money` method on the component: `resim call-method $component borrow_money 100  1,$borrow_nft`
-14. Call the `repay_money` method on the component: `resim call-method $component repay_money 110  1,$borrow_nft`
-15. Verify that you paied a fee for the borrowing `resim show $account`
-
-## How to run for lenders example
-1. Run the transaction manifest: `resim run lend.rtm`
-2. Run the transaction manifest: `resim run take.rtm`
-## How to run for borrowers example
-1. Run the transaction manifest: `resim run borrow.rtm`
-2. Run the transaction manifest: `resim run repay.rtm`
 
 ## Motivations
 
@@ -112,7 +81,7 @@ Let's continue with an example for a person who wants instead to borrow some tok
 Let's say that a guy called Lory wants to borrow 100 XRD. Lory goes to the Lending App and ask for a bucket of XRD, if the engine rules are met the loan gets approved and Lory gets back a bucket of XRD token plus a soulbound token. Two question arises: **Where this XRD tokes comes from ? How could Lory repay the full amount ?**
 
 The XRD that Lory gets from the Lending App comes from the main pool of XRD tokens that grows thanks to the difference between rewards and fees. 
-The soulbound token that Lory receives is not transferable and contains the amount to be repaid back, credit level can be awarded only when the full loan is repaid anc could take to better fees.
+The soulbound token that Lory receives is not transferable and contains the amount to be repaid back, credit level can be awarded only when the full loan is repaid and could take to better fees.
 
 ### Lending Engine
 
@@ -124,6 +93,8 @@ There needs to be an incentive for all the actors:
 
 The engine gets reward from the difference payed by borrowers to what it has to pay to lenders (eg. 10% - 7% result in a 3%).
 The net result is put back into the main pool.
+
+The incentive may help encourage the actors to stay honest. The lenders should find it profitable, the borrowers should find it convenient because of its uncollateralized nature, it should be more profitable for everyone to play by the rules than to undermine the system.
 
 #### LendingApp blueprint
 
@@ -144,7 +115,7 @@ In addition to the above mentioned functionalities, the blueprint also contains 
 
 ## Examples
 
-All of the examples written for RaDEX use the transaction manifest files as well as the new transaction model.
+All of the examples written for LendingApp use the transaction manifest files as well as the new transaction model.
 
 ### Getting Started
 
@@ -183,7 +154,7 @@ The first thing that we wish to do is to lend and take back some token to the dA
 $ resim set-default-account $ACC_ADDRESS1 $PUB_KEY1 $PRIV_KEY1
 Default account updated!
 ```
-Then we have to publish and create the component we will use
+We have to publish and create the package that we will use for creating the component
 
 ```sh 
 $ resim publish . 
@@ -191,7 +162,7 @@ $ resim publish .
     Success! New Package: 012899b03a2aa1fdcf1df883c820934ba9b089f88a1850249636fa
 $ export package=012899b03a2aa1fdcf1df883c820934ba9b089f88a1850249636fa
 ```
-That produces the component and the resources need:
+Then we can produce the component and the resources needed:
 
 ```sh 
 $ resim call-function $package LendingApp instantiate_pool 1000,$xrd 1000 10 7
@@ -212,9 +183,14 @@ $ export lend_nft=03101176511a0f44db8f5d33d10985c163aaf642ab779bee697dc4
 $ export borrow_nft=030ce6b265aeab99a94aa57bf3b6086255dd4a3e0b2f262229848f
 $ export lnd=03c20299928dc86cb3f8571b8843e4e10e38931f977b5ac47e4610
 ```
-### Example1: Lending tokens and getting back 
+### Example 1: Lending tokens and getting back 
 
-Now we can register the account and then finally start using the Dapp
+Now we can register the account and then finally start using the Dapp.
+The 'register' method gives the account non-fungible token that contains:
+    - the number_of_lendings the account has successfully completed
+    - if the l1 level has been reached
+    - if the l2 level has been reached
+    - if an operation is in progress
 
 ```sh 
 $ resim call-method $component register
@@ -224,17 +200,20 @@ Resources:
    └─ NonFungible { id: b5d7571f8ddfd21b3db40abf1ba34479dcaac58e1a9e1e72b48a2091aef90903, immutable_data: Struct(), mutable_data: Struct(0u16, false, false, false) }
 ```
 
-First lending operation from account1
+Then we can execute the first lending operation from account, this operation moves 80XRD to the LendingApp and the receives LND tokens (the same amount plus the reward).
+Herein you can check the vault of both the account and the component.
+
+Transaction Manifest is here [`lend1.rtm`](/transactions/lend1.rtm) 
 
 ```sh 
 $ resim run transactions/lend1.rtm
 $ resim show $ACC_ADDRESS1
 [CUT]
 Resources:
-├─ { amount: 85.6, resource address: 03d3f4664be91fe88c6155f025090dfe7b25b9a372ddebd1c3c38e, name: "Loan token", symbol: "LND" }
-├─ { amount: 998920, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+├─ { amount: **85.6**, resource address: 03d3f4664be91fe88c6155f025090dfe7b25b9a372ddebd1c3c38e, name: "Loan token", symbol: "LND" }
+├─ { amount: **998920**, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 └─ { amount: 1, resource address: 03b6ccc92abe889a4a9b8003f7b6a867d620ca7fc95c7d1902aea2, name: "Lending NFTs" }
-   └─ NonFungible { id: 0b2ec0c0a413879b9148a76fc5a425dd8e7c1f8bc471b478a24020930509fefc, immutable_data: Struct(), mutable_data: Struct(1u16, false, false, true) }
+   └─ NonFungible { id: 0b2ec0c0a413879b9148a76fc5a425dd8e7c1f8bc471b478a24020930509fefc, immutable_data: Struct(), mutable_data: Struct(1u16, false, false, **true**) }
 
 $ ./comp.sh 
 Component: 02078c8d2c66a18db7c6363afd2d8ab873756204818e5d68e993a4
@@ -242,31 +221,34 @@ Blueprint: { package_address: 0145fddf3be40fce31be8820da86bacfe2175054e006966ae9
 [CUT]
 Resources:
 ├─ { amount: 1, resource address: 0356acb2964de8fd035a1655bf23d0a50f27302190d1d03be43cd2, name: "Loan Token Auth" }
-├─ { amount: 914.4, resource address: 03d3f4664be91fe88c6155f025090dfe7b25b9a372ddebd1c3c38e, name: "Loan token", symbol: "LND" }
-└─ { amount: 1080, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+├─ { amount: **914.4**, resource address: 03d3f4664be91fe88c6155f025090dfe7b25b9a372ddebd1c3c38e, name: "Loan token", symbol: "LND" }
+└─ { amount: **1080**, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 ```
 
-Then get back from the Lending App
+Later on the account holder ask to get its XRD tokens back from the Lending App.
+As before, you can check the vault of both the account and the component.
+
+Transaction Manifest is here [`take1.rtm`](/transactions/take1.rtm) 
 
 ```sh 
 $ resim run transactions/take1.rtm
 Resources:
 ├─ { amount: 0, resource address: 03d3f4664be91fe88c6155f025090dfe7b25b9a372ddebd1c3c38e, name: "Loan token", symbol: "LND" }
-├─ { amount: 999005.6, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+├─ { amount: **999005.6**, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 └─ { amount: 1, resource address: 03b6ccc92abe889a4a9b8003f7b6a867d620ca7fc95c7d1902aea2, name: "Lending NFTs" }
-   └─ NonFungible { id: 0b2ec0c0a413879b9148a76fc5a425dd8e7c1f8bc471b478a24020930509fefc, immutable_data: Struct(), mutable_data: Struct(1u16, false, false, false) }
+   └─ NonFungible { id: 0b2ec0c0a413879b9148a76fc5a425dd8e7c1f8bc471b478a24020930509fefc, immutable_data: Struct(), mutable_data: Struct(1u16, false, false, **false**) }
 
 $ ./comp.sh 
 Component: 02078c8d2c66a18db7c6363afd2d8ab873756204818e5d68e993a4
 Blueprint: { package_address: 0145fddf3be40fce31be8820da86bacfe2175054e006966ae9fd3c, blueprint_name: "LendingApp" }
 [CUT]
 Resources:
-├─ { amount: 994.4, resource address: 03d3f4664be91fe88c6155f025090dfe7b25b9a372ddebd1c3c38e, name: "Loan token", symbol: "LND" }
-├─ { amount: 994.4, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+├─ { amount: **994.4**, resource address: 03d3f4664be91fe88c6155f025090dfe7b25b9a372ddebd1c3c38e, name: "Loan token", symbol: "LND" }
+├─ { amount: **994.4**, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 └─ { amount: 1, resource address: 0356acb2964de8fd035a1655bf23d0a50f27302190d1d03be43cd2, name: "Loan Token Auth" }
 ```
 
-We can see that the reward has gone from the main vault of the Lending App to the bucket of the account holder.
+We can see that the reward has gone from the main vault of the Lending App to the one of the account holder.
 
 
 ### Example2: Borrow tokens and repay 
@@ -277,44 +259,55 @@ We can see that the reward has gone from the main vault of the Lending App to th
 
 ### Example4: Lending App rules overview
 
-```sh
-PK_OP=$(resim publish ".")
-export PACKAGE=$(echo "$PK_OP" | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
-CP_OP=$(resim run "./transactions/component_creation.rtm")
-export COMPONENT=$(echo "$CP_OP" | sed -nr "s/└─ Component: ([[:alnum:]_]+)/\1/p")
-```
+Here a simple schema at a given time showing the actors, their levels and the operations completed/in progress.
+
+![](images/firstSchema.png.svg)
 
 
-```sh
-$ resim set-default-account $ACC_ADDRESS1 $PUB_KEY1 $PRIV_KEY1
-Default account updated!
-```
-
-Let's now run the [`creating_initial_liquidity_pools.rtm`](./transactions/creating_initial_liquidity_pools.rtm) file by running the following command:
-
-
-
-Let's take a look at the balances of the relevant tokens in Josh's account after the [`swap_BTC_for_USDT.rtm`](./transactions/swap_BTC_for_USDT.rtm) transaction ran:
-
-
-![](./images/complex_swap_path.svg)
 
 ### Quick Examples
 
-All of the commands discussed in this readme file are available in the `script.sh` for readers who wish to run all of the commands in part or in full from a script file. 
+All of the commands and transactions discussed in this readme file can also be verified directly using the resim tool that you can use with the LendingApp blueprint. 
+For this example, we will build a transaction that will first lend some tokens to the pool, then take the tokens back. We will also build a reverse of it, meaning that we will first borrow some tokens to the pool, then take the tokens back
+
+## How to run
+0. Export xrd resource: `export xrd=030000000000000000000000000000000000000000000000000004` -> save into **$xrd**
+1. Reset your environment: `resim reset`
+2. Create a new account: `resim new-account` -> save into **$account**
+3. Build and deploy the blueprint on the local ledger: `resim publish .` -> save into **$package**
+4. Call the `instantiate_pool` function to instantiate a component: `resim call-function $package LendingApp instantiate_pool 1000,$xrd 1000 10 7` -> save component[0] into **$component**, resources[1] -> into **$lend_nft**, resources[2]  -> into **$borrow_nft**, resources[3]  -> into **$lnd**
+
+## How to run for lenders example
+6. Call the `register` method on the component: `resim call-method $component register` to get the `lending nft`
+7. Call `resim show $account` to look at the received nft
+8. Call the `lend_money` method on the component: `resim call-method $component lend_money 100,$xrd 1,$lend_nft`
+9. Call the `take_money_back` method on the component: `resim call-method $component take_money_back 107,$lnd 1,$lend_nft`
+10. Verify that you received a reward for the lending `resim show $account`
+
+## How to run for borrower example
+11. Call the `registerBorrower` method on the component: `resim call-method $component registerBorrower` to get the `borrower nft`
+12. Call `resim show $account` to look at the received nft
+13. Call the `borrow_money` method on the component: `resim call-method $component borrow_money 100  1,$borrow_nft`
+14. Call the `repay_money` method on the component: `resim call-method $component repay_money 110  1,$borrow_nft`
+15. Verify that you paied a fee for the borrowing `resim show $account`
+
+## How to run for lenders example
+1. Run the transaction manifest: `resim run transactions/lend.rtm`
+2. Run the transaction manifest: `resim run transactions/take.rtm`
+## How to run for borrowers example
+1. Run the transaction manifest: `resim run transactions/borrow.rtm`
+2. Run the transaction manifest: `resim run transactions/repay.rtm`
+
 
 ## Future Work and Improvements
 
-There are many things that could be improved about the current implementation of RaDEX. Some of the key points which require improvement are:
+There is a lot that could be improved about the current implementation of LendingApp. Some of the key points which require improvement are:
 
-* Researching methods to ensure that the precision of the calculations and math done by the liquidity pool components is as accurate and precise as it can be.
-* Writing additional examples as well as tests for the DEX.
-* Including a price oracle into the implementation of the DEX.
-* Additional interface methods are needed in the RaDEX blueprint for RaDEX components.
+* Researching methods to ensure that the precision of the calculations and math done by the engine to calculate fees andrewards is as accurate and precise as it can be.
+* Writing additional examples as well as tests.
+* Adding the concept of time passing to the calculation of fee and rewards.
+* Additional analisys on the business model to make sure it will be successful.
 
-## Conclusion
-
-This work implements RaDEX, An AMM DEX on the Radix ledger built with v0.3.0 of Scrypto. RaDEX aims to be a complete reimagination of the Uniswap V2 protocol that is implemented on a modern ledger that allows for quick, secure, and seamless atomically composable transactions to take place. 
 
 ## License 
 
@@ -326,9 +319,3 @@ This work is licensed under Apache 2.0 and the license file is provided [here](.
 
 
 
-
-The incentive may help encourage nodes to stay honest. If a greedy attacker is able to
-assemble more CPU power than all the honest nodes, he would have to choose between using it
-to defraud people by stealing back his payments, or using it to generate new coins. He ought to
-find it more profitable to play by the rules, such rules that favour him with more new coins than
-everyone else combined, than to undermine the system and the validity of his own wealth.
