@@ -4,6 +4,15 @@
 
 LendingApp is a proof-of-concept protocol of an uncollateralized Lending Application built on the Radix ledger using v0.4.0 of Scrypto: the smart contract language of the Radix ledger.
 
+
+### Example2: Borrow tokens and repay 
+
+
+### Example3: Multiple operation with different accounts 
+
+
+### Example4: Lending App rules overview
+
 ## Table of Content
 
   * [Abstract](#abstract)
@@ -14,14 +23,12 @@ LendingApp is a proof-of-concept protocol of an uncollateralized Lending Applica
     + [Liquidity Pools](#liquidity-pools)
     + [Blueprints Overview](#blueprints-overview)
       - [LiquidityPool blueprint](#liquiditypool-blueprint)
-      - [RaDEX blueprint](#radex-blueprint)
   * [Examples](#examples)
     + [Getting Started](#getting-started)
     + [Example 1: Providing Liquidity](#example-1-providing-liquidity)
     + [Example 2: Simple Token Swap](#example-2-simple-token-swap)
     + [Example 3: Swapping Through Multiple Pools](#example-3-swapping-through-multiple-pools)
     + [Example 4: Selling and Providing Liquidity](#example-3-selling-and-providing-liquidity)
-    + [Example 5: Removing Liquidity](#example-4-removing-liquidity)
     + [Quick Examples](#quick-examples)
   * [Future Work and Improvements](#future-work-and-improvements)
   * [Conclusion](#conclusion)
@@ -205,6 +212,7 @@ $ export lend_nft=03101176511a0f44db8f5d33d10985c163aaf642ab779bee697dc4
 $ export borrow_nft=030ce6b265aeab99a94aa57bf3b6086255dd4a3e0b2f262229848f
 $ export lnd=03c20299928dc86cb3f8571b8843e4e10e38931f977b5ac47e4610
 ```
+### Example1: Lending tokens and getting back 
 
 Now we can register the account and then finally start using the Dapp
 
@@ -238,7 +246,7 @@ Resources:
 └─ { amount: 1080, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 ```
 
-First get back from account1
+Then get back from the Lending App
 
 ```sh 
 $ resim run transactions/take1.rtm
@@ -261,22 +269,13 @@ Resources:
 We can see that the reward has gone from the main vault of the Lending App to the bucket of the account holder.
 
 
+### Example2: Borrow tokens and repay 
 
 
+### Example3: Multiple operation with different accounts 
 
 
-
-
-
-
-The files [`token_creation.rtm`](./transactions/token_creation.rtm), and [`token_funding.rtm`](./transactions/token_funding.rtm) contain the instructions needed for account 1 to lend and then get back the xrd different tokens. 
-To run the transaction file, run the following command:
-
-```sh
-resim run transactions/token_creation.rtm && resim run transactions/token_funding.rtm
-```
-
-When this transaction runs, all of the accounts that we had created would now have 100,000 of some of the tokens that we will be using for the testing of the DEX. We can now publish the RaDEX package and also instantiate a new RaDEX component by running the following commands:
+### Example4: Lending App rules overview
 
 ```sh
 PK_OP=$(resim publish ".")
@@ -285,26 +284,6 @@ CP_OP=$(resim run "./transactions/component_creation.rtm")
 export COMPONENT=$(echo "$CP_OP" | sed -nr "s/└─ Component: ([[:alnum:]_]+)/\1/p")
 ```
 
-At this point, we are finally ready to begin testing the functionality of the DEX and to finally see the DEX working.
-
-### Example 1: Providing Liquidity
-
-In this example, we're taking a look at Lynn, the owner of Account 1. Lynn is very passionate about DeFI and about AMMs and she has found that one of the best investments that she can make in the DeFI space is by providing liquidity to AMMs in exchange for percentage ownership over the liquidity pool in addition to the percentage of the fees that Lynn will be taking when swaps are done through a given liquidity pool.
-
-Lynn has just heard of RaDEX, a new and exciting DEX protocol on the Radix ledger and Lynn has decided to be one of the liquidity providers for RaDEX. Lynn wants to either create or provide liquidity of the following amounts in the following pools:
-
-* XRD-USDT: 100,000 XRD and 14,000 USDT.
-* QNT-USDT: 865.276 QNT and 100,000 USDT
-
-Luckily, Lynn can easily create all of the liquidity pools that she wishes to create using a single transaction manifest file that is atomically composed to provide liquidity to all of these liquidity pools. If one of the transaction instructions fails then the whole thing fails which is an added advantage.
-
-The [`creating_initial_liquidity_pools.rtm`](./transactions/creating_initial_liquidity_pools.rtm) file is a transaction manifest file that contains the transaction instructions that are needed for Lynn to create the liquidity pools that she wishes to create. The following is a high level overview of the instructions included in the file:
-
-1. We clone the account auth badge as many times as we need to perform account withdrawals. We need to do this because bucket references are dropped after method calls. Meaning that the auth badge needs to be cloned to be used for multiple withdrawals.
-2. We perform the withdraw of the tokens into the transaction worktop with the cloned badges.
-3. Creating buckets of the tokens that will be used to create the liquidity pools and calling the `add_liquidity` method on the RaDEX component to create the liquidity pool.
-
-Now that the process that we will be following is somewhat clear, let's get into running this transaction using Lynn's account. First things first, let's make sure that Lynn's account (Account 1) is set the default account in resim:
 
 ```sh
 $ resim set-default-account $ACC_ADDRESS1 $PUB_KEY1 $PRIV_KEY1
@@ -313,56 +292,10 @@ Default account updated!
 
 Let's now run the [`creating_initial_liquidity_pools.rtm`](./transactions/creating_initial_liquidity_pools.rtm) file by running the following command:
 
-```sh
-resim run ./transactions/creating_initial_liquidity_pools.rtm
-```
 
-Now that this transaction has been executed, Lynn became the first ever liquidity provider in RaDEX! Let's check up on Lynn's account to see the tracking tokens that she has got from creating all of these liquidity pools. The following output is not the full output, it's only the lines which has the tracking tokens:
-
-```sh
-$ resim show $ACC_ADDRESS1
-Resources:
-├─ { amount: 100, resource_def: 032308b2a4f39c5927115792f51bc8f1e43cda373f41c144aff079, name: "USDT-BTC LP Tracking Token", symbol: "TT" }
-├─ { amount: 100, resource_def: 03715ac1084d4d685e2223edf5611cc44931d1fcd90cfc7f7e3fbc, name: "LTC-XRD LP Tracking Token", symbol: "TT" }
-```
-
-As we can see from the resources that are currently in Lynn's account, the liquidity pool creation was successful and Lynn was given liquidity pool tracking tokens in exchange for the liquidity that she has provided to RaDEX. In the current implementation of the RaDEX protocol, the creator of a new liquidity pool is given a hard-coded value of 100 tracking tokens for creating the liquidity pool. Further reassessment will be done in the future as to whether this has any positive on negative implications on the protocol and this value could be changed in future implementations.
-
-### Example 2: Simple Token Swap
-
-Let's now move over from Lynn and talk about Josh, the owner of Account 2. Unfortunately, Josh has found himself in some financial troubles and he wishes to liquidate some of his Bitcoin for cash. Josh needs about \$500,000 USDT and is willing to exchange up to 20 of his Bitcoins for the USDT that he needs. However, Josh does not want to sell more BTC than he needs, he wants to sell the exact amount of BTC needed to get him the $500,000 USDT and thats all.
-
-Josh has decided to use RaDEX to perform the swap of BTC for USDT as RaDEX has the methods and functions needed to swap his BTC for an exact value of USDT. Josh wishes to use Radix's new transaction model to write his own transaction manifest file so that he can independently verify that the exact amount of USDT that he needs was returned back from the swap before he accepts it. The [`swap_BTC_for_USDT.rtm`](./transactions/swap_BTC_for_USDT.rtm) file contains the instructions needed for Josh to perfrom the swap of his BTC for $500,000 USDT tokens. A high level overview of the instructions that are needed to perform this are as follows:
-
-1. Withdraw the 20 Bitcoin from Josh's account and into the transaction worktop.
-2. Create a bucket of the withdrawn Bitcoin.
-3. Call the `swap_tokens_for_exact_tokens` method the RaDEX component specifying the amount of USDT to get back in return along with the token that Josh wishes to get from the swap (USDT in this case).
-4. Assert that transaction worktop now contains the amount of USDT that Josh needs.
-5. Deposit everything from the transaction worktop into Josh's account.
-
-Let's now run the needed transaction manifest file for Josh to perform his swap of BTC for USDT. We first need to switch the default account in resim to Josh's account by doing the following:
-
-```sh
-$ resim set-default-account $ACC_ADDRESS2 $PUB_KEY2 $PRIV_KEY2
-Default account updated!
-```
-
-Let's now run the transaction file and perform the Swap of BTC for USDT:
-
-```sh
-resim run ./transactions/swap_BTC_for_USDT.rtm
-```
 
 Let's take a look at the balances of the relevant tokens in Josh's account after the [`swap_BTC_for_USDT.rtm`](./transactions/swap_BTC_for_USDT.rtm) transaction ran:
 
-```sh
-$ resim show $ACC_ADDRESS2
-Resources:
-├─ { amount: 500000, resource_def: 03b5242185f98446b0c5bf47ce411477ae60fbd7f18b1f423d9b50, name: "Tether", symbol: "USDT" }
-└─ { amount: 99987.72327508842316423, resource_def: 031773788de8e4d2947d6592605302d4820ad060ceab06eb2d4711, name: "Bitcoin", symbol: "BTC" }
-```
-
-We can see form the balances shown above that about 12.2767 BTC was swapped for $500,000 USDT tokens when the transaction ran. This is the first swap to take place on RaDEX and as we can see, the swapping process was very smooth and seamless.
 
 ![](./images/complex_swap_path.svg)
 

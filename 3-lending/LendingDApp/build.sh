@@ -3,4 +3,4 @@
 set -x
 set -e
 
-(scrypto build; cp target/wasm32-unknown-unknown/release/loan_application.wasm ../../public)
+(scrypto build; cp target/wasm32-unknown-unknown/release/loan_application.wasm public)
