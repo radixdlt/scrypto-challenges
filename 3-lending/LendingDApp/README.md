@@ -4,15 +4,6 @@
 
 LendingApp is a proof-of-concept protocol of an uncollateralized Lending Application built on the Radix ledger using v0.4.0 of Scrypto: the smart contract language of the Radix ledger.
 
-
-### Example2: Borrow tokens and repay 
-
-
-### Example3: Multiple operation with different accounts 
-
-
-### Example4: Lending App rules overview
-
 ## Table of Content
 
   * [Abstract](#abstract)
@@ -21,7 +12,6 @@ LendingApp is a proof-of-concept protocol of an uncollateralized Lending Applica
   * [Details of Design](#details-of-design)
     + [Lending Engine](#lending-engine)
     + [LendingApp blueprint](#lendingapp-blueprint)
-    + [Blueprints Overview](#blueprints-overview)
   * [Examples](#examples)
     + [Getting Started](#getting-started)
     + [Example 1: Lending tokens and getting back](#example-1-lending-tokens-and-getting-back)
@@ -30,7 +20,6 @@ LendingApp is a proof-of-concept protocol of an uncollateralized Lending Applica
     + [Example 4: Lending App rules overview](#example-3-lending-app-rules-overview)
     + [Quick Examples](#quick-examples)
   * [Future Work and Improvements](#future-work-and-improvements)
-
   * [License](#license)
 
 
@@ -251,13 +240,13 @@ Resources:
 We can see that the reward has gone from the main vault of the Lending App to the one of the account holder.
 
 
-### Example2: Borrow tokens and repay 
+### Example 2: Borrow tokens and repay 
 
 
-### Example3: Multiple operation with different accounts 
+### Example 3: Multiple operation with different accounts 
 
 
-### Example4: Lending App rules overview
+### Example 4: Lending App rules overview
 
 Here a simple schema at a given time showing the actors, their levels and the operations completed/in progress.
 
