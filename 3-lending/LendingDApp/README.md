@@ -192,7 +192,7 @@ Resources:
 Then we can execute the first lending operation from account, this operation moves 80XRD to the LendingApp and the receives LND tokens (the same amount plus the reward).
 Herein you can check the vault of both the account and the component.
 
-Transaction Manifest is here [`lend1.rtm`](/transactions/lend1.rtm) 
+Transaction Manifest is here [`lend1.rtm`](./transactions/lend1.rtm) 
 
 ```sh 
 $ resim run transactions/lend1.rtm
@@ -217,7 +217,7 @@ Resources:
 Later on the account holder ask to get its XRD tokens back from the Lending App.
 As before, you can check the vault of both the account and the component.
 
-Transaction Manifest is here [`take1.rtm`](/transactions/take1.rtm) 
+Transaction Manifest is here [`take1.rtm`](./transactions/take1.rtm) 
 
 ```sh 
 $ resim run transactions/take1.rtm
@@ -250,7 +250,7 @@ We can see that the reward has gone from the main vault of the Lending App to th
 
 Here a simple schema at a given time showing the actors, their levels and the operations completed/in progress.
 
-![](images/firstSchema.png.svg)
+![](./images/firstSchema.png)
 
 
 
