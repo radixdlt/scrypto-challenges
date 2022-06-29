@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Web site created using create-snowpack-app" />
+    <link rel="stylesheet" type="text/css" href="/index.css" />
+    <title>MFA Oracle</title>
+</head>
+
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script type="module" src="/dist/index.js"></script>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+
+    <h1>MFA Oracle</h1>
+
+    <h2>1. Fetch User Account Address</h2>
+    <p><button id="fetchAccountAddress">Click me</button> to get the account address of the PTE Browser Extension user.</p>
+    <p>Account Address:
+    <pre id="accountAddress"></pre>
+    </p>
+
+    <div class="row">
+      <div class="column">
+        <h2>2. Publish Package (sign required)</h2>
+        <p><button id="publishPackage">Publish</button></p>
+        <p>Package Address:<br>
+        <pre id="packageAddress"></pre>
+        </p>
+
+        <h2>3. Instantiate MFA Oracle Component (sign required)</h2>
+        <p><button id="instantiateComponent">Instantiate</button></p>
+        <p>Component Address:<br>
+        <pre id="componentAddress"></pre>
+        </p>
+      </div>
+      <div class="column">
+        <h2>Select Existing Component</h2>
+        <p><button id="select_component">Set Address</button></p>
+      </div>
+    </div>
+
+    <h3>Oracle Status (no wallet/extension interaction)</h3>
+    <p><button id="refresh_oracle_status">Refresh</button></p>
+    <div id="mfa_needed_div" style="display:none">
+    <h4>Authentication Required For:</h4>
+    <pre id="mfa_needed"></pre>
+    </div>
+    <pre id="oracle_status"></pre>
+
+
+    <h2>4. Register MFA Device with Component (sign required)</h2>
+    <p><button id="registerMFA">Register MFA</button></p>
+    <p>Receipt:<br>
+    <pre id="registerMFA_receipt"></pre>
+    </p>
+
+    <h2>5. Send Tx with MFA authorization required (sign optional, but be consistent)</h2>
+    <p><button id="checkMFA">Check</button></p>
+    <p>Receipt:<br>
+    <pre id="receipt"></pre>
+    </p>
+
+    <h2>6. Authorize Tx using MFA Device (do NOT sign if you signed in step 5 so nonce does not change)</h2>
+    <p><button id="validateMFA">Authenticate with MFA</button></p>
+    <p>Receipt:<br>
+    <pre id="validateMFA_receipt"></pre>
+    </p>
+
+</body>
+
+</html>

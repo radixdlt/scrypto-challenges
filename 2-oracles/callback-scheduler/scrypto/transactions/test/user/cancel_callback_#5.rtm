@@ -1,0 +1,7 @@
+CALL_METHOD 
+    ComponentAddress("${user_account}") 
+    "create_proof" 
+    ResourceAddress("${test_component_admin_badge}");
+
+CALL_METHOD ComponentAddress("${test_component}") "cancel_callback" NonFungibleId("${callback_id_5}");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${user_account}") "deposit_batch";

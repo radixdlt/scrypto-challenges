@@ -1,0 +1,15 @@
+CALL_METHOD 
+    ComponentAddress("${user_account}") 
+    "create_proof" 
+    ResourceAddress("${test_component_admin_badge}");
+
+CALL_METHOD 
+    ComponentAddress("${user_account}")
+    "withdraw_by_amount"
+    Decimal("50")
+    ResourceAddress("030000000000000000000000000000000000000000000000000004");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("50") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("timer_fee");
+CALL_METHOD ComponentAddress("${test_component}") "schedule_example_callbacks" Bucket("timer_fee");
+
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "deposit_batch";
