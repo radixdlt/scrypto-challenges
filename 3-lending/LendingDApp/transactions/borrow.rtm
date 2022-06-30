@@ -1,4 +1,4 @@
 CALL_METHOD ComponentAddress("${account}") "create_proof_by_amount" Decimal("1") ResourceAddress("${borrow_nft}");
 POP_FROM_AUTH_ZONE Proof("proof1");
-CALL_METHOD ComponentAddress("${component}") "borrow_money" Decimal("10") Proof("proof1");
+CALL_METHOD ComponentAddress("${component}") "borrow_money" Decimal("100") Proof("proof1");
 CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

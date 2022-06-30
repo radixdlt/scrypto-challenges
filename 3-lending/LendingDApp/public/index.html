@@ -8,6 +8,20 @@
     <link rel="stylesheet" type="text/css" href="/index.css" />
     <title>Lending App</title>
   </head>
+  <style>
+    #gradient1 {
+    height: 500px;
+    background-color: #cccccc;
+    background-image: radial-gradient(red, blue, green);
+    }     
+  </style>
+  <!--
+    body {
+      background-image: url("https://assets.website-files.com/6053f7fca5bf627283b582c2/60ba5985f394bf1012c0c83a_Comp%201%20-%20v2-poster-00001.jpg");
+      background-color: #0805b6;
+    }
+    </style>  
+  -->
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <script type="module" src="/dist/index.js"></script>
@@ -30,19 +44,23 @@
 
     <h2>2. Publish Package</h2>
     <p><button id="publishPackage">Publish</button></p>
-    <p>Package Address:<br><pre id="packageAddress"></pre></p>
+    <p>Package Address:<pre id="packageAddress"></pre></p>
 
     <h2>3. Instantiate Lending App</h2>
     <p><button id="instantiateComponent">Instantiate</button></p>
-    <p>Component Address:<br><pre id="componentAddress"></pre></p>
-    <p>Badge Address:<br><pre id="resourceAddress"></pre></p>
-    <p>Lending NFT:<br><pre id="resourceAddress1"></pre></p>
-    <p>Borrowing NFT:<br><pre id="resourceAddress2"></pre></p>
-    <p>LND Token:<br><pre id="resourceAddress3"></pre></p>
+    <p>Component Address:<pre id="componentAddress"></pre></p>
+    <p>Badge Address:<pre id="resourceAddress"></pre></p>
+    <p>Lending NFT:<pre id="resourceAddress1"></pre></p>
+    <p>Borrowing NFT:<pre id="resourceAddress2"></pre></p>
+    <p>LND Token:<pre id="resourceAddress3"></pre></p>
 
-    <h2>3. Register Account</h2>
-    <p><button id="register">Register Account</button></p>
-    <p>Receipt:<br><pre id="result"></pre></p>
+    <h2>3. Register Lender Account</h2>
+    <p><button id="register">Register Lender Account</button></p>
+    <p>Receipt:<pre id="result"></pre></p>
+
+    <h2>4. Register Borrower Account</h2>
+    <p><button id="registerBorrower">Register Borrower Account</button></p>
+    <p>Receipt:<pre id="resultBorrower"></pre></p>    
 
     <h2>3. Lend Money</h2>
     <p><button id="lendMoney">Lend 100 XRD</button></p>
@@ -50,18 +68,19 @@
 
     <h2>4. Get Money Back</h2>
     <p><button id="getMoney">Get Back 100 XRD plus reward</button></p>
-    <p>Receipt:<br><pre id="getMoney"></pre></p>
+    <p>Receipt:<br><pre id="getMoneyResult"></pre></p>
     
     <h2>5. Borrow Money</h2>
     <p><button id="borrowMoney">Borrow 100 XRD</button></p>
-    <p>Receipt:<br><pre id="borrowMoney"></pre></p>
+    <p>Receipt:<br><pre id="borrowMoneyResult"></pre></p>
     
     <h2>6. Repay Money</h2>
     <p><button id="repayMoney">Repay 100 XRD plus fee</button></p>
-    <p>Receipt:<br><pre id="repayMoney"></pre></p>    
+    <p>Receipt:<br><pre id="repayMoneyResult"></pre></p>    
 
     <h2>7. Check balance</h2>
     <p><button id="checkBalance">Check</button></p>
-    <p>I have <span id="userBalance">?</span> XRD, and the LendingApp has <span id="machineBalance">?</span> XRD.</p>
+    <p>I have <span id="userBalanceXRD">?</span> XRD and <span id="userBalanceLND">?</span> LND, 
+      and the LendingApp has <span id="machineBalanceXRD">?</span> XRD and has <span id="machineBalanceLND">?</span> LND.</p>
   </body>
 </html>

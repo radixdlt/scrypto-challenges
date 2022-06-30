@@ -183,6 +183,8 @@ The 'register' method gives the account non-fungible token that contains:
 
 ```sh 
 $ resim call-method $component register
+$ resim show $account
+[CUT]
 Resources:
 ├─ { amount: 999000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 └─ { amount: 1, resource address: 03101176511a0f44db8f5d33d10985c163aaf642ab779bee697dc4, name: "Lending NFTs" }
@@ -195,8 +197,9 @@ Herein you can check the vault of both the account and the component.
 Transaction Manifest is here [`lend1.rtm`](./transactions/lend1.rtm) 
 
 ```sh 
+$ export account=$ACC_ADDRESS1
 $ resim run transactions/lend1.rtm
-$ resim show $ACC_ADDRESS1
+$ resim show $account
 [CUT]
 Resources:
 ├─ { amount: **85.6**, resource address: 03d3f4664be91fe88c6155f025090dfe7b25b9a372ddebd1c3c38e, name: "Loan token", symbol: "LND" }
@@ -239,12 +242,101 @@ Resources:
 
 We can see that the reward has gone from the main vault of the Lending App to the one of the account holder.
 
+### Example 2: Borrow tokens and repay
 
-### Example 2: Borrow tokens and repay 
+The behaviour described can be described also for the borrower, where methods behaves similarly.
+We can register the account and then finally start using the Dapp.
+The 'registerBorrower' method gives the account non-fungible token that contains:
+    - the number_of_borrowings the account has successfully completed
+    - if the l1 level has been reached
+    - if the l2 level has been reached
+    - if an operation is in progress
+    - the amount of xrd to give back if an operation has been partially closed
+
+```sh 
+$ resim call-method $component registerBorrower
+$ resim show $account
+[CUT]
+├─ { amount: 1, resource address: 0311f8ca67b517a66bd13c424008124c4a2ef516f5e545d3b39030, name: "Borrowing NFTs" }
+│  └─ NonFungible { id: a72ddf870dd4af58443b70263107da13566510e39ea4464a5c4feb81df516b3e, immutable_data: Struct(), mutable_data: Struct(0u16, Decimal("0"), false, false, false) }
+└─ { amount: 1000000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+
+$ resim show $component
+[CUT]
+Resources:
+├─ { amount: 1, resource address: 03c6853abbb0f73456282ddf70fa70fb3a3a876c75b0318e293fe5, name: "Loan Token Auth" }
+├─ { amount: 960.8, resource address: 0358891194be6f9a01b8ada83f4c0b83331344feb046c07d8f1fad, name: "Loan token", symbol: "LND" }
+└─ { amount: **960.8**, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+```
+
+Then we can execute the first borrowing operation from account, this operation ask 80XRD to the LendingApp and the receives XRD tokens.
+Herein you can check the vault of both the account and the component.
+
+Transaction Manifest is here [`borrow.rtm`](./transactions/borrow.rtm) 
+
+```sh 
+$ export account=$ACC_ADDRESS1
+$ resim run transactions/borrow.rtm
+
+$ ./comp.sh 
+[CUT]
+Resources:
+├─ { amount: 960.8, resource address: 0358891194be6f9a01b8ada83f4c0b83331344feb046c07d8f1fad, name: "Loan token", symbol: "LND" }
+├─ { amount: 1, resource address: 03c6853abbb0f73456282ddf70fa70fb3a3a876c75b0318e293fe5, name: "Loan Token Auth" }
+└─ { amount: **860.8**, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+
+$ resim show $account
+[CUT]
+Resources:
+├─ { amount: **1000100**, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+└─ { amount: 1, resource address: 0311f8ca67b517a66bd13c424008124c4a2ef516f5e545d3b39030, name: "Borrowing NFTs" }
+   └─ NonFungible { id: a72ddf870dd4af58443b70263107da13566510e39ea4464a5c4feb81df516b3e, immutable_data: Struct(), mutable_data: Struct(2u16, Decimal("110"), false, false, true) }
+```
+
+Later the account holder repays the loan to the Lending App.
+As before, you can check the vault of both the account and the component.
+
+Transaction Manifest is here [`repay.rtm`](./transactions/repay.rtm) 
+
+```sh 
+$ resim run transactions/repay.rtm
+$ ./comp.sh 
+[CUT]
+Resources:
+├─ { amount: 960.8, resource address: 0358891194be6f9a01b8ada83f4c0b83331344feb046c07d8f1fad, name: "Loan token", symbol: "LND" }
+├─ { amount: 1, resource address: 03c6853abbb0f73456282ddf70fa70fb3a3a876c75b0318e293fe5, name: "Loan Token Auth" }
+└─ { amount: **970.8**, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+
+$ resim show $account
+[CUT]
+Resources:
+├─ { amount: **999990**, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+└─ { amount: 1, resource address: 0311f8ca67b517a66bd13c424008124c4a2ef516f5e545d3b39030, name: "Borrowing NFTs" }
+   └─ NonFungible { id: a72ddf870dd4af58443b70263107da13566510e39ea4464a5c4feb81df516b3e, immutable_data: Struct(), mutable_data: Struct(2u16, Decimal("0"), false, false, false) }
+```
+
+We can see that the fee has been paid from the account holder to the main vault of the Lending App.
 
 
-### Example 3: Multiple operation with different accounts 
+### Example 3: Multiple operation with different accounts
 
+When multiple accounts holders are not repaying back the tokens it could happen that the main vault could go down its limit, at this point the engine stops new borrowing until the level will be restored.
+
+```
+$ resim run transactions/borrow.rtm 
+
+Logs: 1
+└─ [ERROR] Panicked at 'Main pool is below limit, borrowings are suspendend ', src/lib.rs:291:13
+```
+
+The opposite can happen when the engine get used only by lenders, the engine will stop new lendings until new borrowers came in. This is to avoid that the main vault could be consumed only in paying rewards to lenders.
+
+```
+$ resim run transactions/lend1.rtm 
+
+Logs: 1
+└─ [ERROR] Panicked at 'Pool size is below its limit, no more lendings are accepted now', src/lib.rs:205:13
+```
 
 ### Example 4: Lending App rules overview
 
@@ -277,7 +369,7 @@ For this example, we will build a transaction that will first lend some tokens t
 11. Call the `registerBorrower` method on the component: `resim call-method $component registerBorrower` to get the `borrower nft`
 12. Call `resim show $account` to look at the received nft
 13. Call the `borrow_money` method on the component: `resim call-method $component borrow_money 100  1,$borrow_nft`
-14. Call the `repay_money` method on the component: `resim call-method $component repay_money 110  1,$borrow_nft`
+14. Call the `repay_money` method on the component: `resim call-method $component repay_money 110,$xrd  1,$borrow_nft`
 15. Verify that you paied a fee for the borrowing `resim show $account`
 
 ## How to run for lenders example

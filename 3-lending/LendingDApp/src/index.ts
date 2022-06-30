@@ -8,7 +8,8 @@ let componentAddress = undefined; // GumballMachine component address
 let resourceAddress = undefined; // Badge resource address
 let resourceAddress1 = undefined; // Lending NFT resource address
 let resourceAddress2 = undefined; // Borrowing NFT resource address
-let resourceAddress3 = undefined; // LND Toekn  resource address
+let resourceAddress3 = undefined; // LND Token  resource address
+let xrdAddress = '030000000000000000000000000000000000000000000000000004'; // XRD Token  resource address
 
 document.getElementById('fetchAccountAddress').onclick = async function () {
   // Retrieve extension user account address
@@ -40,8 +41,8 @@ document.getElementById('publishPackage').onclick = async function () {
 document.getElementById('instantiateComponent').onclick = async function () {
   // Construct manifest
   const manifest = new ManifestBuilder()
-    .withdrawFromAccountByAmount(accountAddress, 1000,'030000000000000000000000000000000000000000000000000004')
-    .takeFromWorktop('030000000000000000000000000000000000000000000000000004', 'StartValue')  
+    .withdrawFromAccountByAmount(accountAddress, 1000,xrdAddress)
+    .takeFromWorktop(xrdAddress, 'StartValue')  
     .callFunction(packageAddress, 'LendingApp', 'instantiate_pool',['Bucket("StartValue")', 'Decimal("1000")', 'Decimal("10")','Decimal("7")'])    
     .callMethodWithAllResources(accountAddress, 'deposit_batch')
     .build()
@@ -72,6 +73,7 @@ document.getElementById('register').onclick = async function () {
   // Construct manifest
   const manifest = new ManifestBuilder()
     .callMethod(componentAddress, 'register', [])
+    .callMethodWithAllResources(accountAddress, 'deposit_batch')
     .build()
     .toString();
 
@@ -82,18 +84,33 @@ document.getElementById('register').onclick = async function () {
   document.getElementById('result').innerText = JSON.stringify(receipt, null, 2);
 };
 
+document.getElementById('registerBorrower').onclick = async function () {
+
+  // Construct manifest
+  const manifest = new ManifestBuilder()
+    .callMethod(componentAddress, 'registerBorrower', [])
+    .callMethodWithAllResources(accountAddress, 'deposit_batch')
+    .build()
+    .toString();
+
+  // Send manifest to extension for signing
+  const receipt = await signTransaction(manifest);
+
+  // Update UI
+  document.getElementById('resultBorrower').innerText = JSON.stringify(receipt, null, 2);
+};
 
 document.getElementById('lendMoney').onclick = async function () {
 
   //.callMethod(validator!, 'add_stake', ['Bucket("bucket") Bucket("bucket1")'])
   // Construct manifest
   const manifest = new ManifestBuilder()
-    .withdrawFromAccountByAmount(accountAddress, 1, resourceAddress1)
-    .takeFromWorktop(resourceAddress1, 'lendNFT')  
-    .withdrawFromAccountByAmount(accountAddress, 80, '030000000000000000000000000000000000000000000000000004')
-    .takeFromWorktop('030000000000000000000000000000000000000000000000000004', 'xrd')
-    .callMethod(componentAddress, 'lend_money', (['Bucket("xrd")'], ['Bucket("lendNFT")']))
-    .callMethodWithAllResources(accountAddress, 'lend_money')
+    .createProofFromAccountByAmount(accountAddress, 1, resourceAddress1)
+    .popFromAuthZone('proof1')    
+    .withdrawFromAccountByAmount(accountAddress, 80, xrdAddress)
+    .takeFromWorktop(xrdAddress, 'xrd')
+    .callMethod(componentAddress, 'lend_money', (['Bucket("xrd") Proof("proof1")']))
+    .callMethodWithAllResources(accountAddress, 'deposit_batch')
     .build()
     .toString();
 
@@ -104,7 +121,66 @@ document.getElementById('lendMoney').onclick = async function () {
   document.getElementById('receipt').innerText = JSON.stringify(receipt, null, 2);
 };
 
-document.getElementById('checkBalance').onclick = async function () {
+
+document.getElementById('getMoney').onclick = async function () {
+
+  //.callMethod(validator!, 'add_stake', ['Bucket("bucket") Bucket("bucket1")'])
+  // Construct manifest
+  const manifest = new ManifestBuilder()
+    .createProofFromAccountByAmount(accountAddress, 1, resourceAddress1)
+    .popFromAuthZone('proof1')    
+    .withdrawFromAccountByAmount(accountAddress, 85.6, resourceAddress3)
+    .takeFromWorktop(resourceAddress3, 'lnd')
+    .callMethod(componentAddress, 'take_money_back', (['Bucket("lnd") Proof("proof1")']))
+    .callMethodWithAllResources(accountAddress, 'deposit_batch')
+    .build()
+    .toString();
+
+  // Send manifest to extension for signing
+  const receipt = await signTransaction(manifest);
+
+  // Update UI
+  document.getElementById('getMoneyResult').innerText = JSON.stringify(receipt, null, 2);
+};
+
+
+document.getElementById('borrowMoney').onclick = async function () {
+  // Construct manifest
+  const manifest = new ManifestBuilder()
+    .createProofFromAccountByAmount(accountAddress, 1, resourceAddress2)
+    .popFromAuthZone('proof1')  
+    .callMethod(componentAddress, 'borrow_money', (['Decimal("80") Proof("proof1")']))
+    .callMethodWithAllResources(accountAddress, 'deposit_batch')
+    .build()
+    .toString();
+
+  // Send manifest to extension for signing
+  const receipt = await signTransaction(manifest);
+
+  // Update UI
+  document.getElementById('borrowMoneyResult').innerText = JSON.stringify(receipt, null, 2);
+};
+
+document.getElementById('repayMoney').onclick = async function () {
+  // Construct manifest
+  const manifest = new ManifestBuilder()
+    .createProofFromAccountByAmount(accountAddress, 1, resourceAddress2)
+    .popFromAuthZone('proof1')  
+    .withdrawFromAccountByAmount(accountAddress, 88, xrdAddress)
+    .takeFromWorktop(xrdAddress, 'xrd')
+    .callMethod(componentAddress, 'repay_money', (['Bucket("xrd") Proof("proof1")']))
+    .callMethodWithAllResources(accountAddress, 'deposit_batch')
+    .build()
+    .toString();
+
+  // Send manifest to extension for signing
+  const receipt = await signTransaction(manifest);
+
+  // Update UI
+  document.getElementById('repayMoneyResult').innerText = JSON.stringify(receipt, null, 2);
+};
+
+  document.getElementById('checkBalance').onclick = async function () {
   // Retrieve component info from PTE service
   const api = new DefaultApi();
   const userComponent = await api.getComponent({
@@ -115,9 +191,15 @@ document.getElementById('checkBalance').onclick = async function () {
   });
 
   // Update UI
-  document.getElementById('userBalance').innerText = userComponent.ownedResources
-    .filter(e => e.resourceAddress == resourceAddress)
+  document.getElementById('userBalanceXRD').innerText = userComponent.ownedResources
+    .filter(e => e.resourceAddress == xrdAddress)
     .map(e => e.amount)[0] || '0';
-  document.getElementById('machineBalance').innerText = machineComponent.ownedResources
-    .filter(e => e.resourceAddress == resourceAddress).map(e => e.amount)[0];
+  document.getElementById('userBalanceLND').innerText = userComponent.ownedResources
+    .filter(e => e.resourceAddress == resourceAddress3)
+    .map(e => e.amount)[0] || '0';    
+    
+  document.getElementById('machineBalanceXRD').innerText = machineComponent.ownedResources
+    .filter(e => e.resourceAddress == xrdAddress).map(e => e.amount)[0];
+  document.getElementById('machineBalanceLND').innerText = machineComponent.ownedResources
+    .filter(e => e.resourceAddress == resourceAddress3).map(e => e.amount)[0];    
 };

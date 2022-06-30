@@ -1,5 +1,5 @@
-CALL_METHOD ComponentAddress("${account}") "withdraw_by_amount" Decimal("11") ResourceAddress("${xrd}");
-TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("11") ResourceAddress("${xrd}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${account}") "withdraw_by_amount" Decimal("110.1") ResourceAddress("${xrd}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("110.1") ResourceAddress("${xrd}") Bucket("bucket1");
 CALL_METHOD ComponentAddress("${account}") "create_proof_by_amount" Decimal("1") ResourceAddress("${borrow_nft}");
 POP_FROM_AUTH_ZONE Proof("proof1");
 CALL_METHOD ComponentAddress("${component}") "repay_money" Bucket("bucket1") Proof("proof1");

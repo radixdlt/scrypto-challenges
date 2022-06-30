@@ -78,7 +78,7 @@ blueprint! {
             assert!(
                 start_amount > Decimal::zero(),
                 "Start with at least one!"
-            );   
+            );      
 
             // Create the loan admin badge. This will be store on the component's vault 
             // and will allow it to do some actions on the user NFTs
@@ -179,16 +179,15 @@ blueprint! {
         /// Lend XRD token to then pool and get back Loan tokens plus reward
         pub fn lend_money(&mut self, xrd_tokens: Bucket, ticket: Proof) -> Bucket {
             // The ratio of added liquidity.
-            let percent: Decimal = dec!("100");
-            let ratio = xrd_tokens.amount() * percent / self.main_pool.amount();
+            let ratio = xrd_tokens.amount() * dec!("100") / self.main_pool.amount();
             info!("Actual ratio is: {}", ratio.floor());
             
             //check if lend is acceptable
             //bucket size has to be between 5% and 20% of the main vault size
             let min_ratio: Decimal = dec!("5");
             let max_ratio: Decimal = dec!("20");
-            let min_level: Decimal = min_ratio * self.main_pool.amount() / percent;
-            let max_level: Decimal = max_ratio * self.main_pool.amount() / percent;
+            let min_level: Decimal = min_ratio * self.main_pool.amount() / dec!("100");
+            let max_level: Decimal = max_ratio * self.main_pool.amount() / dec!("100");
             assert!(
                 ratio > min_ratio,
                 "Lend is below the minimum level, actual minimum is: {} Min tokens you can lend is {}", ratio.floor(), min_level.floor()
@@ -199,9 +198,8 @@ blueprint! {
             );               
 
             //check if pool vault size is above 75% 
-            let min_pool_size: Decimal = dec!("75");
             assert!(
-                self.loan_pool.amount() > self.start_amount*min_pool_size/percent,
+                self.loan_pool.amount() > self.start_amount*dec!("75")/dec!("100"),
                 "Pool size is below its limit, no more lendings are accepted now"
             );             
             
@@ -255,8 +253,7 @@ blueprint! {
             //take $xrd from main pool
             let xrds_to_give_back = self.main_pool.take(how_many_to_give_back);
 
-            let percent: Decimal = dec!("100");
-            let amount = how_many_to_give_back*percent/(percent+self.reward);
+            let amount = how_many_to_give_back*dec!("100")/(dec!("100")+self.reward);
             let lnd_to_be_burned = how_many_to_give_back - amount;
             //lnd token to put back in the pool
             info!("Putting back into loan pool lnd tokens size: {} then burning the reward because not needed anymore {} ", amount, lnd_to_be_burned);
@@ -286,10 +283,9 @@ blueprint! {
             let mut borrowing_nft_data = non_fungible.data();
             //check if no operation is already in place            
             assert!(!borrowing_nft_data.in_progress, "You have a borrow open!");
-            let percent: Decimal = dec!("100");
             let minimum: Decimal = dec!("50");
             assert!(
-                self.main_pool.amount() > self.start_amount*minimum/percent,
+                self.main_pool.amount() > self.start_amount*minimum/dec!("100"),
                 "Main pool is below limit, borrowings are suspendend "
             );  
 
@@ -298,7 +294,7 @@ blueprint! {
             //take $xrd from main pool
             let xrds_to_give_back = self.main_pool.take(xrd_requested);
 
-            let fee_value = xrd_requested*self.fee/percent;
+            let fee_value = xrd_requested*self.fee/dec!("100");
             let xrd_to_be_returned = xrd_requested + fee_value;
 
             info!("Loan pool size is: {}", self.main_pool.amount());
@@ -329,7 +325,6 @@ blueprint! {
 
         /// Repay back XRD token 
         pub fn repay_money(&mut self, xrd_tokens: Bucket, ticket: Proof) {
-            let percent: Decimal = dec!("100");
             // Get the data associated with the Borrowing NFT and update the variable values (in_progress=false)
             let non_fungible: NonFungible<BorrowingTicket> = ticket.non_fungible();
             let mut borrowing_nft_data = non_fungible.data();
@@ -338,7 +333,7 @@ blueprint! {
             
             let xrd_returned = xrd_tokens.amount();
             self.main_pool.put(xrd_tokens);
-            if xrd_returned > borrowing_nft_data.xrds_to_give_back {
+            if xrd_returned >= borrowing_nft_data.xrds_to_give_back {
                 borrowing_nft_data.xrds_to_give_back = Decimal::zero();
                 borrowing_nft_data.in_progress = false;
                 info!("All xrd tokens being repaid !");
@@ -348,10 +343,7 @@ blueprint! {
             }
 
             //mint the fee as lnd token and put in the loan vault
-            let lnd_to_be_minted = (self.fee*xrd_returned)/(percent+self.fee);
-            //self.loan_admin_badge.authorize(|| {
-              //  self.loan_pool.mint(lnd_to_be_minted);
-            //}); 
+            let lnd_to_be_minted = (self.fee*xrd_returned)/(dec!("100")+self.fee);
 
             let new_tokens = self.loan_admin_badge.authorize(|| {
                 borrow_resource_manager!(self.loan_resource_def).mint(lnd_to_be_minted)
