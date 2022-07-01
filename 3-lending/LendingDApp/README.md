@@ -1,5 +1,7 @@
 # Lending App
 
+![](./images/logo.jpg)
+
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 LendingApp is a proof-of-concept protocol of an uncollateralized Lending Application built on the Radix ledger using v0.4.0 of Scrypto: the smart contract language of the Radix ledger.
@@ -39,6 +41,8 @@ Uncollateralized lendings aim to incentivizes rewards to lenders granting them a
  - No borrowing is allowed if it is below 1% or above 5% of the main vault
 
  The Lending Engine rules are fixed and in a subsequent rework of this proof of concept they should become dynamic with respect to the size of the vaults and the number of debtors/creditors.
+
+ ![](./images/highLevelArch.png)
 
 ## Motivations
 
@@ -384,11 +388,18 @@ For this example, we will build a transaction that will first lend some tokens t
 
 There is a lot that could be improved about the current implementation of LendingApp. Some of the key points which require improvement are:
 
-* Researching methods to ensure that the precision of the calculations and math done by the engine to calculate fees andrewards is as accurate and precise as it can be.
+* Researching methods to ensure that the precision of the calculations and math done by the engine to calculate fees and rewards is as accurate and precise as it can be.
 * Writing additional examples as well as tests.
 * Adding the concept of time passing to the calculation of fee and rewards.
+* Add a penaly fee for borrowers repaying late  
 * Additional analisys on the business model to make sure it will be successful.
+* Deposit idle liquidity to a third-party yield provider until the funds are not used by borrowers 
+* (for borrowers) Add a form to collect the necessary data and a way to see own loan history including active and completed loans
+* (for lenders) Add a way to see own lendings history including active and completed
+* (for engine) Add a way to show statistics (pool size, total loans, number of lenders/borrowers)
 
+https://newsdirect.com/news/uncollateralized-crypto-loans-a-ticking-time-bomb-huobi-research-institute-779708853
+https://github.com/Atlendis/whitepaper-v1/blob/main/Atlendis_WhitePaper_V1.pdf
 
 ## License 
 

@@ -102,7 +102,6 @@ document.getElementById('registerBorrower').onclick = async function () {
 
 document.getElementById('lendMoney').onclick = async function () {
 
-  //.callMethod(validator!, 'add_stake', ['Bucket("bucket") Bucket("bucket1")'])
   // Construct manifest
   const manifest = new ManifestBuilder()
     .createProofFromAccountByAmount(accountAddress, 1, resourceAddress1)

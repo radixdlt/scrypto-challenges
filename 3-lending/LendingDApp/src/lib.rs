@@ -31,6 +31,7 @@ struct BorrowingTicket {
     in_progress: bool          
 }
 
+
 blueprint! {
     struct LendingApp {
         /// The resource definition of LOAN token.
@@ -59,6 +60,8 @@ blueprint! {
     }
 
     impl LendingApp {
+        let minimum: Decimal = dec!("50");
+
         /// Creates a LendingApp component for token pair A/B and returns the component address
         /// along with the initial LP tokens.
         pub fn instantiate_pool(
@@ -91,6 +94,7 @@ blueprint! {
             let lending_nft: ResourceAddress = ResourceBuilder::new_non_fungible()
                 .metadata("name", "Lending NFTs")
                 .mintable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
+                .burnable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
                 .updateable_non_fungible_data(rule!(require(loan_admin_badge.resource_address())), LOCKED)
                 .restrict_withdraw(rule!(deny_all), MUTABLE(rule!(require(loan_admin_badge.resource_address()))))
                 .no_initial_supply();                
@@ -99,6 +103,7 @@ blueprint! {
             let borrowing_nft: ResourceAddress = ResourceBuilder::new_non_fungible()
                 .metadata("name", "Borrowing NFTs")
                 .mintable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
+                .burnable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
                 .updateable_non_fungible_data(rule!(require(loan_admin_badge.resource_address())), LOCKED)
                 .restrict_withdraw(rule!(deny_all), MUTABLE(rule!(require(loan_admin_badge.resource_address()))))
                 .no_initial_supply();                 
@@ -246,10 +251,14 @@ blueprint! {
             let mut lending_nft_data = non_fungible.data();
             //check if no operation is already in place            
             assert!(lending_nft_data.in_progress, "You have not a lend open!");
+            assert!(
+                self.main_pool.amount() > self.start_amount*minimum/dec!("100"),
+                "Main pool is below limit, withdrawals must wait for Borrower repayments "
+            );  
 
             // The amount of $xrd token to be repaid back (reward included)
             let how_many_to_give_back = lnd_tokens.amount();
-            info!("Gettin from main pool xrd tokens size: {}", how_many_to_give_back);
+            info!("Getting from main pool xrd tokens size: {}", how_many_to_give_back);
             //take $xrd from main pool
             let xrds_to_give_back = self.main_pool.take(how_many_to_give_back);
 
@@ -283,7 +292,6 @@ blueprint! {
             let mut borrowing_nft_data = non_fungible.data();
             //check if no operation is already in place            
             assert!(!borrowing_nft_data.in_progress, "You have a borrow open!");
-            let minimum: Decimal = dec!("50");
             assert!(
                 self.main_pool.amount() > self.start_amount*minimum/dec!("100"),
                 "Main pool is below limit, borrowings are suspendend "
