@@ -36,51 +36,72 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
 
-    <h1>Lending App</h1>
+    <center>
+      <img src="images/logo3b.jpg" width="300" height="150"></img>
+    </center>
 
-    <h2>1. Fetch User Account Address</h2>
-    <p><button id="fetchAccountAddress">Click me</button> to get the account address of the PTE Browser Extension user.</p>
-    <p>Account Address: <pre id="accountAddress"></pre></p>
+    <center>
+    <table>
+      <tr>
+        <td colspan="3">
+          <h2>1. Fetch User Account Address</h2>
+          <p><button id="fetchAccountAddress">Click me</button> to get the account address of the PTE Browser Extension user.</p>
+          <p>Account Address: <pre id="accountAddress"></pre></p>
+        </td>
+      </tr>      
+      <tr>
+        <td width="45%">
+          <h2>2. Publish Package</h2>
+          <p><button id="publishPackage">Publish</button></p>
+          <p>Package Address:<pre id="packageAddress"></pre></p>
+      
+          <h2>3. Instantiate Lending App</h2>
+          <p><button id="instantiateComponent">Instantiate</button></p>
+          <p>Component Address:<pre id="componentAddress"></pre></p>
+          <p>Badge Address:<pre id="resourceAddress"></pre></p>
+          <p>Lending NFT:<pre id="resourceAddress1"></pre></p>
+          <p>Borrowing NFT:<pre id="resourceAddress2"></pre></p>
+          <p>LND Token:<pre id="resourceAddress3"></pre></p>
+      
+          <h2>3. Register Lender Account</h2>
+          <p><button id="register">Register Lender Account</button></p>
+          <p>Receipt:<pre id="result"></pre></p>
+      
+          <h2>4. Register Borrower Account</h2>
+          <p><button id="register_borrower">Register Borrower Account</button></p>
+          <p>Receipt:<pre id="resultBorrower"></pre></p>          
+        </td>
+        <td width="10%"></td>
+        <td width="45%">
+          <h2>3. Lend Money</h2>
+          <p><input type="number" id="number_to_lend"></input><button id="lendMoney">Lend XRD</button></p>
+          <p>Receipt:<br><pre id="receipt"></pre></p>
+      
+          <h2>4. Get Money Back</h2>
+          <p><button id="getMoney">Get Back XRD plus reward</button></p>
+          <p>Receipt:<br><pre id="getMoneyResult"></pre></p>
+          
+          <h2>5. Borrow Money</h2>
+          <p>
+            <!--<input type="number" id="number_to_borrow"></input>-->
+            <button id="borrowMoney">Borrow 100 XRD</button></p>
+          <p>Receipt:<br><pre id="borrowMoneyResult"></pre></p>
+          
+          <h2>6. Repay Money</h2>
+          <p><button id="repayMoney">Repay 100 XRD plus fee</button></p>
+          <p>Receipt:<br><pre id="repayMoneyResult"></pre></p>             
+        </td>
+      </tr>
+      <tr>
+        <td colspan="3">
+          <h2>7. Check balance</h2>
+          <p><button id="checkBalance">Check</button></p>
+          <p>I have <span id="userBalanceXRD">?</span> XRD and <span id="userBalanceLND">?</span> LND, 
+            and the LendingApp has <span id="machineBalanceXRD">?</span> XRD and has <span id="machineBalanceLND">?</span> LND.</p>      
+        </td>
+      </tr>            
+    </table>    
+  </center>
 
-    <h2>2. Publish Package</h2>
-    <p><button id="publishPackage">Publish</button></p>
-    <p>Package Address:<pre id="packageAddress"></pre></p>
-
-    <h2>3. Instantiate Lending App</h2>
-    <p><button id="instantiateComponent">Instantiate</button></p>
-    <p>Component Address:<pre id="componentAddress"></pre></p>
-    <p>Badge Address:<pre id="resourceAddress"></pre></p>
-    <p>Lending NFT:<pre id="resourceAddress1"></pre></p>
-    <p>Borrowing NFT:<pre id="resourceAddress2"></pre></p>
-    <p>LND Token:<pre id="resourceAddress3"></pre></p>
-
-    <h2>3. Register Lender Account</h2>
-    <p><button id="register">Register Lender Account</button></p>
-    <p>Receipt:<pre id="result"></pre></p>
-
-    <h2>4. Register Borrower Account</h2>
-    <p><button id="registerBorrower">Register Borrower Account</button></p>
-    <p>Receipt:<pre id="resultBorrower"></pre></p>    
-
-    <h2>3. Lend Money</h2>
-    <p><button id="lendMoney">Lend 100 XRD</button></p>
-    <p>Receipt:<br><pre id="receipt"></pre></p>
-
-    <h2>4. Get Money Back</h2>
-    <p><button id="getMoney">Get Back 100 XRD plus reward</button></p>
-    <p>Receipt:<br><pre id="getMoneyResult"></pre></p>
-    
-    <h2>5. Borrow Money</h2>
-    <p><button id="borrowMoney">Borrow 100 XRD</button></p>
-    <p>Receipt:<br><pre id="borrowMoneyResult"></pre></p>
-    
-    <h2>6. Repay Money</h2>
-    <p><button id="repayMoney">Repay 100 XRD plus fee</button></p>
-    <p>Receipt:<br><pre id="repayMoneyResult"></pre></p>    
-
-    <h2>7. Check balance</h2>
-    <p><button id="checkBalance">Check</button></p>
-    <p>I have <span id="userBalanceXRD">?</span> XRD and <span id="userBalanceLND">?</span> LND, 
-      and the LendingApp has <span id="machineBalanceXRD">?</span> XRD and has <span id="machineBalanceLND">?</span> LND.</p>
   </body>
 </html>

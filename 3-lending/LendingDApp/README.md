@@ -1,6 +1,6 @@
-# Lending App
+# Lending dApp
 
-![](./images/logo.jpg)
+![](./images/logo3b.jpg)
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -38,7 +38,7 @@ Uncollateralized lendings aim to incentivizes rewards to lenders granting them a
  - No more loans are approved if the main xrd vaults is below 50% of its initial capacity (to prevent from debtors not repaying back their loans)
  - No more loans are accepted if the loan vaults is below 75% of its initial capacity (to prevent from creditors from consuming the main vault)
  - No lending is allowed if it is below 5% or above 20% of the main vault
- - No borrowing is allowed if it is below 1% or above 5% of the main vault
+ - No borrowing is allowed if it is below 3% or above 12% of the main vault
 
  The Lending Engine rules are fixed and in a subsequent rework of this proof of concept they should become dynamic with respect to the size of the vaults and the number of debtors/creditors.
 
@@ -250,7 +250,7 @@ We can see that the reward has gone from the main vault of the Lending App to th
 
 The behaviour described can be described also for the borrower, where methods behaves similarly.
 We can register the account and then finally start using the Dapp.
-The 'registerBorrower' method gives the account non-fungible token that contains:
+The 'register_borrower' method gives the account non-fungible token that contains:
     - the number_of_borrowings the account has successfully completed
     - if the l1 level has been reached
     - if the l2 level has been reached
@@ -258,7 +258,7 @@ The 'registerBorrower' method gives the account non-fungible token that contains
     - the amount of xrd to give back if an operation has been partially closed
 
 ```sh 
-$ resim call-method $component registerBorrower
+$ resim call-method $component register_borrower
 $ resim show $account
 [CUT]
 ├─ { amount: 1, resource address: 0311f8ca67b517a66bd13c424008124c4a2ef516f5e545d3b39030, name: "Borrowing NFTs" }
@@ -370,7 +370,7 @@ For this example, we will build a transaction that will first lend some tokens t
 10. Verify that you received a reward for the lending `resim show $account`
 
 ## How to run for borrower example
-11. Call the `registerBorrower` method on the component: `resim call-method $component registerBorrower` to get the `borrower nft`
+11. Call the `register_borrower` method on the component: `resim call-method $component register_borrower` to get the `borrower nft`
 12. Call `resim show $account` to look at the received nft
 13. Call the `borrow_money` method on the component: `resim call-method $component borrow_money 100  1,$borrow_nft`
 14. Call the `repay_money` method on the component: `resim call-method $component repay_money 110,$xrd  1,$borrow_nft`
@@ -400,6 +400,8 @@ There is a lot that could be improved about the current implementation of Lendin
 
 https://newsdirect.com/news/uncollateralized-crypto-loans-a-ticking-time-bomb-huobi-research-institute-779708853
 https://github.com/Atlendis/whitepaper-v1/blob/main/Atlendis_WhitePaper_V1.pdf
+https://blog.trusttoken.com/introducing-truefi-the-defi-protocol-for-uncollateralized-lending-9bfd6594a48
+
 
 ## License 
 

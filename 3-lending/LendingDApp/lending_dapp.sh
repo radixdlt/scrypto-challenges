@@ -31,7 +31,7 @@ echo 'LND = ' $lnd
 
 resim call-method $component register
 
-resim call-method $component registerBorrower
+resim call-method $component register_borrower
 
 
 resim call-method $component lend_money 100,$xrd 1,$lend_nft

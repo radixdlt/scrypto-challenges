@@ -20,7 +20,7 @@ document.getElementById('fetchAccountAddress').onclick = async function () {
 
 document.getElementById('publishPackage').onclick = async function () {
   // Load the wasm
-  const response = await fetch('./loan_application.wasm');
+  const response = await fetch('./lending_dapp.wasm');
   const wasm = new Uint8Array(await response.arrayBuffer());
 
   // Construct manifest
@@ -84,11 +84,11 @@ document.getElementById('register').onclick = async function () {
   document.getElementById('result').innerText = JSON.stringify(receipt, null, 2);
 };
 
-document.getElementById('registerBorrower').onclick = async function () {
+document.getElementById('register_borrower').onclick = async function () {
 
   // Construct manifest
   const manifest = new ManifestBuilder()
-    .callMethod(componentAddress, 'registerBorrower', [])
+    .callMethod(componentAddress, 'register_borrower', [])
     .callMethodWithAllResources(accountAddress, 'deposit_batch')
     .build()
     .toString();
@@ -102,11 +102,12 @@ document.getElementById('registerBorrower').onclick = async function () {
 
 document.getElementById('lendMoney').onclick = async function () {
 
+  let value_xrd = document.getElementById('number_to_lend').value;
   // Construct manifest
   const manifest = new ManifestBuilder()
     .createProofFromAccountByAmount(accountAddress, 1, resourceAddress1)
     .popFromAuthZone('proof1')    
-    .withdrawFromAccountByAmount(accountAddress, 80, xrdAddress)
+    .withdrawFromAccountByAmount(accountAddress, value_xrd, xrdAddress)
     .takeFromWorktop(xrdAddress, 'xrd')
     .callMethod(componentAddress, 'lend_money', (['Bucket("xrd") Proof("proof1")']))
     .callMethodWithAllResources(accountAddress, 'deposit_batch')
@@ -128,7 +129,7 @@ document.getElementById('getMoney').onclick = async function () {
   const manifest = new ManifestBuilder()
     .createProofFromAccountByAmount(accountAddress, 1, resourceAddress1)
     .popFromAuthZone('proof1')    
-    .withdrawFromAccountByAmount(accountAddress, 85.6, resourceAddress3)
+    .withdrawFromAccount(accountAddress, resourceAddress3)
     .takeFromWorktop(resourceAddress3, 'lnd')
     .callMethod(componentAddress, 'take_money_back', (['Bucket("lnd") Proof("proof1")']))
     .callMethodWithAllResources(accountAddress, 'deposit_batch')
@@ -144,11 +145,15 @@ document.getElementById('getMoney').onclick = async function () {
 
 
 document.getElementById('borrowMoney').onclick = async function () {
+ 
+  //let value_xrd = document.getElementById('number_to_borrow').value;
+  //alert(" ok " + value_xrd);
+
   // Construct manifest
   const manifest = new ManifestBuilder()
     .createProofFromAccountByAmount(accountAddress, 1, resourceAddress2)
     .popFromAuthZone('proof1')  
-    .callMethod(componentAddress, 'borrow_money', (['Decimal("80") Proof("proof1")']))
+    .callMethod(componentAddress, 'borrow_money', (['Decimal("100") Proof("proof1")']))
     .callMethodWithAllResources(accountAddress, 'deposit_batch')
     .build()
     .toString();
@@ -161,11 +166,13 @@ document.getElementById('borrowMoney').onclick = async function () {
 };
 
 document.getElementById('repayMoney').onclick = async function () {
+
+  //let value_xrd = document.getElementById('number_to_borrow').value;
   // Construct manifest
   const manifest = new ManifestBuilder()
     .createProofFromAccountByAmount(accountAddress, 1, resourceAddress2)
     .popFromAuthZone('proof1')  
-    .withdrawFromAccountByAmount(accountAddress, 88, xrdAddress)
+    .withdrawFromAccountByAmount(accountAddress, 110, xrdAddress)
     .takeFromWorktop(xrdAddress, 'xrd')
     .callMethod(componentAddress, 'repay_money', (['Bucket("xrd") Proof("proof1")']))
     .callMethodWithAllResources(accountAddress, 'deposit_batch')
