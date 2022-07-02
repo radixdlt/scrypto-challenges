@@ -33,7 +33,7 @@ resim call-method $component register
 
 resim call-method $component register_borrower
 
-for i in web{0..30};
+for i in web{0..29};
 do 
     resim call-method $component lend_money 100,$xrd 1,$lend_nft;
 

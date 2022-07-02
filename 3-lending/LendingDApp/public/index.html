@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Web site created using create-snowpack-app" />
     <link rel="stylesheet" type="text/css" href="/index.css" />
-    <title>Lending App</title>
+    <title>Lending dApp</title>
   </head>
   <style>
     #gradient1 {
@@ -43,19 +43,16 @@
     <center>
     <table>
       <tr>
-        <td colspan="3">
+        <td width="45%">
           <h2>1. Fetch User Account Address</h2>
           <p><button id="fetchAccountAddress">Click me</button> to get the account address of the PTE Browser Extension user.</p>
           <p>Account Address: <pre id="accountAddress"></pre></p>
-        </td>
-      </tr>      
-      <tr>
-        <td width="45%">
+
           <h2>2. Publish Package</h2>
           <p><button id="publishPackage">Publish</button></p>
           <p>Package Address:<pre id="packageAddress"></pre></p>
       
-          <h2>3. Instantiate Lending App</h2>
+          <h2>3. Instantiate Lending dApp</h2>
           <p><button id="instantiateComponent">Instantiate</button></p>
           <p>Component Address:<pre id="componentAddress"></pre></p>
           <p>Badge Address:<pre id="resourceAddress"></pre></p>
@@ -73,33 +70,30 @@
         </td>
         <td width="10%"></td>
         <td width="45%">
-          <h2>3. Lend Money</h2>
+          <h2>5. Lend </h2>
           <p><input type="number" id="number_to_lend"></input><button id="lendMoney">Lend XRD</button></p>
           <p>Receipt:<br><pre id="receipt"></pre></p>
       
-          <h2>4. Get Money Back</h2>
+          <h2>6. Get Back</h2>
           <p><button id="getMoney">Get Back XRD plus reward</button></p>
           <p>Receipt:<br><pre id="getMoneyResult"></pre></p>
           
-          <h2>5. Borrow Money</h2>
+          <h2>7. Borrow </h2>
           <p>
             <!--<input type="number" id="number_to_borrow"></input>-->
             <button id="borrowMoney">Borrow 100 XRD</button></p>
           <p>Receipt:<br><pre id="borrowMoneyResult"></pre></p>
           
-          <h2>6. Repay Money</h2>
+          <h2>8. Repay </h2>
           <p><button id="repayMoney">Repay 100 XRD plus fee</button></p>
           <p>Receipt:<br><pre id="repayMoneyResult"></pre></p>             
-        </td>
-      </tr>
-      <tr>
-        <td colspan="3">
-          <h2>7. Check balance</h2>
+
+          <h2>9. Check balance</h2>
           <p><button id="checkBalance">Check</button></p>
           <p>I have <span id="userBalanceXRD">?</span> XRD and <span id="userBalanceLND">?</span> LND, 
-            and the LendingApp has <span id="machineBalanceXRD">?</span> XRD and has <span id="machineBalanceLND">?</span> LND.</p>      
+            and the LendingApp has <span id="machineBalanceXRD">?</span> XRD and has <span id="machineBalanceLND">?</span> LND.</p>                
         </td>
-      </tr>            
+      </tr>
     </table>    
   </center>
 

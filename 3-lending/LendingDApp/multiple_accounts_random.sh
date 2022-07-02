@@ -24,6 +24,18 @@ OP4=$(resim new-account)
 export PRIV_KEY4=$(echo "$OP4" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
 export PUB_KEY4=$(echo "$OP4" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
 export ACC_ADDRESS4=$(echo "$OP4" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+OP5=$(resim new-account)
+export PRIV_KEY5=$(echo "$OP5" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export PUB_KEY5=$(echo "$OP5" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS5=$(echo "$OP5" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+OP6=$(resim new-account)
+export PRIV_KEY6=$(echo "$OP6" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export PUB_KEY6=$(echo "$OP6" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS6=$(echo "$OP6" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+OP7=$(resim new-account)
+export PRIV_KEY7=$(echo "$OP7" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export PUB_KEY7=$(echo "$OP7" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS7=$(echo "$OP7" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 
 echo " ======================= ACCOUNT 1 ==================== "
 resim show $ACC_ADDRESS1
@@ -33,6 +45,12 @@ echo " ======================= ACCOUNT 3 ==================== "
 resim show $ACC_ADDRESS3
 echo " ======================= ACCOUNT 4 ==================== "
 resim show $ACC_ADDRESS4
+echo " ======================= ACCOUNT 5 ==================== "
+resim show $ACC_ADDRESS5
+echo " ======================= ACCOUNT 6 ==================== "
+resim show $ACC_ADDRESS6
+echo " ======================= ACCOUNT 7 ==================== "
+resim show $ACC_ADDRESS7
 
 #export account=$(resim new-account | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 #echo "Account = " $account
@@ -67,6 +85,12 @@ resim call-method $component register
 resim call-method $component register_borrower
 resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
 resim call-method $component register
+resim call-method $component register_borrower
+resim set-default-account $ACC_ADDRESS5 $PRIV_KEY5
+resim call-method $component register_borrower
+resim set-default-account $ACC_ADDRESS6 $PRIV_KEY6
+resim call-method $component register_borrower
+resim set-default-account $ACC_ADDRESS7 $PRIV_KEY7
 resim call-method $component register_borrower
 
 echo '====== ACCOUNT 1 ======'
@@ -113,7 +137,19 @@ do
     
     #close borrow
     resim set-default-account $ACC_ADDRESS3 $PRIV_KEY3
-    resim call-method $component repay_money 17,$xrd  1,$borrow_nft;  
+    resim call-method $component repay_money 17,$xrd  1,$borrow_nft;
+
+    #accounts borrowing only
+    echo " Testing with ACC5/6/7 "
+    resim set-default-account $ACC_ADDRESS5 $PRIV_KEY5
+    resim call-method $component borrow_money 70  1,$borrow_nft;
+    resim call-method $component repay_money 77,$xrd  1,$borrow_nft;      
+    resim set-default-account $ACC_ADDRESS6 $PRIV_KEY6
+    resim call-method $component borrow_money 70  1,$borrow_nft;
+    resim call-method $component repay_money 77,$xrd  1,$borrow_nft;      
+    resim set-default-account $ACC_ADDRESS7 $PRIV_KEY7
+    resim call-method $component borrow_money 70  1,$borrow_nft;
+    resim call-method $component repay_money 77,$xrd  1,$borrow_nft;      
 done;
 
 resim show $component

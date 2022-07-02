@@ -15,12 +15,15 @@ LendingApp is a proof-of-concept protocol of an uncollateralized Lending Applica
     + [Lending Engine](#lending-engine)
     + [LendingApp blueprint](#lendingapp-blueprint)
   * [Examples](#examples)
-    + [Getting Started](#getting-started)
+    + [Quick Examples](#quick-examples)
+    + [Examples: Getting Started](#examples-getting-started)    
     + [Example 1: Lending tokens and getting back](#example-1-lending-tokens-and-getting-back)
     + [Example 2: Borrow tokens and repay](#example-2-borrow-tokens-and-repay)
-    + [Example 3: Multiple operation with different accounts](#example-3-multiple-operations-with-different-accounts)
-    + [Example 4: Lending App rules overview](#example-3-lending-app-rules-overview)
-    + [Quick Examples](#quick-examples)
+    + [Example 3: Multiple operation with different accounts](#example-3-multiple-operation-with-different-accounts)
+    + [Integration test 1: Single account](#integration-test-1-single-account)
+    + [Integration test 2: Multiple accounts](#integration-test-2-multiple-accounts)
+    + [Integration test 3: Multiple accounts where borrowers prevail](#integration-test-3-multiple-accounts-where-borrowers-prevail)
+    + [PTE Browser extension test: web page](#pte-browser-extension-test-web-page)    
   * [Future Work and Improvements](#future-work-and-improvements)
   * [License](#license)
 
@@ -46,7 +49,7 @@ Uncollateralized lendings aim to incentivizes rewards to lenders granting them a
 
 ## Motivations
 
-This Lending App is a proof of concept written in Scrypto where tokens are natively supported as a core feature of the network and its aim is to better understand the asset oriented design pattern.
+This Lending dApp is a proof of concept written in Scrypto where tokens are natively supported as a core feature of the network and its aim is to better understand the asset oriented design pattern.
 
 ## Features
 
@@ -58,23 +61,23 @@ These are the main key features:
 * Accept lendings from lenders.
 * Allow lenders to get back the loan along with a reward.
 * Implements rules for preventing from debtors not repaying back their loans and from creditors from consuming the main vault.
-* Approve borrowings to borrowers.
+* Allow borrowings to borrowers.
 * Allow borrowers to repay loans.
 * Forbid to anyone to have multiple loans at the same time (but an account could lend and then borrow some xrd tokens).
 
 ## Details of Design
 
 To help explain the concept of the lending app, let's begin by giving an example for a person who wants to lend their tokens. 
-Let's say that a guy called Leo wants to lend 100 XRD. Leo goes to the Lending App and lends this bucket of XRD getting back a bucket of LND token plus a soulbound token. Two question arises: **Where will go this XRD given from Tim ? Where does the LND token comes from and are to be used for ?**
+Let's say that a guy called Leo wants to lend 100 XRD. Leo goes to the Lending dApp and lends this bucket of XRD getting back a bucket of LND token plus a soulbound token. Two question arises: **Where will go this XRD given from Tim ? Where does the LND token comes from and are to be used for ?**
 
-The XRD that Leo gives to the Lending App goes in the main pool of XRD tokens where creditors will draw their uncollateralized loan. 
-The LND that Leo receives comes from the Loan pool and are to used to claim back the XRD tokens, LND tokens are not transferable and are inclusive of the reward.
+The XRD that Leo gives to the Lending dApp goes in the main pool of XRD tokens where creditors will draw their uncollateralized loan. 
+The LND that Leo receives comes from the Loan pool and are to used to claim back the XRD tokens, LND tokens are not transferable and not updatable and are inclusive of the reward.
 
 Let's continue with an example for a person who wants instead to borrow some tokens. 
-Let's say that a guy called Lory wants to borrow 100 XRD. Lory goes to the Lending App and ask for a bucket of XRD, if the engine rules are met the loan gets approved and Lory gets back a bucket of XRD token plus a soulbound token. Two question arises: **Where this XRD tokes comes from ? How could Lory repay the full amount ?**
+Let's say that a guy called Lory wants to borrow 100 XRD. Lory goes to the Lending dApp and ask for a bucket of XRD, if the engine rules are met the loan gets approved and Lory gets back a bucket of XRD token plus a soulbound token. Two question arises: **Where this XRD token comes from ? How could Lory repay the full amount ?**
 
-The XRD that Lory gets from the Lending App comes from the main pool of XRD tokens that grows thanks to the difference between rewards and fees. 
-The soulbound token that Lory receives is not transferable and contains the amount to be repaid back, credit level can be awarded only when the full loan is repaid and could take to better fees.
+The XRD that Lory gets from the Lending dApp comes from the main pool of XRD tokens that grows thanks to the difference between rewards and fees. 
+The soulbound token that Lory receives is not transferable, not updatable and contains the amount to be repaid back, credit level can be awarded only when the full loan is repaid and could take to better fees.
 
 ### Lending Engine
 
@@ -89,7 +92,7 @@ The net result is put back into the main pool.
 
 The incentive may help encourage the actors to stay honest. The lenders should find it profitable, the borrowers should find it convenient because of its uncollateralized nature, it should be more profitable for everyone to play by the rules than to undermine the system.
 
-#### LendingApp blueprint
+### LendingApp blueprint
 
 `LendingApp` is a blueprint from which components may be instantiated and created. The pools defined in this blueprint contain all of the methods needed to accept and approve loan, to pay back and repay and other functionality required.
 
@@ -105,14 +108,47 @@ The key role or functionality is as follows:
 
 In addition to the above mentioned functionalities, the blueprint also contains a number of helper methods.
 
-
 ## Examples
 
-All of the examples written for LendingApp use the transaction manifest files as well as the new transaction model.
+Here we list all the test that have been performed over the blueprint:
+* Quick examples using Resim from command line on a single account
+* Examples with multiple accounts using the Transaction Manifest files
+* Integration test using Resim and bash script assuming real scenario
 
-### Getting Started
+### Quick Examples
 
-In order to ensure that the account and package addresses match on my local machine as well as on yours we need to first reset resim by doing the following:
+All of the commands and transactions discussed in this readme file can also be verified directly using the resim tool that you can use with the LendingApp blueprint. 
+For this example, we will build a transaction that will first lend some tokens to the pool, then take the tokens back. We will also build a reverse of it, meaning that we will first borrow some tokens to the pool, then take the tokens back
+
+#### How to run
+0. Export xrd resource: `export xrd=030000000000000000000000000000000000000000000000000004` -> save into **$xrd**
+1. Reset your environment: `resim reset`
+2. Create a new account: `resim new-account` -> save into **$account**
+3. Build and deploy the blueprint on the local ledger: `resim publish .` -> save into **$package**
+4. Call the `instantiate_pool` function to instantiate a component: `resim call-function $package LendingApp instantiate_pool 1000,$xrd 1000 10 7` -> save component[0] into **$component**, resources[1] -> into **$lend_nft**, resources[2]  -> into **$borrow_nft**, resources[3]  -> into **$lnd**
+
+#### How to run for lenders example
+6. Call the `register` method on the component: `resim call-method $component register` to get the `lending nft`
+7. Call `resim show $account` to look at the received nft
+8. Call the `lend_money` method on the component: `resim call-method $component lend_money 100,$xrd 1,$lend_nft`
+9. Call the `take_money_back` method on the component: `resim call-method $component take_money_back 107,$lnd 1,$lend_nft`
+10. Verify that you received a reward for the lending `resim show $account`
+
+#### How to run for borrower example
+11. Call the `register_borrower` method on the component: `resim call-method $component register_borrower` to get the `borrower nft`
+12. Call `resim show $account` to look at the received nft
+13. Call the `borrow_money` method on the component: `resim call-method $component borrow_money 100  1,$borrow_nft`
+14. Call the `repay_money` method on the component: `resim call-method $component repay_money 110,$xrd  1,$borrow_nft`
+15. Verify that you paied a fee for the borrowing `resim show $account`
+
+
+Script is here [`lending_dapp.sh`](lending_dapp.sh) 
+
+
+### Examples: Getting Started
+
+THe following example make use of the transaction manifest files. These examples involve multiple account holders interacting with the Lending dApp.
+In order to start we need to first reset resim by doing the following:
 
 ```sh
 $ resim reset
@@ -144,7 +180,7 @@ With the four accounts created, let's give some context as to what we will be do
 The first thing that we wish to do is to lend and take back some token to the dApp, then we wish to borrow and repay with the same account, later we wish to interact with the dApp with all the accounts at the same time but every time in a different role.
 
 ```sh
-$ resim set-default-account $ACC_ADDRESS1 $PUB_KEY1 $PRIV_KEY1
+$ resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
 Default account updated!
 ```
 We have to publish and create the package that we will use for creating the component
@@ -180,10 +216,10 @@ $ export lnd=03c20299928dc86cb3f8571b8843e4e10e38931f977b5ac47e4610
 
 Now we can register the account and then finally start using the Dapp.
 The 'register' method gives the account non-fungible token that contains:
-    - the number_of_lendings the account has successfully completed
-    - if the l1 level has been reached
-    - if the l2 level has been reached
-    - if an operation is in progress
+* the number_of_lendings the account has successfully completed
+* if the l1 level has been reached
+* if the l2 level has been reached
+* if an operation is in progress
 
 ```sh 
 $ resim call-method $component register
@@ -221,7 +257,7 @@ Resources:
 └─ { amount: **1080**, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 ```
 
-Later on the account holder ask to get its XRD tokens back from the Lending App.
+Later on the account holder ask to get its XRD tokens back from the Lending dApp.
 As before, you can check the vault of both the account and the component.
 
 Transaction Manifest is here [`take1.rtm`](./transactions/take1.rtm) 
@@ -244,7 +280,14 @@ Resources:
 └─ { amount: 1, resource address: 0356acb2964de8fd035a1655bf23d0a50f27302190d1d03be43cd2, name: "Loan Token Auth" }
 ```
 
-We can see that the reward has gone from the main vault of the Lending App to the one of the account holder.
+We can see that the reward has gone from the main vault of the Lending dApp to the one of the account holder.
+
+All of the following can also be executed on the other accounts that have been created, for this purpose you only need to change the default account
+
+```sh
+$ resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+Default account updated!
+```
 
 ### Example 2: Borrow tokens and repay
 
@@ -297,7 +340,7 @@ Resources:
    └─ NonFungible { id: a72ddf870dd4af58443b70263107da13566510e39ea4464a5c4feb81df516b3e, immutable_data: Struct(), mutable_data: Struct(2u16, Decimal("110"), false, false, true) }
 ```
 
-Later the account holder repays the loan to the Lending App.
+Later the account holder repays the loan to the Lending dApp.
 As before, you can check the vault of both the account and the component.
 
 Transaction Manifest is here [`repay.rtm`](./transactions/repay.rtm) 
@@ -319,7 +362,7 @@ Resources:
    └─ NonFungible { id: a72ddf870dd4af58443b70263107da13566510e39ea4464a5c4feb81df516b3e, immutable_data: Struct(), mutable_data: Struct(2u16, Decimal("0"), false, false, false) }
 ```
 
-We can see that the fee has been paid from the account holder to the main vault of the Lending App.
+We can see that the fee has been paid from the account holder to the main vault of the Lending dApp.
 
 
 ### Example 3: Multiple operation with different accounts
@@ -342,46 +385,75 @@ Logs: 1
 └─ [ERROR] Panicked at 'Pool size is below its limit, no more lendings are accepted now', src/lib.rs:205:13
 ```
 
-### Example 4: Lending App rules overview
+### Integration test 1: Single account
 
-Here a simple schema at a given time showing the actors, their levels and the operations completed/in progress.
+This test runs, in sequence, a lend, a take back, a borrow and a repay for 30 times.
 
-![](./images/firstSchema.png)
+Script is here [`single_account_loop.sh`](single_account_loop.sh) 
 
+Result will be that the main vault of engine will contain 90xrd tokens more
 
+```
+Resources:
+├─ { amount: 1, resource address: 03cd02f4198d28ebb6d62872b76fec8706c00d6d7242b6443be129, name: "Loan Token Auth" }
+├─ { amount: 1090, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+└─ { amount: 1078, resource address: 03d10151048f2f0777aff6a8036a50a976e4c60ad4887f8301b821, name: "Loan token", symbol: "LND" }
+```
 
-### Quick Examples
+then the account holder instead will contain 12lnd tokens caming from the extra l1/l2 loyalty reward
 
-All of the commands and transactions discussed in this readme file can also be verified directly using the resim tool that you can use with the LendingApp blueprint. 
-For this example, we will build a transaction that will first lend some tokens to the pool, then take the tokens back. We will also build a reverse of it, meaning that we will first borrow some tokens to the pool, then take the tokens back
+```
+Resources:
+├─ { amount: 1, resource address: 03bed7c65824ea5378ee31a0f00dba68a3e1059a62531699cec8ec, name: "Lending NFTs" }
+│  └─ NonFungible { id: 239326fd8851a6f424b63cdaa66b0b5fcf671a486cadf63026f8292d190cf26c, immutable_data: Struct(), mutable_data: Struct(30u16, true, true, false) }
+├─ { amount: 998910, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+├─ { amount: 12, resource address: 03d10151048f2f0777aff6a8036a50a976e4c60ad4887f8301b821, name: "Loan token", symbol: "LND" }
+```
 
-## How to run
-0. Export xrd resource: `export xrd=030000000000000000000000000000000000000000000000000004` -> save into **$xrd**
-1. Reset your environment: `resim reset`
-2. Create a new account: `resim new-account` -> save into **$account**
-3. Build and deploy the blueprint on the local ledger: `resim publish .` -> save into **$package**
-4. Call the `instantiate_pool` function to instantiate a component: `resim call-function $package LendingApp instantiate_pool 1000,$xrd 1000 10 7` -> save component[0] into **$component**, resources[1] -> into **$lend_nft**, resources[2]  -> into **$borrow_nft**, resources[3]  -> into **$lnd**
+### Integration test 2: Multiple accounts
 
-## How to run for lenders example
-6. Call the `register` method on the component: `resim call-method $component register` to get the `lending nft`
-7. Call `resim show $account` to look at the received nft
-8. Call the `lend_money` method on the component: `resim call-method $component lend_money 100,$xrd 1,$lend_nft`
-9. Call the `take_money_back` method on the component: `resim call-method $component take_money_back 107,$lnd 1,$lend_nft`
-10. Verify that you received a reward for the lending `resim show $account`
+This test runs, in sequence, a lend, a take back, a borrow and a repay for 5 times using 4 different accounts.
 
-## How to run for borrower example
-11. Call the `register_borrower` method on the component: `resim call-method $component register_borrower` to get the `borrower nft`
-12. Call `resim show $account` to look at the received nft
-13. Call the `borrow_money` method on the component: `resim call-method $component borrow_money 100  1,$borrow_nft`
-14. Call the `repay_money` method on the component: `resim call-method $component repay_money 110,$xrd  1,$borrow_nft`
-15. Verify that you paied a fee for the borrowing `resim show $account`
+Script is here [`multiple_accounts.sh`](multiple_accounts.sh) 
 
-## How to run for lenders example
-1. Run the transaction manifest: `resim run transactions/lend.rtm`
-2. Run the transaction manifest: `resim run transactions/take.rtm`
-## How to run for borrowers example
-1. Run the transaction manifest: `resim run transactions/borrow.rtm`
-2. Run the transaction manifest: `resim run transactions/repay.rtm`
+Result will be that the main vault will contain x72rd tokens more
+
+```
+Resources:
+├─ { amount: 1, resource address: 033f96b270e9b42711093a47c66a5d35770e114ded7f2a7335d31e, name: "Loan Token Auth" }
+├─ { amount: 1072, resource address: 038e3d929e400b17a9ecdfb7365aece688a6872c9b982e939ef150, name: "Loan token", symbol: "LND" }
+└─ { amount: 1072, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+```
+
+### Integration test 3: Multiple accounts where borrowers prevail
+
+This test uses 7 account where the first 4 ask a lend, a take back, a borrow and a repay and the last 3 accounts instead ask only for borrowings.
+
+Script is here [`multiple_accounts_random.sh`](multiple_accounts_random.sh) 
+
+Result will be that the main vault will contain x118rd tokens more
+
+```
+Resources:
+├─ { amount: 1137.999999999999999994, resource address: 0337210fb74867e591c0fbbc859dd8432e1c434fbd6e8b945565ba, name: "Loan token", symbol: "LND" }
+├─ { amount: 1, resource address: 0353cd87489840a6b7cf96de5a1051fb9f0bac4cfd81203092358b, name: "Loan Token Auth" }
+└─ { amount: 1138, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+```
+
+### PTE Browser extension test: web page
+
+The PTE extension has been given a try since it is very useful for testing, the operations already described and verified with resim and the transaction manifest files are here again verifiable in a simple way.
+You need to install the PTE Browser Extension and start the dApp
+
+Start Lending dApp [`build-pte.sh`](build-pte.sh) 
+
+web page
+
+![](./images/start.jpg)
+
+dApp running
+
+![](./images/working.jpg)
 
 
 ## Future Work and Improvements
@@ -391,21 +463,18 @@ There is a lot that could be improved about the current implementation of Lendin
 * Researching methods to ensure that the precision of the calculations and math done by the engine to calculate fees and rewards is as accurate and precise as it can be.
 * Writing additional examples as well as tests.
 * Adding the concept of time passing to the calculation of fee and rewards.
-* Add a penaly fee for borrowers repaying late  
+* Add a penalty fee for borrowers repaying late  
 * Additional analisys on the business model to make sure it will be successful.
 * Deposit idle liquidity to a third-party yield provider until the funds are not used by borrowers 
 * (for borrowers) Add a form to collect the necessary data and a way to see own loan history including active and completed loans
 * (for lenders) Add a way to see own lendings history including active and completed
 * (for engine) Add a way to show statistics (pool size, total loans, number of lenders/borrowers)
-
-https://newsdirect.com/news/uncollateralized-crypto-loans-a-ticking-time-bomb-huobi-research-institute-779708853
-https://github.com/Atlendis/whitepaper-v1/blob/main/Atlendis_WhitePaper_V1.pdf
-https://blog.trusttoken.com/introducing-truefi-the-defi-protocol-for-uncollateralized-lending-9bfd6594a48
-
+* Write a white-paper with mathematical functions and a business plan with assumptions about the business model
 
 ## License 
 
 This work is licensed under Apache 2.0 and the license file is provided [here](./LICENSE).
+
 
 
 

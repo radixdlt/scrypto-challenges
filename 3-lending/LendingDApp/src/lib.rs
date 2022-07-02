@@ -117,14 +117,14 @@ blueprint! {
                 .no_initial_supply();                 
 
             let loan_tokens = ResourceBuilder::new_fungible()
-            .metadata("symbol", "LND")
-            .metadata("name", "Loan token")
-            .metadata("url", "https://lendingapp.com")
-            .mintable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
-            .burnable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
-            //.updateable_metadata(rule!(require(loan_admin_badge.resource_address())), LOCKED)
-            //.restrict_withdraw(rule!(require(loan_admin_badge.resource_address())), LOCKED)
-            .initial_supply(start_amount);
+                .metadata("symbol", "LND")
+                .metadata("name", "Loan token")
+                .metadata("url", "https://lendingapp.com")
+                .mintable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
+                .burnable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
+                //.updateable_metadata(rule!(require(loan_admin_badge.resource_address())), LOCKED)
+                //.restrict_withdraw(rule!(require(loan_admin_badge.resource_address())), LOCKED)
+                .initial_supply(start_amount);
 
             let loan_allocated = Vec::new();
 
@@ -171,6 +171,8 @@ blueprint! {
                     .mint_non_fungible(&lend_id, LendingTicket {number_of_lendings: 0, l1: false, l2: false, in_progress: false  })
                 }); 
 
+            info!("Extra L1 reward is : {} and L2 reward is : {}", self.extra_reward_l1, self.extra_reward_l2);
+
             // Return the NFT
             lending_nft
         }
@@ -188,6 +190,8 @@ blueprint! {
                 borrow_resource_manager!(self.borrowing_nft_resource_def)
                     .mint_non_fungible(&lend_id, BorrowingTicket {number_of_borrowings: 0, xrds_to_give_back: Decimal::zero(), l1: false, l2: false, in_progress: false  })
                 }); 
+
+            info!("Bonus L1 fee is : {} and L2 is : {}", self.bonus_fee_l1, self.bonus_fee_l2);                
 
             // Return the NFT
             borrowing_nft
