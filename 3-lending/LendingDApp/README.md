@@ -12,8 +12,9 @@ LendingApp is a proof-of-concept protocol of an uncollateralized Lending Applica
   * [Motivations](#motivations)
   * [Features](#features)
   * [Details of Design](#details-of-design)
-    + [Lending Engine](#lending-engine)
+  * [Lending dApp Architecture](#lending-dapp-architecture)
     + [LendingApp blueprint](#lendingapp-blueprint)
+    + [LendingEngine blueprint](#lendingengine-blueprint)
   * [Examples](#examples)
     + [Quick Examples](#quick-examples)
     + [Examples: Getting Started](#examples-getting-started)    
@@ -79,9 +80,9 @@ Let's say that a guy called Lory wants to borrow 100 XRD. Lory goes to the Lendi
 The XRD that Lory gets from the Lending dApp comes from the main pool of XRD tokens that grows thanks to the difference between rewards and fees. 
 The soulbound token that Lory receives is not transferable, not updatable and contains the amount to be repaid back, credit level can be awarded only when the full loan is repaid and could take to better fees.
 
-### Lending Engine
+## Lending dApp Architecture
 
-Let's briefly touch back on the rules of the engine.
+Let's briefly touch back on the rules of the dApp.
 There needs to be an incentive for all the actors:
 - lenders
 - borrowers
@@ -91,6 +92,10 @@ The engine gets reward from the difference payed by borrowers to what it has to 
 The net result is put back into the main pool.
 
 The incentive may help encourage the actors to stay honest. The lenders should find it profitable, the borrowers should find it convenient because of its uncollateralized nature, it should be more profitable for everyone to play by the rules than to undermine the system.
+
+Lending dApp is composed by two blueprint:
+- LendingEngine blueprint
+- LendingApp blueprint
 
 ### LendingApp blueprint
 
@@ -107,6 +112,18 @@ The key role or functionality is as follows:
 * Contains an `repay_money` 
 
 In addition to the above mentioned functionalities, the blueprint also contains a number of helper methods.
+
+
+### LendingEngine blueprint
+
+The `LendingApp` blueprint contains a main pool that may only be created with XRD tokens. The `LendingEngine` has been created to decompose the architecture and its main job is to contains a registry of all of the lending app and the token used to create the main pool.
+When a user requests the creation of a new lending app, the LendingEngine checks to ensure that the lending app pool does not already exist in the HashMap before it is created.
+
+* Through the HashMap of all of the lending apps, the LendingEngine component routes the method calls for registering, lending, borrowing and so on so that the operation can be executed.
+
+* The LendingEngine component keeps track of the token addresses of the main pool
+
+In a typical setting, a `LendingApp` component would not be instantiated directly through the `LendingApp::instantiate_pool(parameters)` function even inf this has been the main usage through the tests; instead, a new lending app would be created through the `LendingEngine.new_lending_app()` methods so that the lending app can be registered in the LendingEngine lending app registry.
 
 ## Examples
 
