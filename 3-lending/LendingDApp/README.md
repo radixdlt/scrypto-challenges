@@ -447,11 +447,9 @@ You need to install the PTE Browser Extension and start the dApp
 
 Start Lending dApp [`build-pte.sh`](build-pte.sh) 
 
-web page
-
 ![](./images/start.jpg)
 
-dApp running
+here is the dApp running
 
 ![](./images/working.jpg)
 

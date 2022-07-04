@@ -15,7 +15,7 @@ echo "Publishing dapp"
 export lendingapp_package=$(resim publish . | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
 echo "Package = " $lendingapp_package
 
-output=`resim call-function $lendingapp_package LendingApp instantiate_pool 1000,$xrd 1000 10 7 | awk '/Component: |Resource: / {print $NF}'`
+output=`resim call-function $lendingapp_package LendingEngine instantiate_pool 1000,$xrd 1000 10 7 | awk '/Component: |Resource: / {print $NF}'`
 export component=`echo $output | cut -d " " -f1`
 export ADMIN_BADGE=`echo $output | cut -d " " -f2`
 export lend_nft=`echo $output | cut -d " " -f3`
@@ -29,21 +29,17 @@ echo 'BORROW_NFT = '$borrow_nft
 echo 'LND = ' $lnd
 
 
-resim call-method $component register
-
-resim call-method $component register_borrower
-
-for i in web{0..29};
-do 
-    resim call-method $component lend_money 100,$xrd 1,$lend_nft;
-
-    resim call-method $component take_money_back 107,$lnd 1,$lend_nft;
-
-    resim call-method $component borrow_money 100  1,$borrow_nft;
-
-    resim call-method $component repay_money 110,$xrd  1,$borrow_nft;
-done;
+resim call-method $component register 0,$xrd
 
 resim show $account
+
+    #TODO
+    #resim call-method $component lend 100,$xrd 1,$lend_nft;
+
+    #resim call-method $component take_back 107,$lnd 1,$lend_nft;
+
+    #resim call-method $component borrow 100  1,$borrow_nft;
+
+    #resim call-method $component repay 110,$xrd  1,$borrow_nft;
 
 resim show $component
