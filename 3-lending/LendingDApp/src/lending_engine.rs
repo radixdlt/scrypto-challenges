@@ -1,5 +1,5 @@
 use scrypto::prelude::*;
-use crate::lending_app::*;
+use crate::lending_app::LendingApp;
 
 blueprint!{
     /// The LendingEngine blueprint do not perform any kind of mathematics, it is a registry 
@@ -11,38 +11,55 @@ blueprint!{
 
     impl LendingEngine {
         /// Instantiates a new LendingEngine component. 
-        /// # Returns a new LendingEngine component.
-        pub fn instantiate_pool(
-            starting_tokens: Bucket,
+        pub fn instantiate_pool() -> ComponentAddress {
+            return Self {
+                loan_pool: HashMap::new()
+            }
+            .instantiate()
+            .globalize();            
+        }
+
+       /// # Returns a new LendingApp component.
+       pub fn new_loan_pool(
+            &mut self,
+            token1: Bucket,
             start_amount: Decimal,
             fee: Decimal,
             reward: Decimal,
-        ) -> ComponentAddress {
+        )   {
+            info!("Check if it already exists");
+            // Checking if a loan pool already exists between these two tokens
+            self.assert_pool_doesnt_exist(token1.resource_address());
 
-            let  add: ResourceAddress = starting_tokens.resource_address(); 
+            let  add: ResourceAddress = token1.resource_address(); 
+
+            info!("Creating new LendingApp ") ;
             let lending_app: ComponentAddress  = LendingApp::instantiate_pool(
-                starting_tokens, start_amount, fee, reward
+                token1, start_amount, fee, reward
             );
-            let mut loan_pool_int: HashMap<ResourceAddress, LendingApp> = HashMap::new();
-            loan_pool_int.insert(add,lending_app.into());
+            self.loan_pool.insert(add,lending_app.into());
+        }
 
-            // no arguments 
-            return Self {
-                loan_pool: loan_pool_int,            
-            }
-            .instantiate()
-            .globalize();
-       }
+        // pub fn get_loan_pool(
+        //     &mut self,
+        //     token1: Bucket
+        // ) -> LendingApp  {
+        //     // Checking if a loan pool already exists between these two tokens
+        //     self.assert_pool_exists(token1.resource_address());
+        //     let  add: ResourceAddress = token1.resource_address(); 
+        //     return self.loan_pool[&token1.resource_address()];
+        // }
 
-        pub fn register(&mut self,tokens: Bucket) -> (Bucket,Bucket) {
+        pub fn register(&mut self,address: ResourceAddress) -> Bucket {
 
-            info!("Registering ");
+            info!("Registering for lending with {} ", address) ;
 
             // Checking if exist a lending app for the token received
-            self.assert_pool_exists(tokens.resource_address());
+            self.assert_pool_exists(address);
 
-            return (self.loan_pool[&tokens.resource_address()].register(),tokens);
+            return self.loan_pool[&address].register();
         }
+
 
         pub fn lend(
             &mut self,
@@ -54,7 +71,19 @@ blueprint!{
             self.assert_pool_exists(tokens.resource_address());
 
             return self.loan_pool[&tokens.resource_address()].lend_money(tokens, ticket);
-        }        
+        }
+
+        pub fn show_pools(
+            &mut self
+        ) {
+            info!("How many loan pools does exist ? ");
+
+            for (key, _value) in &self.loan_pool {
+                info!("ResourceAddress of token managed by pool is {}", key); 
+            }
+        }
+        
+
 
         pub fn pool_exist(
             &self,
@@ -84,6 +113,28 @@ blueprint!{
                 "[{}]: A Loan pool with the given address already exists.",
                 address1
             );
+        }
+
+        pub fn assert_parameters_are_different(
+            &self,
+            tokens: ResourceAddress,
+            fee: Decimal,
+            reward: Decimal,
+        ) {
+            if self.pool_exist(tokens) {
+                assert!(
+                    !(fee<=self.loan_pool[&tokens].fee()+1 && fee>=self.loan_pool[&tokens].fee()-1), 
+                    "[{}]: A Loan pool with similar parameters already exists.",
+                    self.loan_pool[&tokens].fee()
+                );
+            } 
+            if self.pool_exist(tokens) {
+                assert!(
+                    !(reward<=self.loan_pool[&tokens].reward()+1 && reward>=self.loan_pool[&tokens].reward()-1), 
+                    "[{}]: A Loan pool with similar parameters already exists.",
+                    self.loan_pool[&tokens].reward()
+                );
+            }             
         }
 
     }

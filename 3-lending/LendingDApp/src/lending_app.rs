@@ -2,6 +2,7 @@ use scrypto::prelude::*;
 use sha2::{Digest, Sha256};
 use crate::utils::*;
 
+
 // Here, we define the data that will be present in
 // each of the lending ticket NFTs.
 #[derive(NonFungibleData)]
@@ -32,8 +33,8 @@ struct BorrowingTicket {
     in_progress: bool          
 }
 
-
 blueprint! {
+    #[derive(Debug)]
     struct LendingApp {
         /// The resource definition of LOAN token.
         loan_resource_def: ResourceAddress,
@@ -70,6 +71,7 @@ blueprint! {
         cumulative: Decimal
     }
 
+
     impl LendingApp {
         /// Creates a LendingApp component for token pair A/B and returns the component address
         /// along with the initial LP tokens.
@@ -95,10 +97,10 @@ blueprint! {
                 start_amount >= dec!("1000"),
                 "Loan Pool must start with at least 1000 XRD tokens !"
             );                  
-            assert!(
-                starting_tokens.resource_address().to_string() == "030000000000000000000000000000000000000000000000000004",
-                "[Main Pool Creation]: Main Pool may only be created with XRD tokens."
-            );
+            //assert!(
+            //    starting_tokens.resource_address().to_string() == scrypto::constants::RADIX_TOKEN,
+            //    "[Main Pool Creation]: Main Pool may only be created with XRD tokens."
+            //);
             assert!(
                 !starting_tokens.is_empty() , 
                 "[Main Pool Creation]: Can't create a pool from an empty bucket."
@@ -172,6 +174,13 @@ blueprint! {
             lendingapp.globalize()
         }
 
+        pub fn fee(&self) -> Decimal {
+            return self.fee;
+        }
+        pub fn reward(&self) -> Decimal {
+            return self.reward;
+        }
+
         // Allow someone to register its account
         pub fn register(&self) -> Bucket {
             let uuid = Runtime::generate_uuid();    
@@ -216,10 +225,12 @@ blueprint! {
         /// Lend XRD token to then pool and get back Loan tokens plus reward
         pub fn lend_money(&mut self, xrd_tokens: Bucket, ticket: Proof) -> Bucket {
             info!("=== LEND OPERATION START === ");
+            info!("New Loan pool size is: {}", self.loan_pool.amount());
+            info!("New Main pool size is: {}", self.main_pool.amount());
             // The ratio of added liquidity.
             let ratio = xrd_tokens.amount() * dec!("100") / self.main_pool.amount();
-            info!("Actual ratio is: {}", ratio.floor());
-            info!("Loan Pool size is: {} and limit is: {}", self.loan_pool.amount() , self.start_amount*dec!("75")/dec!("100"));
+            info!("Ratio of added liquidity is: {}", ratio.floor());
+            info!("Low pool limit is: {}" , self.start_amount*dec!("75")/dec!("100"));
             
             //check if lend is acceptable
             //bucket size has to be between 5% and 20% of the main vault size
@@ -260,7 +271,7 @@ blueprint! {
             assert!(!lending_nft_data.in_progress, "You already have a lend open!");
             let number_of_lendings: i32 = 1 + lending_nft_data.number_of_lendings;
             lending_nft_data.number_of_lendings = number_of_lendings;
-            info!("New NFT size is: {} L1 : {} L2 : {} ", lending_nft_data.number_of_lendings, lending_nft_data.l1, lending_nft_data.l2);
+            info!("Number of lendings is: {} - L1 : {} - L2 : {} ", lending_nft_data.number_of_lendings, lending_nft_data.l1, lending_nft_data.l2);
             //L1 if number_of_lendings between 10 and 20
             if l1_enabled(number_of_lendings,10,20) {                
                 lending_nft_data.l1 = true;
@@ -281,8 +292,8 @@ blueprint! {
                 borrow_resource_manager!(self.lending_nft_resource_def).update_non_fungible_data(&non_fungible.id(), lending_nft_data);
             });
 
-            info!("Loan pool size is: {}", self.loan_pool.amount());
-            info!("Main pool size is: {}", self.main_pool.amount());
+            info!("New Loan pool size is: {}", self.loan_pool.amount());
+            info!("New Main pool size is: {}", self.main_pool.amount());
 
             // Return the tokens along with NFT
             value_backed
@@ -291,7 +302,9 @@ blueprint! {
         /// Gives money back to the lenders adding their reward
         pub fn take_money_back(&mut self, lnd_tokens: Bucket, ticket: Proof) -> Bucket {
             info!("=== TAKE OPERATION START === ");
-            info!("Loan Pool size is: {} and limit is: {}", self.loan_pool.amount() , self.start_amount*dec!("75")/dec!("100"));
+            info!("Loan pool size is: {}", self.loan_pool.amount());
+            info!("Main pool size is: {}", self.main_pool.amount());            
+            info!("Low pool limit is: {}" , self.start_amount*dec!("75")/dec!("100"));
             let minimum: Decimal = dec!("50");
             // Get the data associated with the Lending NFT and update the variable values (in_progress=false)
             let non_fungible: NonFungible<LendingTicket> = ticket.non_fungible();
@@ -319,8 +332,8 @@ blueprint! {
                 self.loan_pool.take(lnd_to_be_burned).burn();
             }); 
 
-            info!("Loan pool size is: {}", self.loan_pool.amount());
-            info!("Main pool size is: {}", self.main_pool.amount());
+            info!("New Loan pool size is: {}", self.loan_pool.amount());
+            info!("New Main pool size is: {}", self.main_pool.amount());
    
             lending_nft_data.in_progress = false;
             // Update the data on that NFT globally         
@@ -371,12 +384,9 @@ blueprint! {
 
             let fee_value = xrd_requested*self.fee/dec!("100");
             let mut xrd_to_be_returned = xrd_requested + fee_value;
-    
-            borrowing_nft_data.in_progress = true;
-            info!("NFT size is: {} L1 : {} L2 : {}", borrowing_nft_data.number_of_borrowings, borrowing_nft_data.l1, borrowing_nft_data.l2);
-            let number_of_borrowings = 1 + borrowing_nft_data.number_of_borrowings;
+            borrowing_nft_data.in_progress = true;let number_of_borrowings = 1 + borrowing_nft_data.number_of_borrowings;
             borrowing_nft_data.number_of_borrowings = number_of_borrowings;
-            info!("New NFT size is: {}", borrowing_nft_data.number_of_borrowings);
+            info!("Number of borrowings is: {} - L1 : {} - L2 : {}", borrowing_nft_data.number_of_borrowings, borrowing_nft_data.l1, borrowing_nft_data.l2);
             if number_of_borrowings > 10 && number_of_borrowings <= 20{
                 borrowing_nft_data.l1 = true;
                 println!("L1 reached ! bonus fee assigned ");
@@ -393,8 +403,8 @@ blueprint! {
                 borrow_resource_manager!(self.borrowing_nft_resource_def).update_non_fungible_data(&non_fungible.id(), borrowing_nft_data)
             });            
 
-            info!("Loan pool size is: {}", self.loan_pool.amount());
-            info!("Main pool size is: {}", self.main_pool.amount());            
+            info!("New Loan pool size is: {}", self.loan_pool.amount());
+            info!("New Main pool size is: {}", self.main_pool.amount());            
 
             xrds_to_give_back
         }        
@@ -402,6 +412,8 @@ blueprint! {
         /// Repay back XRD token 
         pub fn repay_money(&mut self, mut xrd_tokens: Bucket, ticket: Proof) -> Bucket {
             info!("=== REPAY OPERATION START === ");
+            info!("Loan pool size is: {}", self.loan_pool.amount());
+            info!("Main pool size is: {}", self.main_pool.amount());                
             // Get the data associated with the Borrowing NFT and update the variable values (in_progress=false)
             let non_fungible: NonFungible<BorrowingTicket> = ticket.non_fungible();
             let mut borrowing_nft_data = non_fungible.data();
@@ -440,8 +452,8 @@ blueprint! {
                 info!("Updates Borrowing NFT !");
             });
 
-            info!("Loan pool size is: {}", self.loan_pool.amount());
-            info!("Main pool size is: {}", self.main_pool.amount());
+            info!("New Loan pool size is: {}", self.loan_pool.amount());
+            info!("New Main pool size is: {}", self.main_pool.amount());
 
             xrd_tokens
         }
