@@ -24,7 +24,8 @@ LendingApp is a proof-of-concept protocol of an uncollateralized Lending Applica
     + [Integration test 1: Single account](#integration-test-1-single-account)
     + [Integration test 2: Multiple accounts](#integration-test-2-multiple-accounts)
     + [Integration test 3: Multiple accounts where borrowers prevail](#integration-test-3-multiple-accounts-where-borrowers-prevail)
-    + [PTE Browser extension test: web page](#pte-browser-extension-test-web-page)    
+    + [PTE Browser extension test: web page](#pte-browser-extension-test-web-page)   
+    + [Blueprints Example](#blueprints-example)   
   * [Future Work and Improvements](#future-work-and-improvements)
   * [License](#license)
 
@@ -130,80 +131,6 @@ Here we list all the test that have been performed over the blueprint:
 * Examples with multiple accounts using the Transaction Manifest files
 * Integration test using Resim and bash script assuming real scenario
 * Quick examples using Resim from bash script using both Blueprints.
-
-### Blueprints Example
-
-The following test show the lendingEngine blueprint creates two LendingApp components that are than used for lendings.
-Herein we present some outputs of the bash script.
-
-Default account contains both the XRD and the UKN token
-```
-Resources:
-├─ { amount: 1000000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
-└─ { amount: 2000, resource address: 037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85, name: "Unknown", symbol: "UKN" }
-```
-
-First component with main vault full of 'XRD' token
-```
-Resources:
-├─ { amount: 1, resource address: 039a90eae0d644f5f252c3352e6fec3fecf6d9bc413071e0320b1a, name: "Loan Token Auth" }
-├─ { amount: 1000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
-└─ { amount: 1000, resource address: 03d44e98b7b9146cf6e765c2a3760fa1c8568427eea8b375c07ba4, name: "Loan token", symbol: "LND" }
-```
-
-Second component with main vault full of 'UKN' token
-```
-Resources:
-├─ { amount: 1000, resource address: 037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85, name: "Unknown", symbol: "UKN" }
-├─ { amount: 1000, resource address: 036498ed890665a924d6d0d5aae6a0717270d3196f2f5c6974592e, name: "Loan token", symbol: "LND" }
-└─ { amount: 1, resource address: 03dc51d4bd2c9e55efd67be95d3e62489badd8e5f4da5fe08b1b6a, name: "Loan Token Auth" }
-```
-
-Account balances after lendings
-```
-Resources:
-├─ { amount: 107, resource address: 036498ed890665a924d6d0d5aae6a0717270d3196f2f5c6974592e, name: "Loan token", symbol: "LND" }
-├─ { amount: 900, resource address: 037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85, name: "Unknown", symbol: "UKN" }
-├─ { amount: 1, resource address: 03120189a8a91b805ced1a8ba6e199e8221cf26d2f8e8a963c7841, name: "Lending NFTs" }
-│  └─ NonFungible { id: 1a02a5f9636a1615211d39e1b7f9d662f39833c304626eab58767e56637b0785, immutable_data: Struct(), mutable_data: Struct(1i32, false, false, true) }
-├─ { amount: 998900, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
-├─ { amount: 1, resource address: 03c53e9aa4de50cc394aed08510e60c4a7da2e231a7c1b8c7c58f5, name: "Lending NFTs" }
-│  └─ NonFungible { id: c98f002c60da870e06c8f4ee027fea388a6ffa7723baa18464adaa3a89b39dd5, immutable_data: Struct(), mutable_data: Struct(1i32, false, false, true) }
-└─ { amount: 107, resource address: 03d44e98b7b9146cf6e765c2a3760fa1c8568427eea8b375c07ba4, name: "Loan token", symbol: "LND" }
-```
-
-First component with main vault full of 'XRD' token after lend operation
-```
-Resources:
-├─ { amount: 1100, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
-├─ { amount: 893, resource address: 03d44e98b7b9146cf6e765c2a3760fa1c8568427eea8b375c07ba4, name: "Loan token", symbol: "LND" }
-└─ { amount: 1, resource address: 039a90eae0d644f5f252c3352e6fec3fecf6d9bc413071e0320b1a, name: "Loan Token Auth" }
-```
-
-Second component with main vault full of 'UKN' token after lend operation
-```
-Resources:
-├─ { amount: 893, resource address: 036498ed890665a924d6d0d5aae6a0717270d3196f2f5c6974592e, name: "Loan token", symbol: "LND" }
-├─ { amount: 1100, resource address: 037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85, name: "Unknown", symbol: "UKN" }
-└─ { amount: 1, resource address: 03dc51d4bd2c9e55efd67be95d3e62489badd8e5f4da5fe08b1b6a, name: "Loan Token Auth" }
-```
-
-Engine contains the registry of all the pool created
-```
-Logs: 3
-├─ [INFO ] How many loan pools does exist ? 
-├─ [INFO ] ResourceAddress of token managed by pool is 037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85
-└─ [INFO ] ResourceAddress of token managed by pool is 030000000000000000000000000000000000000000000000000004
-```
-
-New pool are forbidden if requested in the same token
-```
-Logs: 2
-├─ [INFO ] Check if it already exists
-└─ [ERROR] Panicked at '[037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85]: A Loan pool with the given address already exists.', src/lending_engine.rs:111:13
-```
-
-Script is here [`lending_dapp.sh`](engine_multiple_app.sh) 
 
 ### Quick Examples
 
@@ -542,6 +469,81 @@ Start Lending dApp [`build-pte.sh`](build-pte.sh)
 here is the dApp running
 
 ![](./images/working.jpg)
+
+### Blueprints Example
+
+The following test show the lendingEngine blueprint creates two LendingApp components that are than used for lendings.
+Herein we present some outputs of the bash script.
+
+Default account contains both the XRD and the UKN token
+```
+Resources:
+├─ { amount: 1000000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+└─ { amount: 2000, resource address: 037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85, name: "Unknown", symbol: "UKN" }
+```
+
+First component with main vault full of 'XRD' token
+```
+Resources:
+├─ { amount: 1, resource address: 039a90eae0d644f5f252c3352e6fec3fecf6d9bc413071e0320b1a, name: "Loan Token Auth" }
+├─ { amount: 1000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+└─ { amount: 1000, resource address: 03d44e98b7b9146cf6e765c2a3760fa1c8568427eea8b375c07ba4, name: "Loan token", symbol: "LND" }
+```
+
+Second component with main vault full of 'UKN' token
+```
+Resources:
+├─ { amount: 1000, resource address: 037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85, name: "Unknown", symbol: "UKN" }
+├─ { amount: 1000, resource address: 036498ed890665a924d6d0d5aae6a0717270d3196f2f5c6974592e, name: "Loan token", symbol: "LND" }
+└─ { amount: 1, resource address: 03dc51d4bd2c9e55efd67be95d3e62489badd8e5f4da5fe08b1b6a, name: "Loan Token Auth" }
+```
+
+Account balances after lendings
+```
+Resources:
+├─ { amount: 107, resource address: 036498ed890665a924d6d0d5aae6a0717270d3196f2f5c6974592e, name: "Loan token", symbol: "LND" }
+├─ { amount: 900, resource address: 037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85, name: "Unknown", symbol: "UKN" }
+├─ { amount: 1, resource address: 03120189a8a91b805ced1a8ba6e199e8221cf26d2f8e8a963c7841, name: "Lending NFTs" }
+│  └─ NonFungible { id: 1a02a5f9636a1615211d39e1b7f9d662f39833c304626eab58767e56637b0785, immutable_data: Struct(), mutable_data: Struct(1i32, false, false, true) }
+├─ { amount: 998900, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+├─ { amount: 1, resource address: 03c53e9aa4de50cc394aed08510e60c4a7da2e231a7c1b8c7c58f5, name: "Lending NFTs" }
+│  └─ NonFungible { id: c98f002c60da870e06c8f4ee027fea388a6ffa7723baa18464adaa3a89b39dd5, immutable_data: Struct(), mutable_data: Struct(1i32, false, false, true) }
+└─ { amount: 107, resource address: 03d44e98b7b9146cf6e765c2a3760fa1c8568427eea8b375c07ba4, name: "Loan token", symbol: "LND" }
+```
+
+First component with main vault full of 'XRD' token after lend operation
+```
+Resources:
+├─ { amount: 1100, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+├─ { amount: 893, resource address: 03d44e98b7b9146cf6e765c2a3760fa1c8568427eea8b375c07ba4, name: "Loan token", symbol: "LND" }
+└─ { amount: 1, resource address: 039a90eae0d644f5f252c3352e6fec3fecf6d9bc413071e0320b1a, name: "Loan Token Auth" }
+```
+
+Second component with main vault full of 'UKN' token after lend operation
+```
+Resources:
+├─ { amount: 893, resource address: 036498ed890665a924d6d0d5aae6a0717270d3196f2f5c6974592e, name: "Loan token", symbol: "LND" }
+├─ { amount: 1100, resource address: 037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85, name: "Unknown", symbol: "UKN" }
+└─ { amount: 1, resource address: 03dc51d4bd2c9e55efd67be95d3e62489badd8e5f4da5fe08b1b6a, name: "Loan Token Auth" }
+```
+
+Engine contains the registry of all the pool created
+```
+Logs: 3
+├─ [INFO ] How many loan pools does exist ? 
+├─ [INFO ] ResourceAddress of token managed by pool is 037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85
+└─ [INFO ] ResourceAddress of token managed by pool is 030000000000000000000000000000000000000000000000000004
+```
+
+New pool are forbidden if requested in the same token
+```
+Logs: 2
+├─ [INFO ] Check if it already exists
+└─ [ERROR] Panicked at '[037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85]: A Loan pool with the given address already exists.', src/lending_engine.rs:111:13
+```
+
+Script is here [`lending_dapp.sh`](engine_multiple_app.sh) 
+
 
 
 ## Future Work and Improvements
