@@ -20,7 +20,7 @@ echo "Publishing dapp"
 export lendingapp_package=$(resim publish . | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
 echo "Package = " $lendingapp_package
 
-output=`resim call-function $lendingapp_package LendingEngine instantiate_pool| awk '/Component: |Resource: / {print $NF}'`
+output=`resim call-function $lendingapp_package LendingEngine new| awk '/Component: |Resource: / {print $NF}'`
 export componentEngine=`echo $output | cut -d " " -f1`
 export ADMIN_BADGE=`echo $output | cut -d " " -f2`
 export lend_nft=`echo $output | cut -d " " -f3`

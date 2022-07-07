@@ -11,7 +11,7 @@ blueprint!{
 
     impl LendingEngine {
         /// Instantiates a new LendingEngine component. 
-        pub fn instantiate_pool() -> ComponentAddress {
+        pub fn new() -> ComponentAddress {
             return Self {
                 loan_pool: HashMap::new()
             }
