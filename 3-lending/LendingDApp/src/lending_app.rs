@@ -260,17 +260,15 @@ blueprint! {
             
             //check if lend is acceptable
             //bucket size has to be between 5% and 20% of the main vault size
-            let min_level: Decimal = check_ratio(self.min_ratio_for_lend, self.main_pool.amount()); 
-                //self.min_ratio_for_lend * self.main_pool.amount() / dec!("100");
-            let max_level: Decimal = check_ratio(self.max_ratio_for_lend, self.main_pool.amount()); 
-                //self.max_ratio_for_lend * self.main_pool.amount() / dec!("100");
+            let min_level: Decimal = calculate_level(self.min_ratio_for_lend, self.main_pool.amount()); 
+            let max_level: Decimal = calculate_level(self.max_ratio_for_lend, self.main_pool.amount()); 
             assert!(
-                ratio > self.min_ratio_for_lend,
-                "Lend is below the minimum level, actual minimum is: {} Min tokens you can lend is {}", ratio.floor(), min_level.floor()
+                ratio > calculate_ratio(self.min_ratio_for_lend, self.main_pool.amount()),
+                "Lend is below the minimum level, actual minimum is: {} Min tokens you can lend is {}", ratio, min_level
             );  
             assert!(
-                ratio < self.max_ratio_for_lend,
-                "Lend is above the minimum level, actual maximum is: {} Max tokens you can lend is {}", ratio.floor(), max_level.floor()
+                ratio < calculate_ratio(self.max_ratio_for_lend, self.main_pool.amount()),
+                "Lend is above the minimum level, actual maximum is: {} Max tokens you can lend is {}", ratio, max_level
             );               
 
             //check if pool vault size is above 75% 
@@ -390,15 +388,15 @@ blueprint! {
             let ratio = xrd_requested * dec!("100") / self.main_pool.amount();            
             //check if loan is acceptable            
             //bucket size has to be between 3% and 12% of the main vault size
-            let min_level: Decimal = check_ratio(self.min_ratio_for_borrow,self.main_pool.amount()); 
-            let max_level: Decimal = check_ratio(self.max_ratio_for_borrow,self.main_pool.amount());
+            let min_level: Decimal = calculate_level(self.min_ratio_for_borrow,self.main_pool.amount()); 
+            let max_level: Decimal = calculate_level(self.max_ratio_for_borrow,self.main_pool.amount());
             assert!(
-                ratio > self.min_ratio_for_borrow,
-                "Borrow is below the minimum level, actual minimum is: {} Min tokens you can borrow is {}", ratio.floor(), min_level.floor()
+                ratio > calculate_ratio(self.min_ratio_for_borrow, self.main_pool.amount()),
+                "Borrow is below the minimum level, actual minimum is: {} Min tokens you can borrow is {}", ratio, min_level
             );  
             assert!(
-                ratio < self.max_ratio_for_borrow,
-                "Borrow is above the minimum level, actual maximum is: {} Max tokens you can borrow is {}", ratio.floor(), max_level.floor()
+                ratio < calculate_ratio(self.max_ratio_for_borrow, self.main_pool.amount()),
+                "Borrow is above the minimum level, actual maximum is: {} Max tokens you can borrow is {}", ratio, max_level
             );    
 
             // The amount of $xrd token to be repaid back (fee included)

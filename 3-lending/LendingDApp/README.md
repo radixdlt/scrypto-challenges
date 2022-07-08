@@ -53,9 +53,6 @@ Uncollateralized lendings aim to incentivizes rewards to lenders granting them a
 
  ![](./images/highLevelArch.png)
 
- High level overview with detail about soulbound-tokens
-
- ![](./images/highLevelArchSBT.png)
 
 ## Motivations
 
@@ -117,12 +114,19 @@ The key role or functionality is as follows:
 * Manages the two vaults that store the two token types, the XRD vault (main pool) and the loan vault (loan pool).
 * Creates and stores an admin badge that has the authority to mint and burn the loan tokens.
 
+* Contains an `register` method which each lender has to use for registering and getting back a soulbound-token that from there on will be used to record the number of completed lendings, the level of loyalty achieved and if a lend is already in progress
+* Contains an `register_borrower` method which each borrower has to use for registering and getting back a soulbound-token that from there on will be used to record the number of completed lendings, the level of loyalty achieved, if a borrow is already in progress and most important the amount of token to be given back.
+
 * Contains an `lend_money` methods which takes in a bucket of XRD tokens and the LendingNFT, then check if the lend is acceptable (the bucket size has to be between 5% and 20% of the main vault size) and if the ratio lenders/borrowers is appropriate (loan pool vault size needs over 75%). The method then gives back a bucket of LND tokens with a reward, that bucket could be used later to claim back the original XRD tokens. Finally the LendingNFT gets updated adding to the counter, updating the level and setting that a lend is running to avoid concurrent operation from the same account.
 * Contains an `take_money` method that takes the LND bucket and the LendingNFT. The LND tokens are divided in two parts, the fee gets burned and the original amount goes back in the loan pool, then the XRD tokens to be sent to the account are taken from the main pool and sent back to the lender. Finally the LendingNFT gets updated setting that a lend is not anymore running.
 * Contains an `borrow_money` 
 * Contains an `repay_money` 
 
 In addition to the above mentioned functionalities, the blueprint also contains a number of helper methods.
+
+ High level overview with detail about the lender side (borrower side is similar but opposite)
+
+ ![](./images/highLevelArchLender.png)
 
 
 ### LendingEngine blueprint
@@ -466,6 +470,16 @@ Resources:
 ├─ { amount: 1137.999999999999999994, resource address: 0337210fb74867e591c0fbbc859dd8432e1c434fbd6e8b945565ba, name: "Loan token", symbol: "LND" }
 ├─ { amount: 1, resource address: 0353cd87489840a6b7cf96dl1e5a1051fb9f0bac4cfd81203092358b, name: "Loan Token Auth" }
 └─ { amount: 1138, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+```
+
+Looping around these same operations 50 times instead of 5 would show the greatest potential of the dApp.
+Main pool would contains 2026xrd token, doubling its value from the beginning.
+
+```
+Resources:
+├─ { amount: 1, resource address: 03912e2e662b2693b36e9ba073f6e9765c006f5f46e8ca014249c5, name: "Loan Token Auth" }
+├─ { amount: 2057.799999999999999949, resource address: 03a868a3e6fb30ed466d23b2734b72104641e5f097ac398fb58ad4, name: "Loan token", symbol: "LND" }
+└─ { amount: 2026.12, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 ```
 
 ### PTE Browser extension test: web page
