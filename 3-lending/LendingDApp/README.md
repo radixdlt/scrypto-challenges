@@ -44,10 +44,18 @@ Uncollateralized lendings aim to incentivizes rewards to lenders granting them a
  - No more loans are accepted if the loan vaults is below 75% of its initial capacity (to prevent from creditors from consuming the main vault)
  - No lending is allowed if it is below 5% or above 20% of the main vault
  - No borrowing is allowed if it is below 3% or above 12% of the main vault
+ - Loyalty bonus for lenders: l1 level is 0,4%, l2 level is 0,8%
+ - Loyalty bonus for borrowers: l1 level is 0,4%, l2 level is 0,8%
 
  The Lending Engine rules are fixed and in a subsequent rework of this proof of concept they should become dynamic with respect to the size of the vaults and the number of debtors/creditors.
 
+ High level overview 
+
  ![](./images/highLevelArch.png)
+
+ High level overview with detail about soulbound-tokens
+
+ ![](./images/highLevelArchSBT.png)
 
 ## Motivations
 
@@ -92,6 +100,8 @@ There needs to be an incentive for all the actors:
 The engine gets reward from the difference payed by borrowers to what it has to pay to lenders (eg. 10% - 7% result in a 3%).
 The net result is put back into the main pool.
 
+The Lending Engine rules can be rendered to better evaluate the profitability of the model.
+
 The incentive may help encourage the actors to stay honest. The lenders should find it profitable, the borrowers should find it convenient because of its uncollateralized nature, it should be more profitable for everyone to play by the rules than to undermine the system.
 
 Lending dApp is composed by two blueprint:
@@ -129,6 +139,7 @@ The user can create the package using `LendingEngine::new()` and later on you ca
 Here we list all the test that have been performed over the blueprint:
 * Quick examples using Resim from command line on a single account
 * Examples with multiple accounts using the Transaction Manifest files
+* Component test over PTE Browser plugin
 * Integration test using Resim and bash script assuming real scenario
 * Quick examples using Resim from bash script using both Blueprints.
 
@@ -446,14 +457,14 @@ Resources:
 
 This test uses 7 account where the first 4 ask a lend, a take back, a borrow and a repay and the last 3 accounts instead ask only for borrowings.
 
-Script is here [`multiple_accounts_random.sh`](multiple_accounts_random.sh) 
+Script is here [`multiple_accounts_mixed.sh`](multiple_accounts_mixed.sh) 
 
 Result will be that the main vault will contain x118rd tokens more
 
 ```
 Resources:
 ├─ { amount: 1137.999999999999999994, resource address: 0337210fb74867e591c0fbbc859dd8432e1c434fbd6e8b945565ba, name: "Loan token", symbol: "LND" }
-├─ { amount: 1, resource address: 0353cd87489840a6b7cf96de5a1051fb9f0bac4cfd81203092358b, name: "Loan Token Auth" }
+├─ { amount: 1, resource address: 0353cd87489840a6b7cf96dl1e5a1051fb9f0bac4cfd81203092358b, name: "Loan Token Auth" }
 └─ { amount: 1138, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 ```
 

@@ -56,11 +56,8 @@ echo '====== ACCOUNT 1 ======'
 for i in web{0..5};
 do 
     resim call-method $component lend_money 100,$xrd 1,$lend_nft;
-
     resim call-method $component take_money_back 107,$lnd 1,$lend_nft;
-
     resim call-method $component borrow_money 100  1,$borrow_nft;
-
     resim call-method $component repay_money 110,$xrd  1,$borrow_nft;
 done;
 

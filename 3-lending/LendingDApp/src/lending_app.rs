@@ -67,9 +67,22 @@ blueprint! {
         extra_reward_l1: Decimal,
         /// The extra_reward for level l2
         extra_reward_l2: Decimal,                
+        /// Min ratio a lender can lend
+        min_ratio_for_lend: Decimal,
+        /// Max ratio a lender can lend
+        max_ratio_for_lend: Decimal,
+        /// Min ratio a borrower can borrow
+        min_ratio_for_borrow: Decimal,
+        /// Max ratio a borrower can borrow
+        max_ratio_for_borrow: Decimal,        
+        /// Loan pool low limit ratio
+        loan_pool_low_limit: Decimal,        
+        /// Main pool low limit ratio
+        main_pool_low_limit: Decimal,        
         /// The cumulative amount borrowed
         cumulative: Decimal
     }
+
 
 
     impl LendingApp {
@@ -164,6 +177,12 @@ blueprint! {
                 reward,
                 extra_reward_l1: dec!("0.4"),
                 extra_reward_l2: dec!("0.8"),
+                min_ratio_for_lend: dec!("5"),
+                max_ratio_for_lend: dec!("20"),
+                min_ratio_for_borrow: dec!("3"),
+                max_ratio_for_borrow: dec!("12"),
+                loan_pool_low_limit: dec!(75),
+                main_pool_low_limit: dec!(50),
                 cumulative: Decimal::zero(),
             }
             .instantiate();
@@ -179,6 +198,13 @@ blueprint! {
         }
         pub fn reward(&self) -> Decimal {
             return self.reward;
+        }
+
+        pub fn loan_pool_size(&self) -> Decimal {
+            return self.loan_pool.amount();
+        }
+        pub fn main_pool_size(&self) -> Decimal {
+            return self.main_pool.amount();
         }
 
         // Allow someone to register its account
@@ -230,26 +256,26 @@ blueprint! {
             // The ratio of added liquidity.
             let ratio = xrd_tokens.amount() * dec!("100") / self.main_pool.amount();
             info!("Ratio of added liquidity is: {}", ratio.floor());
-            info!("Low pool limit is: {}" , self.start_amount*dec!("75")/dec!("100"));
+            info!("Low loan pool limit is: {}" , pool_low_limit(self.start_amount, self.loan_pool_low_limit));
             
             //check if lend is acceptable
             //bucket size has to be between 5% and 20% of the main vault size
-            let min_ratio: Decimal = dec!("5");
-            let max_ratio: Decimal = dec!("20");
-            let min_level: Decimal = min_ratio * self.main_pool.amount() / dec!("100");
-            let max_level: Decimal = max_ratio * self.main_pool.amount() / dec!("100");
+            let min_level: Decimal = check_ratio(self.min_ratio_for_lend, self.main_pool.amount()); 
+                //self.min_ratio_for_lend * self.main_pool.amount() / dec!("100");
+            let max_level: Decimal = check_ratio(self.max_ratio_for_lend, self.main_pool.amount()); 
+                //self.max_ratio_for_lend * self.main_pool.amount() / dec!("100");
             assert!(
-                ratio > min_ratio,
+                ratio > self.min_ratio_for_lend,
                 "Lend is below the minimum level, actual minimum is: {} Min tokens you can lend is {}", ratio.floor(), min_level.floor()
             );  
             assert!(
-                ratio < max_ratio,
+                ratio < self.max_ratio_for_lend,
                 "Lend is above the minimum level, actual maximum is: {} Max tokens you can lend is {}", ratio.floor(), max_level.floor()
             );               
 
             //check if pool vault size is above 75% 
             assert!(
-                self.loan_pool.amount() > self.start_amount*dec!("75")/dec!("100"),
+                self.loan_pool.amount() > pool_low_limit(self.start_amount, self.loan_pool_low_limit),
                 "Loan Pool size is below its limit, no more lendings are accepted now"
             );             
             
@@ -275,13 +301,13 @@ blueprint! {
             //L1 if number_of_lendings between 10 and 20
             if l1_enabled(number_of_lendings,10,20) {                
                 lending_nft_data.l1 = true;
-                println!("L1 reached ! extra reward assigned ");
+                println!("L1 reached ! extra reward assigned {}" , (num_xrds*(self.extra_reward_l1)/100));
                 //give back lnd token plus reward %
                 value_backed.put(self.loan_pool.take(num_xrds*(self.extra_reward_l1)/100));
             //L2 if number_of_lendings > 20
             } else if l2_enabled(number_of_lendings,10,20) {
                 lending_nft_data.l2 = true;
-                println!("L2 reached ! extra reward assigned ");
+                println!("L2 reached ! extra reward assigned {}" , (num_xrds*(self.extra_reward_l2)/100));
                 //give back lnd token plus reward %
                 value_backed.put(self.loan_pool.take(num_xrds*(self.extra_reward_l2)/100));
             } 
@@ -304,15 +330,15 @@ blueprint! {
             info!("=== TAKE OPERATION START === ");
             info!("Loan pool size is: {}", self.loan_pool.amount());
             info!("Main pool size is: {}", self.main_pool.amount());            
-            info!("Low pool limit is: {}" , self.start_amount*dec!("75")/dec!("100"));
-            let minimum: Decimal = dec!("50");
+            info!("Loan pool low limit is: {}" , pool_low_limit(self.start_amount, self.loan_pool_low_limit));
+            
             // Get the data associated with the Lending NFT and update the variable values (in_progress=false)
             let non_fungible: NonFungible<LendingTicket> = ticket.non_fungible();
             let mut lending_nft_data = non_fungible.data();
             //check if no operation is already in place            
             assert!(lending_nft_data.in_progress, "You have not a lend open!");
             assert!(
-                self.main_pool.amount() > self.start_amount*minimum/dec!("100"),
+                self.main_pool.amount() > pool_low_limit(self.start_amount, self.main_pool_low_limit),
                 "Main pool is below limit, withdrawals must wait for Borrower repayments "
             );  
 
@@ -346,7 +372,7 @@ blueprint! {
 
         /// Borrow money to anyone requesting it, without asking for collaterals
         pub fn borrow_money(&mut self, xrd_requested: Decimal, ticket: Proof) -> Bucket {
-            let minimum: Decimal = dec!("50");
+            
             info!("=== BORROW OPERATION START === ");
             info!("Loan pool size is: {}", self.loan_pool.amount());
             info!("Main pool size is: {}", self.main_pool.amount());
@@ -357,23 +383,21 @@ blueprint! {
             //check if no operation is already in place            
             assert!(!borrowing_nft_data.in_progress, "You have a borrow open!");
             assert!(
-                self.main_pool.amount() > self.start_amount*minimum/dec!("100"),
+                self.main_pool.amount() > pool_low_limit(self.start_amount, self.main_pool_low_limit),
                 "Main pool is below limit, borrowings are suspendend "
             );  
             // The ratio of requested liquidity.
             let ratio = xrd_requested * dec!("100") / self.main_pool.amount();            
             //check if loan is acceptable            
-            //bucket size has to be between 3% and 10% of the main vault size
-            let min_ratio: Decimal = dec!("3");
-            let max_ratio: Decimal = dec!("12");
-            let min_level: Decimal = min_ratio * self.main_pool.amount() / dec!("100");
-            let max_level: Decimal = max_ratio * self.main_pool.amount() / dec!("100");
+            //bucket size has to be between 3% and 12% of the main vault size
+            let min_level: Decimal = check_ratio(self.min_ratio_for_borrow,self.main_pool.amount()); 
+            let max_level: Decimal = check_ratio(self.max_ratio_for_borrow,self.main_pool.amount());
             assert!(
-                ratio > min_ratio,
+                ratio > self.min_ratio_for_borrow,
                 "Borrow is below the minimum level, actual minimum is: {} Min tokens you can borrow is {}", ratio.floor(), min_level.floor()
             );  
             assert!(
-                ratio < max_ratio,
+                ratio < self.max_ratio_for_borrow,
                 "Borrow is above the minimum level, actual maximum is: {} Max tokens you can borrow is {}", ratio.floor(), max_level.floor()
             );    
 
@@ -387,11 +411,11 @@ blueprint! {
             borrowing_nft_data.in_progress = true;let number_of_borrowings = 1 + borrowing_nft_data.number_of_borrowings;
             borrowing_nft_data.number_of_borrowings = number_of_borrowings;
             info!("Number of borrowings is: {} - L1 : {} - L2 : {}", borrowing_nft_data.number_of_borrowings, borrowing_nft_data.l1, borrowing_nft_data.l2);
-            if number_of_borrowings > 10 && number_of_borrowings <= 20{
+            if l1_enabled(number_of_borrowings,10,20) {    
                 borrowing_nft_data.l1 = true;
                 println!("L1 reached ! bonus fee assigned ");
-                xrd_to_be_returned -= xrd_requested*self.bonus_fee_l1/100;                
-            } else if number_of_borrowings > 20 {
+                xrd_to_be_returned -= xrd_requested*self.bonus_fee_l1/100;
+            } else if l2_enabled(number_of_borrowings,10,20) {
                 borrowing_nft_data.l2 = true;
                 println!("L2 reached ! bonus fee assigned ");
                 xrd_to_be_returned -= xrd_requested*self.bonus_fee_l2/100;                
@@ -406,6 +430,7 @@ blueprint! {
             info!("New Loan pool size is: {}", self.loan_pool.amount());
             info!("New Main pool size is: {}", self.main_pool.amount());            
 
+            //the bucket with the amount requested
             xrds_to_give_back
         }        
 
@@ -455,6 +480,7 @@ blueprint! {
             info!("New Loan pool size is: {}", self.loan_pool.amount());
             info!("New Main pool size is: {}", self.main_pool.amount());
 
+            //the bucket with the remainder, if any
             xrd_tokens
         }
      

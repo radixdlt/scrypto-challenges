@@ -80,6 +80,8 @@ blueprint!{
 
             for (key, _value) in &self.loan_pool {
                 info!("ResourceAddress of token managed by pool is {}", key); 
+                info!("Loan pool size is {}", self.loan_pool[&key].loan_pool_size());
+                info!("Main pool size is {}", self.loan_pool[&key].main_pool_size());
             }
         }
         
