@@ -90,7 +90,7 @@ blueprint! {
             let asset_address = deposit_asset.resource_address();
             // let res_mgr = borrow_resource_manager!();
             assert!(self.states.contains_key(&asset_address), "There is no pool of funds corresponding to the assets!");
-            let asset_state = self.states.get(&asset_address);
+            let asset_state = self.states.get_mut(&asset_address).unwrap();
             
             asset_state.update_index();
 
@@ -99,7 +99,7 @@ blueprint! {
                 self.vaults.insert(asset_address, Vault::with_bucket(deposit_asset));
             }
             else{
-                let vault = self.vaults.get_mut(&asset_address);
+                let vault = self.vaults.get_mut(&asset_address).unwrap();
                 vault.put(deposit_asset);
             }
 
