@@ -1,4 +1,5 @@
 mod assetstate;
+
 use scrypto::prelude::*;
 
 use assetstate::*;
@@ -6,10 +7,10 @@ use assetstate::*;
 blueprint! {
     struct LendingPool {
         //Status of each asset in the lending pool
-       states: LazyMap<ResourceAddress, AssetState>,
-       origin_asset_map: LazyMap<ResourceAddress, ResourceAddress>,
+       states: HashMap<ResourceAddress, AssetState>,
+       origin_asset_map: HashMap<ResourceAddress, ResourceAddress>,
        // Cash of each asset in the lending pool
-       vaults: LazyMap<ResourceAddress, Vault>,
+       vaults: HashMap<ResourceAddress, Vault>,
 
        def_insurance_ratio: Decimal,
        
@@ -38,9 +39,9 @@ blueprint! {
 
             // Instantiate a LendingPool component
             let component = LendingPool {
-                states: LazyMap::new(),
-                origin_asset_map: LazyMap::new(),
-                vaults: LazyMap::new(),
+                states: HashMap::new(),
+                origin_asset_map: HashMap::new(),
+                vaults: HashMap::new(),
                 minter: Vault::with_bucket(minter),
                 admin_badge: admin_badge.resource_address(),
                 def_insurance_ratio
@@ -55,6 +56,7 @@ blueprint! {
         
         pub fn new_pool(&mut self, asset_address: ResourceAddress, _insurance_ratio: Decimal) -> ResourceAddress  {
             let res_mgr = borrow_resource_manager!(asset_address);
+            // TODO: 字符串连接 + "dx"
             let origin_symbol = res_mgr.metadata()["symbol"].clone();
             let supply_token = ResourceBuilder::new_fungible()
                 .metadata("symbol", origin_symbol)
@@ -79,25 +81,46 @@ blueprint! {
             };
 
             self.states.insert(asset_address, asset_state);
-            self.vaults.insert(asset_address, Vault::new());
             self.origin_asset_map.insert(supply_token, asset_address);
+            self.vaults.insert(asset_address, Vault::new(asset_address));
             supply_token
         }
 
         pub fn supply(&mut self, deposit_asset: Bucket) -> Bucket {
             let asset_address = deposit_asset.resource_address();
             // let res_mgr = borrow_resource_manager!();
-            assert!(self.states.contains_key(asset_address) && self., "There is no pool of funds corresponding to the assets!");
-            let asset_state = self.states.get(asset_address);
+            assert!(self.states.contains_key(&asset_address), "There is no pool of funds corresponding to the assets!");
+            let asset_state = self.states.get(&asset_address);
+            
             asset_state.update_index();
 
             let amount = deposit_asset.amount();
-            let vault = self.vaults.get(asset_address);
-            vault.put(deposit_asset.take_all());
+            if !self.vaults.contains_key(&asset_address) {
+                self.vaults.insert(asset_address, Vault::with_bucket(deposit_asset));
+            }
+            else{
+                let vault = self.vaults.get_mut(&asset_address);
+                vault.put(deposit_asset);
+            }
 
+            let normalized_amount = LendingPool::floor(amount / asset_state.supply_index);
             
+            let supply_token = self.minter.authorize(|| {
+                let supply_res_mgr: &ResourceManager = borrow_resource_manager!(asset_state.token);
+                supply_res_mgr.mint(normalized_amount)
+            });
 
+            asset_state.update_interest_rate();
+            //TODO: log
+            supply_token
+        }
 
+        fn ceil(dec: Decimal) -> Decimal{
+            dec.round(18u8, RoundingMode::TowardsPositiveInfinity)
+        }
+
+        fn floor(dec: Decimal) -> Decimal{
+            dec.round(18u8, RoundingMode::TowardsNegativeInfinity)
         }
     }
 }

@@ -90,8 +90,17 @@ impl AssetState {
         (borrow_interest_rate, supply_interest_rate)
     }
 
+    pub fn update_interest_rate(&mut self) {
+        let (borrow_interest_rate, supply_interest_rate) = self.get_interest_rates(Decimal::ZERO);
+        self.borrow_interest_rate = borrow_interest_rate;
+        self.supply_interest_rate = supply_interest_rate;
+    }
+
     fn get_borrow_interest_rate(&self, borrow_ratio: Decimal, component_addr: ComponentAddress) -> Decimal{
-        return Decimal::from("0.05");
+        if borrow_ratio > Decimal::ZERO {
+            return Decimal::from("0.05");
+        }
+        Decimal::ZERO
     }
 
     fn get_total_supply_with_index(&self, current_supply_index: Decimal) -> Decimal{
