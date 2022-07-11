@@ -55,7 +55,7 @@ blueprint! {
 
         
         pub fn new_pool(&mut self, asset_address: ResourceAddress, _insurance_ratio: Decimal) -> ResourceAddress  {
-            let res_mgr = borrow_resource_manager!(asset_address);
+            let res_mgr = borrow_resource_manager!(&asset_address);
             // TODO: 字符串连接 + "dx"
             let origin_symbol = res_mgr.metadata()["symbol"].clone();
             let supply_token = ResourceBuilder::new_fungible()
@@ -89,19 +89,14 @@ blueprint! {
         pub fn supply(&mut self, deposit_asset: Bucket) -> Bucket {
             let asset_address = deposit_asset.resource_address();
             // let res_mgr = borrow_resource_manager!();
-            assert!(self.states.contains_key(&asset_address), "There is no pool of funds corresponding to the assets!");
+            assert!(self.states.contains_key(&asset_address) && self.vaults.contains_key(&asset_address), "There is no pool of funds corresponding to the assets!");
             let asset_state = self.states.get_mut(&asset_address).unwrap();
             
             asset_state.update_index();
 
             let amount = deposit_asset.amount();
-            if !self.vaults.contains_key(&asset_address) {
-                self.vaults.insert(asset_address, Vault::with_bucket(deposit_asset));
-            }
-            else{
-                let vault = self.vaults.get_mut(&asset_address).unwrap();
-                vault.put(deposit_asset);
-            }
+            let vault = self.vaults.get_mut(&asset_address).unwrap();
+            vault.put(deposit_asset);
 
             let normalized_amount = LendingPool::floor(amount / asset_state.supply_index);
             
@@ -113,6 +108,29 @@ blueprint! {
             asset_state.update_interest_rate();
             //TODO: log
             supply_token
+        }
+
+        pub fn withdraw(&mut self, supply_token: Bucket) -> Bucket {
+            let token_address = supply_token.resource_address();
+            assert!(self.origin_asset_map.contains_key(&token_address), "unsupported the token!");
+            let amount = supply_token.amount();
+            let asset_address = self.origin_asset_map.get(&token_address).unwrap();
+            let asset_state = self.states.get_mut(&asset_address).unwrap();
+
+            asset_state.update_index();
+
+            let normalized_amount = LendingPool::floor(amount * asset_state.supply_index);
+            //TODO: check borrow and collateral debt position
+            //check cash balance and amount
+            self.minter.authorize(|| {
+                let supply_res_mgr: &ResourceManager = borrow_resource_manager!(asset_state.token);
+                supply_res_mgr.burn(supply_token);
+            });
+            let vault = self.vaults.get_mut(&asset_address).unwrap();
+            let asset_bucket = vault.take(normalized_amount);
+            asset_state.update_interest_rate();
+            //TODO: log
+            asset_bucket
         }
 
         fn ceil(dec: Decimal) -> Decimal{
