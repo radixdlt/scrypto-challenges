@@ -1,6 +1,3 @@
-
-
-#set -x
 set -e
 
 export xrd=030000000000000000000000000000000000000000000000000004
@@ -29,22 +26,35 @@ echo 'BORROW_NFT = '$borrow_nft
 echo 'LND = ' $lnd
 
 
+echo 'register'
+
 resim call-method $component register
 
 resim call-method $component register_borrower
 
+echo 'execute first run '
 
 resim call-method $component lend_money 100,$xrd 1,$lend_nft
 
 resim call-method $component take_money_back 107,$lnd 1,$lend_nft
 
+resim call-method $component borrow_money 100  1,$borrow_nft
+
+resim call-method $component repay_money 110,$xrd  1,$borrow_nft
+
 resim show $account
 
 resim show $component
 
-resim call-method $component borrow_money 100  1,$borrow_nft
+echo 'execute second run '
 
-resim call-method $component repay_money 110,$xrd  1,$borrow_nft
+resim call-method $component lend_money 100,$xrd 1,$lend_nft
+
+resim call-method $component take_money_back 53,$lnd 1,$lend_nft
+
+resim call-method $component lend_money 100,$xrd 1,$lend_nft
+
+resim call-method $component take_money_back 161,$lnd 1,$lend_nft
 
 resim show $account
 

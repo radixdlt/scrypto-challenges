@@ -94,13 +94,13 @@ blueprint! {
             fee: Decimal,
             reward: Decimal,
         ) -> ComponentAddress {
-            info!("My start amount is: {}", start_amount);
-            info!("My fee for borrower is: {}", fee);
-            info!("My reward for lenders is: {}", reward);
+            info!("Starting amount is: {}", start_amount);
+            info!("Fee for borrower is: {}", fee);
+            info!("Reward for lenders is: {}", reward);
             // Check arguments 
             assert!(
                 (fee >= dec!("5")) & (fee <= dec!("10")), 
-                "Invalid fee : Fee must be between 4 and 10"
+                "Invalid fee : Fee must be between 5 and 10"
             );
             assert!(
                 (reward >= dec!("3")) & (reward <= dec!("7")), 
@@ -193,19 +193,6 @@ blueprint! {
             lendingapp.globalize()
         }
 
-        pub fn fee(&self) -> Decimal {
-            return self.fee;
-        }
-        pub fn reward(&self) -> Decimal {
-            return self.reward;
-        }
-
-        pub fn loan_pool_size(&self) -> Decimal {
-            return self.loan_pool.amount();
-        }
-        pub fn main_pool_size(&self) -> Decimal {
-            return self.main_pool.amount();
-        }
 
         // Allow someone to register its account
         pub fn register(&self) -> Bucket {
@@ -251,12 +238,11 @@ blueprint! {
         /// Lend XRD token to then pool and get back Loan tokens plus reward
         pub fn lend_money(&mut self, xrd_tokens: Bucket, ticket: Proof) -> Bucket {
             info!("=== LEND OPERATION START === ");
-            info!("New Loan pool size is: {}", self.loan_pool.amount());
-            info!("New Main pool size is: {}", self.main_pool.amount());
+            info!("Loan pool size is: {}", self.loan_pool.amount());
+            info!("Main pool size is: {}", self.main_pool.amount());
             // The ratio of added liquidity.
             let ratio = xrd_tokens.amount() * dec!("100") / self.main_pool.amount();
-            info!("Ratio of added liquidity is: {}", ratio.floor());
-            info!("Low loan pool limit is: {}" , pool_low_limit(self.start_amount, self.loan_pool_low_limit));
+            info!("Low loan pool limit is: {}, Ratio of added liquidity is: {} " , pool_low_limit(self.start_amount, self.loan_pool_low_limit), ratio.floor());
             
             //check if lend is acceptable
             //bucket size has to be between 5% and 20% of the main vault size
@@ -281,7 +267,8 @@ blueprint! {
             let num_xrds = xrd_tokens.amount();
             self.main_pool.put(xrd_tokens);
             //give back lnd token plus reward %
-            let mut value_backed = self.loan_pool.take(num_xrds + (num_xrds*self.reward/100));       
+            let mut value_backed = self.loan_pool.take((num_xrds + (num_xrds*self.reward/100)).round(2,RoundingMode::TowardsPositiveInfinity));
+            info!("Loan token received: {} ", (num_xrds + (num_xrds*self.reward/100)));       
             //use this if LND token is not withdrawable
             //let mut value_backed: Bucket = Bucket::new(self.loan_resource_def);
             //self.loan_admin_badge.authorize(|| {
@@ -293,21 +280,21 @@ blueprint! {
             let mut lending_nft_data = non_fungible.data();
             //check if no operation is already in place            
             assert!(!lending_nft_data.in_progress, "You already have a lend open!");
-            let number_of_lendings: i32 = 1 + lending_nft_data.number_of_lendings;
-            lending_nft_data.number_of_lendings = number_of_lendings;
             info!("Number of lendings is: {} - L1 : {} - L2 : {} ", lending_nft_data.number_of_lendings, lending_nft_data.l1, lending_nft_data.l2);
             //L1 if number_of_lendings between 10 and 20
-            if l1_enabled(number_of_lendings,10,20) {                
+            if l1_enabled(lending_nft_data.number_of_lendings,10,20) {                
                 lending_nft_data.l1 = true;
                 println!("L1 reached ! extra reward assigned {}" , (num_xrds*(self.extra_reward_l1)/100));
                 //give back lnd token plus reward %
                 value_backed.put(self.loan_pool.take(num_xrds*(self.extra_reward_l1)/100));
+                info!("Extra Loan token received because of L1: {} ", (num_xrds*(self.extra_reward_l1)/100));
             //L2 if number_of_lendings > 20
-            } else if l2_enabled(number_of_lendings,10,20) {
+            } else if l2_enabled(lending_nft_data.number_of_lendings,10,20) {
                 lending_nft_data.l2 = true;
                 println!("L2 reached ! extra reward assigned {}" , (num_xrds*(self.extra_reward_l2)/100));
                 //give back lnd token plus reward %
                 value_backed.put(self.loan_pool.take(num_xrds*(self.extra_reward_l2)/100));
+                info!("Extra Loan token received because of L2: {} ", (num_xrds*(self.extra_reward_l2)/100));
             } 
 
             // Update the data on that NFT globally
@@ -339,6 +326,17 @@ blueprint! {
                 self.main_pool.amount() > pool_low_limit(self.start_amount, self.main_pool_low_limit),
                 "Main pool is below limit, withdrawals must wait for Borrower repayments "
             );  
+            //calculate reward
+            let mut take_reward: Decimal = self.reward;
+            if l1_enabled(lending_nft_data.number_of_lendings,10,20) {                
+                take_reward += self.extra_reward_l1;
+            //L2 if number_of_lendings > 20
+            } else if l2_enabled(lending_nft_data.number_of_lendings,10,20) {
+                take_reward += self.extra_reward_l2;
+            } 
+            //increase num of lenginds            
+            let number_of_lendings: i32 = 1 + lending_nft_data.number_of_lendings;
+            lending_nft_data.number_of_lendings = number_of_lendings;
 
             // The amount of $xrd token to be repaid back (reward included)
             let how_many_to_give_back = lnd_tokens.amount();
@@ -346,10 +344,13 @@ blueprint! {
             //take $xrd from main pool
             let xrds_to_give_back = self.main_pool.take(how_many_to_give_back);
 
-            let amount = how_many_to_give_back*dec!("100")/(dec!("100")+self.reward);
-            let lnd_to_be_burned = how_many_to_give_back - amount;
+            //calculate what part of the received bucket cames from the original amount that was lend
+            // lnd_size_received : xrd_size_returned = (100+reward) : 100
+            // xrd_size_returned = (lnd_size_received * 100) / (100+reward)
+            let xrd_size_returned = (how_many_to_give_back*dec!("100")/(dec!("100")+take_reward)).round(2,RoundingMode::TowardsPositiveInfinity);
+            let lnd_to_be_burned = how_many_to_give_back - xrd_size_returned;
             //lnd token to put back in the pool
-            info!("Putting back into loan pool lnd tokens size: {} then burning the reward because not needed anymore {} ", amount, lnd_to_be_burned);
+            info!("Putting back into loan pool lnd tokens size: {} then burning the reward because not needed anymore {} ", xrd_size_returned, lnd_to_be_burned);
             self.loan_pool.put(lnd_tokens);
             //burn the reward
             self.loan_admin_badge.authorize(|| {
@@ -406,14 +407,13 @@ blueprint! {
 
             let fee_value = xrd_requested*self.fee/dec!("100");
             let mut xrd_to_be_returned = xrd_requested + fee_value;
-            borrowing_nft_data.in_progress = true;let number_of_borrowings = 1 + borrowing_nft_data.number_of_borrowings;
-            borrowing_nft_data.number_of_borrowings = number_of_borrowings;
+            borrowing_nft_data.in_progress = true;
             info!("Number of borrowings is: {} - L1 : {} - L2 : {}", borrowing_nft_data.number_of_borrowings, borrowing_nft_data.l1, borrowing_nft_data.l2);
-            if l1_enabled(number_of_borrowings,10,20) {    
+            if l1_enabled(borrowing_nft_data.number_of_borrowings,10,20) {    
                 borrowing_nft_data.l1 = true;
                 println!("L1 reached ! bonus fee assigned ");
                 xrd_to_be_returned -= xrd_requested*self.bonus_fee_l1/100;
-            } else if l2_enabled(number_of_borrowings,10,20) {
+            } else if l2_enabled(borrowing_nft_data.number_of_borrowings,10,20) {
                 borrowing_nft_data.l2 = true;
                 println!("L2 reached ! bonus fee assigned ");
                 xrd_to_be_returned -= xrd_requested*self.bonus_fee_l2/100;                
@@ -451,18 +451,22 @@ blueprint! {
             if xrd_returned >= borrowing_nft_data.xrds_to_give_back {
                 //take back the tokens received
                 self.main_pool.put(xrd_tokens.take(borrowing_nft_data.xrds_to_give_back));
-                info!("All xrd tokens being repaid ! {}" , borrowing_nft_data.xrds_to_give_back );                
+                info!("All xrd tokens being repaid ! {} , token received in eccess {} " , 
+                    borrowing_nft_data.xrds_to_give_back , (xrd_returned - borrowing_nft_data.xrds_to_give_back));                
                 borrowing_nft_data.xrds_to_give_back = Decimal::zero();
                 borrowing_nft_data.in_progress = false;
+                let number_of_borrowings = 1 + borrowing_nft_data.number_of_borrowings;
+                borrowing_nft_data.number_of_borrowings = number_of_borrowings;    
             } else  {
                 borrowing_nft_data.xrds_to_give_back -= xrd_returned;
-                info!("Some xrd tokens are to be repaid yet ! , you missed by {} " , borrowing_nft_data.xrds_to_give_back);
+                info!("Some xrd tokens are to be repaid yet ! , you returned {}, but you missed by {} " , xrd_returned, borrowing_nft_data.xrds_to_give_back);
                 //take back the tokens received even if partially
                 self.main_pool.put(xrd_tokens.take(xrd_returned));
             }
 
             //mint the fee as lnd token and put in the loan vault
-            let lnd_to_be_minted = (self.fee*xrd_returned)/(dec!("100")+self.fee);
+            let lnd_to_be_minted = ((self.fee*xrd_returned)/(dec!("100")+self.fee)).round(2,RoundingMode::TowardsPositiveInfinity);
+            info!("Loan token to be minted : {}", lnd_to_be_minted);
 
             let new_tokens = self.loan_admin_badge.authorize(|| {
                 borrow_resource_manager!(self.loan_resource_def).mint(lnd_to_be_minted)
@@ -471,8 +475,8 @@ blueprint! {
 
             // Update the data on that NFT globally
             self.loan_admin_badge.authorize(|| {
+                info!("Updates Borrowing NFT ! num. = {} , in progress = {}", borrowing_nft_data.number_of_borrowings, borrowing_nft_data.in_progress );
                 borrow_resource_manager!(self.borrowing_nft_resource_def).update_non_fungible_data(&non_fungible.id(), borrowing_nft_data);
-                info!("Updates Borrowing NFT !");
             });
 
             info!("New Loan pool size is: {}", self.loan_pool.amount());
@@ -481,6 +485,23 @@ blueprint! {
             //the bucket with the remainder, if any
             xrd_tokens
         }
-     
+
+        //returns the fee
+        pub fn fee(&self) -> Decimal {
+            return self.fee;
+        }
+        //returns the reward
+        pub fn reward(&self) -> Decimal {
+            return self.reward;
+        }
+        //returns the loan pool size
+        pub fn loan_pool_size(&self) -> Decimal {
+            return self.loan_pool.amount();
+        }
+        //returns the main pool size
+        pub fn main_pool_size(&self) -> Decimal {
+            return self.main_pool.amount();
+        }
+    
     }
 }

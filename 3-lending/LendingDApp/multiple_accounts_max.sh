@@ -1,3 +1,6 @@
+
+
+#set -x
 set -e
 
 export xrd=030000000000000000000000000000000000000000000000000004
@@ -90,11 +93,11 @@ resim call-method $component register_borrower
 resim set-default-account $ACC_ADDRESS7 $PRIV_KEY7
 resim call-method $component register_borrower
 
-echo '====== ACCOUNT 1 ======'
+echo '====== LOOP 0..49 with account 1..7 ======'
 
-for i in web{0..5};
+for i in {0..49};
 do 
-    echo " Loop " $i
+    echo " Loop N° " $i
     #lend then leaves borrow open
     echo " Testing with ACC1 "
     resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
@@ -150,3 +153,63 @@ do
 done;
 
 resim show $component
+
+echo '====== LOOP 50..99 with account 1..7 ======'
+
+for i in {0..49};
+do 
+    echo " Loop N° " $i
+    #lend then leaves borrow open
+    echo " Testing with ACC1 "
+    resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
+    resim call-method $component lend_money 200,$xrd 1,$lend_nft;
+    resim call-method $component take_money_back 214,$lnd 1,$lend_nft;
+    resim call-method $component borrow_money 100  1,$borrow_nft;
+
+    #lend then leaves borrow open
+    echo " Testing with ACC2 "
+    resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+    resim call-method $component lend_money 200,$xrd 1,$lend_nft;
+    resim call-method $component take_money_back 214,$lnd 1,$lend_nft;
+    resim call-method $component borrow_money 100  1,$borrow_nft;
+
+    #lend and borrows partial
+    echo " Testing with ACC3 "
+    resim set-default-account $ACC_ADDRESS3 $PRIV_KEY3
+    resim call-method $component lend_money 200,$xrd 1,$lend_nft;
+    resim call-method $component take_money_back 214,$lnd 1,$lend_nft;
+    resim call-method $component borrow_money 100  1,$borrow_nft;
+    resim call-method $component repay_money 60,$xrd  1,$borrow_nft;
+
+    #lend and borrows partial
+    echo " Testing with ACC4 "
+    resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
+    resim call-method $component lend_money 200,$xrd 1,$lend_nft;
+    resim call-method $component take_money_back 214,$lnd 1,$lend_nft;
+    resim call-method $component borrow_money 100  1,$borrow_nft;
+    resim call-method $component repay_money 110,$xrd  1,$borrow_nft;
+
+    #close borrow
+    resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
+    resim call-method $component repay_money 110,$xrd  1,$borrow_nft;
+    #close borrow
+    resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+    resim call-method $component repay_money 110,$xrd  1,$borrow_nft;  
+    
+    #close borrow
+    resim set-default-account $ACC_ADDRESS3 $PRIV_KEY3
+    resim call-method $component repay_money 50,$xrd  1,$borrow_nft;
+
+    #accounts borrowing only
+    echo " Testing with ACC5/6/7 "
+    resim set-default-account $ACC_ADDRESS5 $PRIV_KEY5
+    resim call-method $component borrow_money 100  1,$borrow_nft;
+    resim call-method $component repay_money 110,$xrd  1,$borrow_nft;      
+    resim set-default-account $ACC_ADDRESS6 $PRIV_KEY6
+    resim call-method $component borrow_money 100  1,$borrow_nft;
+    resim call-method $component repay_money 110,$xrd  1,$borrow_nft;      
+    resim set-default-account $ACC_ADDRESS7 $PRIV_KEY7
+    resim call-method $component borrow_money 100  1,$borrow_nft;
+    resim call-method $component repay_money 110,$xrd  1,$borrow_nft;      
+done;
+

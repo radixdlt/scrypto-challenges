@@ -207,5 +207,6 @@ document.getElementById('repayMoney').onclick = async function () {
   document.getElementById('machineBalanceXRD').innerText = machineComponent.ownedResources
     .filter(e => e.resourceAddress == xrdAddress).map(e => e.amount)[0];
   document.getElementById('machineBalanceLND').innerText = machineComponent.ownedResources
-    .filter(e => e.resourceAddress == resourceAddress3).map(e => e.amount)[0];    
+    .filter(e => e.resourceAddress == resourceAddress3).map(e => e.amount)[0];
+    
 };
