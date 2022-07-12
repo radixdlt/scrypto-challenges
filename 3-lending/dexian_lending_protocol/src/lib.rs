@@ -1,5 +1,6 @@
 mod assetstate;
-
+mod definterestmodel;
+mod stableinterestmodel;
 use scrypto::prelude::*;
 
 use assetstate::*;
@@ -54,8 +55,8 @@ blueprint! {
         }
 
         
-        pub fn new_pool(&mut self, asset_address: ResourceAddress, _insurance_ratio: Decimal) -> ResourceAddress  {
-            let res_mgr = borrow_resource_manager!(&asset_address);
+        pub fn new_pool(&mut self, asset_address: ResourceAddress, _insurance_ratio: Decimal, interest_model: ComponentAddress) -> ResourceAddress  {
+            let res_mgr = borrow_resource_manager!(asset_address);
             // TODO: 字符串连接 + "dx"
             let origin_symbol = res_mgr.metadata()["symbol"].clone();
             let supply_token = ResourceBuilder::new_fungible()
@@ -77,7 +78,8 @@ blueprint! {
                 token: supply_token,
                 normalized_total_borrow: Decimal::ZERO,
                 last_update_epoch: Runtime::current_epoch(),
-                insurance_ratio
+                insurance_ratio,
+                interest_model
             };
 
             self.states.insert(asset_address, asset_state);

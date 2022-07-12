@@ -3,6 +3,7 @@ use scrypto::prelude::*;
 
 #[derive(Debug, TypeId, Encode, Decode, Describe)]
 pub struct AssetState{
+    pub interest_model: ComponentAddress,
     // the liquidity index
     pub supply_index: Decimal,
     // the borrow index
@@ -81,7 +82,7 @@ impl AssetState {
         let borrow = self.get_total_borrow_with_index(current_borrow_index) + extra_borrow_amount;
         let borrow_ratio = borrow / supply;
 
-        let borrow_interest_rate = self.get_borrow_interest_rate(borrow_ratio, ComponentAddress::from_str("").unwrap());
+        let borrow_interest_rate = self.get_borrow_interest_rate(borrow_ratio);
         
         let borrow_interest = borrow * borrow_interest_rate;
         let supply_interest = borrow_interest * (Decimal::ONE - self.insurance_ratio);
@@ -96,11 +97,9 @@ impl AssetState {
         self.supply_interest_rate = supply_interest_rate;
     }
 
-    fn get_borrow_interest_rate(&self, borrow_ratio: Decimal, component_addr: ComponentAddress) -> Decimal{
-        if borrow_ratio > Decimal::ZERO {
-            return Decimal::from("0.05");
-        }
-        Decimal::ZERO
+    fn get_borrow_interest_rate(&self, borrow_ratio: Decimal) -> Decimal{
+        let component: &Component = borrow_component!(self.interest_model);
+        component.call::<Decimal>("get_borrow_interest_rate", args![borrow_ratio])
     }
 
     fn get_total_supply_with_index(&self, current_supply_index: Decimal) -> Decimal{
