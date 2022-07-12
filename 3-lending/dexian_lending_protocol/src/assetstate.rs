@@ -20,6 +20,12 @@ pub struct AssetState{
     pub token: ResourceAddress,
     // normalized total borrow.
     pub normalized_total_borrow: Decimal,
+    // loan to value
+    pub ltv: Decimal,
+    // liquidation threshold
+    pub liquidation_threshold: Decimal,
+    // bonus for liquidator
+    pub liquidation_bonus: Decimal,
     // last update timestamp
     pub last_update_epoch: u64
 }

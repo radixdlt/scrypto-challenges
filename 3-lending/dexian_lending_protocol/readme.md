@@ -31,8 +31,8 @@ resim call-method $component 'supply' 200,$xrd
 
 
 ## Asset Risk Parameter
-|  Symbol  |  Collateral  |  Loan To Value  |  Liquidation Threshold   |  Liquidation Bonus   | Insurance Ratio |
-| -------- | ------------ | --------------- | ------------------------ | -------------------- | --------------- |
-| XRD      | Yes          | 60%             | 70%                      |  7%                  |  25%            |
-| USDT     | No           |                 |                          |                      |  10%            |
-| USDC     | Yes          | 85%             | 87%                      |  2%                  |  10%            |
+|  Symbol  |  Collateral  |  Loan To Value  |  Liquidation Threshold   |  Liquidation Bonus   | Insurance Ratio | Interest Model          |
+| -------- | ------------ | --------------- | ------------------------ | -------------------- | --------------- | ----------------------- |
+| XRD      | Yes          | 60%             | 70%                      |  7%                  |  25%            | Default Interest model  |
+| USDT     | No           |                 |                          |                      |  10%            | Stable Interest model   | 
+| USDC     | Yes          | 85%             | 87%                      |  2%                  |  10%            | Stable Interest model   |
