@@ -467,13 +467,15 @@ Result will be that the main vault will contain x118rd tokens more
 
 ```
 Resources:
-├─ { amount: 1137.999999999999999994, resource address: 0337210fb74867e591c0fbbc859dd8432e1c434fbd6e8b945565ba, name: "Loan token", symbol: "LND" }
+├─ { amount: 1138.06, resource address: 0337210fb74867e591c0fbbc859dd8432e1c434fbd6e8b945565ba, name: "Loan token", symbol: "LND" }
 ├─ { amount: 1, resource address: 0353cd87489840a6b7cf96dl1e5a1051fb9f0bac4cfd81203092358b, name: "Loan Token Auth" }
 └─ { amount: 1138, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 ```
 
 Looping around these same operations 50 times instead of 5 would show the greatest potential of the dApp.
 Main pool would contains 2026xrd token, doubling its value from the beginning.
+
+Script is here [`multiple_accounts_max.sh`](multiple_accounts_max.sh) 
 
 ```
 Resources:
@@ -567,20 +569,18 @@ Logs: 2
 └─ [ERROR] Panicked at '[037c88b2f3a6e7f1455cd9ba55d44c8b877e1b6b3367f4bb388b85]: A Loan pool with the given address already exists.', src/lending_engine.rs:111:13
 ```
 
-Script is here [`lending_dapp.sh`](engine_multiple_app.sh) 
-
-
+Script is here [`engine_multiple_app.sh`](engine_multiple_app.sh) 
 
 ## Future Work and Improvements
 
 There is a lot that could be improved about the current implementation of LendingApp. Some of the key points which require improvement are:
 
-* Researching methods to ensure that the precision of the calculations and math done by the engine to calculate fees and rewards is as accurate and precise as it can be.
-* Writing additional examples as well as tests.
 * Adding the concept of time passing to the calculation of fee and rewards.
 * Add a penalty fee for borrowers repaying late  
 * Additional analisys on the business model to make sure it will be successful.
-* Deposit idle liquidity to a third-party yield provider until the funds are not used by borrowers 
+* Deposit idle liquidity to a third-party yield provider until the funds are not used by borrowers
+* Researching methods to ensure that the precision of the calculations and math done by the engine to calculate fees and rewards is as accurate and precise as it can be.
+* Writing additional examples as well as tests. 
 * (for borrowers) Add a form to collect the necessary data and a way to see own loan history including active and completed loans
 * (for lenders) Add a way to see own lendings history including active and completed
 * (for engine) Add a way to show statistics (pool size, total loans, number of lenders/borrowers)
@@ -589,11 +589,3 @@ There is a lot that could be improved about the current implementation of Lendin
 ## License 
 
 This work is licensed under Apache 2.0 and the license file is provided [here](./LICENSE).
-
-
-
-
-
-
-
-
