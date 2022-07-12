@@ -57,7 +57,7 @@ blueprint! {
         
         pub fn new_pool(&mut self, asset_address: ResourceAddress, _insurance_ratio: Decimal, interest_model: ComponentAddress) -> ResourceAddress  {
             let res_mgr = borrow_resource_manager!(asset_address);
-            // TODO: 字符串连接 + "dx"
+            // TODO: concat string + "dx"
             let origin_symbol = res_mgr.metadata()["symbol"].clone();
             let supply_token = ResourceBuilder::new_fungible()
                 .metadata("symbol", origin_symbol)
