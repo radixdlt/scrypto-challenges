@@ -1,3 +1,10 @@
+
+## work flow
+
+![workflow](res/biz_flow.jpg)
+
+
+
 ```shell
 resim reset
 result=$(resim new-account)
