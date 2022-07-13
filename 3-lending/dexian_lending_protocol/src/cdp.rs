@@ -17,7 +17,5 @@ struct CollateralDebtPosition{
     #[scrypto(mutable)]
     borrow_amount: Decimal,
     #[scrypto(mutable)]
-    repay_amount: Decimal,
-    #[scrypto(mutable)]
     last_update_epoch: u64
 }

@@ -8,35 +8,11 @@ use scrypto::prelude::*;
 use assetstate::*;
 use cdp::*;
 
-#[derive(Debug, TypeId, Encode, Decode, Describe)]
-struct AssetRiskParams{
-    
-}
-
-#[derive(NonFungibleData)]
-struct CollateralDebtPosition{
-    borrow_token: ResourceAddress,
-    collateral_token: ResourceAddress,
-    
-    #[scrypto(mutable)]
-    total_borrow: Decimal,
-    #[scrypto(mutable)]
-    total_repay: Decimal,
-    
-    #[scrypto(mutable)]
-    normalized_borrow: Decimal,
-    #[scrypto(mutable)]
-    collateral_amount: Decimal,
-    #[scrypto(mutable)]
-    borrow_amount: Decimal,
-    #[scrypto(mutable)]
-    repay_amount: Decimal,
-    #[scrypto(mutable)]
-    last_update_epoch: u64
-}
 
 blueprint! {
     struct LendingPool {
+        // asset price oracle
+        oracle_addr: ComponentAddress,
         //Status of each asset in the lending pool
        states: HashMap<ResourceAddress, AssetState>,
        // address map for supply token(K) and deposit asset(V)
@@ -47,6 +23,8 @@ blueprint! {
        vaults: HashMap<ResourceAddress, Vault>,
        // CDP token for each loan asset. <loan_asset, CDP token address>
        cdp_nfts: HashMap<ResourceAddress, ResourceAddress>,
+       // CDP id counter
+       cdp_id_counter: u64,
        // lending pool admin badge.
        admin_badge: ResourceAddress,
        // minter
@@ -56,7 +34,7 @@ blueprint! {
 
     impl LendingPool {
         
-        pub fn instantiate_asset_pool() -> (ComponentAddress, Bucket) {
+        pub fn instantiate_asset_pool(oracle_addr: ComponentAddress) -> (ComponentAddress, Bucket) {
             let admin_badge = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
                 .initial_supply(dec!("1"));
@@ -77,6 +55,7 @@ blueprint! {
                 collateral_vaults: HashMap::new(),
                 vaults: HashMap::new(),
                 cdp_nfts: HashMap::new(),
+                cdp_id_counter: 0u64,
                 minter: Vault::with_bucket(minter),
                 admin_badge: admin_badge.resource_address()
             }
@@ -213,15 +192,21 @@ blueprint! {
 
             let data = CollateralDebtPosition{
                 collateral_token: collateral_addr,
-                
+                total_borrow: amount,
+                total_repay: Decimal::ZERO,
+                normalized_borrow: borrow_normalized_amount,
+                collateral_amount: supply_token.amount(),
+                borrow_amount: amount,
+                last_update_epoch: Runtime::current_epoch(),
                 borrow_token
             }
             let cdp_nft_res_addr = self.cdp_nfts.get(&borrow_token);
-            self.minter.authorize(|| {
+            let cdp = self.minter.authorize(|| {
+                self.cdp_id_counter += 1;
                 let cdp_res_mgr: &ResourceManager = borrow_resource_manager!(cdp_nft_res_addr);
-                cdp_res_mgr.mint(
+                cdp_res_mgr.mint_non_fungible(&NonFungibleId::from_u64(self.cdp_id_counter), data)
             });
-
+            (borrow_bucket, cdp)
         }
 
         fn ceil(dec: Decimal) -> Decimal{
