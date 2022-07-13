@@ -1,21 +1,21 @@
 use scrypto::prelude::*;
 
 #[derive(NonFungibleData)]
-struct CollateralDebtPosition{
-    borrow_token: ResourceAddress,
-    collateral_token: ResourceAddress,
+pub struct CollateralDebtPosition{
+    pub borrow_token: ResourceAddress,
+    pub collateral_token: ResourceAddress,
     
     #[scrypto(mutable)]
-    total_borrow: Decimal,
+    pub total_borrow: Decimal,
     #[scrypto(mutable)]
-    total_repay: Decimal,
+    pub total_repay: Decimal,
     
     #[scrypto(mutable)]
-    normalized_borrow: Decimal,
+    pub normalized_borrow: Decimal,
     #[scrypto(mutable)]
-    collateral_amount: Decimal,
+    pub collateral_amount: Decimal,
     #[scrypto(mutable)]
-    borrow_amount: Decimal,
+    pub borrow_amount: Decimal,
     #[scrypto(mutable)]
-    last_update_epoch: u64
+    pub last_update_epoch: u64
 }

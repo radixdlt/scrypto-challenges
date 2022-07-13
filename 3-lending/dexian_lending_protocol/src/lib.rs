@@ -57,7 +57,8 @@ blueprint! {
                 cdp_nfts: HashMap::new(),
                 cdp_id_counter: 0u64,
                 minter: Vault::with_bucket(minter),
-                admin_badge: admin_badge.resource_address()
+                admin_badge: admin_badge.resource_address(),
+                oracle_addr
             }
             .instantiate()
             .add_access_check(rules)
@@ -84,7 +85,7 @@ blueprint! {
                 .no_initial_supply();
 
             if ltv > Decimal::ZERO {
-                let cdp_token = ResourceAddress::new_non_fungible()
+                let cdp_token = ResourceBuilder::new_non_fungible()
                     .metadata("symbol", "CDP")
                     .metadata("name", format!("DeXian CDP({})", origin_symbol))
                     .mintable(rule!(require(self.minter.resource_address())), LOCKED)
@@ -163,47 +164,49 @@ blueprint! {
         }
 
         pub fn borrow(&mut self, supply_token: Bucket, borrow_token: ResourceAddress, amount: Decimal) -> (Bucket, Bucket){
-            assert!(self.states.contains_key(borrow_token), "unsupported the borrow token!");
-            let borrow_asset_state = self.states.get(borrow_token).unwrap();
-            borrow_asset_state.update_index();
-
+            assert!(self.states.contains_key(&borrow_token), "unsupported the borrow token!");
             let token_address = supply_token.resource_address();
             assert!(self.origin_asset_map.contains_key(&token_address), "unsupported the collateral token!");
             
             let collateral_addr = self.origin_asset_map.get(&token_address).unwrap();
-            debug!("borrow supply_token {}, collateral_addr {}, ", token_address, collateral_addr)
+            debug!("borrow supply_token {}, collateral_addr {}, ", token_address, collateral_addr);
             let collateral_state = self.states.get_mut(&collateral_addr).unwrap();
-            assert!(collateral_state.ltv > Decimal::ZERO, "Then token({}) is not colleteral asset!");
+            assert!(collateral_state.ltv > Decimal::ZERO, "Then token is not colleteral asset!");
 
             collateral_state.update_index();
 
+            let supply_amount = supply_token.amount();
             let collateral_normalized_amt = LendingPool::ceil(supply_token.amount() * collateral_state.supply_index);
             //TODO available = amt * oracle.get_price(collateral_addr) * collateral_state.ltv / oracle.get_price(borrow_token)
 
             let collateral_vault = self.collateral_vaults.get_mut(&collateral_addr).unwrap();
             collateral_vault.put(supply_token);
+
+            
+            let borrow_asset_state = self.states.get_mut(&borrow_token).unwrap();
+            borrow_asset_state.update_index();
             
             let borrow_normalized_amount = LendingPool::floor(amount / borrow_asset_state.borrow_index);
-            borrow_asset_state.borrow_normalized_amount += borrow_normalized_amount;
-            borrow_asset_state.update_interest_rate()
+            borrow_asset_state.normalized_total_borrow += borrow_normalized_amount;
+            borrow_asset_state.update_interest_rate();
 
-            let borrow_vault = self.vaults.get_mut(&borrow_token);
+            let borrow_vault = self.vaults.get_mut(&borrow_token).unwrap();
             let borrow_bucket = borrow_vault.take(amount);
 
             let data = CollateralDebtPosition{
-                collateral_token: collateral_addr,
+                collateral_token: collateral_addr.clone(),
                 total_borrow: amount,
                 total_repay: Decimal::ZERO,
                 normalized_borrow: borrow_normalized_amount,
-                collateral_amount: supply_token.amount(),
+                collateral_amount: supply_amount,
                 borrow_amount: amount,
                 last_update_epoch: Runtime::current_epoch(),
                 borrow_token
-            }
-            let cdp_nft_res_addr = self.cdp_nfts.get(&borrow_token);
+            };
+            let cdp_nft_res_addr = self.cdp_nfts.get(&borrow_token).unwrap();
             let cdp = self.minter.authorize(|| {
                 self.cdp_id_counter += 1;
-                let cdp_res_mgr: &ResourceManager = borrow_resource_manager!(cdp_nft_res_addr);
+                let cdp_res_mgr: &ResourceManager = borrow_resource_manager!(*cdp_nft_res_addr);
                 cdp_res_mgr.mint_non_fungible(&NonFungibleId::from_u64(self.cdp_id_counter), data)
             });
             (borrow_bucket, cdp)

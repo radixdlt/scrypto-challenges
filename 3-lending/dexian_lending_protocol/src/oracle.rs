@@ -26,7 +26,6 @@ blueprint! {
                     Decimal::ONE => RADIX_TOKEN,
                     Decimal::ONE / Decimal::from("0.6") => USDC,
                     Decimal::ONE / Decimal::from("0.61") => USDT,
-                    Decimal::ZERO => _
                 }
             }
             else{
@@ -34,7 +33,6 @@ blueprint! {
                     Decimal::ONE => RADIX_TOKEN,
                     Decimal::ONE / Decimal::from("0.06") => USDC,
                     Decimal::ONE / Decimal::from("0.061") => USDT,
-                    Decimal::ZERO => _
                 }
             }
         }
