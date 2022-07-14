@@ -1,3 +1,2 @@
 CALL_METHOD ComponentAddress("${admin}") "create_proof" ResourceAddress("${admin_badge}");
-
 CALL_METHOD ComponentAddress("${component}") "new_pool" ResourceAddress("${xrd}") Decimal("0.6") Decimal("0.7") Decimal("0.07") Decimal("0.25") ComponentAddress("${def_interest_model}");

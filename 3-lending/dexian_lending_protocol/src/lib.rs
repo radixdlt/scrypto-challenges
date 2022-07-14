@@ -2,6 +2,7 @@ mod assetstate;
 mod definterestmodel;
 mod stableinterestmodel;
 mod cdp;
+mod oracle;
 
 use scrypto::prelude::*;
 
@@ -172,14 +173,21 @@ blueprint! {
             collateral_state.update_index();
 
             let supply_amount = supply_token.amount();
-            let deposit_amount = LendingPool::floor(supply_token.amount() * supply_index);
+            let deposit_amount = LendingPool::floor(supply_amount * supply_index);
             let max_loan_amount = self.get_max_loan_amount(collateral_addr.clone(), deposit_amount, ltv, borrow_token);
+            debug!("max loan amount {}, supply_amount:{} deposit_amount:{}, amount:{}", max_loan_amount, supply_amount, deposit_amount, amount);
             if amount > max_loan_amount {
                 amount = max_loan_amount;
             }
 
-            let collateral_vault = self.collateral_vaults.get_mut(&collateral_addr).unwrap();
-            collateral_vault.put(supply_token);
+            if self.collateral_vaults.contains_key(&token_address){
+                let collateral_vault = self.collateral_vaults.get_mut(&token_address).unwrap();
+                collateral_vault.put(supply_token);
+            }
+            else{
+                let vault = Vault::with_bucket(supply_token);
+                self.collateral_vaults.insert(token_address, vault);
+            }
 
             
             let borrow_asset_state = self.states.get_mut(&borrow_token).unwrap();
@@ -211,13 +219,13 @@ blueprint! {
             (borrow_bucket, cdp)
         }
 
-        fn get_max_loan_amount(&self, deposit_asset: ResourceAddress, deposit_amount: Decimal, ltv: Decimal, borrow_asset: ResourceAddress) -> Decimal{
-            deposit_amount * self.get_asset_price(deposit_asset) * ltv / self.get_asset_price(borrow_asset)
-        }
-
-        fn get_asset_price(&self, asset_addr: ResourceAddress) -> Decimal{
+        pub fn get_asset_price(&self, asset_addr: ResourceAddress) -> Decimal{
             let component: &Component = borrow_component!(self.oracle_addr);
             component.call::<Decimal>("get_price_quote_in_xrd", args![asset_addr])
+        }
+
+        fn get_max_loan_amount(&self, deposit_asset: ResourceAddress, deposit_amount: Decimal, ltv: Decimal, borrow_asset: ResourceAddress) -> Decimal{
+            deposit_amount * self.get_asset_price(deposit_asset) * ltv / self.get_asset_price(borrow_asset)
         }
 
         fn ceil(dec: Decimal) -> Decimal{

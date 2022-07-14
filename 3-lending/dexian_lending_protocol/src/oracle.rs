@@ -9,30 +9,54 @@ blueprint! {
     /// dummy oracle
     impl PriceOracle{
 
-        const EPOCH_OF_YEAR: u64 = 15017;
+        // const EPOCH_OF_YEAR: u64 = 15017;
         
         pub fn new(usdt: ResourceAddress, usdc: ResourceAddress) -> ComponentAddress {
             Self{
                 usdc,
                 usdt
-            }.instantiate.globalize()
+            }.instantiate().globalize()
         }
 
-        pub fn get_price_quote_in_xrd(res_addr: ResourceAddress) -> Decimal {
+        pub fn get_price_quote_in_xrd(&self, res_addr: ResourceAddress) -> Decimal {
             // Simulate changes in the market environment (time) to return different quotes
             // the actual application needs to use the real quote source and price
-            if Runtime::current_epoch() > EPOCH_OF_YEAR {
-                match res_addr{
-                    Decimal::ONE => RADIX_TOKEN,
-                    Decimal::ONE / Decimal::from("0.6") => USDC,
-                    Decimal::ONE / Decimal::from("0.61") => USDT,
+            if Runtime::current_epoch() > 15017 {
+                // match res_addr {
+                //     RADIX_TOKEN => Decimal::ONE,
+                //     self.usdc => Decimal::from("1.66666666"),  // 1/0.6
+                //     self.usdt => Decimal::from("1.63934426"), // 1/0.61
+                // }
+                if res_addr == RADIX_TOKEN {
+                    Decimal::ONE
+                }
+                else if res_addr == self.usdc {
+                    Decimal::from("1.66666666") // 1/0.6
+                }
+                else if res_addr == self.usdt {
+                    Decimal::from("1.63934426")
+                }
+                else{
+                    Decimal::from("-1")
                 }
             }
             else{
-                match res_addr{
-                    Decimal::ONE => RADIX_TOKEN,
-                    Decimal::ONE / Decimal::from("0.06") => USDC,
-                    Decimal::ONE / Decimal::from("0.061") => USDT,
+                // match res_addr{
+                //     RADIX_TOKEN => Decimal::ONE,
+                //     self.usdc => Decimal::from("16.66666666"),  // 1/0.6
+                //     self.usdt => Decimal::from("16.39344262"),  // 1/0.61
+                // }
+                if res_addr == RADIX_TOKEN {
+                    Decimal::ONE
+                }
+                else if res_addr == self.usdc {
+                    Decimal::from("16.66666666")  // 1/0.6
+                }
+                else if res_addr == self.usdt {
+                    Decimal::from("16.39344262")
+                }
+                else{
+                    Decimal::from("-1")
                 }
             }
         }
