@@ -176,8 +176,9 @@ blueprint! {
             collateral_state.update_index();
 
             let supply_amount = supply_token.amount();
-            let collateral_normalized_amt = LendingPool::ceil(supply_token.amount() * collateral_state.supply_index);
-            //TODO available = amt * oracle.get_price(collateral_addr) * collateral_state.ltv / oracle.get_price(borrow_token)
+            let deposit_amount = LendingPool::floor(supply_token.amount() * collateral_state.supply_index);
+            let max_loan_amount = self.get_max_loan_amount(collateral_addr, deposit_amount, collateral_state.ltv, borrow_token);
+            let borrow_amount = [max_loan_amount, amount].iter().min();
 
             let collateral_vault = self.collateral_vaults.get_mut(&collateral_addr).unwrap();
             collateral_vault.put(supply_token);
@@ -186,20 +187,20 @@ blueprint! {
             let borrow_asset_state = self.states.get_mut(&borrow_token).unwrap();
             borrow_asset_state.update_index();
             
-            let borrow_normalized_amount = LendingPool::floor(amount / borrow_asset_state.borrow_index);
+            let borrow_normalized_amount = LendingPool::ceil(borrow_amount / borrow_asset_state.borrow_index);
             borrow_asset_state.normalized_total_borrow += borrow_normalized_amount;
             borrow_asset_state.update_interest_rate();
 
             let borrow_vault = self.vaults.get_mut(&borrow_token).unwrap();
-            let borrow_bucket = borrow_vault.take(amount);
+            let borrow_bucket = borrow_vault.take(borrow_amount);
 
             let data = CollateralDebtPosition{
                 collateral_token: collateral_addr.clone(),
-                total_borrow: amount,
+                total_borrow: borrow_amount,
                 total_repay: Decimal::ZERO,
                 normalized_borrow: borrow_normalized_amount,
                 collateral_amount: supply_amount,
-                borrow_amount: amount,
+                borrow_amount: borrow_amount,
                 last_update_epoch: Runtime::current_epoch(),
                 borrow_token
             };
@@ -210,6 +211,15 @@ blueprint! {
                 cdp_res_mgr.mint_non_fungible(&NonFungibleId::from_u64(self.cdp_id_counter), data)
             });
             (borrow_bucket, cdp)
+        }
+
+        fn get_max_loan_amount(&self, deposit_asset: ResourceAddress, deposit_amount: Decimal, ltv: Decimal, borrow_asset: ResourceAddress) -> Decimal{
+            deposit_amount * self.get_asset_price(deposit_asset) * ltv / self.get_asset_price(borrow_asset)
+        }
+
+        fn get_asset_price(&self, asset_addr: ResourceAddress) -> Decimal{
+            let component: &Component = borrow_component!(self.oracle_addr);
+            component.call::<Decimal>("get_price_quote_in_xrd", args![asset_addr])
         }
 
         fn ceil(dec: Decimal) -> Decimal{
