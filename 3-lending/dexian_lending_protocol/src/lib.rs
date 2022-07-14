@@ -21,8 +21,8 @@ blueprint! {
        collateral_vaults: HashMap<ResourceAddress, Vault>,
        // Cash of each asset in the lending pool
        vaults: HashMap<ResourceAddress, Vault>,
-       // CDP token for each loan asset. <loan_asset, CDP token address>
-       cdp_nfts: HashMap<ResourceAddress, ResourceAddress>,
+       // CDP token define
+       cdp_res_addr: ResourceAddress,
        // CDP id counter
        cdp_id_counter: u64,
        // lending pool admin badge.
@@ -43,6 +43,13 @@ blueprint! {
                 .divisibility(DIVISIBILITY_NONE)
                 .initial_supply(dec!("1"));
             
+            let cdp_res_addr = ResourceBuilder::new_non_fungible()
+                .metadata("symbol", "CDP")
+                .metadata("name", "DeXian CDP Token")
+                .mintable(rule!(require(minter.resource_address())), LOCKED)
+                .burnable(rule!(require(minter.resource_address())), LOCKED)
+                .no_initial_supply();
+            
             let rules = AccessRules::new()
                 .method("new_pool", rule!(require(admin_badge.resource_address())))
                 // .method("withdraw_fees", rule!(require(admin_badge.resource_address())))
@@ -54,10 +61,10 @@ blueprint! {
                 origin_asset_map: HashMap::new(),
                 collateral_vaults: HashMap::new(),
                 vaults: HashMap::new(),
-                cdp_nfts: HashMap::new(),
                 cdp_id_counter: 0u64,
                 minter: Vault::with_bucket(minter),
                 admin_badge: admin_badge.resource_address(),
+                cdp_res_addr,
                 oracle_addr
             }
             .instantiate()
@@ -75,7 +82,7 @@ blueprint! {
             insurance_ratio: Decimal, 
             interest_model: ComponentAddress) -> ResourceAddress  {
             let res_mgr = borrow_resource_manager!(asset_address);
-            // TODO: concat string + "dx"
+
             let origin_symbol = res_mgr.metadata()["symbol"].clone();
             let supply_token = ResourceBuilder::new_fungible()
                 .metadata("symbol", format!("dx{}", origin_symbol))
@@ -83,16 +90,6 @@ blueprint! {
                 .mintable(rule!(require(self.minter.resource_address())), LOCKED)
                 .burnable(rule!(require(self.minter.resource_address())), LOCKED)
                 .no_initial_supply();
-
-            if ltv > Decimal::ZERO {
-                let cdp_token = ResourceBuilder::new_non_fungible()
-                    .metadata("symbol", "CDP")
-                    .metadata("name", format!("DeXian CDP({})", origin_symbol))
-                    .mintable(rule!(require(self.minter.resource_address())), LOCKED)
-                    .burnable(rule!(require(self.minter.resource_address())), LOCKED)
-                    .no_initial_supply();
-                self.cdp_nfts.insert(asset_address, cdp_token);
-            }
             
             let asset_state = AssetState {
                 supply_index: Decimal::ONE,
@@ -118,7 +115,6 @@ blueprint! {
 
         pub fn supply(&mut self, deposit_asset: Bucket) -> Bucket {
             let asset_address = deposit_asset.resource_address();
-            // let res_mgr = borrow_resource_manager!();
             assert!(self.states.contains_key(&asset_address) && self.vaults.contains_key(&asset_address), "There is no pool of funds corresponding to the assets!");
             let asset_state = self.states.get_mut(&asset_address).unwrap();
             
@@ -136,7 +132,7 @@ blueprint! {
             });
 
             asset_state.update_interest_rate();
-            //TODO: log
+            
             supply_token
         }
 
@@ -150,8 +146,6 @@ blueprint! {
             asset_state.update_index();
 
             let normalized_amount = LendingPool::floor(amount * asset_state.supply_index);
-            //TODO: check borrow and collateral debt position
-            //check cash balance and amount
             self.minter.authorize(|| {
                 let supply_res_mgr: &ResourceManager = borrow_resource_manager!(asset_state.token);
                 supply_res_mgr.burn(supply_token);
@@ -163,22 +157,26 @@ blueprint! {
             asset_bucket
         }
 
-        pub fn borrow(&mut self, supply_token: Bucket, borrow_token: ResourceAddress, amount: Decimal) -> (Bucket, Bucket){
+        pub fn borrow(&mut self, supply_token: Bucket, borrow_token: ResourceAddress, mut amount: Decimal) -> (Bucket, Bucket){
             assert!(self.states.contains_key(&borrow_token), "unsupported the borrow token!");
             let token_address = supply_token.resource_address();
             assert!(self.origin_asset_map.contains_key(&token_address), "unsupported the collateral token!");
             
             let collateral_addr = self.origin_asset_map.get(&token_address).unwrap();
             debug!("borrow supply_token {}, collateral_addr {}, ", token_address, collateral_addr);
-            let collateral_state = self.states.get_mut(&collateral_addr).unwrap();
+            let collateral_state = self.states.get_mut(collateral_addr).unwrap();
             assert!(collateral_state.ltv > Decimal::ZERO, "Then token is not colleteral asset!");
+            let ltv = collateral_state.ltv;
+            let supply_index = collateral_state.supply_index;
 
             collateral_state.update_index();
 
             let supply_amount = supply_token.amount();
-            let deposit_amount = LendingPool::floor(supply_token.amount() * collateral_state.supply_index);
-            let max_loan_amount = self.get_max_loan_amount(collateral_addr, deposit_amount, collateral_state.ltv, borrow_token);
-            let borrow_amount = [max_loan_amount, amount].iter().min();
+            let deposit_amount = LendingPool::floor(supply_token.amount() * supply_index);
+            let max_loan_amount = self.get_max_loan_amount(collateral_addr.clone(), deposit_amount, ltv, borrow_token);
+            if amount > max_loan_amount {
+                amount = max_loan_amount;
+            }
 
             let collateral_vault = self.collateral_vaults.get_mut(&collateral_addr).unwrap();
             collateral_vault.put(supply_token);
@@ -187,27 +185,27 @@ blueprint! {
             let borrow_asset_state = self.states.get_mut(&borrow_token).unwrap();
             borrow_asset_state.update_index();
             
-            let borrow_normalized_amount = LendingPool::ceil(borrow_amount / borrow_asset_state.borrow_index);
+            let borrow_normalized_amount = LendingPool::ceil(amount / borrow_asset_state.borrow_index);
             borrow_asset_state.normalized_total_borrow += borrow_normalized_amount;
             borrow_asset_state.update_interest_rate();
 
             let borrow_vault = self.vaults.get_mut(&borrow_token).unwrap();
-            let borrow_bucket = borrow_vault.take(borrow_amount);
+            let borrow_bucket = borrow_vault.take(amount);
 
             let data = CollateralDebtPosition{
                 collateral_token: collateral_addr.clone(),
-                total_borrow: borrow_amount,
+                total_borrow: amount,
                 total_repay: Decimal::ZERO,
                 normalized_borrow: borrow_normalized_amount,
                 collateral_amount: supply_amount,
-                borrow_amount: borrow_amount,
+                borrow_amount: amount,
                 last_update_epoch: Runtime::current_epoch(),
                 borrow_token
             };
-            let cdp_nft_res_addr = self.cdp_nfts.get(&borrow_token).unwrap();
+
             let cdp = self.minter.authorize(|| {
                 self.cdp_id_counter += 1;
-                let cdp_res_mgr: &ResourceManager = borrow_resource_manager!(*cdp_nft_res_addr);
+                let cdp_res_mgr: &ResourceManager = borrow_resource_manager!(self.cdp_res_addr);
                 cdp_res_mgr.mint_non_fungible(&NonFungibleId::from_u64(self.cdp_id_counter), data)
             });
             (borrow_bucket, cdp)
