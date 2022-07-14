@@ -186,12 +186,12 @@ blueprint! {
             let borrow_asset_state = self.states.get_mut(&borrow_token).unwrap();
             borrow_asset_state.update_index();
             
+            let borrow_vault = self.vaults.get_mut(&borrow_token).unwrap();
+            let borrow_bucket = borrow_vault.take(amount);
+
             let borrow_normalized_amount = LendingPool::floor(amount / borrow_asset_state.borrow_index);
             borrow_asset_state.normalized_total_borrow += borrow_normalized_amount;
             borrow_asset_state.update_interest_rate();
-
-            let borrow_vault = self.vaults.get_mut(&borrow_token).unwrap();
-            let borrow_bucket = borrow_vault.take(amount);
 
             let data = CollateralDebtPosition{
                 collateral_token: collateral_addr.clone(),
