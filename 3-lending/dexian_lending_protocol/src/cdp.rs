@@ -1,5 +1,7 @@
 use scrypto::prelude::*;
 
+// use assetstate::*;
+
 #[derive(NonFungibleData)]
 pub struct CollateralDebtPosition{
     pub borrow_token: ResourceAddress,
@@ -73,6 +75,16 @@ blueprint! {
             assert!(id_set2.contains(&nft_id), "the collateral nft_id not exists!");
             id_set2.remove(&nft_id);
         }
+
+        // pub fn evaluation(cdp_data: &CollateralDebtPosition, collatera_state: &AssetState, debt_state: &AssetState) -> (Decimal, Decimal){
+        //     let collateral_token = cdp_data.collateral_token;
+        //     let borrow_token = cdp_data.borrow_token;
+        //     let normalized_borrow = cdp_data.normalized_borrow;
+        //     let normalized_collateral = cdp_data.collateral_amount;
+        //     let last_update_epoch = cdp_data.last_update_epoch;
+
+
+        // }
 
         // fn insert_cdp(mut cdps:HashMap<ResourceAddress, HashSet<NonFungibleId>>, token_addr: ResourceAddress, nft_id:NonFungibleId){
         //     if cdps.contains_key(&token_addr){
