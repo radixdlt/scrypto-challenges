@@ -1,5 +1,4 @@
 use scrypto::prelude::*;
-use sha2::{Digest, Sha256};
 use crate::utils::*;
 
 
@@ -51,9 +50,8 @@ blueprint! {
         main_pool: Vault,
 
         ///loans along time
-        //let mut loan_allocated = Vec::new();
         loan_allocated: Vec<Decimal>,
-        /// The starting amount of tokec accepted
+        /// The starting amount of token accepted
         start_amount: Decimal,
         /// The fee to apply for every loan
         fee: Decimal,
@@ -86,8 +84,7 @@ blueprint! {
 
 
     impl LendingApp {
-        /// Creates a LendingApp component for token pair A/B and returns the component address
-        /// along with the initial LP tokens.
+        /// Creates a LendingApp component and returns the component address
         pub fn instantiate_pool(
             starting_tokens: Bucket,
             start_amount: Decimal,
@@ -105,7 +102,11 @@ blueprint! {
             assert!(
                 (reward >= dec!("3")) & (reward <= dec!("7")), 
                 "Invalid reward : Reward must be between 3 and 7"
-            );            
+            );       
+            assert!(
+                (reward < fee), 
+                "Invalid fee / reward : Fee must be higher than reward"
+            );                      
             assert!(
                 start_amount >= dec!("1000"),
                 "Loan Pool must start with at least 1000 XRD tokens !"
@@ -194,11 +195,7 @@ blueprint! {
         // Allow someone to register its account for lendings
         // Account receives back a Soulbound token (Lending NFT)
         pub fn register(&self) -> Bucket {
-            let uuid = Runtime::generate_uuid();    
-            let mut hasher = Sha256::new();
-            hasher.update(uuid.to_string());
-            let uuid_hash = hasher.finalize();
-            let lend_id = NonFungibleId::from_bytes(uuid_hash.to_vec());                      
+            let lend_id = get_non_fungible_id();              
 
             // Create a lending NFT. Note that this contains the number of lending and the level arwarded
             let lending_nft = self.loan_admin_badge.authorize(|| {
@@ -206,6 +203,7 @@ blueprint! {
                     .mint_non_fungible(&lend_id, LendingTicket {number_of_lendings: 0, l1: false, l2: false, in_progress: false  })
                 }); 
 
+            info!("Min/Max Ratio for lenders is: {}  {}", self.min_ratio_for_lend,  self.max_ratio_for_lend);
             info!("Extra L1 reward is : {} and L2 reward is : {}", self.extra_reward_l1, self.extra_reward_l2);
 
             // Return the NFT
@@ -215,18 +213,15 @@ blueprint! {
         // Allow someone to register its account for borrowings
         // Account receives back a Soulbound token (Borrowing NFT)
         pub fn register_borrower(&self) -> Bucket {
-            let uuid = Runtime::generate_uuid();    
-            let mut hasher = Sha256::new();
-            hasher.update(uuid.to_string());
-            let uuid_hash = hasher.finalize();
-            let lend_id = NonFungibleId::from_bytes(uuid_hash.to_vec());                    
+            let borrow_id = get_non_fungible_id();                
 
             // Create a borrowing NFT. Note that this contains the number of borrowing and the level arwarded
             let borrowing_nft = self.loan_admin_badge.authorize(|| {
                 borrow_resource_manager!(self.borrowing_nft_resource_def)
-                    .mint_non_fungible(&lend_id, BorrowingTicket {number_of_borrowings: 0, xrds_to_give_back: Decimal::zero(), l1: false, l2: false, in_progress: false  })
+                    .mint_non_fungible(&borrow_id, BorrowingTicket {number_of_borrowings: 0, xrds_to_give_back: Decimal::zero(), l1: false, l2: false, in_progress: false  })
                 }); 
 
+            info!("Min/Max Ratio for borrowers is: {}  {}", self.min_ratio_for_borrow,  self.max_ratio_for_borrow);
             info!("Bonus L1 fee is : {} and L2 is : {}", self.bonus_fee_l1, self.bonus_fee_l2);                
 
             // Return the NFT
@@ -270,11 +265,6 @@ blueprint! {
             //give back lnd token plus reward %
             let mut value_backed = self.loan_pool.take((reward).round(2,RoundingMode::TowardsPositiveInfinity));
             info!("Loan token received: {} ", reward);       
-            //use this if LND token is not withdrawable
-            //let mut value_backed: Bucket = Bucket::new(self.loan_resource_def);
-            //self.loan_admin_badge.authorize(|| {
-            //    value_backed = self.loan_pool.take(num_xrds + (num_xrds*self.reward/100));                    
-            //});
 
             // Get the data associated with the Lending NFT and update the variable values
             let non_fungible: NonFungible<LendingTicket> = ticket.non_fungible();
@@ -339,7 +329,7 @@ blueprint! {
             } else if l2_enabled(lending_nft_data.number_of_lendings,10,20) {
                 take_reward += self.extra_reward_l2;
             } 
-            //increase num of lenginds            
+            //increase num of lendings            
             let number_of_lendings: i32 = 1 + lending_nft_data.number_of_lendings;
             lending_nft_data.number_of_lendings = number_of_lendings;
 
@@ -410,7 +400,9 @@ blueprint! {
             //take $xrd from main pool
             let xrds_to_give_back = self.main_pool.take(xrd_requested);
 
+            //calculate the fee for this operation
             let fee_value = xrd_requested*self.fee/dec!("100");
+            //calculate the total amount the borrow has to repay
             let mut xrd_to_be_returned = xrd_requested + fee_value;
             borrowing_nft_data.in_progress = true;
             info!("Number of borrowings is: {} - L1 : {} - L2 : {}", borrowing_nft_data.number_of_borrowings, borrowing_nft_data.l1, borrowing_nft_data.l2);

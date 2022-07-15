@@ -33,10 +33,10 @@ LendingApp is a proof-of-concept protocol of an uncollateralized Lending Applica
 ## Abstract
 
 Lending as a decentralized applications (dApps) is a functionality expected to rise in the near future in layer 1 blockchains, such applications are very demanding because they ask no collateral and they may handle up to millions or billions of dollars worth of tokens in a single day. 
-Uncollateralized lendings aim to incentivizes rewards to lenders granting them a great 7% reward on each lend, it also aim to incentivizes borrower without asking for a collateral but instead asking them a 10% fee on each borrowing. At this time this is a proof-of-concept and no epoch are used while calculate this fee/reward. Any lender/borrower is allow to put in place a single operation at any time.
+Uncollateralized LendingdApp aim to incentivizes rewards to lenders granting them a great 7% reward on each lend, it also aim to incentivizes borrower without asking for a collateral but instead asking them a 10% fee on each borrowing. At this time this is a proof-of-concept and no epoch are used while calculate this fee/reward. Any lender/borrower is allow to put in place a single operation at any time. Lender/borrower are allowed to partially close the in progress operation.
 
- When lenders start their loan they are given an amount of 'loan tokens' that is equivalent to the amount of xrd tokens given plus the reward (eg. a lend of 100xrd get back to the lender 107lnd), lenders are given the oppurtunity to get back the tokens at anytime, lenders are also assigned loyalty bonus each time they reach a predefined numbers of loans (eg. level1 after 20 loans, level2 after 50 loans).
- On the other side are the debtors that are allowed to ask for borrowing whitout presenting anything. Borrowers are given the amount of xrd tokens they request and have to pay back the same plus a fee (eg. a loan of 100xrd token has to be repaid with 110xrd tokens). Borrowers too are assigned loyalty bonus each time they reach a predefined numbers of repaid loans (eg. level1 after 20 fully repaid loans, level2 after 50 fully repaid loans).
+ When lenders start their loan they are given an amount of 'loan tokens'($lnd) that is equivalent to the amount of xrd tokens given plus the reward (eg. a lend of 100xrd get back to the lender 107lnd), lenders are given the oppurtunity to get back the tokens at anytime, lenders are also assigned loyalty bonus when they reach a predefined numbers of loans (eg. level1 after 20 loans, level2 after 50 loans).
+ On the other side are the debtors that are allowed to ask for borrowing whitout presenting anything. Borrowers are given the amount of xrd tokens they request and have to pay back the same plus a fee (eg. a loan of 100xrd token has to be repaid with 110xrd tokens). Borrowers too are assigned loyalty bonus when they reach a predefined numbers of repaid loans (eg. level1 after 20 fully repaid loans, level2 after 50 fully repaid loans).
  Levels are assigned to accounts using soulbound-tokens.
 
  The Lending Engine has some rules designed so that it can remain efficient, solvent and profitable for itself and for the parties involved:
@@ -60,7 +60,7 @@ This Lending dApp is a proof of concept written in Scrypto where tokens are nati
 
 ## Features
 
-In this example, we will create an uncollateralized loan application. Everyone can lend or borrow. 
+In this example, we will create an uncollateralized loan application. Everyone can lend or borrow after registering. 
 Level badges are assigned based on usage.
 
 These are the main key features:
@@ -71,6 +71,7 @@ These are the main key features:
 * Allow borrowings to borrowers.
 * Allow borrowers to repay loans.
 * Forbid to anyone to have multiple loans at the same time (but an account could lend and then borrow some xrd tokens).
+* Assign a bonus fee/extra reward for any borrower/lender reaching a certain level of successfull completed operations
 
 ## Details of Design
 
@@ -81,7 +82,7 @@ The XRD that Leo gives to the Lending dApp goes in the main pool of XRD tokens w
 The LND that Leo receives comes from the Loan pool and are to used to claim back the XRD tokens, LND tokens are not transferable and not updatable and are inclusive of the reward.
 
 Let's continue with an example for a person who wants instead to borrow some tokens. 
-Let's say that a guy called Lory wants to borrow 100 XRD. Lory goes to the Lending dApp and ask for a bucket of XRD, if the engine rules are met the loan gets approved and Lory gets back a bucket of XRD token plus a soulbound token. Two question arises: **Where this XRD token comes from ? How could Lory repay the full amount ?**
+Let's say that a guy called Lory wants to borrow 100 XRD. Lory goes to the Lending dApp and ask for a bucket of XRD, if the engine rules are met the loan gets approved and Lory gets back a bucket of XRD token plus a soulbound token where where the number of tokens due is recorded. Two question arises: **Where this XRD token comes from ? How could Lory repay the full amount ?**
 
 The XRD that Lory gets from the Lending dApp comes from the main pool of XRD tokens that grows thanks to the difference between rewards and fees. 
 The soulbound token that Lory receives is not transferable, not updatable and contains the amount to be repaid back, credit level can be awarded only when the full loan is repaid and could take to better fees.
@@ -94,8 +95,8 @@ There needs to be an incentive for all the actors:
 - borrowers
 - the app itself
 
-The engine gets reward from the difference payed by borrowers to what it has to pay to lenders (eg. 10% - 7% result in a 3%).
-The net result is put back into the main pool.
+The LendingdApp gets reward from the difference payed by borrowers to what it has to pay to lenders (eg. 10% - 7% result in a 3%).
+The net result is put back into the main pool. The LendingdApp's profit will decrease according to the loyalty bonuses awarded to the two types of accounts, the profit ratio lower limit in this blueprint would be (10% - l2 bonus fee) - (7% + l2 extra) = 1,4%.
 
 The Lending Engine rules can be rendered to better evaluate the profitability of the model.
 
@@ -107,18 +108,18 @@ Lending dApp is composed by two blueprint:
 
 ### LendingApp blueprint
 
-`LendingApp` is a blueprint from which components may be instantiated and created. The pools defined in this blueprint contain all of the methods needed to accept and approve loan, to pay back and repay and other functionality required.
+`LendingApp` is a blueprint from which components may be instantiated and created. The pools defined in this blueprint contain all of the methods needed to accept and approve loan, to pay back and repay and other functionality required. This is the first and the main blueprint that was using only $xrd tokens for the main pool, after that a new blueprint has been developed to allow different kind of token for the main pool.
 
 The key role or functionality is as follows:
 
 * Manages the two vaults that store the two token types, the XRD vault (main pool) and the loan vault (loan pool).
-* Creates and stores an admin badge that has the authority to mint and burn the loan tokens.
+* Creates and stores an admin badge that has the authority to mint and burn the loan tokens, and to mint and burn the soulbound tokens
 
 * Contains an `register` method which each lender has to use for registering and getting back a soulbound-token that from there on will be used to record the number of completed lendings, the level of loyalty achieved and if a lend is already in progress
 * Contains an `register_borrower` method which each borrower has to use for registering and getting back a soulbound-token that from there on will be used to record the number of completed lendings, the level of loyalty achieved, if a borrow is already in progress and most important the amount of token to be given back.
 
-* Contains an `lend_money` methods which takes in a bucket of XRD tokens and the LendingNFT, then check if the lend is acceptable (the bucket size has to be between 5% and 20% of the main vault size) and if the ratio lenders/borrowers is appropriate (loan pool vault size needs over 75%). The method then gives back a bucket of LND tokens with a reward, that bucket could be used later to claim back the original XRD tokens. Finally the LendingNFT gets updated adding to the counter, updating the level and setting that a lend is running to avoid concurrent operation from the same account.
-* Contains an `take_money` method that takes the LND bucket and the LendingNFT. The LND tokens are divided in two parts, the fee gets burned and the original amount goes back in the loan pool, then the XRD tokens to be sent to the account are taken from the main pool and sent back to the lender so the lender receives the reward. Finally the LendingNFT gets updated setting that a lend is not anymore running.
+* Contains an `lend_money` methods which takes in a bucket of XRD tokens and the LendingNFT, then check if the lend is acceptable (the bucket size has to be between 5% and 20% of the main vault size) and if the ratio lenders/borrowers is appropriate (loan pool vault size needs over 75%). The method then gives back a bucket of LND tokens with a reward, that bucket could be used later to claim back the original XRD tokens. Finally the LendingNFT gets updated setting that a lend is running to avoid concurrent operation from the same account.
+* Contains an `take_money` method that takes the LND bucket and the LendingNFT. The LND tokens are divided in two parts, the fee gets burned and the original amount goes back in the loan pool, then the XRD tokens to be sent to the account are taken from the main pool and sent back to the lender so the lender receives the reward. Finally the LendingNFT gets updated adding to the counter, updating the level and setting that a lend is not anymore running.
 * Contains an `borrow_money` methods which takes in the number of XRD tokens requested, then check if the borrow is acceptable (the requested bucket size has to be between 3% and 12% of the main vault size) and if the main pool vault size is suitable (it needs over 50%). The method then gives back a bucket of XRD tokens without asking for collateral and also the BorrowingNFT that contains the amount of XRD token that would close the borrowing (fee included). 
 * Contains an `repay_money` method that takes the XRD bucket and the BorrowingNFT. The XRD tokens received are checked along the number contained in the BorrowingNFT to verify if the correct amount has been sent, if the borrower has sent more tokens he receives back the remainder, otherwise the borrower operation cannot be declared as closed and he can't ask for a new borrow anymore. Finally the BorrowingNFT gets updated with the counter values, the level achieved and with the operation state (in progress/completed)
 
@@ -585,7 +586,7 @@ There is a lot that could be improved about the current implementation of Lendin
 * (for lenders) Add a way to see own lendings history including active and completed
 * (for engine) Add a way to show statistics (pool size, total loans, number of lenders/borrowers)
 * Write a white-paper with mathematical functions and a business plan with assumptions about the business model
-
+* Removing 'money' from all methods name 
 
 ## License 
 
