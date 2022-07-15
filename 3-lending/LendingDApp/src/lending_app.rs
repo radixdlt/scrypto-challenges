@@ -151,9 +151,6 @@ blueprint! {
                 .metadata("url", "https://lendingapp.com")
                 .mintable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
                 .burnable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
-                //.updateable_metadata(rule!(require(loan_admin_badge.resource_address())), LOCKED)
-                //.restrict_withdraw(rule!(require(loan_admin_badge.resource_address())), LOCKED)
-                //.restrict_withdraw(rule!(deny_all), MUTABLE(rule!(require(loan_admin_badge.resource_address()))))
                 .initial_supply(start_amount);
 
             let loan_allocated = Vec::new();
@@ -194,7 +191,8 @@ blueprint! {
         }
 
 
-        // Allow someone to register its account
+        // Allow someone to register its account for lendings
+        // Account receives back a Soulbound token (Lending NFT)
         pub fn register(&self) -> Bucket {
             let uuid = Runtime::generate_uuid();    
             let mut hasher = Sha256::new();
@@ -215,6 +213,7 @@ blueprint! {
         }
 
         // Allow someone to register its account for borrowings
+        // Account receives back a Soulbound token (Borrowing NFT)
         pub fn register_borrower(&self) -> Bucket {
             let uuid = Runtime::generate_uuid();    
             let mut hasher = Sha256::new();
@@ -266,9 +265,11 @@ blueprint! {
             //put xrd token in main pool
             let num_xrds = xrd_tokens.amount();
             self.main_pool.put(xrd_tokens);
+            //calculate reward
+            let reward = num_xrds + (num_xrds*self.reward/100);
             //give back lnd token plus reward %
-            let mut value_backed = self.loan_pool.take((num_xrds + (num_xrds*self.reward/100)).round(2,RoundingMode::TowardsPositiveInfinity));
-            info!("Loan token received: {} ", (num_xrds + (num_xrds*self.reward/100)));       
+            let mut value_backed = self.loan_pool.take((reward).round(2,RoundingMode::TowardsPositiveInfinity));
+            info!("Loan token received: {} ", reward);       
             //use this if LND token is not withdrawable
             //let mut value_backed: Bucket = Bucket::new(self.loan_resource_def);
             //self.loan_admin_badge.authorize(|| {
@@ -284,17 +285,21 @@ blueprint! {
             //L1 if number_of_lendings between 10 and 20
             if l1_enabled(lending_nft_data.number_of_lendings,10,20) {                
                 lending_nft_data.l1 = true;
-                println!("L1 reached ! extra reward assigned {}" , (num_xrds*(self.extra_reward_l1)/100));
+                //calculate extra reward for l1 level
+                let extra_reward = num_xrds*(self.extra_reward_l1)/100;
+                println!("L1 reached ! extra reward assigned {}" , extra_reward);
                 //give back lnd token plus reward %
-                value_backed.put(self.loan_pool.take(num_xrds*(self.extra_reward_l1)/100));
-                info!("Extra Loan token received because of L1: {} ", (num_xrds*(self.extra_reward_l1)/100));
+                value_backed.put(self.loan_pool.take(extra_reward));
+                info!("Extra Loan token received because of L1: {} ", extra_reward);
             //L2 if number_of_lendings > 20
             } else if l2_enabled(lending_nft_data.number_of_lendings,10,20) {
                 lending_nft_data.l2 = true;
-                println!("L2 reached ! extra reward assigned {}" , (num_xrds*(self.extra_reward_l2)/100));
+                //calculate extra reward for l2 level
+                let extra_reward = num_xrds*(self.extra_reward_l2)/100;
+                println!("L2 reached ! extra reward assigned {}" , extra_reward);
                 //give back lnd token plus reward %
-                value_backed.put(self.loan_pool.take(num_xrds*(self.extra_reward_l2)/100));
-                info!("Extra Loan token received because of L2: {} ", (num_xrds*(self.extra_reward_l2)/100));
+                value_backed.put(self.loan_pool.take(extra_reward));
+                info!("Extra Loan token received because of L2: {} ", extra_reward);
             } 
 
             // Update the data on that NFT globally

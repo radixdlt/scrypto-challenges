@@ -1,4 +1,3 @@
-
 use scrypto::prelude::*;
 
 /// Check L1 level 
@@ -12,8 +11,6 @@ pub fn l1_enabled(number_of_lendings: i32, l1_limit: i32, l2_limit: i32) -> bool
     return value;
 }
 
-
-
 pub fn l2_enabled(number_of_lendings: i32, _l1_limit: i32, l2_limit: i32) -> bool {
     let mut value = false;
     if number_of_lendings > l2_limit {
@@ -26,38 +23,10 @@ pub fn l2_enabled(number_of_lendings: i32, _l1_limit: i32, l2_limit: i32) -> boo
 
 pub fn calculate_ratio(ratio: Decimal, _amount: Decimal) -> Decimal {
     return ratio;
-    // if amount<=dec!(2000) {
-    //     return ratio;
-    // } else if amount<=dec!(10000) {
-    //     info!("Lowering ratio limit ..... -1 ");
-    //     return ratio-1;
-    // } else if amount<=dec!(100000) {
-    //     info!("Lowering ratio limit ..... -2 ");
-    //     return ratio-2;
-    // } else {
-    //     info!("Lowering ratio limit ..... -3 ");
-    //     return ratio-3;
-    // } 
 }
 
 pub fn calculate_level(ratio: Decimal, amount: Decimal) -> Decimal {
     return ratio * amount / dec!("100");
-    // if amount<=dec!(2000) {
-    //     //min ratio for lenders is ratio value, if main loan is below 2000 token
-    //     return ratio * amount / dec!("100");
-    // } else if amount<=dec!(10000) {
-    //     info!("Lowering ratio limit ... -1 ");
-    //     //min ratio for lenders is ratio -1  value, if main loan is between 2000 and 10000 token
-    //     return (ratio-1) * amount / dec!("100");
-    // } else if amount<=dec!(100000) {
-    //     info!("Lowering ratio limit ... -2 ");
-    //     //min ratio for lenders is ratio -2  value, if main loan is between 10000 and 100000 token
-    //     return (ratio-2) * amount / dec!("100");
-    // } else {
-    //     info!("Lowering ratio limit ... -3 ");
-    //     //min ratio for lenders is ratio -1  value, if main loan is above 100000
-    //     return (ratio-3) * amount / dec!("100");
-    // } 
 }
 
 

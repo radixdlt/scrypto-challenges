@@ -40,15 +40,6 @@ blueprint!{
             self.loan_pool.insert(add,lending_app.into());
         }
 
-        // pub fn get_loan_pool(
-        //     &mut self,
-        //     token1: Bucket
-        // ) -> LendingApp  {
-        //     // Checking if a loan pool already exists between these two tokens
-        //     self.assert_pool_exists(token1.resource_address());
-        //     let  add: ResourceAddress = token1.resource_address(); 
-        //     return self.loan_pool[&token1.resource_address()];
-        // }
 
         pub fn register(&mut self,address: ResourceAddress) -> Bucket {
 

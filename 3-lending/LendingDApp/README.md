@@ -586,6 +586,7 @@ There is a lot that could be improved about the current implementation of Lendin
 * (for engine) Add a way to show statistics (pool size, total loans, number of lenders/borrowers)
 * Write a white-paper with mathematical functions and a business plan with assumptions about the business model
 
+
 ## License 
 
 This work is licensed under Apache 2.0 and the license file is provided [here](./LICENSE).
