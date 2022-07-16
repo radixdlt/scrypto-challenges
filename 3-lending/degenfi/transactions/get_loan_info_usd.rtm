@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${COMPONENT}") "get_loan_info" ResourceAddress("${USD}") NonFungibleId("${LOAN}");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS1}") "deposit_batch";

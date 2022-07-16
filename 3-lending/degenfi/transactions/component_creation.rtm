@@ -1,0 +1,2 @@
+CALL_FUNCTION PackageAddress("${PACKAGE}") "DegenFi" "new";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS1}") "deposit_batch";

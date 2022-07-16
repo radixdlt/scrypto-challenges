@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${COMPONENT}") "check_total_supplied" ResourceAddress("030000000000000000000000000000000000000000000000000004");
+

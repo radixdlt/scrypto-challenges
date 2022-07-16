@@ -1,0 +1,6 @@
+CALL_METHOD ComponentAddress("021025cfda90adea21506170be47c67ec169e41dbbdd063d54d409") "withdraw_by_amount" Decimal("3000") ResourceAddress("030000000000000000000000000000000000000000000000000004");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("3000") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("bucket1");
+CALL_METHOD ComponentAddress("021025cfda90adea21506170be47c67ec169e41dbbdd063d54d409") "withdraw_by_amount" Decimal("1") ResourceAddress("030c9ba541a1ed9e715cc4cced5b816b72ef7c6b764b16f71088b5");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1") ResourceAddress("030c9ba541a1ed9e715cc4cced5b816b72ef7c6b764b16f71088b5") Bucket("bucket2");
+CALL_METHOD ComponentAddress("02753a651166a478a7c32fe29ae89dc1588e1758855197a939f52f") "flash_repay" Bucket("bucket1") Bucket("bucket2");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("021025cfda90adea21506170be47c67ec169e41dbbdd063d54d409") "deposit_batch";
