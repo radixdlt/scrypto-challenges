@@ -90,7 +90,7 @@ export COMPONENT=$(echo "$CP_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p
 export FLASH=$(echo "$CP_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
 
 NU=$(resim run "./transactions/new_user.rtm")
-export PROOF=$(echo "$NU" | sed -nr "s/└─ [INFO ] User created! Your SBT resource address is ([[:alnum:]_]+)/\1/p")
+export PROOF=$(echo "$NU" | sed -nr "s/.*SBT resource address is ([[:alnum:]_]+)/\1/p")
 
 
 
