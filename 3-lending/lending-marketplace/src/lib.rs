@@ -134,19 +134,37 @@ blueprint! {
             let to_return_amount = user.on_liquidate(repaid.amount(), self.max_liquidation_percent);
             let to_return = self.liquidity_pool.take(to_return_amount);
 
-            
-            
+            // commit state changes
+            self.users.insert(user_id, user);
+            to_return
 
-
-
-
-                
             }
+
+            /// return current state of the user 
+            pub fn get_user(&self, user_id: ResourceAddress) -> User {
+                match self.users.get(&user_id) {
+                    Some(user) => user,
+                    _ => panic!("User not found"),
+                }
+            }
+
+            // return the deposit interest rate per epoch 
+            pub fn set_deposit_interest_rate(&mut self, rate: Decimal) {
+                self.deposit_interest_rate = rate;
+            }
+
+            // return the borrow interest rate per epoch
+            pub fn set_borrow_interest_rate(&mut self, rate: Decimal) {
+                self.borrow_interest_rate = rate;
+            }
+
+            //parse user id from a proof.
+            fn get_user_id(user_auth: Proof) -> ResourceAddress {
+                assert!(user_auth.amount() > dec!("0"), "Invalid user proof");
+                user_auth.resource_address()
+            }
+
+
         }
-
-     
-
-
-
 
 }
