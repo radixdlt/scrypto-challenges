@@ -1,0 +1,20 @@
+# Withdrawing the admin badge from the admin account. When we call the `create_proof` methods on the account component
+# the returned proof is automatically put in our auth zone so we do not need to manually manage it.
+CALL_METHOD
+    ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a")
+    "create_proof"
+    ResourceAddress("032218bfa9f3f5915ebbc3fa3ffb7fd0e0cea78e5f20fd97a2212b");
+
+# The `create_proof` method returns as Proof. As soon as a proof comes back to the transaction worktop, it gets sent
+# directly to the auth zone. Therefore, in the following instruction we're creating a `Proof` out of the badge in the
+# auth zone.
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("032218bfa9f3f5915ebbc3fa3ffb7fd0e0cea78e5f20fd97a2212b")
+    Proof("admin_badge");
+
+# Call the `new_asset` function to add XRD as a possible assets in the liquidity pool
+CALL_METHOD
+    ComponentAddress("02f59582b222e59a5561aab9677116599e64d128a90698c95ae5de")
+    "new_asset"
+    ResourceAddress("030000000000000000000000000000000000000000000000000004")
+    Decimal("0.85");

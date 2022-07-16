@@ -1,0 +1,73 @@
+# Withdrawing the user lending badge from the user account. When we call the `create_proof` methods on
+# the account component the returned proof is automatically put in our auth zone so we do not need to
+# manually manage it.
+CALL_METHOD
+    ComponentAddress("02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364")
+    "create_proof"
+    ResourceAddress("03b097db9c47ffdd689238025535ec7cc55fcef22a963b0f23deb5");
+
+# Add XRD to the worktop
+CALL_METHOD
+    ComponentAddress("02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364")
+    "withdraw_by_amount"
+    Decimal("2000")
+    ResourceAddress("030000000000000000000000000000000000000000000000000004");
+
+# Put worktop XRD into a bucket
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("2000")
+    ResourceAddress("030000000000000000000000000000000000000000000000000004")
+    Bucket("deposit_1");
+
+# Call `deposit_asset` to deposit the deposit_1 XRD into the lending pool
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("03b097db9c47ffdd689238025535ec7cc55fcef22a963b0f23deb5")
+    Proof("user_badge_proof_instance_1");
+CALL_METHOD
+    ComponentAddress("02f59582b222e59a5561aab9677116599e64d128a90698c95ae5de")
+    "deposit_asset"
+    Bucket("deposit_1")
+    Proof("user_badge_proof_instance_1");
+
+# Call `deposit_asset` to deposit the deposit_1 XRD into the lending pool
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("03b097db9c47ffdd689238025535ec7cc55fcef22a963b0f23deb5")
+    Proof("user_badge_proof_instance_2");
+CALL_METHOD
+    ComponentAddress("02f59582b222e59a5561aab9677116599e64d128a90698c95ae5de")
+    "withdrawal_asset"
+    ResourceAddress("030000000000000000000000000000000000000000000000000004")
+    Decimal("1000")
+    Proof("user_badge_proof_instance_2");
+
+# Call `borrow_asset` to borrow 500 XRD from the pool
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("03b097db9c47ffdd689238025535ec7cc55fcef22a963b0f23deb5")
+    Proof("user_badge_proof_instance_3");
+CALL_METHOD
+    ComponentAddress("02f59582b222e59a5561aab9677116599e64d128a90698c95ae5de")
+    "borrow_asset"
+    ResourceAddress("030000000000000000000000000000000000000000000000000004")
+    Decimal("500")
+    Proof("user_badge_proof_instance_3");
+
+# Call `repay_loan`
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("250")
+    ResourceAddress("030000000000000000000000000000000000000000000000000004")
+    Bucket("repay_1");
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("03b097db9c47ffdd689238025535ec7cc55fcef22a963b0f23deb5")
+    Proof("user_badge_proof_instance_4");
+CALL_METHOD
+    ComponentAddress("02f59582b222e59a5561aab9677116599e64d128a90698c95ae5de")
+    "repay_asset"
+    Bucket("repay_1")
+    Proof("user_badge_proof_instance_4");
+
+# The remaining 250 XRD are sent back to User 1
+CALL_METHOD_WITH_ALL_RESOURCES
+    ComponentAddress("02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364")
+    "deposit_batch";
+
+

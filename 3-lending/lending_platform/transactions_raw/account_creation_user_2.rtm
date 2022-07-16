@@ -1,0 +1,6 @@
+CALL_METHOD
+    ComponentAddress("<<<lending_platform_component_address>>>")
+    "new_user";
+CALL_METHOD_WITH_ALL_RESOURCES
+    ComponentAddress("<<<account_2_address>>>")
+    "deposit_batch";
