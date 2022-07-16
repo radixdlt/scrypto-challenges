@@ -1,0 +1,396 @@
+openapi: 3.0.0
+info:
+  title: Babylon PTE API
+  description: Babylon Public Test Environment (PTE) API specification.
+  version: 0.1.20
+servers:
+  - url: https://pte01.radixdlt.com/
+paths:
+  /packages:
+    get:
+      summary: List all packages
+      operationId: listPackages
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /components:
+    get:
+      summary: List all components
+      operationId: listComponents
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /resources:
+    get:
+      summary: List all resources
+      operationId: listResources
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /component/{address}:
+    get:
+      summary: Get info about a component
+      operationId: getComponent
+      parameters:
+        - name: address
+          description: The component address
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Component"
+        "404":
+          description: Component not found
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+  /resource/{address}:
+    get:
+      summary: Get info about a resource
+      operationId: getResource
+      parameters:
+        - name: address
+          description: The resource address
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+        "404":
+          description: Resource not found
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+  /nonce:
+    get:
+      summary: Get the nonce of a signer set
+      operationId: getNonce
+      parameters:
+        - in: query
+          name: signers
+          description: The signer public keys
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Nonce"
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+  /epoch:
+    get:
+      summary: Get the current epoch
+      operationId: getEpoch
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Epoch"
+  /receipt/{hash}:
+    get:
+      summary: Retrieve a receipt
+      operationId: getReceipt
+      parameters:
+        - name: hash
+          description: The transaction hash
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receipt"
+        "404":
+          description: Receipt not found
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+  /transaction/{hash}:
+    get:
+      summary: Retrieve a transaction
+      operationId: getTransaction
+      parameters:
+        - name: hash
+          description: The transaction hash
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "404":
+          description: Transaction not found
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+  /transaction:
+    post:
+      summary: Execute a signed transaction
+      operationId: submitTransaction
+      requestBody:
+        description: The transaction payload in hex.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Transaction"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receipt"
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+components:
+  schemas:
+    BadRequest:
+      type: object
+      properties:
+        status:
+          type: string
+        reason:
+          type: string
+      required:
+        - status
+        - reason
+    AnyValue:
+      type: string
+    Signature:
+      type: object
+      properties:
+        public_key:
+          type: string
+        signature:
+          type: string
+      required:
+        - public_key
+        - signature
+    Nonce:
+      type: object
+      properties:
+        value:
+          type: integer
+          format: int64
+      required:
+        - value
+    Epoch:
+      type: object
+      properties:
+        epoch:
+          type: integer
+          format: int64
+      required:
+        - epoch
+    Transaction:
+      type: object
+      properties:
+        manifest:
+          type: string
+        nonce:
+          $ref: "#/components/schemas/Nonce"
+        signatures:
+          type: array
+          items:
+            $ref: "#/components/schemas/Signature"
+      required:
+        - hash
+        - manifest
+        - nonce
+        - signatures
+    Receipt:
+      type: object
+      properties:
+        transaction_hash:
+          type: string
+        status:
+          type: string
+        outputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/AnyValue"
+        logs:
+          type: array
+          items:
+            type: string
+        new_packages:
+          type: array
+          items:
+            type: string
+        new_components:
+          type: array
+          items:
+            type: string
+        new_resources:
+          type: array
+          items:
+            type: string
+      required:
+        - transaction_hash
+        - status
+        - outputs
+        - logs
+        - new_packages
+        - new_components
+        - new_resources
+    OwnedResource:
+      type: object
+      properties:
+        amount:
+          type: string
+        resource_address:
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+      required:
+        - amount
+        - resource_address
+        - name
+        - symbol
+    MethodRule:
+      type: object
+      properties:
+        name:
+          type: string
+        rule:
+          $ref: "#/components/schemas/AnyValue"
+      required:
+        - name
+        - rule
+    AccessRules:
+      type: object
+      properties:
+        default_rule:
+          $ref: "#/components/schemas/AnyValue"
+        method_rules:
+          type: array
+          items:
+            $ref: "#/components/schemas/MethodRule"
+      required:
+        - default_rule
+        - method_rules
+    Component:
+      type: object
+      properties:
+        blueprint:
+          type: object
+          properties:
+            package_address:
+              type: string
+            blueprint_name:
+              type: string
+          required:
+            - package_address
+            - blueprint_name
+        access_checks:
+          type: array
+          description: A component is associated with a chain of access checks, each configured by a `AccessRules`.
+          items:
+            $ref: "#/components/schemas/AccessRules"
+        state:
+          $ref: "#/components/schemas/AnyValue"
+        owned_resources:
+          type: array
+          items:
+            $ref: "#/components/schemas/OwnedResource"
+      required:
+        - blueprint
+        - access_checks
+        - state
+        - owned_resources
+    Resource:
+      type: object
+      properties:
+        resource_type:
+          type: string
+        divisibility:
+          type: integer
+        metadata:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+            required:
+              - name
+              - value
+        total_supply:
+          type: string
+      required:
+        - resource_type
+        - divisibility
+        - metadata
+        - total_supply
