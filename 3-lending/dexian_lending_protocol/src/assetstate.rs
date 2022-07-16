@@ -103,6 +103,11 @@ impl AssetState {
         self.supply_interest_rate = supply_interest_rate;
     }
 
+    pub fn get_total_normalized_supply(&self) -> Decimal{
+        let token_res_mgr: &ResourceManager = borrow_resource_manager!(self.token);
+        token_res_mgr.total_supply()
+    }
+
     fn get_borrow_interest_rate(&self, borrow_ratio: Decimal) -> Decimal{
         let component: &Component = borrow_component!(self.interest_model);
         component.call::<Decimal>("get_borrow_interest_rate", args![borrow_ratio])
@@ -110,11 +115,6 @@ impl AssetState {
 
     fn get_total_supply_with_index(&self, current_supply_index: Decimal) -> Decimal{
         self.get_total_normalized_supply() * current_supply_index
-    }
-
-    fn get_total_normalized_supply(&self) -> Decimal{
-        let token_res_mgr: &ResourceManager = borrow_resource_manager!(self.token);
-        token_res_mgr.total_supply()
     }
 
     fn get_total_borrow_with_index(&self, current_borrow_index: Decimal) -> Decimal{
