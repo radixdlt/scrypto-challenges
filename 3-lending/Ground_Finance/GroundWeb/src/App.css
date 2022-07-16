@@ -1,0 +1,71 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 15em;
+  padding: 1.5em;
+  will-change: filter;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  50%, 100% {
+    opacity: 1;
+    transform: rotateY(360deg)
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 5s ease-in-out;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .logo {
+    animation: logo-spin infinite 5s ease-in-out;
+  }
+}
+
+.card {
+  padding-top: 2em;
+  font-size: 20px;
+}
+
+.borrower-role-button {
+  font-size: 20px;
+  color:blanchedalmond
+}
+
+.lender-role-button {
+  font-size: 20px;
+  color:lightblue;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.borrower-info {
+  font-size: 20px;
+  border: 3px ridge blanchedalmond;
+  padding: 10px;
+  line-height: 40px;
+}
+
+.lender-info {
+  font-size: 20px;
+  border: 3px ridge lightblue;
+  padding: 10px;
+  line-height: 40px;
+}
+

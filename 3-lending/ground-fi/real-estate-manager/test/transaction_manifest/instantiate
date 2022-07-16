@@ -1,4 +1,0 @@
-CALL_FUNCTION 
-    PackageAddress("${package}") "RealEstateService" "new" "${name}" Decimal("${tax}") Decimal("${rate}") ResourceAddress("${XRD}");
-CALL_METHOD_WITH_ALL_RESOURCES 
-    ComponentAddress("${ADMIN_ACC}") "deposit_batch";
