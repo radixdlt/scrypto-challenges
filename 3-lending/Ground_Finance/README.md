@@ -69,7 +69,7 @@ Linux & Mac: `./doc.sh`
 
 Windows (not have git bash): `cd Ground_Test && cargo doc --no-deps  --document-private-items --package ground_finance --package ground_test --open`
 
-## [GroundCredit](./src/ground_credit.rs): Make a Credit Ground for your journey into Web 3
+## [GroundCredit](./Ground_Finance/src/ground_credit.rs): Make a Credit Ground for your journey into Web 3
 
 Ground Credit is the blueprint for any organization to help users build a credit Ground in Web3 Society by utilizing SBT characteristics.
 
@@ -111,7 +111,7 @@ Service operator is also required to protect user's private data.
 
 - Edit the Credit data and burn the Installment Credit Badge.
 
-## [GroundLending](./src/ground_lending.rs): Make a Ground for your Web 3 Finance
+## [GroundLending](./Ground_Finance/src/ground_lending.rs): Make a Ground for your Web 3 Finance
 
 Ground Lending is the core blueprint of the Ground Finance package, provide collateral-free lending solution to maximize capital efficiency for borrowers and earn rates for lenders, allow on-chain "bank level" earning tracker while protecting lender's privacy, ensuring security and dynamic, transparent interest rate at the same time.
 
@@ -143,10 +143,12 @@ The DAO also provide a "risk-backed" method called "compensate" which will compe
 - Take the protocol's fee.
 - Deposit a stable coin bucket into the protocol's vault to support the protocol in case of loan default.
 
-- Evaluate user's credit score through late (or on-time) repayment frequency.
-- Edit user's current debt or the credit's due time.
-- Let protocol users use the installment credit badge to change credit into installment type (Require no-debt credit status).
-- Let protocol users stop using installment credit and change the credit back into revolving type.
+***Automated mechanism of the protocol:***
+
+- Evaluate borrowers credit score through late (or on-time) repayment frequency.
+- Edit user's current debt or the credit's due time when borrowers take loan or make a repayment
+- Let borrowers use the installment credit badge to change their credit into installment type when taking the installment loan (Require no-debt credit status).
+- Let borrowers stop using installment credit and change the credit back into revolving type when repaid all the installment loan.
 
 2. **Lenders**: Any wallet address (permissionless) wish to lend the protocol their stable coin to maximize earn rates. Through the blueprint's method, *lenders* are allowed to:
 
@@ -194,11 +196,11 @@ Specifically, if the threshold is 60%, all the borrower's current loan combined 
 
 ### Risk-backed compensation through a DAO
 
-Although it's permissionless for lenders, all borrowers require on-chain unique identity and thus have to use the [Ground ID](../Ground_ID/) service, which converge into the centralization problem. Ground Finance cannot achive [Decentralized Credit](https://cointelegraph.com/news/decentralized-credit-scores-how-can-blockchain-tech-change-ratings) yet and vulnerable to "single point of failure" from the Identity service provider.
+Although it's permissionless for lenders, all borrowers require on-chain unique identity and thus have to use the [Ground ID](https://github.com/unghuuduc/GroundPackages/tree/main/Ground_ID) service, which converge into the centralization problem. Ground Finance cannot achive [Decentralized Credit](https://cointelegraph.com/news/decentralized-credit-scores-how-can-blockchain-tech-change-ratings) yet and vulnerable to "single point of failure" from the Identity service provider.
 
 Even if the Ground Finance protocol and the Ground ID service are ran by the same DAO, bringing unique identity on-chain require human interaction (because identity is a "given" thing by other, like how our name are given by our parents) and thus still vulnerable to human "bias".
 
-Confronting such risk, the protocol included a compensate method which utilized [GroundBusiness](../Ground_Business/) package to back the protocol through a DAO.
+Confronting such risk, the protocol included a compensate method which utilized [GroundBusiness](https://github.com/unghuuduc/GroundPackages/tree/main/Ground_Business) package to back the protocol through a DAO.
 
 ## License & P/s
 
