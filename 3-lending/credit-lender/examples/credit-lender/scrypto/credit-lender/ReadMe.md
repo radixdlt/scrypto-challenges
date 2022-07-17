@@ -4,7 +4,7 @@ Credit Lender brings together lenders and borrowers and generates a credit score
 
 ## Features
 
-Lenders can provide liquidity to the protocal and earn yield.  Borrowers can overcollaterlize their $XRD by 150% and take out a low cost loan for 3% APY.  Both lenders and borrowers will start earning $CT crefdt tokens after a 1 week opening thier position.  Lenders earn at half the rate as borrowers.  
+Lenders can provide liquidity to the protocal and earn yield.  Borrowers can overcollaterlize their $XRD by 150% and take out a low cost loan for 3% APY.  Both lenders and borrowers will start earning a credit score after a 1 week opening thier position.  Lenders earn at half the rate as borrowers.  
 
 Their is a 1% loan orgination fee which is split evenly across the lenders.  Loans that do not maintain their 150% overcollaterlization rate will be liquidated.  When a loan is liquidated the orginal loan amount is paid off, and the liquidator and lenders split the remaining collateral 50/50.  The 3% APY is collected by fee harvesters and split evenly between the harvestor and lenders.
 
@@ -22,7 +22,11 @@ The credit report NFTs are stored in a vault on the protocal.  The credit report
 
 Liquidators and fee harvestors ensure that lenders liquidity is preserved and loan fees are collected.  When a liquidator liquidates a loan, the loans collateral is withdrawn and distributed and the loan NFT is burned.  When a fee harvestor harvests a loan, fees are taken from the loans collateral and the loan NFT is updated.    
 
-## Getting Started
+## Front End + Future Version 
+
+The front end is pretty basic.  Would have liked to pull the NFT data from the protocal and show the credit score and other metrics, but couldn't get the PTE API for non-fungibles to work.  Based on the credit score metrics we plan to alter the % overcollaterlization and fees.  
+
+## Getting Started"
 
 Below is a walkthrough for how this protocal works.  By defualt the price of $XRD is intially set to $1.    
 
@@ -44,10 +48,13 @@ export privatekey3=$(echo "$op3" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p"
 export account3=$(echo "$op3" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 export xrd=030000000000000000000000000000000000000000000000000004
 resim publish .
+```
+You will need to copy and paste in values for the package, component, lender receipt, and borrower receipt.
+```
 export package="PASTE NEW PACKAGE HERE"
-resim call-function $pkg LendingCredit new
+resim call-function $package CreditLender new
 export component="PASTE COMPONENT ADDRESS HERE"
-export lender_reciept="PASTE LENDER RECEIPT HERE- 2nd from top resource"
+export lender_receipt="PASTE LENDER RECEIPT HERE- 2nd from top resource"
 export borrower_receipt="PASTE BORROWER RECEIPT HERE- 3rd from top resource"
 ```
 2. Lets open a lending position for all 3 accounts that add different amounts of liquidity.  Account 1 adds 1000 $XRD, account2 adds 2000 $XRD, and account 3 5000 $XRD.  
@@ -70,17 +77,17 @@ resim show $account3
 3. Lets create 3 more accounts and have each account create a loan and over collateralize them by 200%.  Account4 creates a loan for 100 $XRD with 200 $XRD collateral.  Account5 creates a loan for 300 $XRD with 600 $XRD collateral.  Account6 creates a loan for 500 $XRD with 1000 $XRD collateral.    
 ```
 export op4=$(resim new-account)
-export publickey4=$(echo "$op1" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
-export privatekey4=$(echo "$op1" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
-export account4=$(echo "$op1" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+export publickey4=$(echo "$op4" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export privatekey4=$(echo "$op4" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export account4=$(echo "$op4" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 export op5=$(resim new-account)
-export publickey5=$(echo "$op2" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
-export privatekey5=$(echo "$op2" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
-export account5=$(echo "$op2" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+export publickey5=$(echo "$op5" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export privatekey5=$(echo "$op5" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export account5=$(echo "$op5" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 export op6=$(resim new-account)
-export publickey6=$(echo "$op3" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
-export privatekey6=$(echo "$op3" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
-export account6=$(echo "$op3" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+export publickey6=$(echo "$op6" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export privatekey6=$(echo "$op6" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export account6=$(echo "$op6" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 resim set-default-account $account4 $privatekey4
 resim call-method $component new_loan 100 200,$xrd $account4
 resim set-default-account $account5 $privatekey5
@@ -110,7 +117,7 @@ Account 4 decided to take profits and close out their loan.  This can be done by
 resim set-default-account $account4 $privatekey4
 resim call-method $component close_loan 1,$borrower_receipt 100,$xrd
 ```
-Lets check the lending pool to make sure the orginal loan amount of 100 $XRD was returned plus the fee.  The lending pool was at 7190 $XRD, plus 100 $xrd from the orginal loan, plus 0.00855 $XRD, which equals 7209.00855.
+Lets check the lending pool to make sure the orginal loan amount of 100 $XRD was returned plus the fee.  The lending pool was at 7190 $XRD, plus 100 $xrd from the orginal loan, plus 0.00855 $XRD fee, which equals 7209.00855.
 
 ```
 resim show $component
@@ -127,7 +134,7 @@ Also note, when viewing the component that account4 now has a credit score of 20
 If we check balances for account4...
 
 ```
-resim show $account 4
+resim show $account4
 ```
 
 Account4 started with 1000000 $XRD, minus 1 $XRD for loan orgination fee, minus 0.00855 $XRD for fee, which equals 999998.99145.
@@ -139,7 +146,7 @@ resim set-default-account $account5 $privatekey5
 resim call-method $component add_collateral 1,$borrower_receipt 600,$xrd
 resim show $component
 ```
-Looking at the loan NFT data in the component, the collateral had increased by 600XRD and the liquidation price is now 0.375.
+Looking at the loan NFT data in the component, the collateral had increased by 600XRD to 1197XRD and the liquidation price is now 0.375.
 
 Lets assume the account5 is in need of funds and wants to remove the collateral they just added.  
 
@@ -170,7 +177,7 @@ resim call-method $component liquidate "INPUT LOAN ID HERE"
 resim show $component
 ```
 
-Note that the liquidated loan NFT has been burned and is no longer in the component.  Account5 credit report NFT data now shows that there has been 1 liquidation.  The lending pool previsouly had 7059.00855, plus 450 XRD from orginal loan, plus 73.5 XRD for liquidation fee, which equate to 7582.508.
+Note that the liquidated loan NFT has been burned and is no longer in the component.  Account5 credit report NFT data now shows that there has been 1 liquidation.  The lending pool previsouly had 7059.0855, plus 450 XRD from orginal loan, plus 73.5 XRD for liquidation fee, which equate to 7582.5855.
 
 ```
 resim show $account7
@@ -186,15 +193,38 @@ export op8=$(resim new-account)
 export publickey8=$(echo "$op8" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
 export privatekey8=$(echo "$op8" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
 export account8=$(echo "$op8" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
-resim set-default-account $account8 $privatek7585.752166666666666666ey8
+resim set-default-account $account8 $privatekey8
 resim call-method $component harvest_fee "INPUT LOAN NFT ID HERE"
 ```
-The loan fee is calculated using the length of time between the loan orgination or the last time the fee from the where harvested.  Account6 loan borrowed $500 for 10000 epochs.  $500 * 10000 epochs * 0.00000171/epoch = $8.55.  With the current price of $XRD at $1.35, that is equivalant to $8.55/$1.35/XRD = 6.333 $XRD.  This fee is split 50/50 between the lending pool and account8.
+The loan fee is calculated using the length of time between the loan orgination or the last time the lones fee's were harvested.  Account6 loan borrowed $500 for 10000 epochs.  $500 * 10000 epochs * 0.00000171/epoch = $8.55.  With the current price of $XRD at $1.35, that is equivalant to $8.55/$1.35/XRD = 6.333 $XRD.  This fee is split 50/50 between the lending pool and account8.  Check account8 balance.  
 
-The lending pool was at 7059.0855, plus 3.166 which equate to 7585.674
+```
+resim show $account8
+```
 
+The lending pool was at 7582.5855, plus 3.166 which equate to 7585.75
 
+9. Lets close out account6 loan.  Note that there are not loan fees outstanding since the fee was just harvested.  
 
+```
+resim set-default-account $account6 $privatekey6
+resim call-method $component close_loan 1,$borrower_receipt 500,$xrd
+```
+
+10. Lets remove lending position for account 1, 2, & 3.  Current account1 XRD balance = 999000.  Account2 XRD balance = 998000. Account3 XRD balance = 995000.
+
+```
+resim set-default-account $account1 $privatekey1
+resim call-method $component remove_funds 1,$lender_receipt 1000
+
+resim set-default-account $account2 $privatekey2
+resim call-method $component remove_funds 1,$lender_receipt 2000
+
+resim set-default-account $account3 $privatekey3
+resim call-method $component remove_funds 1,$lender_receipt 5000
+```
+
+Final account1 XRD balance = 1000010 XRD.  Account2 XRD balance = 1000021 XRD.  Account3 XRD balance = 1000053 XRD.  The lender receipts have been burned for each account. 
 
 
 

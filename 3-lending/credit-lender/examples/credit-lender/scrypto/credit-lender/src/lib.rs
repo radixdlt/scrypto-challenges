@@ -527,10 +527,8 @@ blueprint! {
             //Take any fees that are owed out of the return collateral bucket
             self.lending_pool.put(return_collateral_bucket.take(loan_fee/self.xrd_price_oracle));
 
-            info!("loan amount {}",loan_nft_data.borrow_amount_usd);
-            info!("collateral amount {}",loan_nft_data.collateral_amount_xrd);
-            info!("loan length {}", loan_length );
-            info!("loan fee {}", loan_fee );
+            info!("Thank you for closing your loan.  Loan Amount = {} XRD, Collateral Amount = {} XRD, Loan Length = {} EPOCH, Loan Fee Outstanding {} USD",
+                 loan_nft_data.borrow_amount_usd, loan_nft_data.collateral_amount_xrd, loan_length, loan_fee);
             
             //Burn the loan receipt NFT
             self.minting_badge_vault.authorize(||{
@@ -955,10 +953,10 @@ blueprint! {
             //17520 epoch in a year.  At 3% APY == 0.000171%/epoch
             let loan_fee = loan_nft_data.borrow_amount_usd * loan_length * dec!("0.00000171");
 
-            info!("loan fee {}", loan_fee );
-            info!("XRD price {}", self.xrd_price_oracle );
-            info!("loan fee / price {}", loan_fee/self.xrd_price_oracle );
-            info!("loan fee / 2 {}", loan_fee * dec!(".5") );
+            info!("Loan Fee Harvested {} XRD", loan_fee );
+            // info!("XRD price {}", self.xrd_price_oracle );
+            // info!("loan fee / price {}", loan_fee/self.xrd_price_oracle );
+            // info!("loan fee / 2 {}", loan_fee * dec!(".5") );
 
             //Find loan fee denominated in XRD
             let loan_fee_xrd = loan_fee/self.xrd_price_oracle;
@@ -978,7 +976,7 @@ blueprint! {
             loan_nft_data.xrd_liquidation_price = loan_nft_data.borrow_amount_usd * dec!("1.5") / loan_nft_data.collateral_amount_xrd;
 
             //Modify loan NFT data fee epoch
-            // loan_nft_data.fee_epoch = Runtime::current_epoch();
+            loan_nft_data.fee_epoch = Runtime::current_epoch();
 
             //Update Loan NFT data
             self.minting_badge_vault.authorize(|| {
