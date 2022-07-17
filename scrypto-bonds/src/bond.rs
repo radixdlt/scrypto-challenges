@@ -1,13 +1,18 @@
 use scrypto::prelude::*;
-mod bond;
+use chrono::{DateTime, Utc, Date};
+// use chrono::prelude::*;
+
 
 blueprint! {
-    struct Hello {
+    struct Bond {
         // Define what resources and data will be managed by Hello components
-        sample_vault: Vault
+        sample_vault: Vault,
+        coupon_date: DateTime<Utc>,
+        face_value: u32,
+
     }
 
-    impl Hello {
+    impl Bond {
         // Implement the functions and methods which will manage those resources and data
         
         // This is a function, and can be called directly on the blueprint once deployed
