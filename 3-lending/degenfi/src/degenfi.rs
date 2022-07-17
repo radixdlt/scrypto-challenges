@@ -432,7 +432,7 @@ blueprint! {
             let user_management_address = self.user_management_address;
             let user_id = user_auth.non_fungible::<User>().id();
             let user_sbt_address = user_auth.resource_address();
-            let loan_auction = LoanAuction::new(
+            let loan_auction: ComponentAddress = LoanAuction::new(
                 user_id,
                 user_sbt_address,
                 loan_nft,
@@ -469,6 +469,13 @@ blueprint! {
         {
             let loan_auction: LoanAuction = self.loan_auction_address.unwrap().into();
             loan_auction.return_collateral(collateral, transient_token);   
+        }
+
+        pub fn loan_auction_address(
+            &self
+        ) -> ComponentAddress
+        {
+            return self.loan_auction_address.unwrap();
         }
 
         pub fn claim_collateral(
@@ -1212,20 +1219,22 @@ blueprint! {
             // Checks if the token resources are the same
             assert_eq!(token_requested, amount.resource_address(), "Token requested and token deposited must be the same.");
 
-            // Repay fully or partial?
+            let loan_auction = self.loan_auction_address.unwrap();
             let optional_lending_pool: Option<&LendingPool> = self.lending_pools.get(&token_requested);
             match optional_lending_pool {
                 Some (lending_pool) => { // If it matches it means that the lending pool exists.
                     let transient_token_id = transient_token.non_fungible::<AuctionAuth>().id();
                     let transient_token_address = transient_token.resource_address();
-                    lending_pool.auction_repay(
+                    self.access_badge_vault.authorize(|| 
+                        lending_pool.auction_repay(
                         user_id, 
                         loan_id, 
                         token_requested, 
                         transient_token_id, 
-                        transient_token_address, 
+                        transient_token_address,
+                        loan_auction, 
                         amount
-                    );
+                    ));
                     let degen_token = self.degen_token_vault.take(1);
                     degen_token
                 }

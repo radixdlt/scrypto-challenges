@@ -2,6 +2,7 @@ use scrypto::prelude::*;
 use crate::user_management::*;
 use crate::pseudopriceoracle::*;
 use crate::collateral_pool::*;
+use crate::loan_auction::*;
 use crate::structs::{User, Loan, Status, AuctionAuth};
 
 blueprint! {
@@ -83,14 +84,15 @@ blueprint! {
         {
 
             let access_rules: AccessRules = AccessRules::new()
-            .method("convert_from_collateral", rule!(require(access_badge.resource_address())))
-            .method("borrow", rule!(require(access_badge.resource_address())))
-            .method("borrow_additional", rule!(require(access_badge.resource_address())))
-            .method("convert_to_collateral", rule!(require(access_badge.resource_address())))
-            .method("redeem", rule!(require(access_badge.resource_address())))
-            .method("flash_borrow", rule!(require(access_badge.resource_address())))
-            .method("flash_repay", rule!(require(access_badge.resource_address())))
-            .default(rule!(allow_all));
+                .method("convert_from_collateral", rule!(require(access_badge.resource_address())))
+                .method("borrow", rule!(require(access_badge.resource_address())))
+                .method("borrow_additional", rule!(require(access_badge.resource_address())))
+                .method("convert_to_collateral", rule!(require(access_badge.resource_address())))
+                .method("redeem", rule!(require(access_badge.resource_address())))
+                .method("flash_borrow", rule!(require(access_badge.resource_address())))
+                .method("flash_repay", rule!(require(access_badge.resource_address())))
+                .method("auction_repay", rule!(require(access_badge.resource_address())))
+                .default(rule!(allow_all));
 
             assert_ne!(
                 borrow_resource_manager!(initial_funds.resource_address()).resource_type(), ResourceType::NonFungible,
@@ -152,7 +154,7 @@ blueprint! {
                 bad_loans: HashMap::new(),
             }
             .instantiate()
-                        .add_access_check(access_rules)
+            .add_access_check(access_rules)
             .globalize();
             return lending_pool;
         }
@@ -986,6 +988,7 @@ blueprint! {
             token_address: ResourceAddress,
             transient_token_id: NonFungibleId,
             transient_token_address: ResourceAddress,
+            loan_auction: ComponentAddress,
             repay_amount: Bucket
         ) 
         {
@@ -1076,13 +1079,17 @@ blueprint! {
                     }
                 );
 
+                // Retrieves resource manager.
                 let resource_manager = borrow_resource_manager!(transient_token_address);
+                // Retrieves transient token data.
                 let mut transient_token_data: AuctionAuth = resource_manager.get_non_fungible_data(&transient_token_id);
-                transient_token_data.amount_due = Decimal::zero();
-
-                self.access_badge_vault.authorize(|| {
-                    resource_manager.update_non_fungible_dta(&transient_token_id, transient_token_data)
-                });
+                // Changes the transient token data the loan NFT data. This is so the transient token data tracks the loan NFT data.
+                transient_token_data.amount_due = loan_data.remaining_balance;
+    
+                let loan_auction: LoanAuction = loan_auction.into();
+                // Makes a permissioned call to the loan auction component.
+                self.access_badge_vault.authorize(||
+                loan_auction.authorize_update(transient_token_id, transient_token_data));
 
             } else {
                 loan_data.loan_status = Status::Current;
@@ -1285,7 +1292,9 @@ blueprint! {
         fn authorize_update(
             &mut self,
             loan_id: &NonFungibleId,
-            loan_data: Loan) {
+            loan_data: Loan
+        ) 
+        {
             let resource_manager = borrow_resource_manager!(self.loan_address);
             self.access_badge_vault.authorize(|| resource_manager.update_non_fungible_data(&loan_id, loan_data));
         }

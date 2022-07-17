@@ -75,6 +75,7 @@ pub struct FlashLoan {
 
 #[derive(NonFungibleData, Debug, Describe, Encode, Decode, TypeId)]
 pub struct AuctionAuth {
+    #[scrypto(mutable)]
     pub amount_due: Decimal,
     pub collateral_due: Decimal,
     pub collateral_address: ResourceAddress,

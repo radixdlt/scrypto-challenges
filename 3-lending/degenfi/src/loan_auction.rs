@@ -28,6 +28,10 @@ blueprint! {
             user_management_address: ComponentAddress,
         ) -> ComponentAddress
         {
+            let access_rules: AccessRules = AccessRules::new()
+            .method("auction_repay", rule!(require(access_badge.resource_address())))
+            .default(rule!(allow_all));
+
             // Creates badge to authorizie to mint/burn flash loan
             let flash_loan_token = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
@@ -35,8 +39,6 @@ blueprint! {
                 .metadata("symbol", "FLT")
                 .metadata("description", "Admin authority to mint/burn flash loan tokens")
                 .initial_supply(1);
-
-            let list_of_resource = vec![access_badge.resource_address(), flash_loan_token.resource_address()];
 
             // Define a "transient" resource which can never be deposited once created, only burned
             let flash_loan_address = ResourceBuilder::new_non_fungible()
@@ -46,7 +48,7 @@ blueprint! {
                 )
                 .mintable(rule!(require(flash_loan_token.resource_address())), LOCKED)
                 .burnable(rule!(require(flash_loan_token.resource_address())), LOCKED)
-                .updateable_non_fungible_data(rule!(require_any_of(list_of_resource)), LOCKED)
+                .updateable_non_fungible_data(rule!(require(flash_loan_token.resource_address())), LOCKED)
                 .restrict_deposit(rule!(deny_all), LOCKED)
                 .no_initial_supply();
 
@@ -69,6 +71,7 @@ blueprint! {
                 user_management_address: Some(user_management_address),
             }
             .instantiate()
+            .add_access_check(access_rules)
             .globalize()
         }
 
@@ -183,6 +186,18 @@ blueprint! {
             let claim_amount = self.collateral_vault.take_all();
 
             claim_amount
+        }
+
+        pub fn authorize_update(
+            &mut self,
+            transient_token_id: NonFungibleId,
+            transient_token_data: AuctionAuth,
+        )
+        {
+            let resource_manager = borrow_resource_manager!(self.flash_loan_address);
+            self.flash_loan_auth_vault.authorize(|| 
+                resource_manager.update_non_fungible_data(&transient_token_id, transient_token_data));
+
         }
     }
 
