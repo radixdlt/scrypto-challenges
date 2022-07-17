@@ -189,15 +189,15 @@ This is a "bank-like" utility that will incentive lenders to lend their money on
 
 The Ground Lending blueprint included a Risk-tolerance mechanism, introduce a risk-tolerance threshold that prevent borrowers from getting a loan pass that risk-tolerance threshold.
 
-Specifically, if the threshold is 60%, all the borrower's current loan can never be >40% of the protocol's total asset.
+Specifically, if the threshold is 60%, all the borrower's current loan combined can never be >40% of the protocol's total asset.
 
-### Risk-backed compensation
+### Risk-backed compensation through a DAO
 
 Although it's permissionless for lenders, all borrowers require on-chain unique identity and thus have to use the [Ground ID](../Ground_ID/) service, which converge into the centralization problem. Ground Finance cannot achive [Decentralized Credit](https://cointelegraph.com/news/decentralized-credit-scores-how-can-blockchain-tech-change-ratings) yet and vulnerable to "single point of failure" from the Identity service provider.
 
 Even if the Ground Finance protocol and the Ground ID service are ran by the same DAO, bringing unique identity on-chain require human interaction (because identity is a "given" thing by other, like how our name are given by our parents) and thus still vulnerable to human "bias".
 
-Confronting such risk, the protocol included a compensate method which utilized [GroundBusiness](../Ground_Business/) package to back the protocol through the DAO's treasury.
+Confronting such risk, the protocol included a compensate method which utilized [GroundBusiness](../Ground_Business/) package to back the protocol through a DAO.
 
 ## License & P/s
 
