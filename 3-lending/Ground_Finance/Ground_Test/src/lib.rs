@@ -191,7 +191,7 @@ blueprint! {
         /// ### Create new Ground Lending test component with the follow params:
         /// - name: "Ground Lending Test Component"
         /// - admin_badge: the DAO badge.
-        /// - interest_rates: yearly interest rate: 10%, interest rate late: 20%; monthly interest rate: 5%, interest rate late: 10%
+        /// - interest_rates: yearly interest rate: 10%, interest rate late: 20%; monthly interest rate: 0.5%, interest rate late: 2%
         /// - stable_coin: the stable coin resource address from when instantiate the test component.
         /// - fee: lender withdrawal fee is 0.2%.
         /// - tolerance_threshold: the protocol's vault tolerance threshold is 60%.

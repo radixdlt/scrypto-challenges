@@ -78,12 +78,12 @@ pub struct CreditData {
     /// Default debt start time is 0.
     // #[scrypto(mutable)]
     pub current_debt_start_time: u64,
-    /// User's current debt.
+    /// User's current debt (include the original debt, not included the debt interest or extra debt on late repayment).
     /// 
     /// Default debt is 0.
     // #[scrypto(mutable)]
     pub current_debt: Decimal,
-    /// User's debt interest.
+    /// User's debt interest on current debt.
     /// 
     /// Default debt interest is 0
     pub debt_interest: Decimal,
@@ -278,11 +278,13 @@ blueprint! {
                 .metadata("name", name.clone() + "'s Credit Service Controller Badge")
                 .initial_supply(dec!(1isize));
 
+            let authorized_protocol = vec![controller_badge.resource_address()];
+
             let credit_sbt = ResourceBuilder::new_non_fungible()
                 .metadata("name", name.clone() + "'s Credit SBT")
                 .mintable(rule!(require(controller_badge.resource_address())), LOCKED)
                 .restrict_withdraw(rule!(deny_all), LOCKED)
-                .updateable_non_fungible_data(rule!(deny_all), MUTABLE(rule!(require(controller_badge.resource_address()))))
+                .updateable_non_fungible_data(rule!(deny_all), MUTABLE(rule!(require_any_of(authorized_protocol.clone()))))
                 .no_initial_supply();
             
             let request_badge = ResourceBuilder::new_non_fungible()
@@ -319,7 +321,7 @@ blueprint! {
                 identity_service: identity_service,
                 blacklist: Vec::new(),
                 credit_scoring_rates: credit_scoring_rates,
-                authorized_protocol: Vec::new(),
+                authorized_protocol: authorized_protocol,
                 credit_list: LazyMap::new()
 
             }
@@ -442,6 +444,7 @@ blueprint! {
                                     Credit {
                                         data: CreditData {
                                             credit_type: CreditType::Revolving(RevolvingTypes::Yearly),
+                                            repaid_amount_accumulated: Decimal::zero(),
                                             ..data
                                         }
                                     }
@@ -456,6 +459,7 @@ blueprint! {
                                     Credit {
                                         data: CreditData {
                                             credit_type: CreditType::Revolving(RevolvingTypes::Monthly),
+                                            repaid_amount_accumulated: Decimal::zero(),
                                             ..data
                                         }
                                     }
@@ -467,16 +471,8 @@ blueprint! {
                 }
 
                 _ => {
-                    self.controller_badge.authorize(|| { 
-                        credit.update_data(Credit {
-                            data: CreditData {
-                                credit_type: CreditType::Revolving(RevolvingTypes::Monthly),
-                                ..data
-                            }
-                        })
-                    });
 
-                    info!("You have stopped using installment credit and changed your credit into a monthly credit.")
+                    panic!("Wrong credit type.")
                 }
             }
 
@@ -489,7 +485,6 @@ blueprint! {
             
             assert!(id_data.trust_factor >  Decimal::zero(), "You're not allowed to use credit.");
             assert!(data.credit_score >  Decimal::zero(), "Your credit score has degraded to 0, you're not allowed to use credit.");
-            assert!(data.extra_debt == Decimal::zero(), "You have to repay your debt first!");
 
             match data.credit_type {
                 CreditType::Revolving(types) => {
@@ -503,7 +498,11 @@ blueprint! {
                         RevolvingTypes::Yearly => {yearly_maximum_credit}
                     };
 
-                    let allowance = maximum_credit - data.current_debt - data.debt_interest;
+                    let mut allowance = maximum_credit - data.current_debt;
+
+                    if allowance < Decimal::ZERO {
+                        allowance = Decimal::ZERO
+                    }
 
                     info!("Your current credit allowance is: {}", allowance);
 
@@ -525,7 +524,6 @@ blueprint! {
         /// - credit_sbt: the Proof of the user's Credit SBT.
         /// ### Output: 
         /// - User's maximum credit amount and current allowance.
-        /// The allowance could be a negative number if total debt > maximum credit amount.
         pub fn get_revolving_credit_amount(&self, id_proof: Proof, credit_sbt: Proof) -> (Decimal, Decimal) {
 
             let (id_proof, credit_sbt) = self.check_id_and_credit(id_proof, credit_sbt);
@@ -883,7 +881,7 @@ blueprint! {
 
             self.controller_badge.authorize(|| {
                 borrow_resource_manager!(self.credit_sbt)
-                .set_updateable_non_fungible_data(rule!(require(self.controller_badge.resource_address()) || require(protocol_controller_address)));
+                .set_updateable_non_fungible_data(rule!(require_any_of(self.authorized_protocol.clone())));
                 borrow_resource_manager!(self.installment_credit_badge)
                 .set_burnable(rule!(require(protocol_controller_address)));
             });

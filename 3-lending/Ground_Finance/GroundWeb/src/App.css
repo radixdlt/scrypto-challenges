@@ -41,7 +41,12 @@
   font-size: 20px;
 }
 
-.borrower-role-button {
+.role-button {
+  display:block;
+  justify-content: space-between;
+}
+
+.borrower {
   font-size: 20px;
   color:blanchedalmond
 }
@@ -54,14 +59,9 @@
     color: chocolate;
   }
 
-.lender-role-button {
+.lender {
   font-size: 20px;
   color:lightblue;
-}
-
-.black {
-  color: black;
-  font-weight:500
 }
 
 .read-the-docs {
@@ -69,8 +69,8 @@
 }
 
 .box-stats {
-  border: hidden ;
-  width: fit-content;
+  border: hidden;
+  width: auto;
 }
 
 .box-stats.stats {
@@ -80,7 +80,7 @@
   height: 60px;
   width: 50%;
   margin: auto;
-  border: 1px solid #888 ;
+  border: 1px solid #242424 ;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -93,7 +93,6 @@
 
 .box-stats.stats.lender {
   background-color: lightblue;
-  
 }
 
 .title {
@@ -129,4 +128,17 @@
 
 .lender-info.id {
   word-break: break-all;
+}
+
+.installment-credit-user {
+  border-radius: 25px;
+  background-color: blanchedalmond;
+  border: 1px solid blanchedalmond;
+  height: 120px;
+  width: 595px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1em;
+  align-self: center;
+  padding-top: 1em;
 }

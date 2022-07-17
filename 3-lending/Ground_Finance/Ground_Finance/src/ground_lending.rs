@@ -797,7 +797,7 @@ blueprint! {
 
             assert!(self.total_return != Decimal::ZERO, "Currently there's no resource on the protocol's vault, please come back later.");
 
-            assert!((self.vault.amount() - amount) / self.total_return > self.tolerance_threshold, "Currently you cannot take your credit from this protocol, please come back later.");
+            assert!((self.vault.amount() - amount) / self.total_return > self.tolerance_threshold, "Currently you cannot take your credit from this protocol, please come back later or try reducing your loan amount.");
 
             credit_service.check_id_and_credit_by_data(id_proof.non_fungible::<Credit>().id(), id_proof.resource_address(), credit_sbt.non_fungible::<Credit>().id(), credit_sbt.resource_address());
 
@@ -896,7 +896,7 @@ blueprint! {
         /// (if the borrow is made after lenders create their lending account).
         /// 
         /// Borrower can also make a period installment repayment in advance, their credit data will automatically updated through the method.
-        pub fn repay(&mut self, mut id_proof: Proof, credit_proof: Proof, mut repayment: Bucket) -> Bucket {
+        pub fn repay(&mut self, mut id_proof: Proof, mut credit_proof: Proof, mut repayment: Bucket) -> Bucket {
 
             assert!(repayment.resource_address() == self.vault.resource_address(), "Wrong resource.");
 
@@ -914,9 +914,11 @@ blueprint! {
 
                     let mut amount = repayment.amount();
 
-                    let (mut new_debt, mut new_debt_interest, mut new_extra_debt, mut credit_proof) = self.get_total_debt(credit_proof);
+                    let (mut new_debt, mut new_debt_interest, mut new_extra_debt) = (Decimal::ONE, Decimal::ONE, Decimal::ONE);
 
                     while new_debt > Decimal::ZERO {
+
+                        (new_debt, new_debt_interest, new_extra_debt, credit_proof) = self.get_total_debt(credit_proof);
 
                         if new_debt + new_debt_interest <= amount {
 
@@ -929,7 +931,7 @@ blueprint! {
                             let mut eligible_return = Decimal::ZERO;
                             
                             for lender in self.lenders.values() {
-                                if lender.start_time < debt_start {
+                                if lender.start_time <= debt_start {
                                     eligible_return += lender.lending_amount
                                 }
                             };
@@ -946,7 +948,7 @@ blueprint! {
 
                                     let start_time = lender.start_time;
 
-                                    if start_time < debt_start {
+                                    if start_time <= debt_start {
 
                                         lender.interest(interest)
 
@@ -982,22 +984,60 @@ blueprint! {
                                 (new_debt, new_debt_interest, credit_proof) = self.update_installment_credit_data(credit_proof, self.controller_badge.create_proof(), false);
                             }
         
-                        } else {
+                        } else if new_debt < amount {
             
-                            self.vault.put(repayment.take(amount));
-                            total_repaid += amount;
+                            self.vault.put(repayment.take(new_debt));
 
-                            if amount <= new_debt {
-                                new_debt -= amount
+                            total_repaid += new_debt;
+
+                            let remain = amount - new_debt;
+
+                            new_debt = Decimal::ZERO;
+
+                            new_debt_interest -= remain;
+
+                            let debt_start = credit_data.current_debt_start_time;
+
+                            let mut eligible_return = Decimal::ZERO;
+                            
+                            for lender in self.lenders.values() {
+                                if lender.start_time <= debt_start {
+                                    eligible_return += lender.lending_amount
+                                }
+                            };
+
+                            if eligible_return != Decimal::ZERO {
+
+                                self.total_return += remain;
+
+                                self.vault.put(repayment.take(amount));
+
+                                let interest = Decimal::ONE + remain / eligible_return;
+
+                                for lender in self.lenders.values_mut() {
+
+                                    let start_time = lender.start_time;
+
+                                    if start_time <= debt_start {
+
+                                        lender.interest(interest)
+
+                                    };
+
+                                };
                             } else {
-                                let remain = amount - new_debt;
-                                new_debt = Decimal::ONE;
-                                new_debt_interest -= remain
+                                self.vault.put(repayment.take(new_debt));
+                                self.deposit_fee(repayment.take(remain));
                             }
 
                             break
             
-                        };
+                        } else {
+                            self.vault.put(repayment.take(amount));
+                            total_repaid += amount;
+                            new_debt -= amount;
+                            break
+                        }
                         
                     }
 
@@ -1026,7 +1066,7 @@ blueprint! {
                             let mut eligible_return = Decimal::ZERO;
                             
                             for lender in self.lenders.values() {
-                                if lender.start_time < debt_start {
+                                if lender.start_time <= debt_start {
                                     eligible_return += lender.lending_amount
                                 }
                             };
@@ -1043,7 +1083,7 @@ blueprint! {
 
                                     let start_time = lender.start_time;
 
-                                    if start_time < debt_start {
+                                    if start_time <= debt_start {
 
                                         lender.interest(interest)
                                     };
@@ -1074,6 +1114,49 @@ blueprint! {
                             (Decimal::ZERO, Decimal::ZERO, Decimal::ZERO, current_debt + debt_interest)
                         }
     
+                    } else if current_debt < amount {
+
+                        if extra_debt == Decimal::ZERO {
+                            (id_proof, credit_proof) = self.update_revolving_credit_repaid_accumulate(id_proof, credit_proof, self.controller_badge.create_proof(), amount);
+                        }
+
+                        let remain = amount - current_debt;
+
+                        let debt_start = credit_data.current_debt_start_time;
+
+                        let mut eligible_return = Decimal::ZERO;
+                        
+                        for lender in self.lenders.values() {
+                            if lender.start_time <= debt_start {
+                                eligible_return += lender.lending_amount
+                            }
+                        };
+
+                        if eligible_return != Decimal::ZERO {
+
+                            self.total_return += remain;
+
+                            self.vault.put(repayment.take(amount));
+
+                            let interest = Decimal::ONE + remain / eligible_return;
+
+                            for lender in self.lenders.values_mut() {
+
+                                let start_time = lender.start_time;
+
+                                if start_time <= debt_start {
+
+                                    lender.interest(interest)
+
+                                };
+
+                            };
+                        } else {
+                            self.vault.put(repayment.take(current_debt));
+                            self.deposit_fee(repayment.take(remain));
+                        }
+
+                        (Decimal::ZERO, debt_interest - remain, extra_debt, amount)
                     } else {
         
                         self.vault.put(repayment.take(amount));
@@ -1082,12 +1165,7 @@ blueprint! {
                             (id_proof, credit_proof) = self.update_revolving_credit_repaid_accumulate(id_proof, credit_proof, self.controller_badge.create_proof(), amount);
                         }
 
-                        if amount <= current_debt {
-                            (current_debt - amount, debt_interest, extra_debt, amount)
-                        } else {
-                            let remain = amount - current_debt;
-                            (Decimal::ZERO, debt_interest - remain, extra_debt, amount)
-                        }
+                        (current_debt - amount, debt_interest, extra_debt, amount)
         
                     };
 
