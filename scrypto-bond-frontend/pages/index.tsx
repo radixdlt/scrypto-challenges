@@ -1,86 +1,140 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
 
-const Home: NextPage = () => {
+//import Layout from "../components/Layout";
+import Header from "./Header";
+import Hero from "../components/Hero";
+//import IS from "../components/IS";
+//import B from "../components/B";
+import BasicTable from "../components/BasicTable";
+import classes from '../styles/Home.module.scss';
+
+import ReactDOM from "react-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "../pages/Layout";
+import IS from "../pages/IS";
+import B from "../pages/B";
+//import Contact from "./pages/Contact";
+//import NoPage from "./pages/NoPage";
+
+
+/*
+const Index = () => {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-2">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <Layout pageTitle="Landing Page Nextjs">
+      <Header />
+      <Hero />
+      <IS />
+      <B />
+      <BasicTable />
+    </Layout>
+  )
+}
+export default Index;
+*/
 
-      <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
 
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="rounded-md bg-gray-100 p-3 font-mono text-lg">
-            pages/index.tsx
-          </code>
-        </p>
 
-        <div className="mt-6 flex max-w-4xl flex-wrap items-center justify-around sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
+// export default function Home() {
+//   return (
+//     <div className={classes.container}>
+//       <h1>Header</h1>
+//       <Hero />
+//       <IS />
+//       <B />
+//       <BasicTable />
+//     </div>
+//   );
+// }
+
+
+
+/*
+import ReactDOM from "react-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./pages/Layout";
+import Home from "./pages/Home";
+import Blogs from "./pages/Blogs";
+import Contact from "./pages/Contact";
+import NoPage from "./pages/NoPage";
+*/
+
+// export default function App() {
+//   return (
+//     <BrowserRouter>
+//       <Routes>
+//         <Route path="/" element={<Layout />}>
+//           <Route index element={<Header />} />
+//           <Route path="is" element={<IS />} />
+//           <Route path="b" element={<B />} />
+//         </Route>
+//       </Routes>
+//     </BrowserRouter>
+//   );
+// }
+
+/*
+if (typeof window !== 'undefined') {
+  ReactDOM.render(<App />, document.getElementById("root"));
+}*/
+
+/*
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="blogs" element={<Blogs />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="*" element={<NoPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById("root")); */
+
+
+
+
+
+import Link from "next/link"
+import styles from '../styles/Home.module.css'
+
+export default function Home() {
+  return (
+    <div className={styles.container}>
+
+      <main className={styles.main}>
+        <h2 className={styles.title}>
+          Multi-page website using Next.js
+        </h2>
+
+        <div className={styles.grid}>
+          <Link href="/" >
+            <a className={styles.card}>
+            <h2>Home &rarr;</h2>
+            </a>
+          </Link>
+
+          <Link href="/IS" >
+          <a className={styles.card}>
+            <h2>IS &rarr;</h2>
+            </a>
+          </Link>
+
+          <Link
+            href="/B"
+            
           >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and its API.
-            </p>
-          </a>
+            <a className={styles.card}>
+            <h2>B &rarr;</h2>
+            </a>
+          </Link>
 
-          <a
-            href="https://nextjs.org/learn"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
         </div>
       </main>
-
-      <footer className="flex h-24 w-full items-center justify-center border-t">
-        <a
-          className="flex items-center justify-center gap-2"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-        </a>
-      </footer>
     </div>
   )
 }
 
-export default Home
