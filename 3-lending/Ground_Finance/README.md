@@ -53,6 +53,8 @@ The test used both the PTE resim client and the PTE Browser Extension, *the test
 2. run the UI `npm run dev`
 3. Try the UI!
 
+*The frontend is bootstraped with Vite and React.*
+
 **Extra feature mean for testers on the resim client:**
 
 - Manipulate time through the NeuRacle blueprint: re-check the address and edit the variable on file [manipulate_time](./Ground_Test/resim-client/manipulate_time) and do `resim run manipulate_time`. (This must be called after at least an epoch or the NeuRacle component will panic because of the Sybil prevent function, if you see it panic because of the Sybil prevent function, it's most likely that you or some others has already run the manipulate time transaction on that epoch).
@@ -60,8 +62,6 @@ The test used both the PTE resim client and the PTE Browser Extension, *the test
 *This is only for test purpose and totally not the pratical use-case of the NeuRacle package!*
 
 - Allow an installment credit through it's ID: re-check the address and edit the variable on file [review_installment_credit](./Ground_Test/resim-client/review_installment_credit) and do `resim run review_installment_credit`
-
-*The frontend is bootstraped with Vite and React.*
 
 **Study more in the doc:**
 
