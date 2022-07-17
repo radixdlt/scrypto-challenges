@@ -2,7 +2,7 @@ use scrypto::prelude::*;
 use crate::user_management::*;
 use crate::pseudopriceoracle::*;
 use crate::collateral_pool::*;
-use crate::structs::{User, Loan, Status};
+use crate::structs::{User, Loan, Status, AuctionAuth};
 
 blueprint! {
     /// This is the lending pool where practically all of the calculation of the pool takes place. Loan NFTs 
@@ -916,11 +916,6 @@ blueprint! {
                 loan_data.remaining_balance = Decimal::zero();
                 info!("[Lending Pool]: Your loan has been paid off!");
 
-                self.access_badge_vault.authorize(|| {
-                    user_management.inc_credit_score(user_id.clone(), credit_score)
-                    }
-                );
-
                 // Authorize SBT data change
                 self.access_badge_vault.authorize(|| {
                     user_management.inc_credit_score(user_id.clone(), credit_score)
@@ -937,6 +932,7 @@ blueprint! {
                     user_management.close_loan(user_id.clone(), token_address, loan_id.clone())
                     }
                 );
+
             } else {
                 loan_data.loan_status = Status::Current;
             }
@@ -956,6 +952,153 @@ blueprint! {
             // Deposits the repaid loan back into the supply
             self.vaults.get_mut(&repay_amount.resource_address()).unwrap().put(repay_amount);
             to_return
+
+        }
+
+                /// Repays the loan in partial or in full.
+        /// 
+        /// This method is used to calculate the amount of tokens owed to the liquidity provider and take them out of
+        /// the lending pool and return them to the liquidity provider.
+        /// 
+        /// This method performs a number of checks before liquidity removed from the pool:
+        /// 
+        /// * **Check 1:** 
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `user_id` (NonFungibleId) - The NonFungibleId that identifies the specific NFT which represents the user. It is used 
+        /// to update the data of the NFT.
+        /// 
+        /// * `token_address` (ResourceAddress) - This is the token address of the requested loan payoff.
+        /// 
+        /// * `repay_amount` (Decimal) - This is the amount to repay the loan.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - A Bucket of the tokens to be redeemed.
+        /// 
+        /// # Design questions:
+        /// * Ideally we would only need the user_id and loans are identified by the protocol as opposed to the user having to retrieve the loan NFT.
+        pub fn auction_repay(
+            &mut self,
+            user_id: NonFungibleId,
+            loan_id: NonFungibleId,
+            token_address: ResourceAddress,
+            transient_token_id: NonFungibleId,
+            transient_token_address: ResourceAddress,
+            repay_amount: Bucket
+        ) 
+        {
+            // Retrieves the loans in the component state.
+            let loans = &self.loans;
+            // Asserts that the loan exists.
+            assert!(loans.contains(&loan_id) == true, "Requested loan repayment does not exist.");
+            // Retrieves the User Management component.
+            let user_management: UserManagement = self.user_management_address.into();
+            // Converts to decimal amount.
+            let amount = repay_amount.amount();
+
+            // Update Loan NFT.
+            // Borrow resource manager.
+            let mut loan_data = self.call_resource_mananger(&loan_id);
+
+            // Asserts that the loan isn't already paid off
+            assert_ne!(loan_data.loan_status, Status::PaidOff, "The loan has already been paid off!");
+
+            // Retrieve remaining loan balance.
+            let remaining_balance = loan_data.remaining_balance;
+            // Calculates whether the amount sent is too much.
+            let overpaid = amount - remaining_balance;
+
+            // Assert overpayment. Much easier to not allow users to overpay than to calculte return of overpayment
+            assert!(amount <= remaining_balance,
+                "You've overpaid your loan by {:?}. Please pay the correct remaining balance: {:?}",
+                overpaid,
+                remaining_balance
+            );
+
+            let percentage_of_remaining_balance = amount / remaining_balance;
+
+            let percentage_of_principal = remaining_balance / loan_data.principal_loan_amount;
+
+            let credit_score = 
+            if percentage_of_remaining_balance >= dec!("0.25") && percentage_of_remaining_balance < dec!("0.50") 
+            {
+                25
+            } else if percentage_of_remaining_balance >= dec!("0.50") && percentage_of_remaining_balance < dec!("0.75")
+            && percentage_of_principal > dec!("0.50") {
+                35
+            } else if percentage_of_remaining_balance >= dec!("0.75") && percentage_of_remaining_balance < dec!("1.00")
+            && percentage_of_principal > dec!("0.75") {
+                45
+            } else if percentage_of_remaining_balance == dec!("1.0") && remaining_balance > dec!("2000") {
+                60
+            } else {0};
+
+            info!("[Lending Pool]: Credit Score increased by: {:?}", credit_score);
+
+            // Update remaining balance (includes interest expense and origination fee)
+            loan_data.remaining_balance -= amount;
+
+            // Takes interest expense amount
+            let interest_expense = loan_data.interest_expense; 
+            // Takes origination fee
+            let origination_fee = loan_data.origination_fee;
+            // Update fee tracker.
+            self.fees_collected += origination_fee + interest_expense;
+
+            // Takes separates interest expense from principal loan amount
+            let principal_repay_amount = repay_amount.amount() - interest_expense - origination_fee;
+
+            // Decrease borrow counter (excludes interest expense)
+            self.borrow_amount -= principal_repay_amount;
+            
+            if loan_data.remaining_balance <= Decimal::zero() {
+                // Change loan status to paid off
+                loan_data.loan_status = Status::PaidOff;
+                loan_data.remaining_balance = Decimal::zero();
+                info!("[Lending Pool]: Your loan has been paid off!");
+
+                // Authorize SBT data change
+                self.access_badge_vault.authorize(|| {
+                    user_management.inc_credit_score(user_id.clone(), credit_score)
+                    }
+                );
+
+                // Authorize SBT data change
+                self.access_badge_vault.authorize(|| {
+                    user_management.inc_paid_off(user_id.clone()) 
+                    }
+                );
+                // Authorize SBT data change
+                self.access_badge_vault.authorize(|| {
+                    user_management.close_loan(user_id.clone(), token_address, loan_id.clone())
+                    }
+                );
+
+                let resource_manager = borrow_resource_manager!(transient_token_address);
+                let mut transient_token_data: AuctionAuth = resource_manager.get_non_fungible_data(&transient_token_id);
+                transient_token_data.amount_due = loan_data.remaining_balance;
+
+            } else {
+                loan_data.loan_status = Status::Current;
+            }
+
+            // Commits state
+            self.authorize_update(&loan_id, loan_data);
+
+            //let to_return_amount = self.access_badge_vault.authorize(|| {
+                //user_management.decrease_borrow_balance(user_id.clone(), token_address, amount)
+                //}
+            //);
+
+            //let to_return = repay_amount.take(to_return_amount);
+
+            info!("You have repaid {:?} of your loan", amount);
+
+            // Deposits the repaid loan back into the supply
+            self.vaults.get_mut(&repay_amount.resource_address()).unwrap().put(repay_amount);
+            //to_return
 
         }
 

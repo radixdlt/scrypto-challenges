@@ -72,3 +72,10 @@ pub struct FlashLoan {
     pub asset: ResourceAddress,
     pub borrow_count: u8,
 }
+
+#[derive(NonFungibleData, Debug, Describe, Encode, Decode, TypeId)]
+pub struct AuctionAuth {
+    pub amount_due: Decimal,
+    pub collateral_due: Decimal,
+    pub collateral_address: ResourceAddress,
+}

@@ -4,7 +4,8 @@ use crate::radiswap::*;
 use crate::collateral_pool::*;
 use crate::user_management::*;
 use crate::pseudopriceoracle::*;
-use crate::structs::{User, FlashLoan, Loan};
+use crate::loan_auction::*;
+use crate::structs::{User, FlashLoan, Loan, AuctionAuth};
 
 blueprint! {
     /// This is the main component for this protocol. It can be considered as a router, taken inspiration from Omar's "RaDEX"
@@ -43,13 +44,13 @@ blueprint! {
         flash_loan_address: ResourceAddress,
         // Data structure for the loan NFTs with a Health Factor below 1.
         bad_loans: HashMap<NonFungibleId, ResourceAddress>,
+        loan_auction_address: Option<ComponentAddress>,
     }
 
     impl DegenFi {
         pub fn new(
         ) -> ComponentAddress 
         {
-            
             // Creates badge to authorizie to mint/burn flash loan
             let flash_loan_token = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
@@ -127,6 +128,7 @@ blueprint! {
                 flash_loan_auth_vault: Vault::with_bucket(flash_loan_token),
                 flash_loan_address: flash_loan_address,
                 bad_loans: HashMap::new(),
+                loan_auction_address: None,
             }
             .instantiate()
             .globalize();
@@ -413,6 +415,77 @@ blueprint! {
             let radiswap: Radiswap = self.radiswap_address.unwrap().into();
             let return_bucket = radiswap.swap(input_tokens);
             return_bucket
+        }
+
+        pub fn new_auction(
+            &mut self,
+            user_auth: Proof,
+            loan_nft: Bucket,
+            collateral_requested: Decimal,
+        )
+        {
+            // Checks if user belongs to this protocol.
+            assert_eq!(self.sbt_address.contains(&user_auth.resource_address()), true, "User does not belong to this protocol.");
+
+            let access_badge = self.access_auth_vault.authorize(|| borrow_resource_manager!(self.access_badge_address).mint(Decimal::one()));
+
+            let user_management_address = self.user_management_address;
+            let user_id = user_auth.non_fungible::<User>().id();
+            let user_sbt_address = user_auth.resource_address();
+            let loan_auction = LoanAuction::new(
+                user_id,
+                user_sbt_address,
+                loan_nft,
+                collateral_requested,
+                access_badge,
+                user_management_address,
+            );
+
+            self.loan_auction_address.get_or_insert(loan_auction);
+            
+        }
+
+        pub fn withdraw_loan_nft(
+            &mut self,
+            user_auth: Proof,
+        ) -> (Bucket, Bucket)
+        {
+            // Checks if user belongs to this protocol.
+            assert_eq!(self.sbt_address.contains(&user_auth.resource_address()), true, 
+            "User does not belong to this protocol.");
+
+            let user_id = self.get_user(&user_auth);
+            let loan_auction: LoanAuction = self.loan_auction_address.unwrap().into();
+            let (loan_nft, transient_token): (Bucket, Bucket) = loan_auction.withdraw_loan_nft(user_id);
+
+            (loan_nft, transient_token)
+        }
+
+        pub fn return_collateral(
+            &mut self,
+            collateral: Bucket,
+            transient_token: Bucket,
+        )
+        {
+            let loan_auction: LoanAuction = self.loan_auction_address.unwrap().into();
+            loan_auction.return_collateral(collateral, transient_token);   
+        }
+
+        pub fn claim_collateral(
+            &mut self,
+            user_auth: Proof,
+        ) -> Bucket
+        {
+            // Checks if user belongs to this protocol.
+            assert_eq!(self.sbt_address.contains(&user_auth.resource_address()), true, 
+            "User does not belong to this protocol.");
+
+            let user_id = self.get_user(&user_auth);
+
+            let loan_auction: LoanAuction = self.loan_auction_address.unwrap().into();
+            let claim_collateral: Bucket = loan_auction.claim_collateral(user_id);
+
+            claim_collateral
         }
 
         /// Creates a new lending pool with the deposited asset.
@@ -1096,6 +1169,70 @@ blueprint! {
                     let empty_bucket1: Bucket = self.access_auth_vault.take(0);
                     let empty_bucket2: Bucket = self.access_auth_vault.take(0);
                     (empty_bucket1, empty_bucket2)
+                }
+            }
+        }
+
+        
+        /// Repays the loan in partial or in full.
+        /// 
+        /// This method is used to pay down or pay off the loan.
+        /// 
+        /// This method performs a number of checks before liquidity removed from the pool:
+        /// 
+        /// * **Check 1:** Checks if the user exist in this protocol.
+        /// 
+        /// * **Check 2:** Checks that there does not already exist a lending pool for given token.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `user_auth` (Proof) - A proof that proves that the depositer is a user that belongs to this protocol.
+        /// * `loan_id` (NonFungibleId) - The NonFungibleId of the loan the user wishes to top off on more funds.
+        /// * `token_requested` (ResourceAddress) - This is the token address of the requested asset to borrow.
+        /// * `amount` (Bucket) - The bucket that contains the asset to repay the loan.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - The Degen Tokens received for interacting with the protocol.
+        pub fn auction_repay(
+            &mut self, 
+            user_auth: Proof, 
+            loan_id: NonFungibleId, 
+            token_requested: ResourceAddress, 
+            transient_token: Proof,
+            amount: Bucket
+        ) -> Bucket 
+        {
+            // Checks if user belongs to this protocol.
+            assert_eq!(self.sbt_address.contains(&user_auth.resource_address()), true, "User does not belong to this protocol.");
+
+            // Checks if the user exists
+            let user_id = self.get_user(&user_auth);
+
+            // Checks if the token resources are the same
+            assert_eq!(token_requested, amount.resource_address(), "Token requested and token deposited must be the same.");
+
+            // Repay fully or partial?
+            let optional_lending_pool: Option<&LendingPool> = self.lending_pools.get(&token_requested);
+            match optional_lending_pool {
+                Some (lending_pool) => { // If it matches it means that the lending pool exists.
+                    let transient_token_id = transient_token.non_fungible::<AuctionAuth>().id();
+                    let transient_token_address = transient_token.resource_address();
+                    lending_pool.auction_repay(
+                        user_id, 
+                        loan_id, 
+                        token_requested, 
+                        transient_token_id, 
+                        transient_token_address, 
+                        amount
+                    );
+                    let degen_token = self.degen_token_vault.take(1);
+                    degen_token
+                }
+                None => { 
+                    info!("[DegenFi]: Pool for {:?} doesn't exist.", token_requested);
+                    let empty_bucket1: Bucket = self.access_auth_vault.take(0);
+                    empty_bucket1
                 }
             }
         }

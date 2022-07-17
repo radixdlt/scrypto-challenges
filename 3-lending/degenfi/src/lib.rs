@@ -5,3 +5,4 @@ mod collateral_pool;
 mod structs;
 mod pseudopriceoracle;
 mod radiswap;
+mod loan_auction;
