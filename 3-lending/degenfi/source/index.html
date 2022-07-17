@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Web site created using create-snowpack-app" />
     <link rel="stylesheet" type="text/css" href="/index.css" />
-    <title>Credit Lender</title>
+    <title>DegenFi</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -22,7 +22,7 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
 
-    <h1>Credit Lender</h1>
+    <h1>DegenFi</h1>
 
     <h2>1. Fetch User Account Address</h2>
     <p><button id="fetchAccountAddress">Click me</button> to get the account address of the PTE Browser Extension user.</p>
@@ -32,14 +32,42 @@
     <p><button id="publishPackage">Publish</button></p>
     <p>Package Address:<br><pre id="packageAddress"></pre></p>
 
-    <h2>3. Instantiate Credit Lender</h2>
+    <h2>3. Instantiate DegenFi</h2>
     <p><button id="instantiateComponent">Instantiate</button></p>
-    <p>Component Address:<br><pre id="componentAddress"></pre></p>
-    <p>Resource Address 1 Minting Badge:<br><pre id="resourceAddress1"></pre></p>
-    <p>Resource Address 2 Lender Receipt NFT:<br><pre id="resourceAddress2"></pre></p>
-    <p>Resource Address 3 Borrower Receipt NFT:<br><pre id="resourceAddress3"></pre></p>
-    <p>Resource Address 4 Loan NFT:<br><pre id="resourceAddress4"></pre></p>
-    <p>Resource Address 5 Credit Report NFT:<br><pre id="resourceAddress5"></pre></p>
+    <p>Component Address UserManagement:<br><pre id="componentAddress1"></pre></p>
+    <p>Component Address PseudoPriceOracle:<br><pre id="componentAddress2"></pre></p>
+    <p>Component Address DegenFi:<br><pre id="componentAddress3"></pre></p>
+    <p>Resource Address 1 BasicFlashLoan Admin:<br><pre id="resourceAddress1"></pre></p>
+    <p>Resource Address 2 BasicFlashLoan:<br><pre id="resourceAddress2"></pre></p>
+    <p>Resource Address 3 Access Token Admin:<br><pre id="resourceAddress3"></pre></p>
+    <p>Resource Address 4 Access Token:<br><pre id="resourceAddress4"></pre></p>
+    <p>Resource Address 5 Degen Admin Token:<br><pre id="resourceAddress5"></pre></p>
+    <p>Resource Address 6 Degen Token:<br><pre id="resourceAddress6"></pre></p>
+    <p>Resource Address 7 Lending Protocol User Badge:<br><pre id="resourceAddress7"></pre></p>
+    <p>Resource Address 8 Lending Protocol User:<br><pre id="resourceAddress8"></pre></p>
+
+    <h2>4. Create User</h2>
+    <span><button id="createNewUser">Create New User</button></span><br><br>
+
+    <h2>5. Create XRD Pool</h2>
+    <label for="addamount">Input Initial XRD Amount:</label>
+    <input type="text" id="addamount" name="addamount">
+    <span><button id="createxrdpool">Create XRD Pool</button></span><br><br>
+
+    <h2>6. Create USD Pool</h2>
+    <label for="addamount">Input Initial USD Amount:</label>
+    <input type="text" id="addamount" name="addamount">
+    <span><button id="createusdpool">Create USD Pool</button></span><br><br>
+
+    <h2>7. Supply Additional XRD</h2>
+    <label for="addamount">Input XRD Amount:</label>
+    <input type="text" id="addamount" name="addamount">
+    <span><button id="supplyxrd">Supply XRD</button></span><br><br>
+
+    <h2>8. Supply Additional USD</h2>
+    <label for="addamount">Input Initial USD Amount:</label>
+    <input type="text" id="addamount" name="addamount">
+    <span><button id="supplyusd">Supply USD</button></span><br><br>
 
     <h2>3. Add/Remove liquidity from Lending Pool</h2>
     <label for="addamount">Add $XRD Amount:</label>

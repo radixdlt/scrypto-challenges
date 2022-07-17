@@ -132,9 +132,31 @@ resim call-method $COMPONENT new_radiswap 30000,$XRD 20000,$USD 1000 lp lp l 0.0
 
 
 
+Auction
 
+# Deposit Loan NFT
+resim call-method $COMPONENT new_auction 1,$PROOF3 1,$LOANNFT 700 --manifest ./transactions/loanauction1.rtm
+LA=$(resim run ./transactions/loanauction1.rtm)
+export FLASH2=$(echo "$LA" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
 
+# Bob withdraws Loan
+resim call-method $COMPONENT withdraw_loan_nft 1,$PROOF --manifest ./transactions/loanauction2.rtm
 
+# Bob pays the loan down(2180)
+/// Find way to retrieve Loan ID if forgotten.
+resim call-method $COMPONENT auction_repay 1,$PROOF $LOAN_AUC $USD 1,$PROOF 2180,$USD --manifest ./transactions/loanauction3.rtm
+
+gotta create auth
+
+/// Asset and collat kinda weird.
+
+# Burn transient token and return collateral
+
+resim call-method $COMPONENT return_collateral 700,$XRD 1,$FLASH2 --manifest ./transactions/loanauction4.rtm
+
+/// Maybe update Bob's SBT?
+
+/// XRD should increase balance
 
 
 

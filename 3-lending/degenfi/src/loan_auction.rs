@@ -1,6 +1,6 @@
 use scrypto::prelude::*;
 use crate::user_management::*;
-use crate::structs::{User, Loan, AuctionAuth};
+use crate::structs::{Loan, AuctionAuth};
 
 blueprint! {
     struct LoanAuction {
@@ -36,6 +36,8 @@ blueprint! {
                 .metadata("description", "Admin authority to mint/burn flash loan tokens")
                 .initial_supply(1);
 
+            let list_of_resource = vec![access_badge.resource_address(), flash_loan_token.resource_address()];
+
             // Define a "transient" resource which can never be deposited once created, only burned
             let flash_loan_address = ResourceBuilder::new_non_fungible()
                 .metadata(
@@ -44,7 +46,7 @@ blueprint! {
                 )
                 .mintable(rule!(require(flash_loan_token.resource_address())), LOCKED)
                 .burnable(rule!(require(flash_loan_token.resource_address())), LOCKED)
-                .updateable_non_fungible_data(rule!(require(flash_loan_token.resource_address())), LOCKED)
+                .updateable_non_fungible_data(rule!(require_any_of(list_of_resource)), LOCKED)
                 .restrict_deposit(rule!(deny_all), LOCKED)
                 .no_initial_supply();
 
@@ -145,6 +147,9 @@ blueprint! {
             let transient_data = transient_token.non_fungible::<AuctionAuth>().data();
             let amount_due = transient_data.amount_due;
 
+            assert_eq!(transient_token.resource_address(), self.flash_loan_address,
+            "The transient token passed is not correct.");
+
             assert_eq!(amount_due, Decimal::zero(), 
             "Must pay off the loan balance. Amount due: {:?}", 
             amount_due);
@@ -160,9 +165,6 @@ blueprint! {
             assert_eq!(collateral.resource_address(), collateral_address,
             "Must pass the correct collateral resource. The correct collateral resource is {:?}",
             collateral_address);
-
-            assert_eq!(transient_token.resource_address(), self.flash_loan_address,
-            "The transient token passed is not correct.");
 
             self.collateral_vault.put(collateral);
 

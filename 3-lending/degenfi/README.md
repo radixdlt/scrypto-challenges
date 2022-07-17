@@ -52,7 +52,7 @@ The motivation for this project started with an introduction to one of the devel
 * **Borrow additional** - Allows users to top off on their open loan position.
 * **Repay** - Allows users to repay their loan in partial or in full.
 * **Flash loan borrow** - Allows users to perform flash loans.
-* **Floasn loan repay** - Allows users to complete their flash loan transaction by having the transient tokens burnt after repaying the flash loan within one transaction.
+* **Floash loan repay** - Allows users to complete their flash loan transaction by having the transient tokens burnt after repaying the flash loan within one transaction.
 * **Convert deposit to collateral** - Allows user to convert their deposits to be collateralized for their loans. User (currently) do not earn protocol fees for any collateral
 deposited.
 * **Convert collateral to deposit** - Allows user to convert their unused collateral to be used as supply liquidity to earn protocol fees.
@@ -70,7 +70,7 @@ The new transaction model introduced with v0.3.0 of Scrypto allows for the creat
 
 ## Advanced Features:
 
-* **Folded leverage** - Folded leverage is where a user deposits collateral on a lending platform, borrows against their collateral, re-deposits what they borrowed as additional collateral, borrows against the newly added collateral etc etc until the desired leverage is achieved.
+* **Folded leverage** - Folded leverage is where a user deposits collateral on a lending platform, borrows against their collateral, re-deposits what they borrowed as additional collateral, borrows against the newly added collateral etc etc until the desired leverage is achieved. Users are able to open a long position or short position
 * **Flash liquidation** - Users can liquidate a position even if they do not have the funds to repay the loan by using flash loans.
 * **Credit Score System** - Users can earn a credit rating by continuously showing good borrowing habits by paying off their loans. Borrowers who demonstrate a proven borrowing track record can earn interest rate coupons and collateralization adjustments. 
 
@@ -122,6 +122,8 @@ The credit system is primitive at this point. Users who have 100, 200, and 300 c
 * **Get price** - Retrieves the price of a given asset using a pseudo price oracle.
 * **Set price** - Sets the price of a given asset to demonstrate how liquidations work.
 * **Set credit score** - Sets the desired credit score to demonstrate how the credit score system works.
+* **Instantiate Radiswap** - Supplies liquidity for two assets to be swapped.
+* **Swap** - Allows users to swap between two assets.
 
 ## Design details
 
@@ -209,7 +211,7 @@ resim reset
 
 Firstly, we need to create our accounts. We can easily do this by pasting the follow commands and creating our environment variables.
 
-```
+```sh
 OP1=$(resim new-account)
 export PRIV_KEY1=$(echo "$OP1" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
 export PUB_KEY1=$(echo "$OP1" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
@@ -234,7 +236,7 @@ export ACC_ADDRESS5=$(echo "$OP5" | sed -nr "s/Account component address: ([[:al
 
 Let's publish our package and create our environment variable for our component and flash loan (which will be used in the later examples.
 
-```
+```sh
 PK_OP=$(resim publish ".")
 export PACKAGE=$(echo "$PK_OP" | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
 CP_OP=$(resim run "./transactions/component_creation.rtm")
@@ -242,6 +244,11 @@ export COMPONENT=$(echo "$CP_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p
 export FLASH=$(echo "$CP_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
 ```
 
+Let's also create an environment variable for XRD
+
+```sh
+export XRD=030000000000000000000000000000000000000000000000000004
+```
 
 ### Example 1: Creating pools & depositing supply
 
@@ -249,21 +256,22 @@ To illustrate the features of this protocol let's follow a narrative of 5 differ
 
 In this example, we'll follow Joe, who is the owner of ACC_ADDRESS1. Let's make sure that we set his account as the default. We can do this by pasting the following command.
 
-```
+```sh
 resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
 ```
 
 Joe wants to be the first liquidity provider of this protocol and he wants to create two pools: USD Pool and an XRD Pool. To do so, let's fund Joe's account with $1,000,000 of USD. By default, Joe already has 1,000,000 of XRD.
 
-```
+```sh
 M_OP=$(resim run "./transactions/mint_usd.rtm")
 export USD=$(echo "$M_OP" | sed -nr "s/└─ Resource: ([[:alnum:]_]+)/\1/p")
 ```
 
 Before interacting with the protocol, we must first create a user for Joe. Let's paste the transaction below.
 
-```
-resim run ./transactions/new_user.rtm
+```sh
+NU=$(resim run "./transactions/new_user.rtm")
+export PROOF=$(echo "$NU" | sed -nr "s/.*SBT resource address is ([[:alnum:]_]+)/\1/p")
 ```
 
 Creating a user in this protocol will provide Joe with a "Soul Bound Token" (SBT) which essentially is a Non-Fungible Token (NFT) that can't be withdrawn. The Radix Engine easily allows us to do this as tokens are native to the platform providing developers with quick, easy, and customizable token creations. The SBT token will track Joe's activities in the protocol. 
@@ -273,13 +281,6 @@ Logs: 2
 ├─ [INFO ] User created! Your SBT resource address is 031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca
 └─ [INFO ] Thank you for registering an account at DegenFi, here are 1 Degen Tokens for you to start!
 New Entities: 0
-```
-
-Let's also create an environment variable for Joe's SBT. We can do this by pasting the following code below. Keep in mind that your resource address will likely be different from what's shown in this example.
-
-
-```sh
-export PROOF=031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca
 ```
 
 Now, Joe is ready to create and supply the initial lending pool for DegenFi! We can do this by running the following Transaction Manifest.
@@ -356,7 +357,7 @@ Logs: 1
 And we're all done! Joe has successfully supplied liquidity for XRD and USD lending pools so that Bob, Sally, Beth, and John can begin borrowing from the lending pools. Before we get there, Joe wants to them a favor and also instantiate the Radiswap component. This will extend the protocol's features to allow for swapping assets. Let's do that by pasting the following transaction manifest files below. 
 
 Instantiate Radiswap [`./transactions/instantiate_radiswap.rtm`](./transactions/instantiate_radiswap.rtm)
-```
+```sh
 resim run ./transactions/instantiate_radiswap.rtm
 ```
 ```sh
@@ -390,7 +391,8 @@ resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
 Bob will also need an SBT before he can interact with the protocol so we'll create one for him by running the following below.
 
 ```sh
-resim run ./transactions/new_user2.rtm
+NU=$(resim run "./transactions/new_user2.rtm")
+export PROOF2=$(echo "$NU" | sed -nr "s/.*SBT resource address is ([[:alnum:]_]+)/\1/p")
 ```
 ```sh
 Logs: 2
@@ -503,18 +505,19 @@ Logs: 8
 
 ### Example 3: Leverage 2x
 
-This example will be more straightforward as it's mostly an extension of the previous example. Here, we have Beth who wants to open a 2x leveraged position her XRD. Like Bob, Beth will also be only be putting up 1,000 XRD as her principal investment, but now taking out a flash loan to borrow an additional 2,000 XRD to supply a total of 3,000 XRD as collateral. Beth will be borrowing $2,000 USD in this example representing a 66% Borrow Limit Usage. So Beth's degen appetite is stronger than Bob's, but still practices some measure of risk management.
+This example will be more straightforward as it's mostly an extension of the previous example. Here, we have Sally who wants to open a 2x leveraged position her XRD. Like Bob, Sally will also be only be putting up 1,000 XRD as her principal investment, but now taking out a flash loan to borrow an additional 2,000 XRD to supply a total of 3,000 XRD as collateral. Beth will be borrowing $2,000 USD in this example representing a 66% Borrow Limit Usage. So Sally's degen appetite is stronger than Bob's, but still practices some measure of risk management.
 
-Let's make sure that we are on Beth's account.
+Let's make sure that we are on Sally's account.
 
 ```sh
 resim set-default-account $ACC_ADDRESS3 $PRIV_KEY3
 ```
 
-Likewise, we will need to create an SBT for Beth.
+Likewise, we will need to create an SBT for Sally.
 
 ```sh
-resim run ./transactions/new_user3.rtm
+NU=$(resim run "./transactions/new_user3.rtm")
+export PROOF3=$(echo "$NU" | sed -nr "s/.*SBT resource address is ([[:alnum:]_]+)/\1/p")
 ```
 ```sh
 Logs: 2
@@ -609,7 +612,7 @@ Logs: 8
 ├─ [INFO ] [User SBT]: Number of times liquidated: 0
 └─ [INFO ] [User SBT]: Number of loans paid off: 0
 ```
-This is all very similar to Bob, but a 2x position. 
+This is all very similar to Sally, but a 2x position. 
 
 ### Example 4: Leverage 3x
 
@@ -865,6 +868,53 @@ Logs: 4
 └─ [INFO ] [DegenFi]: Redeeming 2000 of 030000000000000000000000000000000000000000000000000004
 New Entities: 0
 ```
+
+### Example 7: Loan Auctioning
+
+Note: Please note that this feature was done last minute as a result of a realization of how my protocol was architected and how the transient token was designed. I was able to come up with a loan auctioning design for those who want to free up their liquidity without paying back the loan by selling the loan to a buyer. This was made possible due to the nature of loans being represented as NFT's and the elegant design of transient tokens allowing transactions to commit as long as a preset condition was met. While this is an interesting idea, I have not tested all the edge cases yet (such us the condition in which the loan become defaulted in an auction) nor have I fully thought out the economics of this use case. The fact that this is possible in an easy way was enough for me to give this a try.
+
+Under this contrived scenario, Sally wants retrieve her collateral to open up liquidity, but doesn't have the funds to pay back her loan (even though she can take out a flash loan to close out her flash loan). So she decides to sell her loan to a buyer. However, the condition she wants to fulfill are: 
+
+1. Have the loan balance fully repaid. 
+2. She wants to recoup at least her initital principal investment.
+
+Before we get there, let's mannually create environment variable for her Loan NFT. We can do this by reviewing the tokens in her wallet.
+
+```sh
+resim show $ACC_ADDRESS3
+```
+
+Let's create an environment variable for the resource address of the Loan NFT so she can deposit it.
+
+```sh
+export LOAN_NFT=
+```
+
+Let's create an environment variable for the loan ID so we can identify it.
+
+```sh
+export LOAN_AUC=
+```
+
+To do this she needs to instantiate the `LoanAuction` blueprint and deposit her loan NFT. We can do this by running this command.
+
+```sh
+LA=$(resim run ./transactions/loanauction1.rtm)
+export FLASH2=$(echo "$LA" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+```
+
+At this point she has already deposited her loan NFT, which she no longer has ownership of. We can review this by checking her account.
+
+```sh
+resim show $ACC_ADDRESS3
+```
+
+```sh
+resim call-method $COMPONENT get_loan_info $USD $LOAN_AUC
+```
+
+```sh
+resim call-method $COMPONENT get_sbt_info 1,$PROOF
 
 ## Future work and improvements
 

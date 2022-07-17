@@ -1078,7 +1078,11 @@ blueprint! {
 
                 let resource_manager = borrow_resource_manager!(transient_token_address);
                 let mut transient_token_data: AuctionAuth = resource_manager.get_non_fungible_data(&transient_token_id);
-                transient_token_data.amount_due = loan_data.remaining_balance;
+                transient_token_data.amount_due = Decimal::zero();
+
+                self.access_badge_vault.authorize(|| {
+                    resource_manager.update_non_fungible_dta(&transient_token_id, transient_token_data)
+                });
 
             } else {
                 loan_data.loan_status = Status::Current;
