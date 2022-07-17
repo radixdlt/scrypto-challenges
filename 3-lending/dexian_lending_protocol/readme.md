@@ -22,11 +22,11 @@ export p3=$(echo $result|grep "Account component address: "|awk -F ": " '{print 
 export p3_priv=$(echo $result|grep "Private key:" |awk -F "Private key: " '{print $2}')
 
 result=$(resim new-token-fixed --symbol=USDT 1000000)
-# export usdt=$(echo $result | grep "Resource:" | awk -F " " '{print $3}')
-export usdt=$(echo $result | grep "Resource:" | awk -F "Resource: " '{print $2}')
+export usdt=$(echo $result | grep "Resource:" | awk -F " " '{print $3}')
+# export usdt=$(echo $result | grep "Resource:" | awk -F "Resource: " '{print $2}')
 result=$(resim new-token-fixed --symbol=USDC 1000000)
-# export usdc=$(echo $result | grep "Resource:" | awk -F " " '{print $3}')
-export usdc=$(echo $result | grep "Resource:" | awk -F "Resource: " '{print $2}')
+export usdc=$(echo $result | grep "Resource:" | awk -F " " '{print $3}')
+# export usdc=$(echo $result | grep "Resource:" | awk -F "Resource: " '{print $2}')
 
 resim transfer 100000 $usdt $p2
 resim transfer 100000 $usdc $p3
@@ -52,7 +52,8 @@ export component=$(echo $result | grep "Component: "| awk -F "Component: " '{pri
 #export admin_badge=$(echo $result | grep "Resource: " | awk -F "Resource: " '{if (NR==1) print $2}')
 
 export admin_badge=$(echo $result | grep "Resource: " | awk -F "Resource: " '{if (NR==1) print $2}' | awk -F " " '{print $1}')
-export cdp=$(echo $result | grep "Resource: " | awk -F "Resource: " '{if (NR==1) print $4}')
+# export cdp=$(echo $result | grep "Resource: " | awk -F "Resource: " '{if (NR==1) print $4}')
+export cdp=$(echo $result | grep "Resource: " | awk -F "Resource: " '{if (NR==3) print $2}')
 
 
 export xrd=030000000000000000000000000000000000000000000000000004
@@ -98,7 +99,7 @@ resim call-method $component 'repay' "200,$usdc" "#0000000000000002,$cdp"
 
 resim set-default-account $p2 $p2_priv
 
-resim call-method $component 'withdraw' $dx_usdt "360,$usdt"
+resim call-method $component 'withdraw' $dx_usdt "360,$dx_usdt"
 
 ```
 

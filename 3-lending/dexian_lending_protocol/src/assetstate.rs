@@ -71,8 +71,8 @@ impl AssetState {
         let delta_supply_interest_rate = self.supply_interest_rate * delta_epoch / AssetState::EPOCH_OF_YEAR;
 
         (
-            self.supply_index * (Decimal::ONE + delta_borrow_interest_rate),
-            self.borrow_index * (Decimal::ONE + delta_supply_interest_rate)
+            self.supply_index * (Decimal::ONE + delta_supply_interest_rate),
+            self.borrow_index * (Decimal::ONE + delta_borrow_interest_rate)
         )
 
     }

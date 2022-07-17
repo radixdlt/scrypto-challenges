@@ -273,6 +273,8 @@ blueprint! {
             cdp_data.total_repay += repay_amount;
             cdp_data.normalized_borrow -= normalized_amount;
             cdp_data.last_update_epoch = Runtime::current_epoch();
+            borrow_state.normalized_total_borrow -= normalized_amount;
+            
             self.minter.authorize(|| {
                 let cdp_res_mgr: &ResourceManager = borrow_resource_manager!(cdp.resource_address());
                 cdp_res_mgr.update_non_fungible_data(&cdp_id, cdp_data);
