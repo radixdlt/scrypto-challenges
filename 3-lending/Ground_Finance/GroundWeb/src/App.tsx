@@ -18,6 +18,7 @@ function App() {
   const [yourRole, setYourRole] = useState<string>('')
   const [lenderInfo, setLenderInfo] = useState<Array<Array<string>>>([])
   const [borrowerInfo, setBorrowerInfo] = useState<Array<string>>([])
+  const [protocolInfo, setProtocolInfo] = useState<Array<number>>([])
 
   async function get_borrower_data(id_id: string, credit_id: string): Promise<Array<string>> {
 
@@ -98,9 +99,9 @@ function App() {
 
       const response = await fetch(`https://pte01.radixdlt.com/component/${account}`)
 
-      const component = await response.json()
+      const account_component = await response.json()
 
-      const my_resource = component.owned_resources
+      const my_resource = account_component.owned_resources
 
       const stable_coin = my_resource.find((resource: { resource_address: string} ) => {
         return resource.resource_address === StableCoin
@@ -110,6 +111,38 @@ function App() {
         setTokenInfo(stable_coin.amount)
       } else { setTokenInfo('0')} 
 
+      const response2 = await fetch(
+        `https://pte01.radixdlt.com/component/${GroundLendingComponent}`
+      );
+
+      const component = await response2.json();
+
+      const componentParse = JSON.parse(component.state).fields
+
+      const lending_accounts = componentParse[7].elements;
+
+      const account_number = lending_accounts.length / 2;
+
+      var protocol_info = [account_number];
+
+      const deposited = parseFloat(componentParse[4].value.replace(/^\D+|\D+$/g, ""))
+
+      protocol_info.push(deposited)
+
+      var protocol_vault_amount = 0
+
+      for (const x of component.owned_resources) {
+        if (x.resource_address == StableCoin) {
+          protocol_vault_amount = protocol_vault_amount + parseFloat(x.amount)
+        }
+      }
+
+      const risk = (1 - protocol_vault_amount / deposited) * 100
+
+      protocol_info.push(risk)
+
+      setProtocolInfo(protocol_info)
+
       if (yourRole == 'Lender') {
 
         const lender = my_resource.find((resource: { resource_address: string} ) => {
@@ -118,14 +151,6 @@ function App() {
 
         if (lender) {
           const lender_infos: string[][] = []
-
-          const response = await fetch(
-            `https://pte01.radixdlt.com/component/${GroundLendingComponent}`
-          );
-
-          const component = await response.json();
-
-          const lending_accounts = JSON.parse(component.state).fields[7].elements;
 
           for (const x of lender.non_fungible_ids) {
 
@@ -219,6 +244,7 @@ function App() {
   }
 
   function Show_info() {
+
     if (yourRole == 'Borrower') {
       if (!borrowerInfo.length) {
         return <div>Loading...</div>
@@ -232,7 +258,7 @@ function App() {
         if (unix_timestamp == 0) {
           debt_due = null
         } else {
-          var date = new Date(unix_timestamp * 1000);
+          let date = new Date(unix_timestamp * 1000);
 
           let date_format = date.toLocaleString();
 
@@ -246,7 +272,7 @@ function App() {
             debt_status = <><br/><a style={red}>You're already late on your repayment, please repay your debt!</a></>
           }
 
-          debt_due = <><br /> Your debt due at: <a style={blanchedalmond}> {date_format}</a></>
+          debt_due = <div className="box-stats stats borrower"><text className='title'>Your debt due at</text><a className='borrower-info'>{date_format}</a></div>
         }
 
         var maximum_allowance = null
@@ -254,19 +280,19 @@ function App() {
         if (borrowerInfo![0] == "Installment Credit") {
           maximum_allowance = null
         } else {
-          maximum_allowance = <><br /> Your maximum allowance: <a style={blanchedalmond}>{borrowerInfo![6]} </a></>
+          maximum_allowance = <div className="box-stats stats borrower"><text className='title'>Your maximum allowance</text><a className='borrower-info'>{borrowerInfo![6]}</a></div>
         }
 
-        return <div className="borrower-info"><div>
-          You're using <a style={blanchedalmond}>{borrowerInfo![0]} </a>
-          <br /> Credit Score: <a style={blanchedalmond}>{borrowerInfo![1]} </a>
-          <br /> Total debt: <a style={blanchedalmond}>{borrowerInfo![2]} </a>
-          {debt_due}
-          <br /> Your accumulated repayment: <a style={blanchedalmond}>{borrowerInfo![4]} </a>
-          {maximum_allowance}
-          <br /> Your current allowance: <a style={blanchedalmond}>{borrowerInfo![5]} </a>
-          {debt_status}
-        </div></div>
+        return <view className='box-stats'>
+        <div style={{paddingBottom: '20px', fontSize: '20px'}}>You're using <text className='credit-name'>{borrowerInfo![0]}</text></div>
+        <div className="box-stats stats borrower"><text className='title'>Credit Score</text><a className='borrower-info'>{borrowerInfo![1]}</a></div> 
+        <div className="box-stats stats borrower"><text className='title'>Total debt</text><a className='borrower-info'>{borrowerInfo![2]}</a></div> 
+        {debt_due}
+        <div className="box-stats stats borrower"><text className='title'>Your accumulated repayment</text><a className='borrower-info'>{borrowerInfo![4]}</a></div> 
+        {maximum_allowance}
+        <div className="box-stats stats borrower"><text className='title'>Your current allowance</text><a className='borrower-info'>{borrowerInfo![5]}</a></div> 
+        {debt_status}
+        </view>
       }
     }
     else if (yourRole == 'Lender') { 
@@ -276,17 +302,27 @@ function App() {
       } else {
         const listItems = lenderInfo.map(
           (x) =>
-        <li key = {x[0]}><div className="lender-info">
-            Account NFT ID: {x[0]} 
-            <br /> Account current return: {x[1]} 
-            <br /> This account started from (unix time): {x[2]}
-            <br/><button type="button" onClick={() => withdraw(x[0])}>
-          <a className='lender-role-button'>Withdraw</a>
-          </button></div></li>
+        <li key = {x[0]}><view className='box-stats'>
+          <div className="box-stats stats lender"><text className='title'>Account NFT ID</text><a className='lender-info id'>{x[0]}</a></div>
+          <div className="box-stats stats lender"><text className='title'>Account current return</text><a className='lender-info'>{parseFloat(x[1]).toFixed(2)}</a></div> 
+          <div className="box-stats stats lender"><text className='title'>This account started from</text><a className='lender-info'>{new Date(parseInt(x![2]) * 1000).toLocaleString()}</a></div> 
+        <br/>
+          <button type="button" className="lender" onClick={() => withdraw(x[0])}>
+          <a className="black">Withdraw</a>
+        </button>
+        </view></li>
         );
         return <div>{listItems}</div>
       }
-    } else return null
+    } else {
+      
+      return <view className='box-stats'>
+        <div className='box-stats stats borrower'><text className='title'>Total accounts</text><a className='info'>{protocolInfo[0]}</a></div>
+        <div className='box-stats stats borrower'><text className='title'>Total deposited </text><a className='info'>{protocolInfo[1]}</a></div>
+        <div className='box-stats stats borrower'><text className='title'>Risk percent </text><a className='info'>{protocolInfo[2].toFixed(2)} %</a></div>
+      <br/><br/>
+      </view>
+    }
   }
 
   function Role_button() {
@@ -309,8 +345,8 @@ function App() {
         </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" onClick={change_credit}>
       <a className='borrower-role-button'>Change Credit Type</a>
         </button>
-        <p><a style={{fontSize: '20px', color: 'lightpurple'}}>Notice for tester: The borrow must be made "AFTER" the lenders get their accounts <br/> according to the data on NeuRacle component or the lenders won't get the interest!</a></p>
-        <p><a style={{fontSize: '20px', color: 'white'}}>For Installment Credit user</a></p>
+        <p><a style={{fontSize: '20px', color: 'lightsalmon'}}>Notice for tester: The borrow must be made "AFTER" the lenders get their accounts <br/> according to the data on NeuRacle component or the lenders won't get the interest!</a></p>
+        <br/><p><a style={{fontSize: '30px', color: 'white'}}>For Installment Credit user</a></p><br/>
         <button type="button" onClick={request_installment_credit}>
       <a className='borrower-role-button'>Request Installment Credit</a>
         </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" onClick={use_installment_credit}>

@@ -1,9 +1,9 @@
-CALL_METHOD ComponentAddress("02ef00841521ac65d9d423e98edcd68aa165895bd58ca2489af44d") "init"; 
+CALL_METHOD ComponentAddress("025e99c7a933df2209a07ec9cceae6bfb48a44c0a0dfb25801b4fa") "init"; 
 
-CALL_METHOD ComponentAddress("02ef00841521ac65d9d423e98edcd68aa165895bd58ca2489af44d") "init_stake_for_validator_node"; 
+CALL_METHOD ComponentAddress("025e99c7a933df2209a07ec9cceae6bfb48a44c0a0dfb25801b4fa") "init_stake_for_validator_node"; 
 
-CALL_METHOD ComponentAddress("02ef00841521ac65d9d423e98edcd68aa165895bd58ca2489af44d") "update_neuracle_data" "1657901742"; 
+CALL_METHOD ComponentAddress("025e99c7a933df2209a07ec9cceae6bfb48a44c0a0dfb25801b4fa") "update_neuracle_data" "1657901742"; 
 
-CALL_METHOD ComponentAddress("02ef00841521ac65d9d423e98edcd68aa165895bd58ca2489af44d") "lending_use_dao"; 
+CALL_METHOD ComponentAddress("025e99c7a933df2209a07ec9cceae6bfb48a44c0a0dfb25801b4fa") "lending_use_dao"; 
 
 CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02a7c56ce94383403967562d3a7816a8a2e670d354ea66257ec7b7") "deposit_batch"; 

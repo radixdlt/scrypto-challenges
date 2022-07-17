@@ -368,8 +368,6 @@ blueprint! {
 
             let account_badges_data = account_badges.non_fungibles::<Account>();
 
-            let mut fee = Decimal::ZERO;
-
             let mut withdraw_amount = Decimal::ZERO;
 
             for account_badge in account_badges_data {
@@ -380,13 +378,14 @@ blueprint! {
 
                     withdraw_amount += lender.lending_amount;
     
-                    fee += withdraw_amount * self.fee;
-    
-                    self.total_return -= withdraw_amount;
     
                 } else {panic!("The protocol don't have your lender account.")}
 
             };
+
+            let fee = withdraw_amount * self.fee;
+    
+            self.total_return -= withdraw_amount;
 
             self.controller_badge.authorize(|| {
                 account_badges.burn()
@@ -937,6 +936,8 @@ blueprint! {
 
                             if eligible_return != Decimal::ZERO {
 
+                                self.total_return += new_debt_interest;
+
                                 self.vault.put(repayment.take(new_debt + new_debt_interest));
 
                                 let interest = Decimal::ONE + new_debt_interest / eligible_return;
@@ -1031,6 +1032,8 @@ blueprint! {
                             };
 
                             if eligible_return != Decimal::ZERO {
+
+                                self.total_return += debt_interest;
 
                                 self.vault.put(repayment.take(current_debt + debt_interest));
 
@@ -1593,17 +1596,19 @@ blueprint! {
 
                     let lender_accounts = lender_bucket.non_fungibles::<Account>();
 
-                    let mut compensate = Decimal::ZERO;
+                    let mut actual_return = Decimal::ZERO;
 
                     for account in lender_accounts {
 
                         let amount = self.lenders.remove(&account.id()).unwrap().lending_amount;
 
-                        compensate += amount * self.compensate_rate;
-                        
-                        self.total_return -= amount;
+                        actual_return += amount;
 
                     }
+
+                    let compensate = actual_return * self.compensate_rate;
+
+                    self.total_return -= actual_return;
 
                     self.controller_badge.authorize(|| {
                         lender_bucket.burn()

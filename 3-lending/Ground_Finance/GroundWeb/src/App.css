@@ -46,26 +46,87 @@
   color:blanchedalmond
 }
 
+.credit-name {
+  color:blanchedalmond
+}
+
+.credit-name:hover {
+    color: chocolate;
+  }
+
 .lender-role-button {
   font-size: 20px;
   color:lightblue;
+}
+
+.black {
+  color: black;
+  font-weight:500
 }
 
 .read-the-docs {
   color: #888;
 }
 
+.box-stats {
+  border: hidden ;
+  width: fit-content;
+}
+
+.box-stats.stats {
+  padding: 20px;
+  padding-left: 50px;
+  padding-right: 50px;
+  height: 60px;
+  width: 50%;
+  margin: auto;
+  border: 1px solid #888 ;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  word-break: normal;
+}
+
+.box-stats.stats.borrower {
+  background-color: blanchedalmond;
+}
+
+.box-stats.stats.lender {
+  background-color: lightblue;
+  
+}
+
+.title {
+  color: rgb(0, 0, 0);
+  font-size: 15px;
+  font-weight: 100;
+  text-align: left;
+  width: 130px;
+}
+
+.info {
+  color: chocolate;
+  font-size: 25px;
+  font-weight: bold;
+  text-align: right;
+}
+
 .borrower-info {
+  color: chocolate;
   font-size: 20px;
-  border: 3px ridge blanchedalmond;
-  padding: 10px;
-  line-height: 40px;
+  font-weight: bold;
+  margin-left: 70px;
+  text-align: right;
 }
 
 .lender-info {
+  color:cornflowerblue;
   font-size: 20px;
-  border: 3px ridge lightblue;
-  padding: 10px;
-  line-height: 40px;
+  font-weight: bold;
+  margin-left: 70px;
+  text-align: right;
 }
 
+.lender-info.id {
+  word-break: break-all;
+}
