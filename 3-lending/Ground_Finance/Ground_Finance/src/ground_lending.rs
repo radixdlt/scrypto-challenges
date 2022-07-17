@@ -891,7 +891,7 @@ blueprint! {
         /// ### Output: 
         /// Remainder of borrower stablecoin bucket.
         /// 
-        /// From this method, when the borrower repaid their debt in full, 
+        /// From this method, when the borrower begin repaid their interest, 
         /// the method will automatically increase lender's lending amount if they're eligible for the interest 
         /// (if the borrow is made after lenders create their lending account).
         /// 
