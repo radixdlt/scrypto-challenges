@@ -1,5 +1,7 @@
 use scrypto::prelude::*;
 mod bond;
+mod user;
+mod bond_market;
 
 blueprint! {
     struct Hello {
