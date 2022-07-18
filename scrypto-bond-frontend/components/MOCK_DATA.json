@@ -1,0 +1,58 @@
+[
+    {
+      "id": 1,
+      "first_name": "Klarrisa",
+      "last_name": "Connold",
+      "date_of_birth": "1971-01-22T00:27:58Z",
+      "country": "China",
+      "phone": "2666978528"
+    },
+    {
+      "id": 2,
+      "first_name": "Erasmus",
+      "last_name": "Gheeraert",
+      "date_of_birth": "2003-06-05T09:31:59Z",
+      "country": "China",
+      "phone": "4112305226"
+    },
+    {
+      "id": 3,
+      "first_name": "Beverlie",
+      "last_name": "Lighton",
+      "date_of_birth": "1994-10-30T15:24:36Z",
+      "country": "Uganda",
+      "phone": "2105257929"
+    },
+    {
+      "id": 4,
+      "first_name": "Jude",
+      "last_name": "Banat",
+      "date_of_birth": "2009-12-07T11:02:45Z",
+      "country": "Slovenia",
+      "phone": "9752321059"
+    },
+    {
+      "id": 5,
+      "first_name": "Goddart",
+      "last_name": "Alben",
+      "date_of_birth": "1999-04-03T08:04:45Z",
+      "country": "Peru",
+      "phone": "8055316886"
+    },
+    {
+      "id": 6,
+      "first_name": "Sherlocke",
+      "last_name": "Karpf",
+      "date_of_birth": "1990-11-19T00:58:32Z",
+      "country": "Ukraine",
+      "phone": "8768187096"
+    },
+    {
+      "id": 7,
+      "first_name": "Selena",
+      "last_name": "Mayes",
+      "date_of_birth": "1987-10-10T17:51:16Z",
+      "country": "Russia",
+      "phone": "9036800236"
+    }
+  ]

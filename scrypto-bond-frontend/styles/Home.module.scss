@@ -1,0 +1,15 @@
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  h1 {
+    color: rgb(140, 87, 201);
+    background-color: bisque;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0;
+  }
+}

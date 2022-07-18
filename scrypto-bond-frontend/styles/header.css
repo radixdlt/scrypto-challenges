@@ -1,0 +1,34 @@
+.header {
+    padding: 0px 15px;
+  }
+  .header .nav-item {
+    padding-left: 50px;
+  }
+  .header .navbar {
+    padding: 10px 0px;
+    line-height: 50px;
+  }
+  .header.sticky {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 91;
+  }
+  .header.sticky .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 10px 15px;
+    width: 100%;
+    background: #fff;
+    box-shadow: 0px 6px 13px 0px rgb(0 0 0 / 6%);
+    opacity: 0;
+    -webkit-animation: fadeInDown .95s ease-in-out 0s 1 normal none running;
+    animation: fadeInDown .95s ease-in-out 0s 1 normal none running;
+    -webkit-transition: all .3s cubic-bezier(.645,.045,.355,1);
+    transition: all .3s cubic-bezier(.645,.045,.355,1);
+    opacity: 1;
+    -webkit-transform: translateY(0%);
+            transform: translateY(0%);
+  }
