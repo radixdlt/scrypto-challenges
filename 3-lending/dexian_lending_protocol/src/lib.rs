@@ -239,9 +239,9 @@ blueprint! {
             assert!(borrow_token == repay_token.resource_address(), "Must return borrowed coin.");
 
             let borrow_state = self.states.get_mut(&borrow_token).unwrap();
-            debug!("before update_index, borrow normalized:{} indexes:{},{}", cdp_data.normalized_borrow, borrow_state.supply_index, borrow_state.borrow_index);
+            debug!("before update_index, borrow normalized:{} total_borrow_normailized:{} indexes:{},{}", cdp_data.normalized_borrow, borrow_asset.total_borrow_normailized, borrow_state.supply_index, borrow_state.borrow_index);
             borrow_state.update_index();
-            debug!("after update_index, borrow normalized:{} indexes:{},{}", cdp_data.normalized_borrow, borrow_state.supply_index, borrow_state.borrow_index);
+            debug!("after update_index, borrow normalized:{} total_borrow_normailized:{} indexes:{},{}", cdp_data.normalized_borrow, borrow_asset.total_borrow_normailized, borrow_state.supply_index, borrow_state.borrow_index);
             let borrow_index = borrow_state.borrow_index;
             assert!(borrow_index > Decimal::ZERO, "borrow index error! {}", borrow_index);
             let mut normalized_amount = LendingPool::floor(repay_token.amount() / borrow_index);
