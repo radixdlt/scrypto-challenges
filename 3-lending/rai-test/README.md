@@ -65,3 +65,9 @@ It is expected that blueprints and components will not be redeployed often, and 
 - RAI-Scrypto-Lending-Platform-PTE - a react web frontend for testing with Babylon PTE, tracked in a separate git repo. It may be cloned into the local repo by using the git submodule commands above.
 - src/lib.rs - core RAI Lending Platform logic
 - raitest.rev - revup script for testing RAI Lending Platform functions with resim
+
+# Design Considerations
+A centralized key-value store `NonFungibleId(positionId)`->`PositionInfo` located in the Rai Lending Platform contract was chosen over a Resource based approach of storing `PositionInfo` into the NonFungibleData of the nonfungible position badge for the following considerations:
+- `recallable` resource access control has not yet been implemented at the time of this challenge
+- no API exists on the Babylon PTE-SDK to view individual NonFungibleData for a specific NonFungibleId resource
+because of the above, it was more straightforward from an implementation to centralize all `PositionInfo` into the key-value store to allow the contract to revoke positions. Additionally, the frontend UI lacked the ability to display individual `PositionInfo` located in the NonFungibleData, so there was no benefit from a UX perspective from being able to view `PositionInfo` data directly from the NonFungible token resource as well. 
