@@ -274,6 +274,8 @@ blueprint! {
             cdp_data.normalized_borrow -= normalized_amount;
             cdp_data.last_update_epoch = Runtime::current_epoch();
             borrow_state.normalized_total_borrow -= normalized_amount;
+
+            borrow_state.update_interest_rate();
             
             self.minter.authorize(|| {
                 let cdp_res_mgr: &ResourceManager = borrow_resource_manager!(cdp.resource_address());
@@ -328,7 +330,7 @@ blueprint! {
 
             self.minter.authorize(|| {
                 let cdp_res_mgr: &ResourceManager = borrow_resource_manager!(self.cdp_res_addr);
-                cdp_res_mgr.update_non_fungible_data(&NonFungibleId::from_u64(cdp_id), cdp_data);
+                cdp_res_mgr.update_non_fungible_data(&NonFungibleId::from_u64(cdp_id)   , cdp_data);
             });
 
             collateral_bucket
