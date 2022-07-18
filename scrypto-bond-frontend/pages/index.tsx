@@ -107,7 +107,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <h2 className={styles.title}>
-          Multi-page website using Next.js
+          Multi-page website
         </h2>
 
         <div className={styles.grid}>
@@ -119,7 +119,7 @@ export default function Home() {
 
           <Link href="/IS" >
           <a className={styles.card}>
-            <h2>IS &rarr;</h2>
+            <h2>Issuer/Seller &rarr;</h2>
             </a>
           </Link>
 
@@ -128,7 +128,7 @@ export default function Home() {
             
           >
             <a className={styles.card}>
-            <h2>B &rarr;</h2>
+            <h2>Buyer &rarr;</h2>
             </a>
           </Link>
 
