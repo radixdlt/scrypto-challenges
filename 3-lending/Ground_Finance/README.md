@@ -39,7 +39,7 @@ The test used both the PTE resim client and the PTE Browser Extension, *the test
 **Test Component initializing and get testing resource through resim client:**
 
 1. Connect to the PTE `cd Ground_Test/resim-client && resim-client --address pte01-socket.radixdlt.com:8010`
-2. Check the test component `resim show 025e99c7a933df2209a07ec9cceae6bfb48a44c0a0dfb25801b4fa`. If the test component already existed, go directly to the step 8.
+2. Check the test component `resim show 02b5db58fda106b8548995662aa2d40423fc3e846e818d14b845b2`. If the test component already existed, go directly to the step 8.
 3. Close the resim client and build the test package `cd .. && scrypto build` (ignore this step if you have already dont the unit-test)
 4. Connect to the PTE again `cd resim-client && resim-client --address pte01-socket.radixdlt.com:8010` and publish the test package `resim publish ../target/wasm32-unknown-unknown/release/ground_test.wasm`
 5. Edit the package address on file [instantiate](./Ground_Test/resim-client/instantiate) and run `resim run instantiate`
