@@ -43,8 +43,12 @@ If the `borrowed asset value/collateral asset value` reaches a pre-determined up
 
 ![workflow](res/biz_flow.jpg)
 
-1. Environment preparation and reset.
-2. Create 4 accounts: 
+
+## Build & Run
+
+* Environment preparation and reset.
+* Create 4 accounts
+
 | name    | usage                                   |
 | ------- | --------------------------------------- |
 | admin   | Used to deploy the contract.            |
@@ -52,7 +56,8 @@ If the `borrowed asset value/collateral asset value` reaches a pre-determined up
 | p2      | usdt deposit user                       |
 | p3      | usdc deposit user                       |
 
-3. Issue usdc,usdt tokens and distribute them to the corresponding users.
+*  Issue usdc,usdt tokens and distribute them to the corresponding users.
+
 
 ```shell
 scrypto build
@@ -83,8 +88,9 @@ resim transfer 200 $usdt $p1
 resim transfer 200 $usdc $p1
 ```
 
-1. Deploy interest rate models, 
-2. Deploy price oracle and set asset prices (using XRD as quotes)
+
+* Deploy interest rate models, 
+* Deploy price oracle and set asset prices (using XRD as quotes)
 ```
 result=$(resim publish ".")
 export pkg=$(echo $result | awk -F ": " '{print $2}')
@@ -99,8 +105,8 @@ result=$(resim call-function $pkg PriceOracle "new" $usdt 16.66666666 $usdc 16.3
 export oracle=$(echo $result | grep "Component: "| awk -F "Component: " '{print $2}' | awk -F " " '{print $1}')
 ```
 
-1. Deploy lending protocol component
-2. parse admin badge & CDP resource address
+* Deploy lending protocol component
+* parse admin badge & CDP resource address
 ```
 result=$(resim call-function $pkg LendingPool "instantiate_asset_pool" $oracle)
 export component=$(echo $result | grep "Component: "| awk -F "Component: " '{print $2}' | awk -F " " '{print $1}')
@@ -111,8 +117,9 @@ export cdp=$(echo $result | grep "Resource: " | awk -F "Resource: " '{if (NR==1)
 # export cdp=$(echo $result | grep "Resource: " | awk -F "Resource: " '{if (NR==3) print $2}')
 ```
 
-1. Create a new asset type in the lending protocol: `XRD`, `USDT`，`USDC`
-2. parse `dxToken`，such as `dxXRD`, `dxUSDT`，`dxUSDC`
+
+* Create a new asset type in the lending protocol: `XRD`, `USDT`，`USDC`
+* parse `dxToken`，such as `dxXRD`, `dxUSDT`，`dxUSDC`
 ```
 export xrd=030000000000000000000000000000000000000000000000000004
 result=$(resim run ./transactions/new_pool_def.rtm)
@@ -123,7 +130,7 @@ result=$(resim run -t ./transactions/new_usdc_stable.rtm)
 export dx_usdc=$(echo $result | grep "Resource: " | awk -F "Resource: " '{if (NR==1) print $2}' | awk -F " " '{print $1}')
 ```
 
-## Asset Risk Parameter
+#### Asset Risk Parameter
 |  Symbol  |  Collateral  |  Loan To Value  |  Liquidation Threshold   |  Liquidation Bonus   | Insurance Ratio | Interest Model          |
 | -------- | ------------ | --------------- | ------------------------ | -------------------- | --------------- | ----------------------- |
 | XRD      | Yes          | 60%             | 70%                      |  7%                  |  25%            | Default Interest model  |
@@ -132,9 +139,9 @@ export dx_usdc=$(echo $result | grep "Resource: " | awk -F "Resource: " '{if (NR
 
 
 
-1. Deposit to XRD Token Assets
-2. Deposit to USDT Token Assets
-3. Deposit to USDC Token Assets
+* Deposit to XRD Token Assets
+* Deposit to USDT Token Assets
+* Deposit to USDC Token Assets
 ```
 # xrd
 resim set-default-account $p1 $p1_priv
@@ -150,7 +157,8 @@ resim call-method $component 'supply' 360,$usdc
 ```
 You can see the user's asset holdings with `resim show $p1`, for example: `xdXRD`
 
-1. Lending USDT, USDC as a p1 user
+
+* Lending USDT, USDC as a p1 user
 ```
 # p1(xrd) borrow 180 usdt
 resim set-default-account $p1 $p1_priv
@@ -160,9 +168,10 @@ resim call-method $component 'borrow' 10000,$dx_xrd $usdc 180
 You can see the user's asset holdings with `resim show $p1`, for example: `USDT`, `USDC` and `CDP`
 
 
-1. Set the setting time to one year later
-2. repayment `USDT`
-3. repayment `USDC`
+
+* Set the setting time to one year later
+* repayment `USDT`
+* repayment `USDC`
 ```
 # the xrd price pump
 # resim call-method $oracle 'get_price_quote_in_xrd' $usdt
@@ -177,7 +186,7 @@ resim call-method $component 'repay' "200,$usdt" "#0000000000000001,$cdp"
 resim call-method $component 'repay' "200,$usdc" "#0000000000000002,$cdp"
 ```
 
-1. withdraw
+* withdraw
 ```
 resim set-default-account $p2 $p2_priv
 resim call-method $component 'withdraw' $dx_usdt "360,$dx_usdt"
