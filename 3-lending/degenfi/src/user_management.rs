@@ -89,7 +89,7 @@ blueprint! {
         /// # Arguments: 
         /// 
         /// * `account_address` (ComponentAddress) - The user's wallet address to ensure the user cannot create multiple
-        /// SBTs.
+        /// SBTs.th
         /// 
         /// # Returns:
         /// 
@@ -362,7 +362,8 @@ blueprint! {
         {
             let resource_manager = borrow_resource_manager!(self.sbt_address);
             let sbt_data: User = resource_manager.get_non_fungible_data(&user_id);
-            return assert!(sbt_data.deposit_balance.contains_key(&address), "This token resource does not exist in your deposit balance.")
+            return assert!(sbt_data.deposit_balance.contains_key(&address), 
+            "This token resource does not exist in your deposit balance. Your user is {:?}", &user_id)
         }
 
         /// Increase the borrow balance of the User SBT.
@@ -777,7 +778,7 @@ blueprint! {
             // Retrieves resource manager to find user. 
             let mut sbt_data = self.call_resource_mananger(&user_id);
             // Asserts this collateral balance must exist.
-            assert!(sbt_data.collateral_balance.contains_key(&address), "Must have this deposit resource to withdraw");
+            assert!(sbt_data.collateral_balance.contains_key(&address), "Must have this collateral resource to withdraw");
 
             // Reduces the collateral balance.
             *sbt_data.collateral_balance.get_mut(&address).unwrap() -= redeem_amount;

@@ -1,5 +1,5 @@
 ![](./public/images/IMG_1112.jpg)
-
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Table of Content
 
@@ -30,6 +30,7 @@
     + [Example 4: Leverage 3x](#example-4-leverage-3x)
     + [Example 5: Flash Liquidation](#example-5-flash-liquidation)
     + [Example 6: Closing out a leveraged position](#example-6-closing-out-a-leveraged-position)
+    + [Example 7: Loan Auctioning](#example-7-loan-auctioning)
   * [Future Work and Improvements](#future-work-and-improvements)
   * [Conclusion](#conclusion)
   * [License](#license)
@@ -73,6 +74,7 @@ The new transaction model introduced with v0.3.0 of Scrypto allows for the creat
 * **Folded leverage** - Folded leverage is where a user deposits collateral on a lending platform, borrows against their collateral, re-deposits what they borrowed as additional collateral, borrows against the newly added collateral etc etc until the desired leverage is achieved. Users are able to open a long position or short position
 * **Flash liquidation** - Users can liquidate a position even if they do not have the funds to repay the loan by using flash loans.
 * **Credit Score System** - Users can earn a credit rating by continuously showing good borrowing habits by paying off their loans. Borrowers who demonstrate a proven borrowing track record can earn interest rate coupons and collateralization adjustments. 
+* **Loan Auctioning** - Users can auction their loan NFT to open up liquidity. User can set the conditions of their sale agreement.
 
 #### Folded Leverage
 
@@ -111,11 +113,11 @@ To perform a flash loan liquidation:
 4. You swap enough of the collateral asset to the asset you repaid the loan with.
 5. You pay back the flash loan you took in step 1.
 
-### Credit Score System
+### Loan Auction
 
-The design of the credit score hasn't been fully thought out, but more so for demonstration purposes as to how easy it is to have this type of capability on Radix. Currently, to have one metric to underwrite creditworthiness is see how many times a borrower has paid off their loans as this will provide a track record of their borrowing history. The borrower will receive a 5 credit score increment starting from 20, 25, 30, 35, 40 everytime they pay off their loan and have a remaining paid off balance of 75% or below, 50% or below, 25% or below, and 0%. Certainly, there are ways for people to game this system by simply only taking $100 worth of loans for example and paying it off in 25% increments to get a full credit score of 150 received. As of now, it is only a demonstration of features rather than engineering a credit system.
+The loan auction design has not been fully thought out yet so there are certainly a lot of outstanding questions to consider. Nonetheless, the design requires the seller of the loan NFT to instantitate the `LoanAuction` blueprint to deposit their loan NFT. 
 
-The credit system is primitive at this point. Users who have 100, 200, and 300 credit score will receive a discount of 1%, 2%, and 3% on their interest rate respectively. Likewise, users who have 100, 200, or 300 credit score will also be allowed to decrease their collaterization requirement by 5%, 10%, and 15% respectively. 
+The seller needs to determine the conditions of the sale (how much the minimum collateral is requested by the seller). The buyer is then allowed to withdraw the loan NFT from the vault, but a transient token is minted along the way the must satisfy the conditions of the sale before the loan NFT can be retrieved.
 
 ## Misc. features:
 
@@ -154,6 +156,23 @@ The liquidation fee or liquidation bonus is currently a static 5% attirubtion to
 
 Each asset supported has two pools, one to provide liquidity supply and one to lock collateral. In this way, this design can support multiple assets while risk between assets should be contained within each pool(s). I have yet to research different pool designs or develop or a way to model risk. This was just something I thought was intuitive. 
 
+### Credit Report System Design
+
+The credit report design is quite primitive. The basic gestalt is that, users can earn credit scores by repaying back their loan. Users need to borrow a minimum of 1,000 of value to begin earning credit.
+
+Here is the credit score calculation:
+
+Repay > 25% of the remaining balance & a minimum of 1,000 in value = 25 credit score.
+Repay > 50% of the remaining balance & a minimum of 1,000 in value = 35 credit score.
+Repay > 75% of the remaining balance & a minimum of 1,000 in value = 45 credit score.
+Repay > 100% of the remaining balance & a minimum of 1,000 in value = 60 credit score.
+
+Users who have achieved 100, 200, or 300 credit score are rewarded with the following:
+
+1%, 2%, or 3% interest rate coupons, respectively.
+
+3%, 6%, or 9% increase in max borrow allowed, respectively.
+
 ### Blueprints Overview
 The DegenFi Protocol is made up of 6 core blueprints. These blueprints are `DegenFi`, `LendingPool`, `CollateralPool`, `UserManagement`, `Radiswap`, and `PseudoPriceOracle`.
 
@@ -190,7 +209,6 @@ The `UserManagement` blueprint plays a unique role in the protocol. Because SBT'
 
 The role of the `UserManagement` blueprint are to:
 * Manage User SBT data. `LendingPool` and `CollateralPool` performs permissioned method calls to increase deposit balance, decrease deposit balance, increase collateral balance, decrease collateral balance, increase borrow balance, decrease borrow balance, increase credit score, decrease credit score,
-*  
 
 #### Radiswap Blueprint
 While not as performative as Omar's RaDEX, the `Radiswap` blueprint provides a simple and straightforward set of methods to show case extended use of flash loans in this protocol.
@@ -198,6 +216,15 @@ Its functions are simple and its role is to simply facilitate swapping of assets
 
 #### PseudoPriceOracle Blueprint
 The `PseudoPriceOracle` blueprint is a very primitive blueprint, mainly serving as a function to have a basic way of pulling price data and calculating time for interest accruals.
+
+### LoanAuction Blueprint
+The `LoanAuction` blueprint serves as a way for users to deposit their loan NFT to put up for sale. It contains four vaults: 
+1. The vault where collateral will be deposited to be claimed by the seller of the NFT.
+2. The vault where the NFT will be contained.
+3. The vault of where the transient token badge that has authority to mint/burn/update transient tokens.
+4. The vault that containse the access badge to allow components to do permissioned calls.
+
+The `LoanAuction` blueprint has methods that faciliates the loan NFT transaction and the change of ownership of that loan NFT.
 
 ## Examples
 
@@ -232,6 +259,10 @@ OP5=$(resim new-account)
 export PRIV_KEY5=$(echo "$OP5" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
 export PUB_KEY5=$(echo "$OP5" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
 export ACC_ADDRESS5=$(echo "$OP5" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+OP6=$(resim new-account)
+export PRIV_KEY6=$(echo "$OP6" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export PUB_KEY6=$(echo "$OP6" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS6=$(echo "$OP6" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 ```
 
 Let's publish our package and create our environment variable for our component and flash loan (which will be used in the later examples.
@@ -322,7 +353,7 @@ Joe later wants to supply an additional 19,000 of XRD and USD. We can do this by
 [`./transactions/deposit_supply_xrd.rtm`](./transactions/deposit_supply_xrd.rtm) 
 [`./transactions/deposit_supply_usd.rtm`](./transactions/deposit_supply_usd.rtm)
 
-```
+```sh
 resim run ./transactions/deposit_supply_xrd.rtm && resim run ./transactions/deposit_supply_usd.rtm
 ```
 
@@ -404,47 +435,11 @@ export PROOF2=031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca
 ```
 
 Now it's time to demonstrate how folded leverage works on Radix. Let's run the following Transaction Manifest file.
-
+[`./transactions/degen_1x_leverage.rtm`](./transactions/degen_1x_leverage.rtm)
 ```sh
 resim run ./transactions/degen_1x_leverage.rtm
 ```
 ```sh
-Transaction Status: SUCCESS
-Execution Time: 622 ms
-Instructions:
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "flash_borrow", args: [ResourceAddress("030000000000000000000000000000000000000000000000000004"), Decimal("1000")] }
-├─ CallMethod { component_address: 02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3, method: "create_proof_by_amount", args: [Decimal("1"), ResourceAddress("031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca")] }
-├─ PopFromAuthZone
-├─ CallMethod { component_address: 02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3, method: "withdraw_by_amount", args: [Decimal("2000"), ResourceAddress("030000000000000000000000000000000000000000000000000004")] }
-├─ TakeFromWorktopByAmount { amount: 2000, resource_address: 030000000000000000000000000000000000000000000000000004 }
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "deposit_collateral", args: [Proof(512u32), Bucket(513u32)] }
-├─ CallMethod { component_address: 02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3, method: "create_proof_by_amount", args: [Decimal("1"), ResourceAddress("031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca")] }
-├─ PopFromAuthZone
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "borrow", args: [Proof(514u32), ResourceAddress("03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed"), ResourceAddress("030000000000000000000000000000000000000000000000000004"), Decimal("1000")] }
-├─ TakeFromWorktopByAmount { amount: 1000, resource_address: 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed }
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "swap", args: [Bucket(515u32)] }
-├─ CallMethod { component_address: 02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3, method: "withdraw_by_amount", args: [Decimal("1000"), ResourceAddress("030000000000000000000000000000000000000000000000000004")] }
-├─ TakeFromWorktopByAmount { amount: 1000, resource_address: 030000000000000000000000000000000000000000000000000004 }
-├─ TakeFromWorktopByAmount { amount: 1, resource_address: 03391ee849d71872cd7f2e2e46c2b11d0c4bfb21193a354288223a }
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "flash_repay", args: [Bucket(516u32), Bucket(517u32)] }
-└─ CallMethodWithAllResources { component_address: 02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3, method: "deposit_batch" }
-Instruction Outputs:
-├─ Tuple(Bucket(1025u32), Bucket(1029u32), Bucket(1031u32))
-├─ Proof(1032u32)
-├─ Proof(512u32)
-├─ Bucket(1034u32)
-├─ Bucket(513u32)
-├─ Bucket(1040u32)
-├─ Proof(1041u32)
-├─ Proof(514u32)
-├─ Tuple(Bucket(1056u32), Bucket(1046u32), Bucket(1058u32))
-├─ Bucket(515u32)
-├─ Bucket(1060u32)
-├─ Bucket(1061u32)
-├─ Bucket(516u32)
-├─ Bucket(517u32)
-├─ Bucket(1068u32)
-└─ ()
 Logs: 21
 ├─ [INFO ] [DegenFi]: Depositing 2000 of 030000000000000000000000000000000000000000000000000004 as collateral.
 ├─ [INFO ] [DegenFi]: Borrowing: 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed, Amount: 1000
@@ -505,7 +500,7 @@ Logs: 8
 
 ### Example 3: Leverage 2x
 
-This example will be more straightforward as it's mostly an extension of the previous example. Here, we have Sally who wants to open a 2x leveraged position her XRD. Like Bob, Sally will also be only be putting up 1,000 XRD as her principal investment, but now taking out a flash loan to borrow an additional 2,000 XRD to supply a total of 3,000 XRD as collateral. Beth will be borrowing $2,000 USD in this example representing a 66% Borrow Limit Usage. So Sally's degen appetite is stronger than Bob's, but still practices some measure of risk management.
+This example will be more straightforward as it's mostly an extension of the previous example. Here, we have Sally who wants to open a 2x leveraged position her XRD. Like Bob, Sally will also be only be putting up 1,000 XRD as her principal investment, but now taking out a flash loan to borrow an additional 2,000 XRD to supply a total of 3,000 XRD as collateral. Beth will be borrowing $2,000 USD in this example representing a 66% Borrow Limit Usage. 
 
 Let's make sure that we are on Sally's account.
 
@@ -524,52 +519,13 @@ Logs: 2
 ├─ [INFO ] User created! Your SBT resource address is 031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca
 └─ [INFO ] Thank you for registering an account at DegenFi, here are 1 Degen Tokens for you to start!
 ```
-```sh
-export PROOF3=031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca
-```
 
 To perform a 2x leveraged position, we can run the following transaction manifest file.
-
+[`./transactions/degen_2x_leverage.rtm`](./transactions/degen_2x_leverage.rtm)
 ```sh
 resim run ./transactions/degen_2x_leverage.rtm
 ```
 ```sh
-Transaction Status: SUCCESS
-Execution Time: 627 ms
-Instructions:
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "flash_borrow", args: [ResourceAddress("030000000000000000000000000000000000000000000000000004"), Decimal("2000")] }
-├─ CallMethod { component_address: 02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364, method: "create_proof_by_amount", args: [Decimal("1"), ResourceAddress("031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca")] }
-├─ PopFromAuthZone
-├─ CallMethod { component_address: 02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364, method: "withdraw_by_amount", args: [Decimal("3000"), ResourceAddress("030000000000000000000000000000000000000000000000000004")] }
-├─ TakeFromWorktopByAmount { amount: 3000, resource_address: 030000000000000000000000000000000000000000000000000004 }
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "deposit_collateral", args: [Proof(512u32), Bucket(513u32)] }
-├─ CallMethod { component_address: 02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364, method: "create_proof_by_amount", args: [Decimal("1"), ResourceAddress("031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca")] }
-├─ PopFromAuthZone
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "borrow", args: [Proof(514u32), ResourceAddress("03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed"), ResourceAddress("030000000000000000000000000000000000000000000000000004"), Decimal("2000")] }
-├─ TakeFromWorktopByAmount { amount: 2000, resource_address: 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed }
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "swap", args: [Bucket(515u32)] }
-├─ CallMethod { component_address: 02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364, method: "withdraw_by_amount", args: [Decimal("2000"), ResourceAddress("030000000000000000000000000000000000000000000000000004")] }
-├─ TakeFromWorktopByAmount { amount: 2000, resource_address: 030000000000000000000000000000000000000000000000000004 }
-├─ TakeFromWorktopByAmount { amount: 1, resource_address: 03391ee849d71872cd7f2e2e46c2b11d0c4bfb21193a354288223a }
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "flash_repay", args: [Bucket(516u32), Bucket(517u32)] }
-└─ CallMethodWithAllResources { component_address: 02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364, method: "deposit_batch" }
-Instruction Outputs:
-├─ Tuple(Bucket(1025u32), Bucket(1029u32), Bucket(1031u32))
-├─ Proof(1032u32)
-├─ Proof(512u32)
-├─ Bucket(1034u32)
-├─ Bucket(513u32)
-├─ Bucket(1040u32)
-├─ Proof(1041u32)
-├─ Proof(514u32)
-├─ Tuple(Bucket(1056u32), Bucket(1046u32), Bucket(1058u32))
-├─ Bucket(515u32)
-├─ Bucket(1060u32)
-├─ Bucket(1061u32)
-├─ Bucket(516u32)
-├─ Bucket(517u32)
-├─ Bucket(1068u32)
-└─ ()
 Logs: 21
 ├─ [INFO ] [DegenFi]: Depositing 3000 of 030000000000000000000000000000000000000000000000000004 as collateral.
 ├─ [INFO ] [DegenFi]: Borrowing: 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed, Amount: 2000
@@ -627,59 +583,21 @@ resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
 It's routine at this point. We will make an SBT for Beth.
 
 ```sh
-resim run ./transactions/new_user4.rtm
+NU=$(resim run "./transactions/new_user4.rtm")
+export PROOF4=$(echo "$NU" | sed -nr "s/.*SBT resource address is ([[:alnum:]_]+)/\1/p")
 ```
 ```sh
 Logs: 2
 ├─ [INFO ] User created! Your SBT resource address is 031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca
 └─ [INFO ] Thank you for registering an account at DegenFi, here are 1 Degen Tokens for you to start!
 ```
-```sh
-export PROOF4=031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca
-```
 
 Now to run Beth's 3x leverage position.
-
+[`./transactions/degen_3x_leverage.rtm`](./transactions/degen_3x_leverage.rtm)
 ```sh
 resim run ./transactions/degen_3x_leverage.rtm
 ```
 ```sh
-Transaction Status: SUCCESS
-Execution Time: 640 ms
-Instructions:
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "flash_borrow", args: [ResourceAddress("030000000000000000000000000000000000000000000000000004"), Decimal("3000")] }
-├─ CallMethod { component_address: 0200098f161a7691fa7ae380e41aed27ab5c4f969e8e563ce4275a, method: "create_proof_by_amount", args: [Decimal("1"), ResourceAddress("031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca")] }
-├─ PopFromAuthZone
-├─ CallMethod { component_address: 0200098f161a7691fa7ae380e41aed27ab5c4f969e8e563ce4275a, method: "withdraw_by_amount", args: [Decimal("4000"), ResourceAddress("030000000000000000000000000000000000000000000000000004")] }
-├─ TakeFromWorktopByAmount { amount: 4000, resource_address: 030000000000000000000000000000000000000000000000000004 }
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "deposit_collateral", args: [Proof(512u32), Bucket(513u32)] }
-├─ CallMethod { component_address: 0200098f161a7691fa7ae380e41aed27ab5c4f969e8e563ce4275a, method: "create_proof_by_amount", args: [Decimal("1"), ResourceAddress("031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca")] }
-├─ PopFromAuthZone
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "borrow", args: [Proof(514u32), ResourceAddress("03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed"), ResourceAddress("030000000000000000000000000000000000000000000000000004"), Decimal("3000")] }
-├─ TakeFromWorktopByAmount { amount: 3000, resource_address: 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed }
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "swap", args: [Bucket(515u32)] }
-├─ CallMethod { component_address: 0200098f161a7691fa7ae380e41aed27ab5c4f969e8e563ce4275a, method: "withdraw_by_amount", args: [Decimal("3000"), ResourceAddress("030000000000000000000000000000000000000000000000000004")] }
-├─ TakeFromWorktopByAmount { amount: 3000, resource_address: 030000000000000000000000000000000000000000000000000004 }
-├─ TakeFromWorktopByAmount { amount: 1, resource_address: 03391ee849d71872cd7f2e2e46c2b11d0c4bfb21193a354288223a }
-├─ CallMethod { component_address: 0254e252892cb31e9ac96064d0d09d6823d0c7f8c266fcbad47747, method: "flash_repay", args: [Bucket(516u32), Bucket(517u32)] }
-└─ CallMethodWithAllResources { component_address: 0200098f161a7691fa7ae380e41aed27ab5c4f969e8e563ce4275a, method: "deposit_batch" }
-Instruction Outputs:
-├─ Tuple(Bucket(1025u32), Bucket(1029u32), Bucket(1031u32))
-├─ Proof(1032u32)
-├─ Proof(512u32)
-├─ Bucket(1034u32)
-├─ Bucket(513u32)
-├─ Bucket(1040u32)
-├─ Proof(1041u32)
-├─ Proof(514u32)
-├─ Tuple(Bucket(1056u32), Bucket(1046u32), Bucket(1058u32))
-├─ Bucket(515u32)
-├─ Bucket(1060u32)
-├─ Bucket(1061u32)
-├─ Bucket(516u32)
-├─ Bucket(517u32)
-├─ Bucket(1068u32)
-└─ ()
 Logs: 21
 ├─ [INFO ] [DegenFi]: Depositing 4000 of 030000000000000000000000000000000000000000000000000004 as collateral.
 ├─ [INFO ] [DegenFi]: Borrowing: 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed, Amount: 3000
@@ -708,22 +626,20 @@ New Entities: 0
 
 ## Example 5: Flash liquidation
 
-John is a pessimist and likes to ruin people's fun. John is the type that read the Terms of Service and declines. He wants to find bad loans to liquidate because it's an opportunity for him to catch other people's mistakes. 
+John likes to ruin people's fun. John is the type to read the Terms of Service and declines. He wants to find bad loans to liquidate because it's an opportunity for him to catch other people's mistakes. 
 
 To see how John would do this let's make sure we set his account as the default and create an SBT for him.
 ```sh
 resim set-default-account $ACC_ADDRESS5 $PRIV_KEY5
 ```
 ```sh
-resim run ./transactions/new_user5.rtm
+NU=$(resim run "./transactions/new_user5.rtm")
+export PROOF5=$(echo "$NU" | sed -nr "s/.*SBT resource address is ([[:alnum:]_]+)/\1/p")
 ```
 ```sh
 Logs: 2
 ├─ [INFO ] User created! Your SBT resource address is 031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca
 └─ [INFO ] Thank you for registering an account at DegenFi, here are 1 Degen Tokens for you to start!
-```
-```sh
-export PROOF5=031fe1f483ddda32168b4c0ad0be7a2e565442cb50a967f75129ca
 ```
 
 John queries a list of potential bad loans in the protocol and we can do this by running the following Transaction Manifest file.
@@ -749,7 +665,7 @@ So now that we have identified the loan that John wants to liquidate, we can beg
 However, John actually doesn't have the funds to liquidate the loan. In order to liquidate, John has to pay down up Beth's debt in order to receive Beth's discounted collateral. Given Radix's asset-oriented environment and the Transaction Manifest, John is able to perform a flash loan liquidation at ease. 
 
 John performs the flash loan liquidation by taking out a $1,500 USD flash loan. He will then use those proceeds to repay up to 50% of Beth's debt. In turn, he will receive 50% of Beth's collateral value + 5%, currently static, liquidation bonus for performing this liquidation. Since John took a flash loan to do this, he will have to swap the collateral value in order to pay back the loan he took. While John would have received more of the collateral had he used his own funds, he still received XX without having to use any of his own balance sheet!
-
+[`./transactions/flash_liquidation.rtm`](./transactions/flash_liquidation.rtm)
 ```sh
 resim run ./transactions/flash_liquidation.rtm
 ```
@@ -790,19 +706,61 @@ Resources:
 └─ { amount: 434.575733973784988059, resource address: 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed }
 ```
 
+```sh
+resim call-method $COMPONENT get_loan_info $USD $LOAN
+```
+
+```sh
+Logs: 14
+├─ [INFO ] [Loan NFT]: Loan ID: 670d143f8a434e20da32935dddc3cd75
+├─ [INFO ] [Loan NFT]: Asset: 03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac
+├─ [INFO ] [Loan NFT]: Collateral: 030000000000000000000000000000000000000000000000000004
+├─ [INFO ] [Loan NFT]: Principal Loan Amount: 3000
+├─ [INFO ] [Loan NFT]: Interest Rate: 0.08
+├─ [INFO ] [Loan NFT]: Origination Fee: 0.01
+├─ [INFO ] [Loan NFT]: Origination Fee Charged: 30
+├─ [INFO ] [Loan NFT]: Loan Owner: 05590cc0e151087ed8cfd5a374b2b4cd
+├─ [INFO ] [Loan NFT]: Remaining Balance: 1770
+├─ [INFO ] [Loan NFT]: Interest Expense: 240
+├─ [INFO ] [Loan NFT]: Collateral Amount: 2425
+├─ [INFO ] [Loan NFT]: Collateral Amount (USD): 2425
+├─ [INFO ] [Loan NFT]: Health Factor: 1.027542372881355932
+└─ [INFO ] [Loan NFT]: Loan Status: Defaulted
+New Entities: 0
+```
+
 ### Example 6: Closing out a leveraged position
 
 Noticing this mess, Bob wants to close out his leveraged position. To do this he will need to perform another flash loan maneuver by taking out $1,000 USD to repay the loan balance. After paying off the loan, he can redeem his collateral. Since John took out a flash loan to perform this action, he must pay it back by first swapping his XRD collateral that he received to USD using Radiswap. Then finally Bob pays back his flash loan, all within one transaction.
+
+Let's set Bob's account as default.
 
 ```sh
 resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
 ```
 
+For this, we would have to manually create an environment variable for Bob's loan. We can do this with the following:
 
+```sh
+resim show $ACC_ADDRESS2
+```
+
+```sh
+├─ { amount: 1, resource address: 03ae27996a6445701845a70507e08fa50a5a75caafbd21355b296a, name: "Loan NFT", symbol: "LNFT" }
+│  └─ NonFungible { id: d8e6a120544116918516144be22e3642, immutable_data: Struct(ResourceAddress("03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac"), ResourceAddress("030000000000000000000000000000000000000000000000000004"), Decimal("1000"), Decimal("0.08"), Decimal("0.01"), Decimal("10"), NonFungibleId("d30e22d4b051d79d5f81c4cff1a22c06")), mutable_data: Struct(Decimal("1090"), Decimal("80"), 0u64, Decimal("2000"), Decimal("2000"), Decimal("1.376146788990825688"), Enum("Current")) }
+```
+
+```sh
+export LOAN2=d8e6a120544116918516144be22e3642
+```
+
+Let's call the `get_loan_info` method to review Bob's loan.
 
 ```sh
 resim call-method $COMPONENT get_loan_info $USD $LOAN2
 ```
+
+We can see that he has a remaining balance of $1,090 (with origination fees and interest expense fees).
 
 ```sh
 Logs: 14
@@ -823,113 +781,308 @@ Logs: 14
 New Entities: 0
 ```
 
-
+Now we can run this transaction manifest file to close out Bob's position.
+[`./transactions/close_degen_1x_leverage.rtm`](./transactions/close_degen_1x_leverage.rtm)
 ```sh
 resim run ./transactions/close_degen_1x_leverage.rtm
 ```
 
 ```sh
-Transaction Status: SUCCESS
-Execution Time: 637 ms
-Instructions:
-├─ CallMethod { component_address: 0265ddc1136eeeba77f09c5ca64e40cded661cd1b6cfd3c267e2ac, method: "flash_borrow", args: [ResourceAddress("03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed"), Decimal("1090")] }
-├─ CallMethod { component_address: 02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3, method: "create_proof_by_amount", args: [Decimal("1"), ResourceAddress("036360427525c72692de48798c117695d65267ab72533d4b7f0e3d")] }
-├─ PopFromAuthZone
-├─ TakeFromWorktopByAmount { amount: 1090, resource_address: 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed }
-├─ CallMethod { component_address: 0265ddc1136eeeba77f09c5ca64e40cded661cd1b6cfd3c267e2ac, method: "repay", args: [Proof(512u32), NonFungibleId("7e79c4f725374bc6496485f1bcff3c8d"), ResourceAddress("03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed"), Bucket(513u32)] }
-├─ CallMethod { component_address: 02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3, method: "create_proof_by_amount", args: [Decimal("1"), ResourceAddress("036360427525c72692de48798c117695d65267ab72533d4b7f0e3d")] }
-├─ PopFromAuthZone
-├─ CallMethod { component_address: 0265ddc1136eeeba77f09c5ca64e40cded661cd1b6cfd3c267e2ac, method: "redeem_collateral", args: [Proof(514u32), ResourceAddress("030000000000000000000000000000000000000000000000000004"), Decimal("2000")] }
-├─ TakeFromWorktopByAmount { amount: 2000, resource_address: 030000000000000000000000000000000000000000000000000004 }
-├─ CallMethod { component_address: 0265ddc1136eeeba77f09c5ca64e40cded661cd1b6cfd3c267e2ac, method: "swap", args: [Bucket(515u32)] }
-├─ TakeFromWorktopByAmount { amount: 1090, resource_address: 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed }
-├─ TakeFromWorktopByAmount { amount: 1, resource_address: 036ba28b2ef86ac5e6553b043965cc9b8e8cba8ee377d23c74d5cf }
-├─ CallMethod { component_address: 0265ddc1136eeeba77f09c5ca64e40cded661cd1b6cfd3c267e2ac, method: "flash_repay", args: [Bucket(516u32), Bucket(517u32)] }
-└─ CallMethodWithAllResources { component_address: 02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3, method: "deposit_batch" }
-Instruction Outputs:
-├─ Tuple(Bucket(1025u32), Bucket(1029u32), Bucket(1031u32))
-├─ Proof(1032u32)
-├─ Proof(512u32)
-├─ Bucket(513u32)
-├─ Tuple(Bucket(1057u32), Bucket(1058u32))
-├─ Proof(1059u32)
-├─ Proof(514u32)
-├─ Bucket(1066u32)
-├─ Bucket(515u32)
-├─ Bucket(1069u32)
-├─ Bucket(516u32)
-├─ Bucket(517u32)
-├─ Bucket(1076u32)
-└─ ()
 Logs: 4
-├─ [INFO ] [Lending Pool]: Credit Score increased by: 35
+├─ [INFO ] [Lending Pool]: Credit Score increased by: 60
 ├─ [INFO ] [Lending Pool]: Your loan has been paid off!
 ├─ [INFO ] You have repaid 1090 of your loan
 └─ [INFO ] [DegenFi]: Redeeming 2000 of 030000000000000000000000000000000000000000000000000004
 New Entities: 0
 ```
 
+So what happened here? How were we able to close out Bob's position if Bob doesn't have any USD in his wallet?
+
+The process of closing out a leveraged position utilizes the beauty of the transient token and the Transaction Manifest. Let's break it down:
+
+Bob closed out his position with the following series of instructions within one transaction: 
+1. Bob take's out a $1,090 USD flash loan to cover his entire balance (+ fees). 
+2. Bob repays all your $1,090 USD loan balance.
+3. Bob redeems his 2,000 XRD collateral.
+4. Bob swap his 2,000 XRD to USD, just enough to repay the flash loan in step 1.
+5. Bob has now successfully exited his position.
+
 ### Example 7: Loan Auctioning
 
 Note: Please note that this feature was done last minute as a result of a realization of how my protocol was architected and how the transient token was designed. I was able to come up with a loan auctioning design for those who want to free up their liquidity without paying back the loan by selling the loan to a buyer. This was made possible due to the nature of loans being represented as NFT's and the elegant design of transient tokens allowing transactions to commit as long as a preset condition was met. While this is an interesting idea, I have not tested all the edge cases yet (such us the condition in which the loan become defaulted in an auction) nor have I fully thought out the economics of this use case. The fact that this is possible in an easy way was enough for me to give this a try.
 
-Under this contrived scenario, Sally wants retrieve her collateral to open up liquidity, but doesn't have the funds to pay back her loan (even though she can take out a flash loan to close out her flash loan). So she decides to sell her loan to a buyer. However, the condition she wants to fulfill are: 
+In this contrived example, Felicia will deposit 3,000 XRD as collateral and borrow $1,000 XRD against her collateral. She will run into a situation where she needs to close out her loan posiiton and redeem her collateral, but don't have the funds to do so. Joe will be the buyer of Felicia's loan NFT.
 
-1. Have the loan balance fully repaid. 
-2. She wants to recoup at least her initital principal investment.
+ Let's switch to her account.
+
+```
+resim set-default-account $ACC_ADDRESS6 $PRIV_KEY6
+```
+
+Likewise, we have to begin creating a user for her as usual.
+
+```sh
+NU=$(resim run "./transactions/new_user6.rtm")
+export PROOF6=$(echo "$NU" | sed -nr "s/.*SBT resource address is ([[:alnum:]_]+)/\1/p")
+```
+
+Felicia uses the transaction manifest to simultaneously deposit 3,000 XRD as collateral and borrow $1,000 USD against it. We can do this with the following transaction manifest file. `./transactions/borrow_usd.rtm`
+
+```sh
+resim run ./transactions/borrow_usd.rtm
+```
+
+```sh
+Logs: 20
+├─ [INFO ] [DegenFi]: Borrowing: 03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac, Amount: 1000
+├─ [INFO ] The utilization rate of this pool is 0.05
+├─ [INFO ] [Lending Pool]: Loan NFT created.
+├─ [INFO ] [Lending Pool]: Origination fee: 0.01
+├─ [INFO ] [Lending Pool]: Origination fee charged: 10
+├─ [INFO ] [Loan NFT]: Asset: 03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac
+├─ [INFO ] [Loan NFT]: Collateral: 03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac
+├─ [INFO ] [Loan NFT]: Principal Loan Amount: 1000
+├─ [INFO ] [Loan NFT]: Interest Rate: 0.08
+├─ [INFO ] [Loan NFT]: Origination Fee: 0.01
+├─ [INFO ] [Loan NFT]: Origination Fee Charged: 10
+├─ [INFO ] [Loan NFT]: Owner: 6fa5c34476d9001d531f75c69d49fa9a
+├─ [INFO ] [Loan NFT]: Remaining Balance: 1090
+├─ [INFO ] [Loan NFT]: Collateral amount: 3000
+├─ [INFO ] [Loan NFT]: Health Factor: 2.064220183486238532
+├─ [INFO ] [Loan NFT]: Interest Expense: 80
+├─ [INFO ] You were able to increase your max collateralization by 0 due to your credit!
+├─ [INFO ] You were able to reduce your interest rate by 0 percent due to your credit!
+├─ [INFO ] The utilization rate of this pool is 0.05
+└─ [INFO ] Your original interest rate was 0.08
+New Entities: 0
+```
+As a degen connoisseur, Felicia gets into a pickle and loses all her 1,000 USD in a trade.
+
+Felicia wants retrieve her collateral to open up liquidity, but doesn't have the funds to pay back her loan (even though she can take out a flash loan to close out her loan). So she decides to sell her loan to a buyer. However, the condition she wants to fulfill are: 
+
+1. Have the loan fully repaid. 
+2. Recoup at least her initital principal investment.
+
+Felicia can set this up by using the features of the `LoanAuction` blueprint.
 
 Before we get there, let's mannually create environment variable for her Loan NFT. We can do this by reviewing the tokens in her wallet.
 
 ```sh
-resim show $ACC_ADDRESS3
+resim show $ACC_ADDRESS6
 ```
-
-Let's create an environment variable for the resource address of the Loan NFT so she can deposit it.
 
 ```sh
-export LOAN_NFT=
+Resources:
+└─ { amount: 1, resource address: 036cc348e7b196078401658413ccaead5eb245e5020d194975ef51, name: "Loan NFT", symbol: "LNFT" }
+   └─ NonFungible { id: 00c61ca5203044edf3d5b198136cd840, immutable_data: Struct(ResourceAddress("03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac"), ResourceAddress("030000000000000000000000000000000000000000000000000004"), Decimal("1000"), Decimal("0.08"), Decimal("0.01"), Decimal("10"), NonFungibleId("6fa5c34476d9001d531f75c69d49fa9a")), mutable_data: Struct(Decimal("1090"), Decimal("80"), 0u64, Decimal("3000"), Decimal("3000"), Decimal("2.064220183486238532"), Enum("Current")) }
 ```
 
-Let's create an environment variable for the loan ID so we can identify it.
+Let's create an environment variable for the resource address of the Loan NFT so she can deposit it as well as the loan ID so we can identify the loan.
 
 ```sh
-export LOAN_AUC=
+export LOAN_NFT=036cc348e7b196078401658413ccaead5eb245e5020d194975ef51
 ```
 
-To do this she needs to instantiate the `LoanAuction` blueprint and deposit her loan NFT. We can do this by running this command.
+```sh
+export LOAN_AUC=00c61ca5203044edf3d5b198136cd840
+```
 
+We'll pull up Felicia's SBT information so that we can review what her positions look like.
+
+```sh
+resim call-method $COMPONENT get_sbt_info 1,$PROOF6
+```
+
+We can see that she currently has an open loan and a borrow balance of 1,090 USD (the resource address for your USD may be different).
+
+```sh
+Logs: 8
+├─ [INFO ] [User SBT]: Credit Score: 0
+├─ [INFO ] [User SBT]: Deposit Balance: {}
+├─ [INFO ] [User SBT]: Collateral Balance: {030000000000000000000000000000000000000000000000000004: 3000}
+├─ [INFO ] [User SBT]: Borrow Balance: {03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac: 1090}
+├─ [INFO ] [User SBT]: Open Loans: {03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac: 00c61ca5203044edf3d5b198136cd840}
+├─ [INFO ] [User SBT]: Closed Loans: {}
+├─ [INFO ] [User SBT]: Number of times liquidated: 0
+└─ [INFO ] [User SBT]: Number of loans paid off: 0
+New Entities: 0
+```
+
+Now that we know what her position is let's have Felicia instantiate the `LoanAuction` blueprint and deposit her loan NFT. We can do this by running this command.
+[`./transactions/loanauction1.rtm`](./transactions/loanauction1.rtm)
 ```sh
 LA=$(resim run ./transactions/loanauction1.rtm)
-export FLASH2=$(echo "$LA" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+export TRANSIENT_TOKEN=$(echo "$LA" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
 ```
 
-At this point she has already deposited her loan NFT, which she no longer has ownership of. We can review this by checking her account.
-
-```sh
-resim show $ACC_ADDRESS3
-```
+At this point she has already deposited her loan NFT, which she no longer has ownership of physical ownership of. We can review this by checking her account.
 
 ```sh
-resim call-method $COMPONENT get_loan_info $USD $LOAN_AUC
+resim show $ACC_ADDRESS6
 ```
+```sh
+├─ { amount: 0, resource address: 036cc348e7b196078401658413ccaead5eb245e5020d194975ef51, name: "Loan NFT", symbol: "LNFT" }
+```
+
+Let's move over to Joe's account in order to have Joe purchase the loan NFt.
+
+```sh
+resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
+```
+
+Let's also review Joe's SBT info so we can understand the interaction he's had in the protocol.
 
 ```sh
 resim call-method $COMPONENT get_sbt_info 1,$PROOF
+```
+
+We can see that Joe doesn't have any open loan position. He's mainly been a liquidity provider for the protocol.
+
+```sh
+Logs: 8
+├─ [INFO ] [User SBT]: Credit Score: 0
+├─ [INFO ] [User SBT]: Deposit Balance: {03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac: 20000, 030000000000000000000000000000000000000000000000000004: 20000}
+├─ [INFO ] [User SBT]: Collateral Balance: {}
+├─ [INFO ] [User SBT]: Borrow Balance: {}
+├─ [INFO ] [User SBT]: Open Loans: {}
+├─ [INFO ] [User SBT]: Closed Loans: {}
+├─ [INFO ] [User SBT]: Number of times liquidated: 0
+└─ [INFO ] [User SBT]: Number of loans paid off: 0
+New Entities: 0
+```
+
+Now that we understand that. Let's run the following transaction manifest file to have Joe purchase the loan NFT from Felicia.
+[`./transactions/loanauction.rtm`](./transactions/loanauction.rtm)
+```sh
+resim run ./transactions/loanauction.rtm
+```
+
+```sh
+Logs: 3
+├─ [INFO ] [Lending Pool]: Credit Score increased by: 60
+├─ [INFO ] [Lending Pool]: Your loan has been paid off!
+└─ [INFO ] You have repaid 1090 of your loan
+New Entities: 0
+```
+
+The transaction was successful and Joe was able to purchase the loan NFT from Felicia! Let's take a look at Joe's SBT information again.
+
+```sh
+resim call-method $COMPONENT get_sbt_info 1,$PROOF
+```
+
+We can now see that Joe has shown one closed loan in his account with a stat that shows he's paid off 1 loan (which is Felicia's loan).
+
+```sh
+├─ [INFO ] [User SBT]: Credit Score: 60
+├─ [INFO ] [User SBT]: Deposit Balance: {03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac: 20000, 030000000000000000000000000000000000000000000000000004: 20000}
+├─ [INFO ] [User SBT]: Collateral Balance: {}
+├─ [INFO ] [User SBT]: Borrow Balance: {}
+├─ [INFO ] [User SBT]: Open Loans: {}
+├─ [INFO ] [User SBT]: Closed Loans: {03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac: a3e6ebce2b6cd87f6f24d84cf1163b55}
+├─ [INFO ] [User SBT]: Number of times liquidated: 0
+└─ [INFO ] [User SBT]: Number of loans paid off: 1
+New Entities: 0
+```
+
+We can take a look at Joe's wallet and see that the loan NFT is now in Joe's possession.
+
+```sh
+│  └─ NonFungible { id: a3e6ebce2b6cd87f6f24d84cf1163b55, immutable_data: Struct(ResourceAddress("03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac"), ResourceAddress("030000000000000000000000000000000000000000000000000004"), Decimal("1000"), Decimal("0.08"), Decimal("0.01"), Decimal("10")), mutable_data: Struct(NonFungibleId("2987fe19c3ff4d15be9aa59463b67ba3"), Decimal("0"), Decimal("80"), 0u64, Decimal("3000"), Decimal("3000"), Decimal("2.064220183486238532"), Enum("PaidOff")) }
+```
+```sh
+─ { amount: 1, resource address: 0370b4f629abfecda3b9e313357b62a78b260bc363b0ce0630636d }
+│  └─ NonFungible { id: 2987fe19c3ff4d15be9aa59463b67ba3, immutable_data: Struct(),
+```
+
+We can see from an abstract of the account wallet that the ownership of the loan NFT has also changed from Felicia to Joe. Additionally, from the abstract below, Joe's XRD balance has also increased by 2,000 XRD as Joe redeemd 3,000 of Felicia's collateral, returned her required 1,000 XRD principal investment, and keeping the 2,000 XRD for himself. 
+
+
+```
+├─ { amount: 982000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+```
+
+Let's move back to Felicia's account and take a look at Felicia's SBT information.
+
+```sh
+resim set-default-account $ACC_ADDRESS6 $PRIV_KEY6
+```
+```sh
+resim call-method $COMPONENT get_sbt_info 1,$PROOF6
+```
+
+We can see that Felicia now has a closed loan position as well, but does not indicate that she has paid off any loans.
+
+```sh
+Logs: 8
+├─ [INFO ] [User SBT]: Credit Score: 0
+├─ [INFO ] [User SBT]: Deposit Balance: {}
+├─ [INFO ] [User SBT]: Collateral Balance: {030000000000000000000000000000000000000000000000000004: 0}
+├─ [INFO ] [User SBT]: Borrow Balance: {03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac: 0}
+├─ [INFO ] [User SBT]: Open Loans: {}
+├─ [INFO ] [User SBT]: Closed Loans: {03b5824b52925e693e9e1d32e75cf665c211eb378ae103598018ac: a3e6ebce2b6cd87f6f24d84cf1163b55}
+├─ [INFO ] [User SBT]: Number of times liquidated: 0
+└─ [INFO ] [User SBT]: Number of loans paid off: 0
+New Entities: 0
+```
+
+This is quite an interesting mechanic that I would love to explore more in the future (This along with securitizing loans due to the nature of loans being represented as NFT's). Let's take a look at what happened in this transaction. 
+
+1. Joe withdraws the loan NFT he'd like to purchase.
+2. A transient token is minted that requires two conditions to be met before it is burnt: 
+  a. The loan balance is fully paid off. 
+  b. The minimum collateral Felicia requested is returned back to the component.
+3. Joe pays the loan fully on Felicia's behalf.
+4. The transient token data is changed to reflect this.
+5. Joe can now redeem all the collateral associated with this loan NFT.
+6. Joe returns the collateral Felicia requested.
+7. The method call to return the collateral burns the token after the conditions has been filled.
+
+While Joe withdraws the loan NFT, giving ownership of the loan to him and has the claim to the collateral (along with the balance); Joe can't simply redeem the collateral since it's not technically directly in his possession yet (the loan NFT also does not reflect change in ownership). Before any of these changes happens, the transaction must first complete. Before the transaction completes, the transient token must be burnt. Before the transient token can be burnt, the conditions must be met. That's how powerful and flexible the token system is on the Radix Engine.
+
+Now that the transaction has completed we can now view Joe's account and view that he has earned some of Felicia's collateral.
+
+Now let's head over back to Felicia's account and review her XRD balance. We see that there's 997,000 XRD.
+
+```sh
+└─ { amount: 997000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+```
+
+Since Joe returned the collateral to the `LoanAuction` component vault, Felicia can now redeem her principal investment. The method call requires that she passes a proof to prove that she is who she is and belongs to the protocol.
+
+```sh
+resim call-method $COMPONENT claim_collateral 1,$PROOF6
+```
+
+After the authentication is verified, she now has claimed her prinipal investment and 1,000 XRD is deposited into her account.
+
+```
+├─ { amount: 998000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+```
+
+I haven't fully encapsulated economic design of this mechanic yet, or fully explored its practicality. Although, I do certainly see the need for someone who wants to sell their loan to someone else. Having loans represent as NFT's allow for this to happen. Implementing transient tokens to meet certain conditions also is a powerful mechanic to ensure transactions integrity remains intact.
+
+Please note again as a reminder that the design of this mechanic hasn't been fully thought out yet, I only worked on this last minute as it occured to me at the last second. It's mainly a simple demonstration of what it could look like to have loan NFT transactions under certain conditions.
 
 ## Future work and improvements
 
-This prototype is not production ready yet. While there needs to be many more testing and iterations to do for this to be production, I certainly would not get anywhere this close without the ease of Scrypto, the Radix Engine, and the Transaction Manifest. Here are a few things I have in mind that I'd like to explore more with this prototype:
+This prototype is not production ready yet. While there needs to be many more testing and iterations to do for this to be prototype (I can definitely see some areas of improvements after the fact of building this lending protocol), I certainly would not get anywhere this close without the ease of Scrypto, the Radix Engine, and the Transaction Manifest. Here are a few things I have in mind that I'd like to explore more with this prototype:
 
-* Researching different pool designs to support flexible and robust lending markets that can support a plethora of assets.
-* Researching a better user experience for the liquidation mechanism.
+* Researching risk analysis tools to quantify the risk of the protocol with various lending markets.
+* Researching a better user experience for the liquidation mechanism (and user experience overall).
 * Implement a more robust price oracle.
 * Design better calculation mechanics to ensure accuracy.
 * Research, implement, and experiment with securitization designs.
 * Research and experiment more clever usage of flash loans.
+* Research & design protocol economics
+* Interest accrual calculations.
 
 ## Conclusion
 
-This is my first attempt of developing a lending protocol or developing anything at all for that matter on my own. Carrying out from design to implementation. It was a tremendous learning experience and incredibly fun visualizing assets being moved around in this protocol due its asset-orientedness. There may have been different parts of this design that could have been implemented better. I suppose you live and you learn. Major thanks to Florian, Omar, Peter Kim, Rock Howard, Clement and Miso for talking out ideas with me and helping me out along the way. 
+This is my first attempt of developing a lending protocol or developing anything at all for that matter on my own; carrying out from design to implementation. It was a tremendous learning experience and incredibly fun visualizing assets being moved around in this protocol due its asset-orientedness. There may have been different parts of this design that could have been implemented better. I suppose you live and you learn. Major thanks to Florian, Omar, Peter Kim, Rock Howard, Clement, and Miso for talking out ideas with me and helping me out along the way. 
 
+## License 
+
+This work is licensed under Apache 2.0 and the license file is provided [here](./LICENSE).
 
 

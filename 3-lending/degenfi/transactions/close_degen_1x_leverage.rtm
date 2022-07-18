@@ -1,5 +1,5 @@
 # TRANSACTION 1
-# Flash borrow 1,000 USD
+# Flash borrow 1,090 USD
 CALL_METHOD ComponentAddress("${COMPONENT}") "flash_borrow" ResourceAddress("${USD}") Decimal("1090");
 
 # TRANSACTION 2

@@ -350,8 +350,31 @@ blueprint! {
                 assert_ne!(loan_status, Status::Current, "Must pay off loans before redeeming.");
             }
 
-            // Reduce deposit balance of the user
-            self.access_badge_vault.authorize(|| {user_management.decrease_collateral_balance(user_id, collateral_address, redeem_amount)});
+            // Reduce collateral balance of the user
+            self.access_badge_vault.authorize(|| 
+                user_management.decrease_collateral_balance(user_id, collateral_address, redeem_amount)
+            );
+
+            // Withdrawing the amount of tokens owed to this lender
+            let addresses: Vec<ResourceAddress> = self.addresses();
+            let bucket: Bucket = self.withdraw(addresses[0], redeem_amount);
+            return bucket;
+        }
+
+        pub fn redeem_auction_collateral(
+            &mut self,
+            user_id: NonFungibleId, 
+            collateral_address: ResourceAddress, 
+            redeem_amount: Decimal
+        ) -> Bucket
+        {
+            // Check if the NFT belongs to this lending protocol.
+            let user_management: UserManagement = self.user_management.into();
+
+            // Reduce collateral balance of the user
+            self.access_badge_vault.authorize(|| 
+                user_management.decrease_collateral_balance(user_id, collateral_address, redeem_amount)
+            );
 
             // Withdrawing the amount of tokens owed to this lender
             let addresses: Vec<ResourceAddress> = self.addresses();

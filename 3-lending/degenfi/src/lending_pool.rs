@@ -537,6 +537,12 @@ blueprint! {
                 self.interest_calc()
             );
 
+            let borrow_price = pseudopriceoracle.get_price(token_address);
+            let borrow_value = borrow_amount * borrow_price;
+            if borrow_value > dec!("1000") {
+                info!("Please note you have borrowed less than $1,000 of value. You must borrow a minimum of $1,000 in value to begin earning credit.")
+            };
+
             return (return_borrow_amount, loan_nft)
         }
 
@@ -806,9 +812,6 @@ blueprint! {
                 }
             );
 
-            // Calculate & of the pool to be removed.
-            let vault: &mut Vault = self.vaults.get_mut(&token_address).unwrap();
-            let redeem_amount = redeem_amount * ( vault.amount() / self.supplied_amount );
             // Withdrawing the amount of tokens owed to this lender.
             let addresses: Vec<ResourceAddress> = self.addresses();
             let bucket: Bucket = self.withdraw(addresses[0], redeem_amount);
@@ -880,17 +883,22 @@ blueprint! {
 
             let percentage_of_principal = remaining_balance / loan_data.principal_loan_amount;
 
+            let pseudopriceoracle: PseudoPriceOracle = self.pseudopriceoracle_address.into();
+            let price = pseudopriceoracle.get_price(token_address);
+
+            let principal_amount = loan_data.principal_loan_amount;
+
             let credit_score = 
             if percentage_of_remaining_balance >= dec!("0.25") && percentage_of_remaining_balance < dec!("0.50") 
-            {
+            && principal_amount > dec!("1000") {
                 25
             } else if percentage_of_remaining_balance >= dec!("0.50") && percentage_of_remaining_balance < dec!("0.75")
-            && percentage_of_principal > dec!("0.50") {
+            && percentage_of_principal > dec!("0.50") && principal_amount > dec!("1000") {
                 35
             } else if percentage_of_remaining_balance >= dec!("0.75") && percentage_of_remaining_balance < dec!("1.00")
-            && percentage_of_principal > dec!("0.75") {
+            && percentage_of_principal > dec!("0.75") && principal_amount > dec!("1000") {
                 45
-            } else if percentage_of_remaining_balance == dec!("1.0") && remaining_balance > dec!("2000") {
+            } else if percentage_of_remaining_balance == dec!("1.0") && (remaining_balance * price) > dec!("1000") {
                 60
             } else {0};
 
@@ -992,6 +1000,7 @@ blueprint! {
             repay_amount: Bucket
         ) 
         {
+            let loan_auction: LoanAuction = loan_auction.into();
             // Retrieves the loans in the component state.
             let loans = &self.loans;
             // Asserts that the loan exists.
@@ -1024,17 +1033,22 @@ blueprint! {
 
             let percentage_of_principal = remaining_balance / loan_data.principal_loan_amount;
 
+            let pseudopriceoracle: PseudoPriceOracle = self.pseudopriceoracle_address.into();
+            let price = pseudopriceoracle.get_price(token_address);
+
+            let principal_amount = loan_data.principal_loan_amount;
+
             let credit_score = 
             if percentage_of_remaining_balance >= dec!("0.25") && percentage_of_remaining_balance < dec!("0.50") 
-            {
+            && principal_amount > dec!("1000") {
                 25
             } else if percentage_of_remaining_balance >= dec!("0.50") && percentage_of_remaining_balance < dec!("0.75")
-            && percentage_of_principal > dec!("0.50") {
+            && percentage_of_principal > dec!("0.50") && principal_amount > dec!("1000") {
                 35
             } else if percentage_of_remaining_balance >= dec!("0.75") && percentage_of_remaining_balance < dec!("1.00")
-            && percentage_of_principal > dec!("0.75") {
+            && percentage_of_principal > dec!("0.75") && principal_amount > dec!("1000") {
                 45
-            } else if percentage_of_remaining_balance == dec!("1.0") && remaining_balance > dec!("2000") {
+            } else if percentage_of_remaining_balance == dec!("1.0") && (remaining_balance * price) > dec!("1000") {
                 60
             } else {0};
 
@@ -1060,6 +1074,7 @@ blueprint! {
                 // Change loan status to paid off
                 loan_data.loan_status = Status::PaidOff;
                 loan_data.remaining_balance = Decimal::zero();
+
                 info!("[Lending Pool]: Your loan has been paid off!");
 
                 // Authorize SBT data change
@@ -1079,6 +1094,20 @@ blueprint! {
                     }
                 );
 
+
+                // Closes the loan of the original owner
+                let original_owner_user_id = loan_auction.get_owner_original_user_id();
+                self.access_badge_vault.authorize(|| {
+                    user_management.close_loan(original_owner_user_id.clone(), token_address, loan_id.clone())
+                    }
+                );
+
+                // Reduces borrow balance of the original owner
+                self.access_badge_vault.authorize(|| {
+                    user_management.decrease_borrow_balance(original_owner_user_id, token_address, amount)
+                    }
+                );
+
                 // Retrieves resource manager.
                 let resource_manager = borrow_resource_manager!(transient_token_address);
                 // Retrieves transient token data.
@@ -1086,7 +1115,7 @@ blueprint! {
                 // Changes the transient token data the loan NFT data. This is so the transient token data tracks the loan NFT data.
                 transient_token_data.amount_due = loan_data.remaining_balance;
     
-                let loan_auction: LoanAuction = loan_auction.into();
+       
                 // Makes a permissioned call to the loan auction component.
                 self.access_badge_vault.authorize(||
                 loan_auction.authorize_update(transient_token_id, transient_token_data));
@@ -1098,18 +1127,12 @@ blueprint! {
             // Commits state
             self.authorize_update(&loan_id, loan_data);
 
-            //let to_return_amount = self.access_badge_vault.authorize(|| {
-                //user_management.decrease_borrow_balance(user_id.clone(), token_address, amount)
-                //}
-            //);
-
-            //let to_return = repay_amount.take(to_return_amount);
 
             info!("You have repaid {:?} of your loan", amount);
 
             // Deposits the repaid loan back into the supply
             self.vaults.get_mut(&repay_amount.resource_address()).unwrap().put(repay_amount);
-            //to_return
+
 
         }
 

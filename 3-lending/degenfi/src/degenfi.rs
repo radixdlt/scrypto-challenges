@@ -225,6 +225,15 @@ blueprint! {
             return user_id
         }
 
+        pub fn get_user3(
+            &self,
+            user_auth: Proof,
+        ) -> NonFungibleId
+        {
+            let user_id = user_auth.non_fungible::<User>().id();
+            return user_id
+        }
+
         /// Checks if a lending pool for the given token exists or not.
         pub fn pool_exists(
             &self,
@@ -430,7 +439,7 @@ blueprint! {
             let access_badge = self.access_auth_vault.authorize(|| borrow_resource_manager!(self.access_badge_address).mint(Decimal::one()));
 
             let user_management_address = self.user_management_address;
-            let user_id = user_auth.non_fungible::<User>().id();
+            let user_id = self.get_user(&user_auth);
             let user_sbt_address = user_auth.resource_address();
             let loan_auction: ComponentAddress = LoanAuction::new(
                 user_id,
@@ -461,6 +470,30 @@ blueprint! {
             (loan_nft, transient_token)
         }
 
+        pub fn redeem_auction_collateral(
+            &mut self,
+            user_auth: Proof,
+            collateral_address: ResourceAddress,
+            redeem_amount: Decimal,
+        ) -> Bucket
+        {
+            // Checks if user belongs to this protocol.
+            assert_eq!(self.sbt_address.contains(&user_auth.resource_address()), true, 
+            "User does not belong to this protocol.");
+
+            let collateral_pool_address: ComponentAddress = *self.collateral_pool_address.get(&collateral_address).unwrap();
+            let collateral_pool: CollateralPool = collateral_pool_address.into();
+            let loan_auction: LoanAuction = self.loan_auction_address.unwrap().into();
+            let collateral = self.access_badge_vault.authorize(|| 
+                loan_auction.redeem_auction_collateral(
+                    collateral_pool,
+                    collateral_address,
+                    redeem_amount,
+                )
+            );
+            collateral
+        }
+
         pub fn return_collateral(
             &mut self,
             collateral: Bucket,
@@ -469,13 +502,6 @@ blueprint! {
         {
             let loan_auction: LoanAuction = self.loan_auction_address.unwrap().into();
             loan_auction.return_collateral(collateral, transient_token);   
-        }
-
-        pub fn loan_auction_address(
-            &self
-        ) -> ComponentAddress
-        {
-            return self.loan_auction_address.unwrap();
         }
 
         pub fn claim_collateral(
@@ -856,7 +882,6 @@ blueprint! {
             }
         }
 
-        
         /// Allows user to borrow funds from the pool.
         ///
         /// This method is used to allow users to borrow funds from the pool.
@@ -1123,7 +1148,6 @@ blueprint! {
                     empty_bucket
                 }
             }
-
         }
 
         /// Repays the loan in partial or in full.
