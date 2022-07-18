@@ -1,0 +1,150 @@
+#mainTitle {
+  background: linear-gradient(130deg, rgb(46, 186, 198), rgb(182, 80, 158), rgb(46, 186, 198), rgb(182, 80, 158), rgb(46, 186, 198), rgb(182, 80, 158), rgb(46, 186, 198), rgb(182, 80, 158));
+  font-family: "Poppins", sans-serif;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  cursor: default;
+}
+
+#marketTitle {
+  background: linear-gradient(to right, rgb(46, 186, 198), rgb(182, 80, 158), rgb(46, 186, 198), rgb(182, 80, 158));
+  font-size: 1.5rem !important;
+  letter-spacing: 0.2rem !important;
+  font-family: "Poppins", sans-serif;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  cursor: default;
+  /* display: block !important; */
+}
+
+#marketSubTitle {
+  background: linear-gradient(to right, rgb(46, 186, 198), rgb(182, 80, 158), rgb(46, 186, 198), rgb(182, 80, 158));
+  /* font-family: "Poppins", sans-serif; */
+  /* font-size: 0.9rem !important; */
+  letter-spacing: 0.25rem !important;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  cursor: default;
+}
+
+.color-border {
+  border: transparent 3px solid !important; 
+  border-radius: 0 !important;
+  border-image: linear-gradient(to right, rgb(46, 186, 198), rgb(182, 80, 158), rgb(46, 186, 198), rgb(182, 80, 158)) !important; border-image-slice: 1 !important;
+  overflow: hidden !important;
+}
+
+.list-item-header {
+  background: linear-gradient(130deg, rgb(46, 186, 198), rgb(182, 80, 158), rgb(46, 186, 198), rgb(182, 80, 158), rgb(46, 186, 198), rgb(182, 80, 158), rgb(46, 186, 198), rgb(182, 80, 158));
+  font-family: "Poppins", sans-serif;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  font-size: 1.4rem !important;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  cursor: default;
+}
+
+.highlight {
+  background-color: rgba(63,81,181,0.4) !important;
+  color: #3f51b5 !important;
+}
+
+.highlight .MuiListItemIcon-root {
+  color: #3f51b5 !important;
+}
+
+.tableHeading {
+  color: #6c757e !important;
+  font-weight: 600 !important;
+}
+
+.poolStatsTitle {
+  font-size: 16px !important;
+  margin-bottom: 0 !important;
+}
+
+.poolStatsSubTitle {
+  font-size: 20px !important;
+  font-weight: bold !important;
+  margin-top: 0 !important;
+}
+
+.card {
+  background: #fff;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 5px;
+  padding-left: 10px;
+  flex: 1 1 45%;
+}
+
+.coin-data {
+  display: flex;
+  flex-direction: column;
+  margin-left: 30px;
+}
+.coin-data p:nth-of-type(1) {
+  font-size: 1.2em;
+  font-weight: 500 !important;
+  /* margin: 0 0 15px 0; */
+  margin-bottom: 0 !important;
+  color: rgba(19,30,64) !important;
+}
+.coin-data p:nth-of-type(2) {
+  font-size: 1.1em;
+  margin: 0 0 15px 0 !important;
+  color: rgba(165,173,198) !important;
+}
+
+.pos {
+  color: #7cd382 !important;
+}
+
+.neg {
+  color: #e86666 !important;
+}
+
+.img-balance {
+  max-width: 75px;
+  padding-left: 20px;
+  padding-right: 0;
+}
+
+.img-overview {
+  /* max-width: 75px;
+  padding-left: 0;
+  padding-right: 20px; */
+  margin-right: 30px !important;
+}
+
+.overview-data {
+  display: flex;
+  flex-direction: column;
+  margin-left: 30px;
+  margin-right: auto !important;
+}
+.overview-data p:nth-of-type(1) {
+  font-size: 1.2em !important;
+  font-weight: 500 !important;
+  /* margin: 0 0 15px 0; */
+  margin-bottom: 0 !important;
+  color: rgba(19,30,64) !important;
+}
+.overview-data p:nth-of-type(2) {
+  font-size: 1.1em !important;
+  margin: 0 !important;
+  color: rgba(165,173,198) !important;
+}
+.overview-data p:nth-of-type(3) {
+  font-size: 1.2em !important;
+  /* font-weight: bold !important; */
+  /* margin: 0 0 5px 0 !important; */
+  color: rgba(165,173,198) !important;
+}
+
+.icon-stake {
+  margin-left: 30px !important; 
+}
