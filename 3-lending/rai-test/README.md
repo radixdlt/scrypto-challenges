@@ -14,6 +14,7 @@ Note that the primary purpose of RAI is to generate leverage for a long XRD posi
 - Web Frontend UI utilizing the PTE Babylon Radix Browser extension to deploy blueprints, instantiate components, and interact with all functionality provided by the RAI Lending Platform
 - Supports Oracle placeholder cross-blueprint pattern to allow users to test the behavior of the system under different market conditions (by changing the price of XRD on demand through the oracle contract)
 - Convenience functions to print the state of global positions on the protocol to allow manual inspection and liquidation while waiting on the ability for the PTE to generate events that can be subscribed to for running liquidation bots
+- Hosted web frontend available at https://rai-scrypto-lending-platform.dekentz.repl.co/
 
 # General Usage
 
