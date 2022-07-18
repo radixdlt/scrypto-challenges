@@ -13,89 +13,6 @@ import Layout from "../pages/Layout";
 import Issue from "./Issue";
 import Sell from "./Sell";
 import Buy from "./Buy";
-//import Contact from "./pages/Contact";
-//import NoPage from "./pages/NoPage";
-
-
-/*
-const Index = () => {
-  return (
-    <Layout pageTitle="Landing Page Nextjs">
-      <Header />
-      <Hero />
-      <IS />
-      <B />
-      <BasicTable />
-    </Layout>
-  )
-}
-export default Index;
-*/
-
-
-
-// export default function Home() {
-//   return (
-//     <div className={classes.container}>
-//       <h1>Header</h1>
-//       <Hero />
-//       <IS />
-//       <B />
-//       <BasicTable />
-//     </div>
-//   );
-// }
-
-
-
-/*
-import ReactDOM from "react-dom";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "./pages/Layout";
-import Home from "./pages/Home";
-import Blogs from "./pages/Blogs";
-import Contact from "./pages/Contact";
-import NoPage from "./pages/NoPage";
-*/
-
-// export default function App() {
-//   return (
-//     <BrowserRouter>
-//       <Routes>
-//         <Route path="/" element={<Layout />}>
-//           <Route index element={<Header />} />
-//           <Route path="is" element={<IS />} />
-//           <Route path="b" element={<B />} />
-//         </Route>
-//       </Routes>
-//     </BrowserRouter>
-//   );
-// }
-
-/*
-if (typeof window !== 'undefined') {
-  ReactDOM.render(<App />, document.getElementById("root"));
-}*/
-
-/*
-export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="blogs" element={<Blogs />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="*" element={<NoPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-ReactDOM.render(<App />, document.getElementById("root")); */
-
-
 
 
 
@@ -104,15 +21,19 @@ import styles from '../styles/Home.module.css'
 
 export default function Home() {
   return (
+   <div className="relative z-1">
+      <div className="dark">
+    
     <div className={styles.container}>
+    <Header />
 
       <main className={styles.main}>
-        <h2 className={styles.title}>
-          Bond Market
-        </h2>
+        
 
         <div className={styles.grid}>
-          
+        <div className="mt-5 mt-lg-0">
+            </div>
+        
           <Link href="/Issue" >
           <a className={styles.card}>
             <h2>Issue &rarr;</h2>
@@ -134,6 +55,9 @@ export default function Home() {
         </div>
       </main>
     </div>
+  </div>
+</div>
+  
   )
 }
 
