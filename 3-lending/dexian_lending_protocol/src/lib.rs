@@ -239,9 +239,9 @@ blueprint! {
             assert!(borrow_token == repay_token.resource_address(), "Must return borrowed coin.");
 
             let borrow_state = self.states.get_mut(&borrow_token).unwrap();
-            debug!("before update_index, borrow normalized:{} total_borrow_normailized:{} indexes:{},{}", cdp_data.normalized_borrow, borrow_asset.total_borrow_normailized, borrow_state.supply_index, borrow_state.borrow_index);
+            debug!("before update_index, borrow normalized:{} total_borrow_normailized:{} indexes:{},{}", cdp_data.normalized_borrow, borrow_state.normalized_total_borrow, borrow_state.supply_index, borrow_state.borrow_index);
             borrow_state.update_index();
-            debug!("after update_index, borrow normalized:{} total_borrow_normailized:{} indexes:{},{}", cdp_data.normalized_borrow, borrow_asset.total_borrow_normailized, borrow_state.supply_index, borrow_state.borrow_index);
+            debug!("after update_index, borrow normalized:{} total_borrow_normailized:{} indexes:{},{}", cdp_data.normalized_borrow, borrow_state.normalized_total_borrow, borrow_state.supply_index, borrow_state.borrow_index);
             let borrow_index = borrow_state.borrow_index;
             assert!(borrow_index > Decimal::ZERO, "borrow index error! {}", borrow_index);
             let mut normalized_amount = LendingPool::floor(repay_token.amount() / borrow_index);
@@ -284,27 +284,37 @@ blueprint! {
             
         }
 
-        // pub fn get_cdp_digest(&self, cdp_id: u64) -> HashSet<String, Decimal>{
-        //     let cdp = borrow_component!(&self.cdp_res_addr).get_non_fungible_data(&NonFungibleId::from_u64(cdp_id));
-        //     let collateral_state = self.states.get(cdp.collateral_token).unwrap();
-        //     let debt_state = self.states.get(cdp.borrow_token).unwrap();
-        //     let deposit_asset_addr = self.origin_asset_map(cdp.collateral_token).unwrap();
-
-        //     let deposit_asset_price = self.get_asset_price(deposit_asset_addr);
-        //     let debet_asset_price = self.get_asset_price(cdp.borrow_token);
-        //     let (collateral_supply_index, collateral_borrow_index)= collateral_state.get_current_index();
-        //     let (debet_supply_index, debet_borrow_index) = debt_state.get_current_index();
+        pub fn get_cdp_digest(&self, cdp_id: u64) -> (ResourceAddress, ResourceAddress, Decimal, Decimal, Decimal, Decimal){
+            let cdp: CollateralDebtPosition = borrow_resource_manager!(self.cdp_res_addr).get_non_fungible_data(&NonFungibleId::from_u64(cdp_id));
+            let borrow_token = cdp.borrow_token;
+            let collateral_token = cdp.collateral_token;
+            let deposit_asset_addr = self.origin_asset_map.get(&collateral_token).unwrap();
+            let collateral_state = self.states.get(&deposit_asset_addr).unwrap();
+            let debt_state = self.states.get(&borrow_token).unwrap();
             
 
-        //     return {
-        //         "collateral_token": cdp.collateral_token,
-        //         "borrow_token": cdp.borrow_token,
-        //         "debt_in_xrd": LendingPool::ceil(cdp.normalized_borrow * debet_borrow_index * debet_asset_price),
-        //         "collateral_in_xrd": LendingPool::floor(cdp.normalized_collateral * collateral_supply_index * deposit_asset_price)
-        //         "debet_asset_price": debet_asset_price,
-        //         "collateral_asset_price": deposit_asset_price
-        //     }
-        // }
+            let deposit_asset_price = self.get_asset_price(deposit_asset_addr.clone());
+            let debet_asset_price = self.get_asset_price(borrow_token.clone());
+            let (collateral_supply_index, _)= collateral_state.get_current_index();
+            let (_, debet_borrow_index) = debt_state.get_current_index();
+            
+
+            // return {
+            //     "collateral_token": cdp.collateral_token,
+            //     "borrow_token": cdp.borrow_token,
+            //     "debt_in_xrd": LendingPool::ceil(cdp.normalized_borrow * debet_borrow_index * debet_asset_price),
+            //     "collateral_in_xrd": LendingPool::floor(cdp.normalized_collateral * collateral_supply_index * deposit_asset_price)
+            //     "debet_asset_price": debet_asset_price,
+            //     "collateral_asset_price": deposit_asset_price
+            // };
+            (cdp.collateral_token, 
+                cdp.borrow_token,
+                LendingPool::ceil(cdp.normalized_borrow * debet_borrow_index * debet_asset_price),
+                LendingPool::floor(cdp.collateral_amount * collateral_supply_index * deposit_asset_price),
+                debet_asset_price,
+                deposit_asset_price)
+
+        }
 
         pub fn get_current_index(&self, asset_addr: ResourceAddress) -> (Decimal, Decimal){
             assert!(self.states.contains_key(&asset_addr), "unknown asset!");
