@@ -10,8 +10,9 @@ import classes from '../styles/Home.module.scss';
 import ReactDOM from "react-dom";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "../pages/Layout";
-import IS from "../pages/IS";
-import B from "../pages/B";
+import Issue from "./Issue";
+import Sell from "./Sell";
+import Buy from "./Buy";
 //import Contact from "./pages/Contact";
 //import NoPage from "./pages/NoPage";
 
@@ -107,28 +108,26 @@ export default function Home() {
 
       <main className={styles.main}>
         <h2 className={styles.title}>
-          Multi-page website
+          Bond Market
         </h2>
 
         <div className={styles.grid}>
-          <Link href="/" >
-            <a className={styles.card}>
-            <h2>Home &rarr;</h2>
-            </a>
-          </Link>
-
-          <Link href="/IS" >
+          
+          <Link href="/Issue" >
           <a className={styles.card}>
-            <h2>Issuer/Seller &rarr;</h2>
+            <h2>Issue &rarr;</h2>
             </a>
           </Link>
 
-          <Link
-            href="/B"
-            
-          >
+          <Link href="/Sell" >
+          <a className={styles.card}>
+            <h2>Sell &rarr;</h2>
+            </a>
+          </Link>
+
+          <Link href="/Buy" >
             <a className={styles.card}>
-            <h2>Buyer &rarr;</h2>
+            <h2>Buy &rarr;</h2>
             </a>
           </Link>
 

@@ -9,10 +9,13 @@ function Navbar() {
           <Link to="/">Home</Link>
         </li>
         <li>
-          <Link to="/blogs">IS</Link>
+          <Link to="/Issue">Issue</Link>
         </li>
         <li>
-          <Link to="/contact">BasicTable</Link>
+          <Link to="/Sell">Sell</Link>
+        </li>
+        <li>
+          <Link to="/Buy">Buy</Link>
         </li>
       </ul>
     </nav>

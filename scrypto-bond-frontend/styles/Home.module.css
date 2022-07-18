@@ -24,6 +24,11 @@
   margin: 0;
   line-height: 1.15;
   font-size: 2rem;
+  color: rgb(152, 147, 255);
+  background-color: bisque;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 0;
 }
 
 

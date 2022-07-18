@@ -33,30 +33,17 @@ export const COLUMNS = [
     Footer: 'Issue Price'
     // Filter: ColumnFilter
   },
-  // {
-  //   Header: 'Issue Epoch',
-  //   accessor: 'issue_epoch',
-  //   Footer: 'Issue Epoch'
-  // },
-  // {
-  //   Header: 'Supply',
-  //   accessor: 'supply',
-  //   Footer: 'Supply'
-  // },
   {
-    Header: 'Buy',
-    //accessor: 'buy',
-    Footer: 'Buy',
-		//Cell: ({value}) => (<a >Buy</a>)
-    //Cell: ({value}) => (<a onClick={()=>{console.log('clicked value', value)}}>Buy</a>)
-    Cell: ({value}) => (<button onClick={console.log('clicked value', value)}>Buy</button>)
-    
-    // Cell: ({ cell }) => (
-    //   <button value={cell.row.values.name} onClick={(this.props).handleClick}>
-    //     Button
-    //   </button>
-    // )
-
+    Header: 'Issue Epoch',
+    accessor: 'issue_epoch',
+    Footer: 'Issue Epoch'
+    // Filter: ColumnFilter
+  },
+  {
+    Header: 'Supply',
+    accessor: 'supply',
+    Footer: 'Supply'
+    // Filter: ColumnFilter
   }
   // {
   //   Header: 'Date of Issue',
@@ -65,10 +52,10 @@ export const COLUMNS = [
   //   Cell: ({ value }) => {
   //     return format(new Date(value), 'dd/MM/yyyy');
   //   }
+  //   // Filter: ColumnFilter
   // },
   
 ];
-console.log('sub columns: ', COLUMNS);
 
 export const GROUPED_COLUMNS = [
   {
@@ -84,7 +71,8 @@ export const GROUPED_COLUMNS = [
       { Header: 'Maturity Epoch', accessor: 'maturity_epoch', Footer: 'Maturity Epoch' },
       { Header: 'Coupon Rate', accessor: 'coupon_rate', Footer: 'Coupon Rate' },
       { Header: 'Issue Price', accessor: 'issue_price', Footer: 'Issue Price' },
-      //{ Header: 'Issue Epoch', accessor: 'issue_epoch', Footer: 'Issue Epoch' }
+      { Header: 'Issue Epoch', accessor: 'issue_epoch', Footer: 'Issue Epoch' }
     ]
   }
 ];
+
