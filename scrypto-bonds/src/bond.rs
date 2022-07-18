@@ -3,7 +3,7 @@ use scrypto::prelude::*;
 
 #[derive(NonFungibleData)]
 pub struct IssuerData {
-    bond_id: u64,
+    pub bond_id: u64,
 }
 
 blueprint! {

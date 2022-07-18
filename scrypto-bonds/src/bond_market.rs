@@ -84,7 +84,7 @@ blueprint! {
                 coupon_rate, issue_price, supply
             );
 
-            self.bonds.insert(issuer_badge.resource_address(), new_bond_component);                
+            self.bonds.insert(self.issuer_count, new_bond_component);                
             self.issuer_count += 1;
             
             return issuer_badge;
@@ -97,6 +97,9 @@ blueprint! {
             let order_count:u64 = self.order_count;
 
             let bond_address = bonds.resource_address();
+            let bond_resource_manager: &ResourceManager = borrow_resource_manager!(bond_address);
+            let bond_id = bond_resource_manager.metadata().get("bond_id").parse::<u64>();
+
 
             let seller_badge_data = Vec::new();
             seller_badge_data.push((NonFungibleId::random(),
@@ -109,7 +112,7 @@ blueprint! {
                 .initial_supply(seller_badge_data);
 
             self.order_count += 1;
-            self.market.insert(seller_badge.resource_address(), 
+            self.market.insert(bond_id, 
                 Order::new(price, bonds, seller_badge.resource_address()));
 
             return seller_badge;
@@ -131,14 +134,17 @@ blueprint! {
         }
 
         pub fn buy_bond(&mut self, bond_address: ResourceAddress, payment: Bucket) -> Bucket {
+            let bond_resource_manager: &ResourceManager = borrow_resource_manager!(bond_address);
+            let bond_id = bond_resource_manager.metadata().get("bond_id").parse::<u64>();
+
             // Assert specified bond contains one of the sold market bonds
-            assert!(self.market.contains_key(&address), "No bond found with that proof");
+            assert!(self.market.contains_key(&bond_id), "No bond found with that proof");
 
-            let corresponding_order_address: ComponentAddress = *self.market.get(&address).unwrap();
+            let corresponding_order_address: ComponentAddress = *self.market.get(&bond_id).unwrap();
             let corresponding_order: Order = corresponding_order_address.into();
-            assert!(corresponding_order.bond_address)
+            assert!(corresponding_order.bond_id);
 
-            return self.market.get_mut(&bond_address).unwrap().2.take_all();
+            return self.market.get_mut(&bond_id).unwrap().2.take_all();
         }
 
         
