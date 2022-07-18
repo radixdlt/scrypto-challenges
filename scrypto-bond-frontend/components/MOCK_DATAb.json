@@ -4,7 +4,7 @@
       "coupon_epoch": "Google",
       "maturity_epoch": "23/07/2022",
       "coupon_rate": "0.20%",
-      "issue_price": "94$"
+      "issue_price": "84$"
       
     },
     {
@@ -12,7 +12,7 @@
       "coupon_epoch": "Meta",
       "maturity_epoch": "01/01/2023",
       "coupon_rate": "0.13%",
-      "issue_price": "133$"
+      "issue_price": "93$"
       
     },
     {
@@ -28,13 +28,13 @@
       "coupon_epoch": "Netflix",
       "maturity_epoch": "17/12/2022",
       "coupon_rate": "0.17%",
-      "issue_price": "5431"
+      "issue_price": "50$"
      
     },
     {
       "id": 5,
       "coupon_epoch": "Amazon",
-      "maturity_epoch": "01/03/2023",
+      "maturity_epoch": "05/06/2023",
       "coupon_rate": "0.07%",
       "issue_price": "44$"
      
@@ -42,7 +42,7 @@
     {
       "id": 6,
       "coupon_epoch": "Apple",
-      "maturity_epoch": "06/06/2023",
+      "maturity_epoch": "01/03/2023",
       "coupon_rate": "0.11%",
       "issue_price": "73$"
     }

@@ -25,11 +25,8 @@ const IssuerTable = props => {
   } = useTable({ columns, data });
 
   return (
-
-<section className="section position-relative">
       <Container>
-      <Header />
-
+        <Header />
         <Row className="align-items-center">
           <Col lg={6}>
             <div className="pr-lg-5">
@@ -52,7 +49,6 @@ const IssuerTable = props => {
                         id="coupon_epoch"
                         name="coupon_epoch"
                         type="text"
-                        //autocomplete="name"
                         required
                       />
                     <label htmlFor="name" className="mb-2 italic">Maturity Epoch</label>
@@ -61,7 +57,6 @@ const IssuerTable = props => {
                         id="maturity_epoch"
                         name="maturity_epoch"
                         type="text"
-                        //autocomplete="name"
                         required
                       />
                     <label htmlFor="name" className="mb-2 italic">Coupon Rate</label>
@@ -70,7 +65,6 @@ const IssuerTable = props => {
                         id="coupon_rate"
                         name="coupon_rate"
                         type="text"
-                        //autocomplete="name"
                         required
                       />
                     <label htmlFor="name" className="mb-2 italic">Issue Rate</label>
@@ -79,7 +73,6 @@ const IssuerTable = props => {
                         id="issue_rate"
                         name="issue_rate"
                         type="text"
-                        //autocomplete="name"
                         required
                       />
                     <label htmlFor="name" className="mb-2 italic">Issue Epoch</label>
@@ -88,7 +81,6 @@ const IssuerTable = props => {
                         id="issue_epoch"
                         name="issue_epoch"
                         type="text"
-                        //autocomplete="name"
                         required
                       />
                     <label htmlFor="name" className="mb-2 italic">Supply</label>
@@ -97,7 +89,6 @@ const IssuerTable = props => {
                         id="supply"
                         name="supply"
                         type="text"
-                        //autocomplete="name"
                         required
                       />
                     <button
@@ -112,7 +103,6 @@ const IssuerTable = props => {
           </Col>
         </Row>
       </Container>
-    </section>
   );
 };
 
