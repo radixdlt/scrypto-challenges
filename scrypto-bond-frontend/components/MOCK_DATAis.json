@@ -5,7 +5,8 @@
     "maturity_epoch": "Connold",
     "coupon_rate": "198Z",
     "issue_price": "China",
-    "issue_epoch": "26528"
+    "issue_epoch": "26528",
+    "supply": "123"
   },
   {
     "id": 2,
@@ -13,7 +14,8 @@
     "maturity_epoch": "Connold",
     "coupon_rate": "158Z",
     "issue_price": "China",
-    "issue_epoch": "2666"
+    "issue_epoch": "2666",
+    "supply": "123"
   },
   {
     "id": 3,
@@ -21,15 +23,17 @@
     "maturity_epoch": "Connold",
     "coupon_rate": "19Z",
     "issue_price": "China",
-    "issue_epoch": "26668"
+    "issue_epoch": "26668",
+    "supply": "123"
   },
   {
     "id": 4,
     "coupon_epoch": "Coupon4",
-    "maturity_epoch": "Connold",
+    "maturity_epoch": "mrfsrh",
     "coupon_rate": "19Z",
     "issue_price": "China",
-    "issue_epoch": "8528"
+    "issue_epoch": "8528",
+    "supply": "123"
   },
   {
     "id": 5,
@@ -37,6 +41,7 @@
     "maturity_epoch": "Connold",
     "coupon_rate": "19Z",
     "issue_price": "China",
-    "issue_epoch": "2658"
+    "issue_epoch": "2658",
+    "supply": "123"
   }
 ]

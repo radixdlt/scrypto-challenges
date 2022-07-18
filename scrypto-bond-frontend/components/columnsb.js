@@ -38,6 +38,12 @@ export const COLUMNS = [
     accessor: 'issue_epoch',
     Footer: 'Issue Epoch'
     // Filter: ColumnFilter
+  },
+  {
+    Header: 'Supply',
+    accessor: 'supply',
+    Footer: 'Supply'
+    // Filter: ColumnFilter
   }
   // {
   //   Header: 'Date of Issue',

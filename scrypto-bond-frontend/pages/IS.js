@@ -20,44 +20,112 @@ const IssuerSellerTable = props => {
   } = useTable({ columns, data });
 
   return (
-    <div className="table-container">
-      <h2>Issuer/Seller Table</h2>
-      <table {...getTableProps()}>
-        <thead>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map(row => {
-            prepareRow(row);
+    // <div className="table-container">
+    //   <h2>Issuer/Seller Table</h2>
+    //   <table {...getTableProps()}>
+    //     <thead>
+    //       {headerGroups.map(headerGroup => (
+    //         <tr {...headerGroup.getHeaderGroupProps()}>
+    //           {headerGroup.headers.map(column => (
+    //             <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+    //           ))}
+    //         </tr>
+    //       ))}
+    //     </thead>
+    //     <tbody {...getTableBodyProps()}>
+    //       {rows.map(row => {
+    //         prepareRow(row);
 
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map(cell => {
-                  return (
-                    <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-        <tfoot>
-          {footerGroups.map(footerGroup => (
-            <tr {...footerGroup.getFooterGroupProps()}>
-              {footerGroup.headers.map(column => (
-                <td {...column.getFooterProps()}>{column.render('Footer')} </td>
-              ))}
-            </tr>
-          ))}
-        </tfoot>
-      </table>
-    </div>
+    //         return (
+    //           <tr {...row.getRowProps()}>
+    //             {row.cells.map(cell => {
+    //               return (
+    //                 <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+    //               );
+    //             })}
+    //           </tr>
+    //         );
+    //       })}
+    //     </tbody>
+    //     <tfoot>
+    //       {footerGroups.map(footerGroup => (
+    //         <tr {...footerGroup.getFooterGroupProps()}>
+    //           {footerGroup.headers.map(column => (
+    //             <td {...column.getFooterProps()}>{column.render('Footer')} </td>
+    //           ))}
+    //         </tr>
+    //       ))}
+    //     </tfoot>
+    //   </table>
+    // </div>
+
+<div className="max-w-xs my-2 overflow-hidden rounded shadow-lg">
+<div className="px-6 py-4">
+  <div className="mb-2 text-xl font-bold">Issue a bond</div>
+  <form className="flex flex-col">
+    <label htmlFor="name" className="mb-2 italic">Coupon Epoch</label>
+    <input
+      className="mb-4 border-b-2"
+      id="coupon_epoch"
+      name="coupon_epoch"
+      type="text"
+      //autocomplete="name"
+      required
+    />
+    <label htmlFor="name" className="mb-2 italic">Maturity Epoch</label>
+    <input
+      className="mb-4 border-b-2"
+      id="maturity_epoch"
+      name="maturity_epoch"
+      type="text"
+      //autocomplete="name"
+      required
+    />
+    <label htmlFor="name" className="mb-2 italic">Coupon Rate</label>
+    <input
+      className="mb-4 border-b-2"
+      id="coupon_rate"
+      name="coupon_rate"
+      type="text"
+      //autocomplete="name"
+      required
+    />
+    <label htmlFor="name" className="mb-2 italic">Issue Rate</label>
+    <input
+      className="mb-4 border-b-2"
+      id="issue_rate"
+      name="issue_rate"
+      type="text"
+      //autocomplete="name"
+      required
+    />
+    <label htmlFor="name" className="mb-2 italic">Issue Epoch</label>
+    <input
+      className="mb-4 border-b-2"
+      id="issue_epoch"
+      name="issue_epoch"
+      type="text"
+      //autocomplete="name"
+      required
+    />
+    <label htmlFor="name" className="mb-2 italic">Supply</label>
+    <input
+      className="mb-4 border-b-2"
+      id="supply"
+      name="supply"
+      type="text"
+      //autocomplete="name"
+      required
+    />
+    <button
+      type="submit"
+      className="px-4 py-2 font-bold text-white bg-blue-500 rounded-full hover:bg-blue-700"
+    >
+      Submit
+    </button>
+  </form>
+</div>
+</div>
   );
 };
 
