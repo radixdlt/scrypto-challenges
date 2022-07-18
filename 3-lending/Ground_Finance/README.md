@@ -24,9 +24,11 @@ Although Ground Finance also used permissioned solutions, it combined the best c
 
 Clone this git repository: `git clone https://github.com/radixdlt/scrypto-challenges && cd 3-lending/Ground_Finance`
 
-For the tests, this project use an extra test blueprint: [GroundTestEngine](./Ground_Test/README.md); the radix-engine; the community package scrypto_unit; cargo reqwest, tokio and serde_json.
+For the tests, this project use an extra test blueprint: [GroundTestEngine](./Ground_Test/README.md).
 
 ### Unit-test
+
+The unit-test used the radix-engine; the community package scrypto_unit; cargo reqwest, tokio and serde_json.
 
 1. Build the package: `cd Ground_Test && scrypto build`
 2. Quick test: `scrypto test`
@@ -34,7 +36,11 @@ For the tests, this project use an extra test blueprint: [GroundTestEngine](./Gr
 
 ### Public test
 
-The test used both the PTE resim client and the PTE Browser Extension, *the test will be running on <https://pte01.radixdlt.com/> sever*
+The public test used both the PTE resim client and the PTE Browser Extension, *the test will be running on <https://pte01.radixdlt.com/> sever*
+
+The frontend is bootstraped with Vite and React.
+
+You need a wallet address on the [PTE Browser Extension](https://docs.radixdlt.com/main/scrypto/public-test-environment/pte-getting-started.html) to participate on the public test.
 
 **Test Component initializing and get testing resource through resim client:**
 
@@ -52,8 +58,6 @@ The test used both the PTE resim client and the PTE Browser Extension, *the test
 1. run `cd GroundWeb && npm install`
 2. run the UI `npm run dev`
 3. Try the UI!
-
-*The frontend is bootstraped with Vite and React.*
 
 **Extra feature mean for testers on the resim client:**
 
