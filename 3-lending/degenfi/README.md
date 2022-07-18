@@ -9,12 +9,13 @@
   * [Advanced Features](#advanced-features)
     + [Folded Leverage](#folded-leverage)
     + [Flash Liquidation](#flash-liquidation)
-    + [Credit Score System](#credit-score-system)
+    + [Loan Auction](#loan-auction)
   * [Misc. Features](#misc-features)
   * [Design Details](#design-details)
     + [User/Credit Report/SBT](#usercredit-reportsbt)
     + [Loan NFT](#loan-nft)
     + [Pool Design](#pool-design)
+    + [Credit Report System Design](#credit-report-system-design)
     + [Blueprint Overview](#pool-design)
       - [DegenFi Blueprint](#degenfi-blueprint)
       - [LendingPool Blueprint](#lendingpool-blueprint)
@@ -22,6 +23,7 @@
       - [UserManagement Blueprint](#usermanagement-blueprint)
       - [Radiswap Blueprint](#radiswap-blueprint)
       - [PseudoPriceOracle Blueprint](#pseudopriceoracle-blueprint)
+      - [Loan Auction Blueprint](#loan-auction-blueprint)
   * [Examples](#examples)
     + [Getting Started](#getting-started)
     + [Example 1: Creating pools & depositing supply](#example-1-creating-pools-&-depositing-supply)
@@ -162,10 +164,10 @@ The credit report design is quite primitive. The basic gestalt is that, users ca
 
 Here is the credit score calculation:
 
-Repay > 25% of the remaining balance & a minimum of 1,000 in value = 25 credit score.
-Repay > 50% of the remaining balance & a minimum of 1,000 in value = 35 credit score.
-Repay > 75% of the remaining balance & a minimum of 1,000 in value = 45 credit score.
-Repay > 100% of the remaining balance & a minimum of 1,000 in value = 60 credit score.
+* Repay > 25% of the remaining balance & a minimum of 1,000 principal loan value = 25 credit score.
+* Repay > 50% of the remaining balance & a minimum of 1,000 principal loan value = 35 credit score.
+* Repay > 75% of the remaining balance & a minimum of 1,000 principal loan value = 45 credit score.
+* Repay > 100% of the remaining balance & a minimum of 1,000 in remaining balance = 60 credit score.
 
 Users who have achieved 100, 200, or 300 credit score are rewarded with the following:
 
