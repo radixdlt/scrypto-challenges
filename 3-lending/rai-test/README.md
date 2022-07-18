@@ -61,3 +61,5 @@ It is expected that blueprints and components will not be redeployed often, and 
 # Directory Structure
 - dependencies/oracle_placeholder - a small oracle contract used for cross-blueprint oracle price check functionality
 - RAI-Scrypto-Lending-Platform-PTE - a react web frontend for testing with Babylon PTE, tracked in a separate git repo. It may be cloned into the local repo by using the git submodule commands above.
+- src/lib.rs - core RAI Lending Platform logic
+- raitest.rev - revup script for testing RAI Lending Platform functions with resim
