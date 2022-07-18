@@ -14,6 +14,7 @@
   * [Design Details](#design-details)
     + [User/Credit Report/SBT](#usercredit-reportsbt)
     + [Loan NFT](#loan-nft)
+    + [Liquidation](#liquidation)
     + [Pool Design](#pool-design)
     + [Credit Report System Design](#credit-report-system-design)
     + [Blueprint Overview](#pool-design)
