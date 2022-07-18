@@ -1,0 +1,42 @@
+# RAI Scrypto Lending Platform Challenge Submission
+
+This challenge submission is inspired by the impact made by the MakerDAO protocol on Ethereum. Providing trustless leverage and creating a decentralized stablecoin backed by assets is one of the first innovations that lead to the birth of Decentralized Finance (DeFi). 
+In this scrypto challenge submission, borrowers are able to lock their XRD in a position as collateral for leverage to mint RAI, a token which can always be used to repay $1 of debt against a collateralized XRD position.
+Note that the primary purpose of RAI is to generate leverage for a long XRD position. The demand for RAI as a stablecoin might outpace the generation of RAI as risktakers mint RAI for leverage. The stablecoin aspect is reflected in the underlying value of RAI to be used to pay down $1 of debt in the protocol, and there is no market maker that attempts to peg the price of RAI to $1 on any trading markets.
+
+# Features
+
+- Follows the battle tested ratio of 150% overcollateralized positions introduced by MakerDAO
+- Allows liquidators to liquidate undercollateralized positions
+- Protocol Insolvency Fractional Redemption Strategy: When the protocol pooled collateral vault falls under 1:1 backing with RAI debt, the protocol freezes liquidations and new positions and allows fractional redemption strategy for RAI token holders. The guiding principle is that under extreme market conditions, the RAI token holders should not have to rush to the exit to redeem their collateral - instead, the collateral pool is split amongst all RAI token supply holders. All token holders will get their equivalent share of the collateral pool according to the supply of RAI that they hold. In this way, the fractional redemption strategy reduces volatity of the ecosystem and also stops prevents liquidations from flooding the market with XRD and crashing the supply of the XRD collateral. 
+- Supports variable interest rates (locked to admin badge holders at the moment)
+- Web Frontend UI utilizing the PTE Babylon Radix Browser extension to deploy blueprints, instantiate components, and interact with all functionality provided by the RAI Lending Platform
+- Supports Oracle placeholder to allow users to test the behavior of the system under different market conditions (changing the price of XRD on demand)
+- Convenience functions to print the state of global positions on the protocol to allow manual inspection and liquidation while waiting on the ability for the PTE to generate events that can be subscribed to for running liquidation bots
+
+# General Usage
+
+The general usage of the platform for borrowers looking to generate leverage on XRD position is as follows:
+
+1. Open Position: Provide XRD collateral to be locked for a new position. Returned is a position badge NFT that grants authorization to manage the position. Most following position management functions require a Proof of the position badge to be passed to grant authorization to manage the position.
+2. Draw: Determine amount of RAI token to be minted against the position. 
+3. Paydown: Return an amount of RAI token to pay down debt on the position. The RAI is burned from supply.
+4. AddCollateral: Add an additional amount of XRD collateral to the position to allow more RAI to be minted or to manage collateralization ratios.
+5. PartialWithdrawCollateral: Withdraw amount of free XRD collateral not required to maintain the RAI position debt.
+6. Close Position: Callable with a bucket of RAI, the function will pay off all outstanding debt and return the underlying collateral.
+
+For liquidators, they may use the following functions:
+1. Print All Positions: This function returns a list of all current positions at the protocol in the info logs of the Radix Engine. The Web Frontend UI displays the logs, and allows liquidators to manually inspect which positions are available to be liquidated.
+2. Liquidate: Providing a position id and RAI bucket, pay off the RAI debt of the undercollateralized position in exchange for foreclosing on the underlying collateral position. Liquidators are incentivized to monitor positions and call the liquidate function as they may be able to "purchase" the underlying collateral at a discount by paying off the loan.
+
+For each liquidate call, there will be a check to see if the protocol remains solvent ($1 collateral for each $1 RAI token). Under extreme market conditions when the protocol becomes insolvent ($collateral < $RAI debt), the protocol triggers redemption only mode - allowing RAI holders to always be able to claim their portion of the collateral pool, and limiting the risk of a bank run and cascading liquidations. At that time, the redeem function will be open for RAI holders to exchange their RAI for their share of the XRD collateral pool.
+At any time, anyone can call the check_protocol_solvency function, and it is not necessary for a liquidation to happen to trigger the protocol into fractional redemption mode.
+
+# Deployment steps
+
+The instantiation of the RAI Lending Platform requires a protocol to provide the price of XRD for collateral. In order to instantiate the platform:
+
+1. Publish an oracle blueprint to the ledger (this submission includes an OraclePlaceholder contract in dependencies/oracle_placeholder/src/lib.rs)
+2. Instantiate an oracle component from the blueprint (and interact with this new component to set/get the price of xrd used for calculations in the contract)
+3. Publish the RAI Lending Platform blueprint to the ledger
+4. Instiate the RAI Lending Platform component, passing it in the ComponentAddress of the instantiated oracle from step 2. 
