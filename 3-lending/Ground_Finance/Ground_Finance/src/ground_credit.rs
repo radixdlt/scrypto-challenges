@@ -1,6 +1,8 @@
 //! # [GroundCredit](./ground_credit/blueprint/struct.GroundCredit.html): Make a Credit Ground for your journey into Web 3!
 //!
 //! Ground Credit is the blueprint for any organization to help users build a credit Ground in Web3 Society by utilizing SBT characteristics. 
+//! 
+//! Ground Credit also help lending protocol operators to use the Credit Service, allow automated credit scoring and debt-tracking through credit user's data.
 //!
 //! ## Main Features:
 //!
@@ -883,13 +885,41 @@ blueprint! {
                 borrow_resource_manager!(self.credit_sbt)
                 .set_updateable_non_fungible_data(rule!(require_any_of(self.authorized_protocol.clone())));
                 borrow_resource_manager!(self.installment_credit_badge)
-                .set_burnable(rule!(require(protocol_controller_address)));
+                .set_burnable(rule!(require_any_of(self.authorized_protocol.clone())))
             });
 
             info!("listed the lending protocol with controller badge address {}", protocol_controller_address);
 
         }
 
+        /// This method is for the service operator to deny a protocol using on-chain credit service.
+        /// 
+        /// Input: The protocol controller badge resource address
+        /// 
+        /// All the protocol are denied by default
+        pub fn delist_protocol(&mut self, protocol_controller_address: ResourceAddress) {
+
+            let index = self.authorized_protocol.iter().position(|x| *x == protocol_controller_address);
+
+            match index {
+                None => {info!("Doesn't have this protocol on the list.")}
+                Some(x) => {
+
+                    self.authorized_protocol.remove(x);
+
+                    info!("delisted the lending protocol with controller badge address {}", protocol_controller_address);
+
+                }
+            }
+
+            self.controller_badge.authorize(|| {
+                borrow_resource_manager!(self.credit_sbt)
+                .set_updateable_non_fungible_data(rule!(require_any_of(self.authorized_protocol.clone())));
+                borrow_resource_manager!(self.installment_credit_badge)
+                .set_burnable(rule!(require_any_of(self.authorized_protocol.clone())));
+            });
+
+        }
         // /// This method is to check if the protocol is listed or not.
         // /// 
         // /// Input: The protocol controller badge proof.

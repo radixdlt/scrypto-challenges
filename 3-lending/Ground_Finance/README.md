@@ -77,6 +77,8 @@ Windows (not have git bash): `cd Ground_Test && cargo doc --no-deps  --document-
 
 Ground Credit is the blueprint for any organization to help users build a credit Ground in Web3 Society by utilizing SBT characteristics.
 
+Ground Credit also help lending protocol operators to use the Credit Service, allow automated credit scoring and debt-tracking through credit user's data.
+
 ### Main Features
 
 The blueprint is for web3 organizations to manage user's credit through making use of Soul Bound Tokens (SBTs).
@@ -93,7 +95,7 @@ The blueprint also included two revolving credit types: "Monthly" and "Yearly", 
 
 - Issue new Credit SBT for users (for user who wish to migrate his off-chain credit history). (Require off-chain process)
 - Review installment credit request. (Require off-chain process)
-- List, delist a lending protocol to use the Credit service. (Require off-chain process if the protocols weren't run by the same entity)
+- List, delist a lending protocol to use the Credit service. (Require off-chain process if the credit service and the protocol weren't run by the same entity)
 - Blacklist, whitelist credit users who have issue with the ID SBT (wrong income, trust score) or have a large loan default. (Require off-chain process)
 <!-- - Change the credit degrade and restore rate when credit users have late (or on-time) repayment frequency. -->
 
@@ -128,7 +130,7 @@ The blueprint is for web3 organizations to instantiate and manage a collateral-f
 The blueprint utilized the Credit Service from [GroundCredit](./Ground_Finance/src/ground_credit.rs) blueprint, the Oracle solution from [NeuRacle](https://github.com/unghuuduc/NeuRacle) blueprint
 and the business DAO solution from [GroundBusinessDAO](https://github.com/unghuuduc/GroundPackages/blob/main/Ground_Business/src/ground_business_dao.rs) blueprint:
 
-- The Credit Service is for the protocol to keep track and update the borrower's credit data: current debt (include initial debt, debt interest and extra debt by late repayment), credit score, credit due time, credit start time.
+- The Credit Service is for the protocol to keep track and update the borrower's credit data: current debt (include initial debt, debt interest and extra debt by late repayment), credit score, credit due time, credit start time, accumulated repayment.
 
 - The Oracle solution is for the protocol to keep track on the passage of time, to see which repayment is on-time (or late) and which lending accounts are eligible for the interest from borrowers, enable "bank level" earning tracker for lenders.
 
@@ -162,7 +164,7 @@ The DAO also provide a "risk-backed" method called "compensate" which will compe
 
 - Lend an amount of stable coins into the protocol to earn interest and get the Account badge.
 - Withdraw part of (or all) the return amount from the Account badge.
-- Take the compensate amount from the DAO running this protocol in the worse case of cooperated loan default.
+- Take the compensation from the DAO running this protocol in the worse case of cooperated loan default.
 
 3. **Borrowers**: Permissioned wallet address (require ID SBT and Credit SBT) can make an automated collateral-free
 loan through this blueprint to maximize capital efficiency.
