@@ -24,7 +24,7 @@ Although Ground Finance also used permissioned solutions, it combined the best c
 
 Clone this git repository: `git clone https://github.com/radixdlt/scrypto-challenges && cd 3-lending/Ground_Finance`
 
-For the tests, this project use an extra test blueprint: [GroundTestEngine](./Ground_Test/README.md).
+For the tests, this project use an extra test blueprint: [GroundTestEngine](./Ground_Test).
 
 ### Unit-test
 
@@ -123,8 +123,8 @@ Ground Lending is the core blueprint of the Ground Finance package, provide coll
 
 The blueprint is for web3 organizations to instantiate and manage a collateral-free lending protocol on-chain.
 
-The blueprint utilized the Credit Service from GroundCredit blueprint, the Oracle solution from NeuRacle blueprint
-and the business DAO solution from GroundBusinessDAO blueprint:
+The blueprint utilized the Credit Service from [GroundCredit](./Ground_Finance/src/ground_credit.rs) blueprint, the Oracle solution from [NeuRacle](https://github.com/unghuuduc/NeuRacle) blueprint
+and the business DAO solution from [GroundBusinessDAO](https://github.com/unghuuduc/GroundPackages/blob/main/Ground_Business/src/ground_business_dao.rs) blueprint:
 
 - The Credit Service is for the protocol to keep track and update the borrower's credit data: current debt (include initial debt, debt interest and extra debt by late repayment), credit score, credit due time, credit start time.
 
