@@ -50,9 +50,15 @@ echo "package=$package"
 
 
 # Create instance of app using admin account
+export REPLACEMENT_LOOKUP_BLUEPRINT_INSTANCE=" \
+    s/<<<package>>>/$package/g; \
+    s/<<<admin_account>>>/$admin_account/g; \
+"
+sed "$REPLACEMENT_LOOKUP_BLUEPRINT_INSTANCE" "$SCRIPT_DIR"/transactions_raw/create_blueprint_instance.rtm >"$SCRIPT_DIR"/transactions/create_blueprint_instance.rtm
+
 echo -e "\n\nCreate instance of app"
 resim set-default-account "$admin_account" "$admin_private_key"
-lending_pool=$(resim call-function "$package" LendingPlatform instantiate_lending_platform | grep Component | tail -1 | cut -d " " -f3)
+lending_pool=$(resim run "$SCRIPT_DIR"/transactions/create_blueprint_instance.rtm | grep Component | tail -1 | cut -d " " -f3)
 lending_platform_admin_badge=$(resim show "$admin_account" | grep 'Lending Platform Admin Badge' | cut -d " " -f7 | cut -d "," -f1)
 export lending_pool
 export lending_platform_admin_badge
@@ -66,8 +72,8 @@ export REPLACEMENT_LOOKUP_ACCOUNT_CREATION=" \
     s/<<<account_1_address>>>/$account_1/g; \
     s/<<<account_2_address>>>/$account_2/g; \
 "
-sed "$REPLACEMENT_LOOKUP_OTHER" "$SCRIPT_DIR"/transactions_raw/account_creation_user_1.rtm >"$SCRIPT_DIR"/transactions/account_creation_user_1.rtm
-sed "$REPLACEMENT_LOOKUP_OTHER" "$SCRIPT_DIR"/transactions_raw/account_creation_user_2.rtm >"$SCRIPT_DIR"/transactions/account_creation_user_2.rtm
+sed "$REPLACEMENT_LOOKUP_ACCOUNT_CREATION" "$SCRIPT_DIR"/transactions_raw/account_creation_user_1.rtm >"$SCRIPT_DIR"/transactions/account_creation_user_1.rtm
+sed "$REPLACEMENT_LOOKUP_ACCOUNT_CREATION" "$SCRIPT_DIR"/transactions_raw/account_creation_user_2.rtm >"$SCRIPT_DIR"/transactions/account_creation_user_2.rtm
 
 echo -e "\n\nRegister User 1"
 resim set-default-account "$account_1" "$account_1_private_key"
