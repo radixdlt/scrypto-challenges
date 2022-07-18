@@ -52,3 +52,6 @@ To access a local copy of the Web Frontend UI source code,
 1. git submodule init
 2. git submodule update
 This should fetch the source code of the Web Frontend to the local environment. 
+
+![image](https://user-images.githubusercontent.com/104961484/179461540-644e6574-04d4-4d45-94ac-70204937a2e6.png)
+
