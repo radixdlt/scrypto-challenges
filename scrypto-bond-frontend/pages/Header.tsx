@@ -15,11 +15,7 @@ export default function Header() {
             <Logo />
             <Version /> 
           </div>
-          <div className="flex pr-4 items-center">
-            <Nav />
-            
-          </div>
-        
+          
           
         </div>
       </header>
