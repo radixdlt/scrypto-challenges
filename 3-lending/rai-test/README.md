@@ -2,7 +2,7 @@
 
 This challenge submission is inspired by the impact made by the MakerDAO protocol on Ethereum. Providing trustless leverage and creating a decentralized stablecoin backed by assets is one of the first innovations that lead to the birth of Decentralized Finance (DeFi). 
 In this scrypto challenge submission, borrowers are able to lock their XRD in a position as collateral for leverage to mint RAI, a token which can always be used to repay $1 of debt against a collateralized XRD position.
-Note that the primary purpose of RAI is to generate leverage for a long XRD position. The demand for RAI as a stablecoin might outpace the generation of RAI as risktakers mint RAI for leverage. The stablecoin aspect is reflected in the underlying value of RAI to be used to pay down $1 of debt in the protocol, and there is no market maker that attempts to peg the price of RAI to $1 on any trading markets.
+Note that the primary purpose of RAI is to generate leverage for a long XRD position. The demand for RAI as a stablecoin might outpace the generation of RAI from risktakers that mint RAI for leverage. The stablecoin aspect is reflected in the underlying value of RAI to be used to pay down $1 of debt in the protocol, and there is no market maker that attempts to peg the price of RAI to $1 on any trading markets.
 
 # Features
 
