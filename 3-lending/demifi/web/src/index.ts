@@ -12,6 +12,8 @@ let requestorAdminBadgeAddress = undefined;
 let requestorConfigBadgeAddress = undefined;
 let acceptorComponentAddress = undefined;
 let loanNftAddress = undefined;
+let loanRequestNfid = undefined;
+let loanNfid = undefined;
 
 let demifiPackageAddress = undefined;
 let participantsComponentAddress = undefined;
@@ -77,7 +79,7 @@ document.getElementById('instantiateParticipants').onclick = async function () {
   }
   {
     const manifest2 = new ManifestBuilder()
-      .callMethod(participantsComponentAddress, 'new_participant', ['"Alice2"', '"url"', '"ID ref"', 'None'])
+      .callMethod(participantsComponentAddress, 'new_participant', ['"Alice"', '"url"', '"ID ref"', 'None'])
       .callMethodWithAllResources(accountAddress, 'deposit_batch')
       .build()
       .toString();
@@ -183,10 +185,10 @@ document.getElementById('requestLoan').onclick = async function () {
 	  'ResourceAddress("'+RADIX_TOKEN+'")',
 	  'Decimal("5000")',
 	  'Decimal("100")',
-	  '"1"',
-	  '"1"',
-	  '"2"',
-	  '"2"',
+	  '1u64',
+	  '1u64',
+	  '2u64',
+	  '2u64',
 	  'Decimal("3000")',
 	  '"I will go to the moon and back again and sell NFTs of the trip"',
 	  '"moon://darkside.org"'])
@@ -197,14 +199,42 @@ document.getElementById('requestLoan').onclick = async function () {
     // Send manifest to extension for signing
     const receipt = await signTransaction(manifest);
 
-document.getElementById('errorReturn').innerText = 'Error: ' + JSON.stringify(receipt, null, 2);
-    
     // Update UI
     if (receipt.status == 'Success') {
-      loanRequestNfid = receipt.outputs[0].match(/"value":"NonFungibleId\(\\"(.*?)\\"/)[1];
+      loanRequestNfid = receipt.outputs[2].match(/"value":"NonFungibleId\(\\"(.*?)\\"/)[1];
       document.getElementById('loanRequestNfid').innerText = loanRequestNfid;
     } else {
       document.getElementById('loanRequestNfid').innerText = 'Error: ' + receipt.status;
     }
   }
 }
+
+document.getElementById('pledgeLoan').onclick = async function () {
+
+  {
+    // Construct manifest
+    const manifest = new ManifestBuilder()
+      .withdrawFromAccountByAmount(accountAddress, 5000, RADIX_TOKEN)
+      .takeFromWorktopByAmount(5000, RADIX_TOKEN, 'pledge')
+      .createProofFromAccountByIds(accountAddress, [ participantNfid ], participantsNftAddress)
+      .popFromAuthZone('participant_proof')
+      .callMethod(requestorComponentAddress, 'pledge_loan',
+         ['Proof("participant_proof")',
+	  'NonFungibleId("'+loanRequestNfid+'")',
+	  'Bucket("pledge")'])
+      .callMethodWithAllResources(accountAddress, 'deposit_batch')
+      .build()
+      .toString();
+  
+    // Send manifest to extension for signing
+    const receipt = await signTransaction(manifest);
+
+    // Update UI
+    if (receipt.status == 'Success') {
+      document.getElementById('pledgeOk').innerText = 'Ok';
+    } else {
+      document.getElementById('pledgeOk').innerText = 'Error: ' + receipt.status;
+    }
+  }
+}
+
