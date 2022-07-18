@@ -4,9 +4,14 @@
 
 Decentralized Lending Platform build on Radix using Scrypto and Vue3
 
-## Demo
-
 ## Features
+
+- Add assets/tokens to the platform using an admin badge
+- Create accounts on the lending platform
+- Deposit multiple types of assets/tokens as 'deposits'
+- Withdrawal deposited assets
+- Borrow against deposited assets
+- Repay loans
 
 ## Directories
 

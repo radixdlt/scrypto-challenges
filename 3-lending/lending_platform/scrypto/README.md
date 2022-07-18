@@ -1,4 +1,9 @@
-# Lending Platform - Scrypto Blueprint
+# Lendi - Scrypto Blueprint
+
+## Live Component Address
+
+You can interact with Lendi on the pte02 Public Test Network using the following component
+address: `020ddb692e8836ce8e12a03ab1d7a98e8c6327e60c4cc3bd5c8609`
 
 ## About
 
@@ -384,6 +389,7 @@ Next, run the transaction manifest file from the resim-client
 #### Create Account
 
 Format
+
 ```
 CALL_METHOD
     ComponentAddress("<<<lending_platform_component_address>>>")
@@ -394,6 +400,7 @@ CALL_METHOD
 ```
 
 Example
+
 ```
 CALL_METHOD
     ComponentAddress("020ddb692e8836ce8e12a03ab1d7a98e8c6327e60c4cc3bd5c8609")
@@ -404,7 +411,9 @@ CALL_METHOD
 ```
 
 #### Deposit XRD
+
 Format
+
 ```
 CALL_METHOD
     ComponentAddress("<<<INSERT_USER_ACCOUNT_HERE>>>")
@@ -430,6 +439,7 @@ CALL_METHOD
 ```
 
 Example
+
 ```
 CALL_METHOD
     ComponentAddress("02e70830fe32de80be11c710bc272ac0fd3ddaabe8dc9d48f05825")
