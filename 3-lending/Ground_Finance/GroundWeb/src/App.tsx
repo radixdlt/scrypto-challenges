@@ -20,6 +20,7 @@ function App() {
   const [borrowerInfo, setBorrowerInfo] = useState<Array<string>>([])
   const [protocolInfo, setProtocolInfo] = useState<Array<number>>([])
   const YEAR = 60 * 60 * 24 * 365
+  const ID_TRACK_APY = `NonFungibleId("fb99b87ec1d2888d8e48d917c67ff12d")`
 
   async function get_borrower_data(id_id: string, credit_id: string): Promise<Array<string>> {
 
@@ -141,15 +142,23 @@ function App() {
         risk = (1 - protocol_vault_amount / deposited) * 100
       }
 
+      if (risk < 0) {risk = 0}
+
       protocol_info.push(risk)
 
-      const idx_rate = lending_accounts.findIndex((nonfgb: { value: string} ) => {
+      var rate = 1
+
+      if (lending_accounts.length) {
+        const idx = lending_accounts.findIndex((nonfgb: { value: string} ) => {
   
-        return nonfgb.value === `NonFungibleId("36bc1d34f0012f58c5d7b142d6ed132d")`
-
-      })
-
-      let rate = lending_accounts[idx_rate + 1].fields[0].value.replace(/^\D+|\D+$/g, "")
+          return nonfgb.value === ID_TRACK_APY
+  
+        })
+  
+        if (idx >= 0) {
+          rate = lending_accounts[idx + 1].fields[0].value.replace(/^\D+|\D+$/g, "")
+        } 
+      }
 
       let current = Math.floor(Date.now() / 1000)
 
@@ -381,14 +390,14 @@ function App() {
 
       var total_account = 0
 
-      var total_deposited = 0
+      var total_deposited = '0'
 
       var apy = '0'
 
       if (protocolInfo.length) {
         risk_percent = protocolInfo[2].toFixed(2)
         total_account = protocolInfo[0]
-        total_deposited = protocolInfo[1]
+        total_deposited = protocolInfo[1].toFixed(2)
         apy = protocolInfo[3].toFixed(2)
       }
 

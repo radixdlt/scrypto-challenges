@@ -525,7 +525,7 @@ blueprint! {
 
         }
 
-        /// The method will go through the whole installment credit process 
+        /// The method will go through the whole installment credit assessment process 
         /// from the Ground Credit component and just let user get an installment credit badge to try on the lending protocol.
         /// 
         /// The Installment Credit data is as follow:
@@ -560,6 +560,196 @@ blueprint! {
             ground_credit.blacklist(id);
 
             ComponentAuthZone::pop().drop();
+
+        }
+
+        /// Method to change credit scoring rates of the credit service
+        pub fn change_credit_scoring_rate(&self, yearly_restore_rate: Decimal, yearly_degrade_rate: Decimal, monthly_restore_rate: Decimal, monthly_degrate_rate: Decimal) {
+
+            let test_credit_scoring_rates = CreditScoringRates {
+
+                yearly: CreditScoring {
+                    degrade_rate: yearly_degrade_rate,
+                    restore_rate: yearly_restore_rate,
+                },
+                monthly: CreditScoring {
+                    degrade_rate: monthly_degrate_rate,
+                    restore_rate: monthly_restore_rate,
+                }
+
+            };
+
+            let proof = self.admin_badge.create_proof();
+
+            ComponentAuthZone::push(proof);
+
+            let ground_credit: GroundCredit = self.ground_credit.into();
+            ground_credit.change_credit_scoring_rate(test_credit_scoring_rates);
+
+            ComponentAuthZone::pop().drop();
+
+        }
+
+        /// Method to change revolving credit interest rates of the protocol
+        pub fn change_interest_rates(&mut self, yearly_interest_rate: Decimal, yearly_interest_rate_late: Decimal, monthly_interest_rate: Decimal, monthly_interest_rate_late: Decimal) {
+
+            let dao_address = self.dao.unwrap();
+
+            let lending_address = self.ground_lending.unwrap();
+
+            let dao: GroundBusinessDAO = dao_address.into();
+
+            if let Some(dao_vault) = &self.dao_vault {
+
+                let dao_proof = dao_vault.create_proof();
+
+                ComponentAuthZone::push(dao_proof);
+
+                if let Some (cv_vault) = &self.cv_vault {
+
+                    let cv_proof = cv_vault.create_proof();
+
+                    let interest_rates = RevolvingCreditInterestRates {
+                        yearly: Interest {
+                            interest_rate: yearly_interest_rate,
+                            interest_rate_late: yearly_interest_rate_late
+                        },
+                        monthly: Interest {
+                            interest_rate: monthly_interest_rate,
+                            interest_rate_late: monthly_interest_rate_late
+                        },
+                    };
+
+                    let propose_badge = dao.propose_concept(cv_proof, Methods { methods: vec![Method {component: lending_address, method: String::from("change_interest_rates"), args: vec![scrypto_encode(&interest_rates)] }]}, dec!("100"));
+
+                    ComponentAuthZone::pop().drop();
+
+                    let id = NonFungibleId::from_u64(dao.proposal_id_counter() - 1);
+
+                    let dao_proof2 = dao_vault.create_proof();
+
+                    dao.vote(dao_proof2, id, true);
+
+                    let return_reward = dao.execute_concept(propose_badge);
+
+                    self.deposit(return_reward.unwrap());
+
+                }
+
+            }
+
+        }
+
+        /// Method to change lender's withdrawal fee of the protocol
+        pub fn change_fee(&mut self, fee: Decimal) {
+
+            let dao_address = self.dao.unwrap();
+
+            let lending_address = self.ground_lending.unwrap();
+
+            let dao: GroundBusinessDAO = dao_address.into();
+
+            if let Some(dao_vault) = &self.dao_vault {
+
+                let dao_proof = dao_vault.create_proof();
+
+                ComponentAuthZone::push(dao_proof);
+
+                if let Some (cv_vault) = &self.cv_vault {
+
+                    let cv_proof = cv_vault.create_proof();
+
+                    let propose_badge = dao.propose_concept(cv_proof, Methods { methods: vec![Method {component: lending_address, method: String::from("change_fee"), args: vec![scrypto_encode(&fee)] }]}, dec!("100"));
+
+                    ComponentAuthZone::pop().drop();
+
+                    let id = NonFungibleId::from_u64(dao.proposal_id_counter() - 1);
+
+                    let dao_proof2 = dao_vault.create_proof();
+
+                    dao.vote(dao_proof2, id, true);
+
+                    let return_reward = dao.execute_concept(propose_badge);
+
+                    self.deposit(return_reward.unwrap());
+
+                }
+            }
+        }
+
+        pub fn change_tolerance_threshold(&mut self, tolerance_threshold: Decimal) {
+
+            let dao_address = self.dao.unwrap();
+
+            let lending_address = self.ground_lending.unwrap();
+
+            let dao: GroundBusinessDAO = dao_address.into();
+
+            if let Some(dao_vault) = &self.dao_vault {
+
+                let dao_proof = dao_vault.create_proof();
+
+                ComponentAuthZone::push(dao_proof);
+
+                if let Some (cv_vault) = &self.cv_vault {
+
+                    let cv_proof = cv_vault.create_proof();
+
+                    let propose_badge = dao.propose_concept(cv_proof, Methods { methods: vec![Method {component: lending_address, method: String::from("change_tolerance_threshold"), args: vec![scrypto_encode(&tolerance_threshold)] }]}, dec!("100"));
+
+                    ComponentAuthZone::pop().drop();
+
+                    let id = NonFungibleId::from_u64(dao.proposal_id_counter() - 1);
+
+                    let dao_proof2 = dao_vault.create_proof();
+
+                    dao.vote(dao_proof2, id, true);
+
+                    let return_reward = dao.execute_concept(propose_badge);
+
+                    self.deposit(return_reward.unwrap());
+
+                }
+
+            }
+
+        }
+
+        pub fn change_compensate_rate(&mut self, compensate_rate: Decimal) {
+
+            let dao_address = self.dao.unwrap();
+
+            let lending_address = self.ground_lending.unwrap();
+
+            let dao: GroundBusinessDAO = dao_address.into();
+
+            if let Some(dao_vault) = &self.dao_vault {
+
+                let dao_proof = dao_vault.create_proof();
+
+                ComponentAuthZone::push(dao_proof);
+
+                if let Some (cv_vault) = &self.cv_vault {
+
+                    let cv_proof = cv_vault.create_proof();
+
+                    let propose_badge = dao.propose_concept(cv_proof, Methods { methods: vec![Method {component: lending_address, method: String::from("change_compensate_rate"), args: vec![scrypto_encode(&compensate_rate)] }]}, dec!("100"));
+
+                    ComponentAuthZone::pop().drop();
+
+                    let id = NonFungibleId::from_u64(dao.proposal_id_counter() - 1);
+
+                    let dao_proof2 = dao_vault.create_proof();
+
+                    dao.vote(dao_proof2, id, true);
+
+                    let return_reward = dao.execute_concept(propose_badge);
+
+                    self.deposit(return_reward.unwrap());
+
+                }
+
+            }
 
         }
     }

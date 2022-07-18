@@ -1116,6 +1116,7 @@ blueprint! {
 
         /// This method is for the service operator to blacklist an ID SBT.
         pub fn blacklist(&mut self, id: NonFungibleId) {
+            assert!(!matches!(self.credit_list.get(&id), None), "This ID haven't got a credit account yet!");
             info!("ID address {} has been blacklisted", id.clone());
             self.blacklist.push(id);
         }
@@ -1158,12 +1159,17 @@ blueprint! {
         }
 
         /// Workaround method...
-        pub fn check_id_and_credit_by_data(&self, id: NonFungibleId, id_resource: ResourceAddress, credit_id: NonFungibleId, credit_resource: ResourceAddress) {
+        pub fn full_check(&self, id: NonFungibleId, id_resource: ResourceAddress, credit_id: NonFungibleId, credit_resource: ResourceAddress) {
+            let id = self.check_id_and_credit_by_data(id, id_resource, credit_id, credit_resource);
+            assert!(!self.blacklist.contains(&id), "You're not allowed to use credit. Please contact your credit issuer.");
+        }
+
+        pub fn check_id_and_credit_by_data(&self, id: NonFungibleId, id_resource: ResourceAddress, credit_id: NonFungibleId, credit_resource: ResourceAddress) -> NonFungibleId {
             let identity_service: GroundID = self.identity_service.into();
             identity_service.check_resource(id_resource);
-            assert!(!self.blacklist.contains(&id), "You're not allowed to use credit. Please contact your credit issuer.");
             assert!(credit_resource == self.credit_sbt, "Wrong resource!");
             assert!(credit_id == self.credit_list.get(&id).unwrap(), "Wrong credit SBT!");
+            id
         }
 
         pub fn check_installment_credit(&self, resource_address: ResourceAddress) {
@@ -1174,6 +1180,7 @@ blueprint! {
         /// 
         /// ```Struct(Struct({yearly_degrade_rate}, {yearly_restore_rate}), Struct({monthly_degrate_rate}, {monthly_restore_rate}))```
         pub fn change_credit_scoring_rate(&mut self, credit_scoring_rates: CreditScoringRates) {
+            credit_scoring_rates.check_rates();
             self.credit_scoring_rates = credit_scoring_rates
         }
 

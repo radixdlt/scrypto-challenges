@@ -805,7 +805,7 @@ blueprint! {
 
             assert!((self.vault.amount() - amount) / self.total_return > self.tolerance_threshold, "Currently you cannot take your credit from this protocol, please come back later or try reducing your loan amount.");
 
-            credit_service.check_id_and_credit_by_data(id_proof.non_fungible::<Credit>().id(), id_proof.resource_address(), credit_sbt.non_fungible::<Credit>().id(), credit_sbt.resource_address());
+            credit_service.full_check(id_proof.non_fungible::<Credit>().id(), id_proof.resource_address(), credit_sbt.non_fungible::<Credit>().id(), credit_sbt.resource_address());
 
             let credit_data = credit_sbt.non_fungible::<Credit>().data().data;
 
@@ -872,7 +872,7 @@ blueprint! {
 
             let credit_service: GroundCredit = self.credit_service.into();
 
-            credit_service.check_id_and_credit_by_data(id_proof.non_fungible::<Credit>().id(), id_proof.resource_address(), credit_sbt.non_fungible::<Credit>().id(), credit_sbt.resource_address());
+            credit_service.full_check(id_proof.non_fungible::<Credit>().id(), id_proof.resource_address(), credit_sbt.non_fungible::<Credit>().id(), credit_sbt.resource_address());
 
             let neuracle: NeuRacle = self.oracle.0.into();
             let data_proof = self.oracle.1.create_proof();
@@ -1542,7 +1542,7 @@ blueprint! {
 
                     self.vault.put(repayment.take(current_debt + interest));
 
-                    interest_rate += interest / eligible_return; // The interest rate for user since last protocol interest
+                    interest_rate += interest / eligible_return;
 
                     for lender in self.lenders.values_mut() {
 
@@ -1641,20 +1641,25 @@ blueprint! {
             self.vault.take(amount)
         }
 
-        pub fn change_interest_rates(&mut self, interest_rates: RevolvingCreditInterestRates) {
+        pub fn change_interest_rates(&mut self, mut interest_rates: RevolvingCreditInterestRates) {
+            interest_rates.check_rates();
+            interest_rates.rates_aggregrate();
             self.interest_rates = interest_rates
         }
 
         pub fn change_fee(&mut self, fee: Decimal) {
-            self.fee = fee
+            assert_rate(fee);
+            self.fee = fee / dec!("100")
         }
 
         pub fn change_tolerance_threshold(&mut self, tolerance_threshold: Decimal) {
-            self.tolerance_threshold = tolerance_threshold
+            assert_rate(tolerance_threshold);
+            self.tolerance_threshold = tolerance_threshold / dec!("100")
         }
 
         pub fn change_compensate_rate(&mut self, compensate_rate: Decimal) {
-            self.compensate_rate = compensate_rate
+            assert_rate(compensate_rate);
+            self.compensate_rate = compensate_rate / dec!("100")
         }
 
         pub fn withdraw_fee(&mut self) -> Bucket {

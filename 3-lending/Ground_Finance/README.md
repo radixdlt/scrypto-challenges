@@ -45,7 +45,7 @@ You need a wallet address on the [PTE Browser Extension](https://docs.radixdlt.c
 **Test Component initializing and get testing resource through resim client:**
 
 1. Connect to the PTE `cd Ground_Test/resim-client && resim-client --address pte01-socket.radixdlt.com:8010`
-2. Check the test component `resim show 02b5db58fda106b8548995662aa2d40423fc3e846e818d14b845b2`. If the test component already existed, go directly to the step 8.
+2. Check the test component `resim show 027ed24aa087a634fd48888d519f50682a14ec76e47cf5555d3ccd`. If the test component already existed, go directly to the step 8.
 3. Close the resim client and build the test package `cd .. && scrypto build` (ignore this step if you have already dont the unit-test)
 4. Connect to the PTE again `cd resim-client && resim-client --address pte01-socket.radixdlt.com:8010` and publish the test package `resim publish ../target/wasm32-unknown-unknown/release/ground_test.wasm`
 5. Edit the package address on file [instantiate](./Ground_Test/resim-client/instantiate) and run `resim run instantiate`
@@ -61,11 +61,23 @@ You need a wallet address on the [PTE Browser Extension](https://docs.radixdlt.c
 
 **Extra feature mean for testers on the resim client:**
 
-- Manipulate time through the NeuRacle blueprint: re-check the address and edit the variable on file [manipulate_time](./Ground_Test/resim-client/manipulate_time) and do `resim run manipulate_time`. (This must be called after at least an epoch or the NeuRacle component will panic because of the Sybil prevent function, if you see it panic because of the Sybil prevent function, it's most likely that you or some others has already run the manipulate time transaction on that epoch).
+- Manipulate time through the NeuRacle blueprint: re-check the address and edit variable on file [manipulate_time](./Ground_Test/resim-client/manipulate_time) and do `resim run manipulate_time`. (This must be called after at least an epoch or the NeuRacle component will panic because of the Sybil prevent function, if you see it panic because of the Sybil prevent function, it's most likely that you or some others has already run the manipulate time transaction on that epoch).
 
 *This is only for test purpose and totally not the pratical use-case of the NeuRacle package!*
 
-- Allow an installment credit through it's ID: re-check the address and edit the variable on file [review_installment_credit](./Ground_Test/resim-client/review_installment_credit) and do `resim run review_installment_credit`
+- Allow an installment credit through it's ID: re-check the address and edit variable on file [review_installment_credit](./Ground_Test/resim-client/review_installment_credit) and do `resim run review_installment_credit`
+
+- Blacklist a credit user: re-check the address and edit variable on file [blacklist](./Ground_Test/resim-client/blacklist) and do `resim run blacklist`
+
+- Change the credit scoring rates: re-check the address and edit variable on file [change_credit_scoring_rate](./Ground_Test/resim-client/change_credit_scoring_rate) and do `resim run change_credit_scoring_rate`
+
+- Change the protocol's revolving credit interest rates: re-check the address and edit variable on file [change_interest_rates](./Ground_Test/resim-client/change_interest_rates) and do `resim run change_interest_rates`
+
+- Change the protocol's withdrawal fee for lenders: re-check the address and edit variable on file [change_fee](./Ground_Test/resim-client/change_fee) and do `resim run change_fee`
+
+- Change the protocol tolerance threshold: re-check the address and edit variable on file [change_tolerance_threshold](./Ground_Test/resim-client/change_tolerance_threshold) and do `resim run change_tolerance_threshold`
+
+- Change the protocol's compensation rate: re-check the address and edit variable on file [change_compensate_rate](./Ground_Test/resim-client/change_compensate_rate) and do `resim run change_compensate_rate`
 
 **Study more in the doc:**
 

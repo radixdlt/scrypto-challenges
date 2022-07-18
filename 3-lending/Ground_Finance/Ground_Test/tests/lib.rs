@@ -739,6 +739,7 @@ fn test_lender_badge_pattern() {
 /// - Test "Consumer-level" credit for borrowers: All the Ground Lending blueprint's methods for revolving credit borrowers, included late-repayment test.
 /// - Test the Automatic Credit Scoring Mechanism.
 /// - Test "Bank level" earning tracker for lenders: Compare the return of same lending account in amount but different in start - end time.
+/// - Test "Black-list" credit user on the protocol
 /// 
 /// Testers can edit the params in the test.
 #[test]
@@ -848,9 +849,18 @@ fn test_revolving_credit_and_interest() {
 
     println!("LET BORROWER 1 TAKE LOAN");
 
-    let receipt = test_env.revolving_credit("borrower1", dec!("30"));
+    let receipt = test_env.revolving_credit("borrower1", dec!("15"));
 
     assert!(receipt.result.is_ok());
+
+    println!("CHECK BLACKLIST FUNCTION");
+    test_env.black_list("borrower1");
+
+    println!("LET BORROWER 1 TAKE LOAN AGAIN");
+
+    let receipt = test_env.revolving_credit("borrower1", dec!("10"));
+
+    assert!(receipt.result.is_err());
 
     println!("LET BORROWER 1 REPAY FULL OF THE LOAN");
 
