@@ -1,0 +1,8 @@
+# Reads the NonFungibleAddress of the catalog creator participant
+#
+# Parameters:
+#
+# $component: address of the Participants component to call
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_catalog_creator";

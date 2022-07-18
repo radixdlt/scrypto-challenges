@@ -1,0 +1,41 @@
+# A participant burns a loan request
+#
+# Parameters:
+#
+# $component: address of the LoanRequestor instance to use
+#
+# $account: address of the user account running this transaction
+#
+# $participants_nft_addr: ResourceAddress of the Participants NFTs to use
+#
+# $borrower_nfid: NonFungibleId of the participant that takes the loan
+#
+# $loanrequest_nft_addr: ResourceAddress of the LoanRequest NFTs we use
+#
+# $loanrequest_nfid: NonFungibleId of the loan request to convert
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${participants_nft_addr}");
+
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+    TreeSet<NonFungibleId>(NonFungibleId("${borrower_nfid}"))
+    ResourceAddress("${participants_nft_addr}")
+    Proof("proof");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_ids"
+   TreeSet<NonFungibleId>(NonFungibleId("${loanrequest_nfid}"))
+   ResourceAddress("${loanrequest_nft_addr}");
+
+TAKE_FROM_WORKTOP_BY_IDS
+   TreeSet<NonFungibleId>(NonFungibleId("${loanrequest_nfid}"))
+   ResourceAddress("${loanrequest_nft_addr}")
+   Bucket("request_bucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "burn"
+   Proof("proof")
+   Bucket("request_bucket");

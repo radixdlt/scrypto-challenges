@@ -1,0 +1,8 @@
+# Reads the LoanAcceptor ComponentAddress for a LoanRequestor
+#
+# Parameters:
+#
+# $component: address of the LoanRequestor instance to query
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_loan_acceptor";

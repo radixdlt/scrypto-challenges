@@ -1,0 +1,11 @@
+# Reads the borrower's Participant NFT address for a loan
+#
+# Parameters:
+#
+# $component: address of the LoanAcceptor instance to use
+#
+# $loan_nfid: NonFungibleId of the loan to query
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_borrower"
+   NonFungibleId("${loan_nfid}");

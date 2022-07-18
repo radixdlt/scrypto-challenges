@@ -1,0 +1,193 @@
+* Actors in the system
+The system has the following actors. There can be overlap between the
+groups, e.g. a lender could also be a borrower et.
+** Borrower
+A borrower issues requests to take up loans, receives loans, and
+repays loans. A Participant NFT is needed to participate as a
+borrower.
+** Lender
+A lender pledges funds towards a loan request, and receives
+installments from the borrower once the loan has been accepted. A
+Participant NFT is needed to participate as a lender.
+** Agency
+An agency facilitates lending activity by having instantiated and
+configured components from the blueprints provided. They also
+presumably provide a front-end user interface and marketing services,
+as well as follow-up against lenders. They may be sponsors for
+borrower Participants, provide business and financial training for
+them, etc.
+
+While we use the term "agency," an agency may well be a single person,
+or a DAO-like organization, etc. In fact a borrower who is able to
+make a name for themselves on their own might as well set up their own
+component chain where they are the only borrower, cutting out the
+middle man.
+* Overall workflow
+An agency will create a Participants NFT series that it intends to use
+for its loans service. All lenders and borrowers will be registered as
+Participants, receiving one Participant NFT each.
+
+This Participants series may be used for all the agency's requestor
+and acceptor instances, if it has multiple; or an agency may decide to
+have multiple business lines each with its own Participants series.
+
+The agency will then create a LoanRequestor instance configured to
+support one specific Participants series. It may create multiple such
+LoanRequestors if it wishes (all based on the same Participents
+series), perhaps in order to load balance between shard groups.
+
+Finally a LoanAcceptor instance will be created, also configured to
+support one specific Participants series. If multiple LoanRequestors
+have been configured then each will need one LoanAcceptor.
+
+Then the LoanRequestor needs to be tied to the LoanAcceptor so the
+latter knows to trust the former. Two instances tied together in this
+way need to both be configured with the same Participants series.
+* Negotiating a loan
+1. Borrower registers a request for a loan:
+   - want to loan $A
+   - will pay $B per C epochs for D installments
+   - This is stored as a LoanRequest
+2. Lender accepts loan:
+   - Puts $A into the LoanRequest to make the loan
+   - A Loan is created from the accepted LoanRequest
+3. Borrower takes the money
+   - calls LoanRequestor::start_loan to receive the money, the loan is now active and installment epochs start counting
+   - at any time before this the lender can call LoanRequestor::rescind_loan to cancel the process
+   - but once start_loan has been called, rescind_loan is no longer available
+4. Borrower pays installments
+   - within C epochs after claim_loan was called the borrower calls pay_installment with the agreed $B
+   - excess funds are returned
+   - if the installment is not paid in time the loan is set to be in arrears
+   - the lender can call loan::clear_arrears to take the loan out of arrears
+   - once D payments have been made the loan is set to settled, except if it is in arrears
+   - in either case, no new payments will be accepted after D payments have been made
+   - any remaining arrears situation needs to be negotiated between lender and borrower
+5. Lender claims rewards at any time
+   - calls Loan::claim_lender_rewards
+6. Protocol owner claims protocol rewards at any time
+   - calls Loan::claim_protocol_rewards
+* Checking arrears
+start epoch: 15
+total epochs: 10
+interval: 3
+
+
+remaining: 10
+paid: 10-10 = 0
+
+| epoch | arrears? | test |
+|-------+----------+------|
+|    15 | n        |    0 |
+|    16 | n        |    0 |
+|    17 | n        |    0 |
+|    18 | n        |    0 |
+|    19 | y        |    1 |
+|    20 | y        |    1 |
+|    21 | y        |    1 |
+|    22 | y        |    1 |
+|    23 | y        |    1 |
+|    24 | y        |    1 |
+|    25 | y        |    1 |
+|    26 | y        |    1 |
+#+TBLFM: $3=if(15 + (0 + 1) * 3 < $-2,1,0)
+
+
+remaining: 9
+paid: 10-9 = 1
+
+| epoch | arrears? | test |
+|-------+----------+------|
+|    15 | n        |    0 |
+|    16 | n        |    0 |
+|    17 | n        |    0 |
+|    18 | n        |    0 |
+|    19 | n        |    0 |
+|    20 | n        |    0 |
+|    21 | n        |    0 |
+|    22 | y        |    1 |
+|    23 | y        |    1 |
+|    24 | y        |    1 |
+|    25 | y        |    1 |
+|    26 | y        |    1 |
+#+TBLFM: $3=if(15 + (1 + 1) * 3 < $-2,1,0)
+
+
+
+remaining: 6
+paid: 10-6 = 4
+
+| epoch | arrears? | test |
+|-------+----------+------|
+|    15 | n        |    0 |
+|    16 | n        |    0 |
+|    17 | n        |    0 |
+|    18 | n        |    0 |
+|    19 | n        |    0 |
+|    20 | n        |    0 |
+|    21 | n        |    0 |
+|    22 | n        |    0 |
+|    23 | n        |    0 |
+|    24 | n        |    0 |
+|    25 | n        |    0 |
+|    26 | n        |    0 |
+|    27 | n        |    0 |
+|    28 | n        |    0 |
+|    29 | n        |    0 |
+|    30 | n        |    0 |
+|    31 | y        |    1 |
+|    32 | y        |    1 |
+#+TBLFM: $3=if(15 + (4 + 1) * 3 < $-2,1,0)
+
+
+
+
+remaining: 0
+paid: 10-0 = 10
+
+| epoch | arrears? | test |
+|-------+----------+------|
+|    15 | n        |    0 |
+|    16 | n        |    0 |
+|    17 | n        |    0 |
+|    18 | n        |    0 |
+|    19 | n        |    0 |
+|    20 | n        |    0 |
+|    21 | n        |    0 |
+|    22 | n        |    0 |
+|    23 | n        |    0 |
+|    24 | n        |    0 |
+|    25 | n        |    0 |
+|    26 | n        |    0 |
+|    27 | n        |    0 |
+|    28 | n        |    0 |
+|    29 | n        |    0 |
+|    30 | n        |    0 |
+|    31 | n        |    0 |
+|    32 | n        |    0 |
+|    33 | n        |    0 |
+|    34 | n        |    0 |
+|    35 | n        |    0 |
+|    36 | n        |    0 |
+|    37 | n        |    0 |
+|    38 | n        |    0 |
+|    39 | n        |    0 |
+|    40 | n        |    0 |
+|    41 | n        |    0 |
+|    42 | n        |    0 |
+|    43 | n        |    0 |
+|    44 | n        |    0 |
+|    45 | n        |    0 |
+|    46 | n        |    0 |
+|    47 | n        |    0 |
+|    48 | n        |    0 |
+|    49 | n        |    1 |
+|    50 | n        |    1 |
+|    51 | n        |    1 |
+|    52 | n        |    1 |
+|    53 | n        |    1 |
+|    54 | n        |    1 |
+|    55 | n        |    1 |
+|    56 | n        |    1 |
+|    57 | n        |    1 |
+#+TBLFM: $3=if(15 + (10 + 1) * 3 < $-2,1,0)

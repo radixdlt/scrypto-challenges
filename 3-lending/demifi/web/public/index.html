@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Web site created using create-snowpack-app" />
+    <link rel="stylesheet" type="text/css" href="/index.css" />
+    <title>Demifi Demo</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script type="module" src="/dist/index.js"></script>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+
+    <h1>Demifi</h1>
+    <p> This app demonstrates the bootstrapping of the Demifi loan
+    system.</p>
+
+    <h2>1. Fetch User Account Address</h2>
+    <p><button id="fetchAccountAddress">Click me</button> to get the account address of the PTE Browser Extension user.</p>
+    <p>Account Address: <pre id="accountAddress"></pre></p>
+
+    <h2>2. Publish Package</h2>
+    <p><button id="publishDemifi">Publish</button></p>
+    <p>Package Address:<br><pre id="demifiPackageAddress"></pre></p>
+
+    <h2>3. Instantiate Participants (two transactions to sign)</h2>
+    <p><button id="instantiateParticipants">Instantiate</button></p>
+    <p>Component Address:<br><pre id="participantsComponentAddress"></pre></p>
+    <p>NFT Resource Address:<br><pre id="participantsNftAddress"></pre></p>
+    <p>Catalog owner NFT id:<br><pre id="participantsOwnerNfid"></pre></p>
+    <h3> 3.1 Create Alice's Participant NFT (second tx to sign)</h3>
+    <p>Alice Participant NFT id: <pre id="participantNfid"></pre></p>
+
+    <h2>4. Instantiate LoanRequestor</h2>
+    <p><button id="instantiateRequestor">Instantiate</button></p>
+    <p>Component Address:<br><pre id="requestorComponentAddress"></pre></p>
+    <p>LoanRequest NFT Address:<br><pre id="loanRequestNftAddress"></pre></p>
+    <p>Requestor admin badge Address:<br><pre id="requestorAdminBadgeAddress"></pre></p>
+    <p>Requestor config badge Address:<br><pre id="requestorConfigBadgeAddress"></pre></p>
+
+    <h2>5. Instantiate LoanAcceptor</h2>
+    <p><button id="instantiateAcceptor">Instantiate</button></p>
+    <p>Component Address:<br><pre id="acceptorComponentAddress"></pre></p>
+    <p>Loan NFT Address:<br><pre id="loanNftAddress"></pre></p>
+
+    <h2>6. Activate LoanRequestor</h2>
+    <p><button id="activateAcceptor">Activate</button> <pre id="acceptorActivatedOk"></pre></p>
+
+    <h2>7. Alice requests a loan</h2>
+    <p><button id="requestLoan">Request a loan</button></p>
+    <p>LoanRequest NFT id:<br><pre id="loanRequestNfid"></pre></p>
+    <p>But I can't get this transaction manifest to behave and I've
+    run out of time.</p>
+    <p>Is there a limitation of max 10 arguments to a Scrypto function
+    when called from the PTE? I vaguely recall noticing that tuple
+    encode/decode only supports up to 10-element tuples.  The
+    request_loan method has 11 (or 12 if you include self) so that
+    would explain it.</p>
+    <p>The full loan/repayment sequence can be witnessed by running
+    the test suite which runs towards resim and doesn't exhibit this
+    problem. If there is intended to be an argument count limit then I
+    shall need to refactor the request_loan method a little.</p>
+
+    <h2>Final error:</h2>
+    <p><pre id="errorReturn"></pre></p>
+    </body>
+</html>
