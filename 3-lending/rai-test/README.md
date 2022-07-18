@@ -7,6 +7,7 @@ Note that the primary purpose of RAI is to generate leverage for a long XRD posi
 # Features
 
 - Follows the battle tested ratio of 150% overcollateralized positions introduced by MakerDAO
+- Open positions and allow position management for borrowers - minting debt RAI tokens, paying off debt, closing positions, adding and withdrawing collateral
 - Allows liquidators to liquidate undercollateralized positions
 - Protocol Insolvency Fractional Redemption Strategy: When the protocol pooled collateral vault falls under 1:1 backing with RAI debt, the protocol freezes liquidations and new positions and allows fractional redemption strategy for RAI token holders. The guiding principle is that under extreme market conditions, the RAI token holders should not have to rush to the exit to redeem their collateral - instead, the collateral pool is split amongst all RAI token supply holders. All token holders will get their equivalent share of the collateral pool according to the supply of RAI that they hold. In this way, the fractional redemption strategy reduces volatity of the ecosystem and also stops prevents liquidations from flooding the market with XRD and crashing the supply of the XRD collateral. 
 - Supports variable interest rates (locked to admin badge holders at the moment)
