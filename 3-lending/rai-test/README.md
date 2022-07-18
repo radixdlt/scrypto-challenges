@@ -6,15 +6,16 @@ Note that the primary purpose of RAI is to generate leverage for a long XRD posi
 
 # Features
 
-- Follows the battle tested ratio of 150% overcollateralized positions introduced by MakerDAO
 - Open positions and allow position management for borrowers - minting debt RAI tokens, paying off debt, closing positions, adding and withdrawing collateral
 - Allows liquidators to liquidate undercollateralized positions
+- Hosted web frontend available at https://rai-scrypto-lending-platform.dekentz.repl.co/
 - Protocol Insolvency Fractional Redemption Strategy: When the protocol pooled collateral vault falls under 1:1 backing with RAI debt, the protocol freezes liquidations and new positions and allows fractional redemption strategy for RAI token holders. The guiding principle is that under extreme market conditions, the RAI token holders should not have to rush to the exit to redeem their collateral - instead, the collateral pool is split amongst all RAI token supply holders. All token holders will get their equivalent share of the collateral pool according to the supply of RAI that they hold. In this way, the fractional redemption strategy reduces volatity of the ecosystem and also stops prevents liquidations from flooding the market with XRD and crashing the supply of the XRD collateral. 
 - Supports variable interest rates (locked to admin badge holders at the moment)
 - Web Frontend UI utilizing the PTE Babylon Radix Browser extension to deploy blueprints, instantiate components, and interact with all functionality provided by the RAI Lending Platform
-- Supports Oracle placeholder cross-blueprint pattern to allow users to test the behavior of the system under different market conditions (by changing the price of XRD on demand through the oracle contract)
+- Supports Oracle placeholder cross-blueprint pattern to allow users to test the behavior of the system under different market conditions (by changing the price of XRD through the oracle contract)
 - Convenience functions to print the state of global positions on the protocol to allow manual inspection and liquidation while waiting on the ability for the PTE to generate events that can be subscribed to for running liquidation bots
-- Hosted web frontend available at https://rai-scrypto-lending-platform.dekentz.repl.co/
+- Follows the battle tested ratio of 150% overcollateralized positions introduced by MakerDAO
+
 
 # General Usage
 
