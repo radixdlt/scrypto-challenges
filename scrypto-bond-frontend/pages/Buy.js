@@ -6,6 +6,8 @@ import MOCK_DATA from '../components/MOCK_DATAb.json';
 import ReactTable from "react-table-6";  
 import "react-table-6/react-table.css";
 import Header from "./Header";
+import { Container, Row, Col } from 'reactstrap';
+
 
 
 const BuyerTable = props => {
@@ -22,8 +24,12 @@ const BuyerTable = props => {
   } = useTable({ columns, data });
 
   return (
-    <div className="table-container">
-            <Header />
+    <Container>
+      <Row className="align-items-center">
+        <Header />
+        <Col lg={5}>
+          <div className="table-container">
+            <br /><br /><br />
             <div className="pr-lg-5">
               <p className="text-uppercase text-primary font-weight-medium f-14 mb-4">Buyer Page</p>
               <h1 className="mb-4 font-weight-normal line-height-1_4">Choose a <span className="text-primary font-weight-medium">bond</span> to buy from the table below</h1>
@@ -31,7 +37,11 @@ const BuyerTable = props => {
                 Issue or Sell instead <span className="ml-2 right-icon">&#8594;</span>
               </a>
             </div>
-      <h2> </h2>
+          </div>
+        </Col>
+      <Col lg={5}>
+      <div className="table-container">
+      <br /><br /><br /><br /><br />
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map(headerGroup => (
@@ -57,9 +67,11 @@ const BuyerTable = props => {
             );
           })}
         </tbody>
-        
-      </table>
-    </div>
+        </table>
+      </div>
+      </Col>
+    </Row>
+    </Container>
   );
 };
 

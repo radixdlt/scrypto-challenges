@@ -23,94 +23,84 @@ const SellerTable = props => {
   } = useTable({ columns, data });
 
   return (
-    <section className="section position-relative">
-      <Container>
-      <Header />
-
-        <Row className="align-items-center">
-          <Col lg={6}>
-            <div className="pr-lg-5">
-              <p className="text-uppercase text-primary font-weight-medium f-14 mb-4">Seller Page</p>
-              <h1 className="mb-4 font-weight-normal line-height-1_4">Fill in the form to sell a bond <span className="text-primary font-weight-medium">Name</span></h1>
-              <a href="/" className="btn btn-dark">
-                Issue or Buy instead <span className="ml-2 right-icon">&#8594;</span>
-              </a>
-            </div>
-          </Col>
-          <Col lg={6}>
-          
-            <div className="max-w-xs my-2 overflow-hidden rounded shadow-lg">
-              <div className="px-6 py-4">
-                <div className="mb-2 text-xl font-bold">Sell a bond</div>
-                  <form className="flex flex-col">
-                    <label htmlFor="name" className="mb-2 italic">Coupon Epoch</label>
-                      <input
-                        className="mb-4 border-b-2"
-                        id="coupon_epoch"
-                        name="coupon_epoch"
-                        type="text"
-                        //autocomplete="name"
-                        required
-                      />
-                    <label htmlFor="name" className="mb-2 italic">Maturity Epoch</label>
-                      <input
-                        className="mb-4 border-b-2"
-                        id="maturity_epoch"
-                        name="maturity_epoch"
-                        type="text"
-                        //autocomplete="name"
-                        required
-                      />
-                    <label htmlFor="name" className="mb-2 italic">Coupon Rate</label>
-                      <input
-                        className="mb-4 border-b-2"
-                        id="coupon_rate"
-                        name="coupon_rate"
-                        type="text"
-                        //autocomplete="name"
-                        required
-                      />
-                    <label htmlFor="name" className="mb-2 italic">Issue Rate</label>
-                      <input
-                        className="mb-4 border-b-2"
-                        id="issue_rate"
-                        name="issue_rate"
-                        type="text"
-                        //autocomplete="name"
-                        required
-                      />
-                    <label htmlFor="name" className="mb-2 italic">Issue Epoch</label>
-                      <input
-                        className="mb-4 border-b-2"
-                        id="issue_epoch"
-                        name="issue_epoch"
-                        type="text"
-                        //autocomplete="name"
-                        required
-                      />
-                    <label htmlFor="name" className="mb-2 italic">Supply</label>
-                      <input
-                        className="mb-4 border-b-2"
-                        id="supply"
-                        name="supply"
-                        type="text"
-                        //autocomplete="name"
-                        required
-                      />
-                    <button
-                      type="submit"
-                      className="px-4 py-2 font-bold text-white bg-dark rounded-full hover:bg-blue-700"
-                      >
-                        Sell
-                    </button>
-                  </form>
-                </div>
-              </div> 
-          </Col>
-        </Row>
-      </Container>
-    </section>
-  );
+  <Container>
+    <Header />
+      <Row className="align-items-center">
+        <Col lg={6}>
+          <div className="pr-lg-5">
+            <p className="text-uppercase text-primary font-weight-medium f-14 mb-4">Seller Page</p>
+            <h1 className="mb-4 font-weight-normal line-height-1_4">Fill in the form to sell a <span className="text-primary font-weight-medium">bond</span></h1>
+            <a href="/" className="btn btn-dark">
+              Issue or Buy instead <span className="ml-2 right-icon">&#8594;</span>
+            </a>
+          </div>
+        </Col>
+        <Col lg={6}>
+          <div className="max-w-xs my-2 overflow-hidden rounded shadow-lg">
+            <div className="px-6 py-4">
+              <div className="mb-2 text-xl font-bold">Sell a bond</div>
+                <form className="flex flex-col">
+                  <label htmlFor="name" className="mb-2 italic">Coupon Epoch</label>
+                    <input
+                      className="mb-4 border-b-2"
+                      id="coupon_epoch"
+                      name="coupon_epoch"
+                      type="text"
+                      required
+                    />
+                  <label htmlFor="name" className="mb-2 italic">Maturity Epoch</label>
+                    <input
+                      className="mb-4 border-b-2"
+                      id="maturity_epoch"
+                      name="maturity_epoch"
+                      type="text"
+                      required
+                    />
+                  <label htmlFor="name" className="mb-2 italic">Coupon Rate</label>
+                    <input
+                      className="mb-4 border-b-2"
+                      id="coupon_rate"
+                      name="coupon_rate"
+                      type="text"
+                      required
+                    />
+                  <label htmlFor="name" className="mb-2 italic">Issue Rate</label>
+                    <input
+                      className="mb-4 border-b-2"
+                      id="issue_rate"
+                      name="issue_rate"
+                      type="text"
+                      required
+                    />
+                  <label htmlFor="name" className="mb-2 italic">Issue Epoch</label>
+                    <input
+                      className="mb-4 border-b-2"
+                      id="issue_epoch"
+                      name="issue_epoch"
+                      type="text"
+                      required
+                    />
+                  <label htmlFor="name" className="mb-2 italic">Supply</label>
+                    <input
+                      className="mb-4 border-b-2"
+                      id="supply"
+                      name="supply"
+                      type="text"
+                      required
+                    />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 font-bold text-white bg-dark rounded-full hover:bg-blue-700"
+                    >
+                      Sell
+                  </button>
+                </form>
+              </div>
+            </div> 
+        </Col>
+      </Row>
+    </Container>
+);
 };
 
 export default SellerTable;
