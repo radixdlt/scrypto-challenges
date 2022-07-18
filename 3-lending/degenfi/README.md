@@ -927,7 +927,7 @@ resim show $ACC_ADDRESS6
 ├─ { amount: 0, resource address: 036cc348e7b196078401658413ccaead5eb245e5020d194975ef51, name: "Loan NFT", symbol: "LNFT" }
 ```
 
-Let's move over to Joe's account in order to have Joe purchase the loan NFt.
+Let's move over to Joe's account in order to have Joe purchase the loan NFT.
 
 ```sh
 resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
