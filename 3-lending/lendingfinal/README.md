@@ -88,6 +88,7 @@ I give thanks to:
  * Florian Pieper and talesofbeem for answering my questions on Telegram and Discord
  * “Timelord” Riccson Ngo for creating the novel and innovative design behind Timeswap
  * vindoor from Timeswap Discord for answering my various questions on Timeswap's design
+ * Bent on Telegram for helping me with Git!
 
 
 
