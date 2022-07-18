@@ -10,8 +10,6 @@
     "create-react-native-app": "^3.8.0",
     "next": "^12.2.2",
     "preline": "^1.1.2",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
     "react-native": "^0.69.1",
     "react-router-dom": "^6.3.0",
     "react-table": "^7.8.0",

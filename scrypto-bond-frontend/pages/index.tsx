@@ -7,6 +7,8 @@ import Hero from "../components/Hero";
 import BasicTable from "../components/BasicTable";
 import classes from '../styles/Home.module.scss';
 
+import bg from "../components/pexels-photo.webp";
+
 import ReactDOM from "react-dom";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "../pages/Layout";
@@ -104,15 +106,25 @@ import styles from '../styles/Home.module.css'
 
 export default function Home() {
   return (
+
+
+
+   <div className="relative z-1">
+  
+    <div className="dark">
+
+     
     <div className={styles.container}>
+    <Header />
 
       <main className={styles.main}>
-        <h2 className={styles.title}>
-          Bond Market
-        </h2>
+        
 
         <div className={styles.grid}>
-          
+        <div className="mt-5 mt-lg-0">
+            </div>
+        
+
           <Link href="/Issue" >
           <a className={styles.card}>
             <h2>Issue &rarr;</h2>
@@ -134,6 +146,9 @@ export default function Home() {
         </div>
       </main>
     </div>
+    </div>
+</div>
+  
   )
 }
 

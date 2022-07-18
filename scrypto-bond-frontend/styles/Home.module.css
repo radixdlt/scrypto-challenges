@@ -1,12 +1,13 @@
 
 .container {
-  min-height: 100vh;
+  min-height: 70vh;
   padding: 0 0.5rem;
+  background-color: "bg-dark";
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 70vh;
 }
 
 .main {
@@ -23,7 +24,7 @@
 .title {
   margin: 0;
   line-height: 1.15;
-  font-size: 2rem;
+  font-size: 2rem;        
   color: rgb(152, 147, 255);
   background-color: bisque;
   border-radius: 8px;
@@ -43,22 +44,26 @@
 }
 
 .card {
-  margin: 1rem;
-  padding: 1.5rem;
+  margin: 0.75rem;
+  padding: 1rem;
   text-align: left;
-  color: inherit;
+  font-size: 2rem;
+  font-weight: 'bold'; 
+  font-style: 'bold';
+  color: rgb(238, 125, 220);
+  background-color: rgb(247, 244, 228);
   text-decoration: none;
   border: 1px solid #eaeaea;
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
-  width: 45%;
+  width: 65%;
 }
 
 .card:hover,
 .card:focus,
 .card:active {
-  color: #0070f3;
-  border-color: #0070f3;
+  color: #f300ba;
+  border-color: #f300ba;
 }
 
 .card h2 {
