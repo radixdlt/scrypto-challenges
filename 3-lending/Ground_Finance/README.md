@@ -81,6 +81,8 @@ Ground Credit is the blueprint for any organization to help users build a credit
 
 The blueprint is for web3 organizations to manage user's credit through making use of Soul Bound Tokens (SBTs).
 
+The blueprint utilized the Unique Identity Service from [GroundID](https://github.com/unghuuduc/GroundPackages/tree/main/Ground_ID) blueprint to assess unique identity on-chain, prevent Sybil attack.
+
 The blueprint included installment type credit, allow [TrueFi](https://truefi.io/) level credit.
 
 The blueprint also included two revolving credit types: "Monthly" and "Yearly", allow on-chain "consumer level" credit for borrowers.
