@@ -27,13 +27,14 @@ blueprint! {
         minter: Vault,
         interest_rate: Decimal,
         positions_counter: u64,
-        is_insolvent: bool
+        is_insolvent: bool,
+        oracle_address: ComponentAddress
     }
 
     impl RaiTest {
 
         // Create new RAI collateralized claim contract. This contract has sole minting authority over new position identifier nfts and the RAI supply.
-        pub fn new() -> (ComponentAddress, Bucket) {
+        pub fn new(oracle: ComponentAddress) -> (ComponentAddress, Bucket) {
 
             let admin_badge: Bucket = ResourceBuilder::new_fungible()
                 .metadata("name", "RaiTest Admin Badge")
@@ -58,6 +59,7 @@ blueprint! {
                 .no_initial_supply();
 
             let rules = AccessRules::new()
+                .method("update_interest_rate", rule!(require(admin_badge.resource_address())))
                 .default(rule!(allow_all));
 
             let component = Self {
@@ -68,7 +70,8 @@ blueprint! {
                 minter: Vault::with_bucket(minter),
                 interest_rate: dec!("0.05"), // TODO - variable loan interest rate. For now, placeholder 5% interest rate.
                 positions_counter: 0,
-                is_insolvent: false
+                is_insolvent: false,
+                oracle_address: oracle
             }
             .instantiate()
             .add_access_check(rules)
@@ -126,7 +129,7 @@ blueprint! {
                 "The position_badge bucket must contain exactly one position badge NFT"
             );
 
-            let required_collateral_xrd_amount = RaiTest::calc_required_collateral_xrd_amount(requested_rai);
+            let required_collateral_xrd_amount = RaiTest::calc_required_collateral_xrd_amount(requested_rai, self.get_xrd_price());
             let position_id = position_badge.non_fungible::<PositionData>().id();
             let position = self.positions.get_mut(&position_id).unwrap();
 
@@ -290,11 +293,13 @@ blueprint! {
                 "The position_badge bucket does not contain a position badge NFT"
             );
 
+            let xrd_price = self.get_xrd_price();
+
             let position_id = &position_badge.non_fungible::<PositionData>().id();
             let position = self.positions.get_mut(&position_id).unwrap();
             let principal_and_interest = RaiTest::calc_principal_and_interest(position.loan_amount, self.interest_rate, position.start_epoch);
 
-            let required_collateral_xrd_amount = RaiTest::calc_required_collateral_xrd_amount(principal_and_interest);
+            let required_collateral_xrd_amount = RaiTest::calc_required_collateral_xrd_amount(principal_and_interest, xrd_price);
 
             info!("Partial Withdraw Collateral - Position ID {} - {:?}", position_id, position);
             info!("Position Principal and Interest - {} RAI, minimum collateral required to maintain position - {} XRD", principal_and_interest, required_collateral_xrd_amount);
@@ -309,7 +314,7 @@ blueprint! {
         }
 
         // Callable by anyone acting as a liquidator - provide undercollateralized position id and minimum RAI P&I payment to foreclose on position collateral
-        pub fn liquidate(&mut self, position_id: u64, rai_payment: Bucket) -> (Bucket, Bucket) {
+        pub fn liquidate(&mut self, position_id: NonFungibleId, rai_payment: Bucket) -> (Bucket, Bucket) {
             assert!(
                 self.is_insolvent == false,
                 "Protocol Insolvent - locked from liquidating positions and minting/burning RAI"
@@ -318,11 +323,12 @@ blueprint! {
                 rai_payment.resource_address() == self.rai_resource,
                 "The rai_payment bucket does not contain RAI"
             );
-            let position_id = NonFungibleId::from_u64(position_id);
+            let xrd_price = self.get_xrd_price();
+            
             let position = self.positions.get_mut(&position_id).unwrap();
 
             let principal_and_interest = RaiTest::calc_principal_and_interest(position.loan_amount, self.interest_rate, position.start_epoch);
-            let required_collateral_xrd_amount = RaiTest::calc_required_collateral_xrd_amount(principal_and_interest);
+            let required_collateral_xrd_amount = RaiTest::calc_required_collateral_xrd_amount(principal_and_interest, xrd_price);
 
             assert!(principal_and_interest < required_collateral_xrd_amount);
             info!("Position id {} being liquidated, p&i is {} and required collateral xrd is {}, position only contains {} xrd collateral", 
@@ -363,9 +369,13 @@ blueprint! {
         pub fn check_protocol_solvency(&mut self) {
             let rai_manager = borrow_resource_manager!(self.rai_resource);
             let total_rai_supply = rai_manager.total_supply();
-            let pooled_collateral_value = RaiTest::calc_xrd_value(self.pooled_collateral_vault.amount());
+            let pooled_collateral_value = self.calc_xrd_value(self.pooled_collateral_vault.amount());
+            info!("Collateral pool xrd amount: {} XRD price: {} Pool value: {} Total RAI supply: {}", self.pooled_collateral_vault.amount(), self.get_xrd_price(), pooled_collateral_value, total_rai_supply);
             if total_rai_supply > pooled_collateral_value {
                 self.is_insolvent = true;
+                info!("!! Protocol is insolvent !! Freezing liquidations and new positions, redemptions against collateral pool allowed now");
+            } else {
+                info!("Protocol solvent");
             }
         }
 
@@ -384,6 +394,7 @@ blueprint! {
             );
             let rai_manager = borrow_resource_manager!(self.rai_resource);
             let total_rai_supply = rai_manager.total_supply();
+            info!("Total RAI supply outstanding: {}", total_rai_supply);
             let percentage_of_total = rai_to_redeem.amount() / total_rai_supply;
 
             let collateral_redemption_amount = percentage_of_total * self.pooled_collateral_vault.amount();
@@ -395,21 +406,63 @@ blueprint! {
                 let rai_manager = borrow_resource_manager!(self.rai_resource);
                 rai_manager.burn(rai_to_redeem);
             });
+            
+            info!("Redeem - {}% of RAI supply redemption, returning {}% of collateral pool - {} xrd", percentage_of_total*100, percentage_of_total*100, redemption_collateral.amount());
 
             redemption_collateral
         }
 
-        fn calc_xrd_value(xrd_amount: Decimal) -> Decimal {
-            // TODO - get xrd price from oracle. Fixed placeholder value for now.
-            let xrd_price = dec!("0.10");
-
-            xrd_amount / xrd_price
+        // Normally, liquidators would be expected to run bots to subscribe to new `open_position` `draw` `paydown` `close_position`
+        // events and maintain an off-ledger system for identifying which vaults are undercollateralized, and call liquidate on
+        // the corresponding undercollateralized positions. However since subscription events are not yet available in Babylon,
+        // provide this convenience function to print the all outstanding positions and identify if any vaults are available for
+        // liquidation and allow manual inspection for liquidation.
+        pub fn print_all_positions(&self) {
+            let xrd_price = self.get_xrd_price();
+            info!("xrd price ${}", xrd_price);
+            for position_id in self.positions.keys() {
+                let position = self.positions.get(position_id).unwrap();
+                let principal_and_interest = RaiTest::calc_principal_and_interest(position.loan_amount, self.interest_rate, position.start_epoch);
+                let required_collateral_amount = RaiTest::calc_required_collateral_xrd_amount(principal_and_interest, self.get_xrd_price());
+                let required_collateral_value = required_collateral_amount * xrd_price;
+                let undercollateralized = if position.collateral_amount < required_collateral_amount { true } else { false } ;
+                let collateral_value = self.calc_xrd_value(position.collateral_amount);
+                info!(
+                    "position_id {} {:?}, P&I {} RAI, collateral_value ${}, required_collateral_value ${}, required_collateral_amount {} XRD",
+                    position_id, position, principal_and_interest, collateral_value, required_collateral_value, required_collateral_amount
+                );
+                if undercollateralized {
+                    info!("!! position id {} undercollateralized!", position_id);
+                }
+            }
         }
 
-        fn calc_required_collateral_xrd_amount(loan_amount: Decimal) -> Decimal {
-            // TODO - get xrd price from oracle. Fixed placeholder value for now.
-            let xrd_price = dec!("0.10");
+        // Allow the admin badge holder to update the interest rate for all positions.
+        // To keep track of accruing interest across varying interest rates, upon each interest rate change,
+        // across all positions calculate the accrued principal & interest and store that value and update the start_epoch field.
+        // From that point on, it is treated as a newly originated loan at that start_epoch with the new interest rate.
+        // In this fashion, historical interest accrued at previous interest rates is included in calculations as the interest rate varies.
+        pub fn update_interest_rate(&mut self, new_interest_rate: Decimal) {
+            for (position_id, position) in self.positions.iter_mut() {
+                let principal_and_interest = RaiTest::calc_principal_and_interest(position.loan_amount, self.interest_rate, position.start_epoch);
+                position.loan_amount = principal_and_interest;
+                position.start_epoch = Runtime::current_epoch();
+                info!("Compounded P&I under previous interest rate and updated position_id {} {:?}", position_id, position)
+            }
+            self.interest_rate = new_interest_rate;
+            info!("Updated interest rate - new interest rate {}", self.interest_rate)
+        }
 
+        fn get_xrd_price(&self) -> Decimal {
+            let oracle: OraclePlaceholder = self.oracle_address.into();
+            oracle.get_price()
+        }
+
+        fn calc_xrd_value(&self, xrd_amount: Decimal) -> Decimal {
+            xrd_amount * self.get_xrd_price()
+        }
+
+        fn calc_required_collateral_xrd_amount(loan_amount: Decimal, xrd_price: Decimal) -> Decimal {
             let required_collateral_value = loan_amount * dec!("1.50");
             required_collateral_value / xrd_price
         }
@@ -443,4 +496,48 @@ fn decimal_pow(base: Decimal, mut power: u64) -> Decimal {
     }
 
     result
+}
+
+import! { r#"
+{
+    "package_address": "0125ec60daa5880cadf3c8f591ed1040bddd0bc572b3c0ae5b67e8",
+    "blueprint_name": "OraclePlaceholder",
+    "functions": [
+        {
+        "name": "new",
+        "inputs": [],
+        "output": {
+            "type": "Custom",
+            "name": "ComponentAddress",
+            "generics": []
+        }
+        }
+    ],
+    "methods": [
+        {
+        "name": "set_price",
+        "mutability": "Mutable",
+        "inputs": [
+            {
+            "type": "Custom",
+            "name": "Decimal",
+            "generics": []
+            }
+        ],
+        "output": {
+            "type": "Unit"
+        }
+        },
+        {
+        "name": "get_price",
+        "mutability": "Immutable",
+        "inputs": [],
+        "output": {
+            "type": "Custom",
+            "name": "Decimal",
+            "generics": []
+        }
+        }
+    ]
+}"# 
 }
