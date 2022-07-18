@@ -284,6 +284,56 @@ blueprint! {
             
         }
 
+        pub fn liquidation(&mut self, mut debt_bucket: Bucket, cdp_id: u64) -> Bucket{
+            let (collateral, debt, collateral_in_xrd, debt_in_xrd, collateral_price, _) = self.get_cdp_digest(cdp_id);
+            assert!(debt == debt_bucket.resource_address(), "The CDP can not support the repay by the bucket!");
+            let collateral_state = self.states.get_mut(&collateral).unwrap();
+            assert!(collateral_state.liquidation_threshold >= debt_in_xrd / collateral_in_xrd, "The CDP can not be liquidation yet, the timing too early!");
+            collateral_state.update_index();
+            let liquidation_bonus = collateral_state.liquidation_bonus;
+            let collateral_supply_index = collateral_state.supply_index;
+
+            let debt_state = self.states.get_mut(&debt).unwrap();
+            debt_state.update_index();
+            debug!("before update_index, borrow in xrd:{} total_borrow_normailized:{} indexes:{},{}", debt_in_xrd, debt_state.normalized_total_borrow, debt_state.supply_index, debt_state.borrow_index);
+            debt_state.update_index();
+            debug!("after update_index, borrow in xrd:{} total_borrow_normailized:{} indexes:{},{}", debt_in_xrd, debt_state.normalized_total_borrow, debt_state.supply_index, debt_state.borrow_index);
+            let borrow_index = debt_state.borrow_index;
+            assert!(borrow_index > Decimal::ZERO, "borrow index error! {}", borrow_index);
+            let mut normalized_amount = LendingPool::floor(debt_bucket.amount() / borrow_index);
+
+            let mut cdp_data: CollateralDebtPosition = borrow_resource_manager!(self.cdp_res_addr).get_non_fungible_data(&NonFungibleId::from_u64(cdp_id));
+            assert!(cdp_data.normalized_borrow <= normalized_amount,  "Underpayment of value of debt!");
+            // repayAmount <= amount
+            // because ⌈⌊a/b⌋*b⌉ <= a
+            let repay_amount = LendingPool::ceil(cdp_data.normalized_borrow * borrow_index);
+            normalized_amount = cdp_data.normalized_borrow;
+
+            let normalized_collateral = debt_in_xrd / collateral_price * (Decimal::ONE - liquidation_bonus) / collateral_supply_index;
+            assert!(cdp_data.collateral_amount > normalized_collateral, "take collateral too many!");
+            
+            let dx_address = cdp_data.collateral_token;
+            let collateral_vault = self.collateral_vaults.get_mut(&dx_address).unwrap();
+            let collateral_bucket = collateral_vault.take(normalized_collateral);
+            
+            cdp_data.collateral_amount -=  normalized_collateral;
+            cdp_data.normalized_borrow = Decimal::ZERO;
+
+            debug!("repay_bucket:{}, normalized_amount:{}, normalized_borrow:{}, repay_amount:{}", repay_amount, normalized_amount, cdp_data.normalized_borrow, repay_amount);
+            let borrow_vault = self.vaults.get_mut(&debt).unwrap();
+            borrow_vault.put(debt_bucket.take(repay_amount));
+            debt_state.normalized_total_borrow -= repay_amount;
+
+            debt_state.update_interest_rate();
+
+            self.minter.authorize(|| {
+                let cdp_res_mgr: &ResourceManager = borrow_resource_manager!(self.cdp_res_addr);
+                cdp_res_mgr.update_non_fungible_data(&NonFungibleId::from_u64(cdp_id), cdp_data);
+            });
+
+            collateral_bucket
+        } 
+
         pub fn get_cdp_digest(&self, cdp_id: u64) -> (ResourceAddress, ResourceAddress, Decimal, Decimal, Decimal, Decimal){
             let cdp: CollateralDebtPosition = borrow_resource_manager!(self.cdp_res_addr).get_non_fungible_data(&NonFungibleId::from_u64(cdp_id));
             let borrow_token = cdp.borrow_token;
@@ -307,12 +357,14 @@ blueprint! {
             //     "debet_asset_price": debet_asset_price,
             //     "collateral_asset_price": deposit_asset_price
             // };
-            (cdp.collateral_token, 
+            (
                 cdp.borrow_token,
+                cdp.collateral_token, 
                 LendingPool::ceil(cdp.normalized_borrow * debet_borrow_index * debet_asset_price),
                 LendingPool::floor(cdp.collateral_amount * collateral_supply_index * deposit_asset_price),
                 debet_asset_price,
-                deposit_asset_price)
+                deposit_asset_price
+            )
 
         }
 
