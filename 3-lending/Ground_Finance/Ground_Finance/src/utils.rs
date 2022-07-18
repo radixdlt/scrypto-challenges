@@ -4,7 +4,7 @@ pub fn assert_rate(rate: Decimal) {
     assert!(rate <= dec!("100") && rate >= Decimal::ZERO, "Wrong data!");
 }
 
-pub fn expo(rate: Decimal, number: u8) -> Decimal {
+pub fn power(rate: Decimal, number: u8) -> Decimal {
 
     let mut counter = 0;
 

@@ -6,7 +6,7 @@ import './App.css'
 import Notiflix from 'notiflix'
 import { ManifestBuilder } from 'pte-sdk'
 import { getAccountAddress, signTransaction } from 'pte-browser-extension-sdk'
-import { CreditSBT, GroundCreditComponent, GroundLendingComponent, IDSBT, InstallmentCreditBadge, InstallmentCreditRequestBadge, LendingAccount, StableCoin } from './assets/GROUND_ADDRESS'
+import { CreditSBT, GroundCreditComponent, GroundLendingComponent, IDSBT, InstallmentCreditBadge, InstallmentCreditRequestBadge, LendingAccount, NeuRacle, StableCoin } from './assets/GROUND_ADDRESS'
 
 function App() {
   const lightblue = { color: 'lightblue' }
@@ -19,6 +19,7 @@ function App() {
   const [lenderInfo, setLenderInfo] = useState<Array<Array<string>>>([])
   const [borrowerInfo, setBorrowerInfo] = useState<Array<string>>([])
   const [protocolInfo, setProtocolInfo] = useState<Array<number>>([])
+  const YEAR = 60 * 60 * 24 * 365
 
   async function get_borrower_data(id_id: string, credit_id: string): Promise<Array<string>> {
 
@@ -134,9 +135,41 @@ function App() {
         }
       }
 
-      const risk = (1 - protocol_vault_amount / deposited) * 100
+      var risk = 0
+
+      if (deposited !== 0) {
+        risk = (1 - protocol_vault_amount / deposited) * 100
+      }
 
       protocol_info.push(risk)
+
+      const idx_rate = lending_accounts.findIndex((nonfgb: { value: string} ) => {
+  
+        return nonfgb.value === `NonFungibleId("36bc1d34f0012f58c5d7b142d6ed132d")`
+
+      })
+
+      let rate = lending_accounts[idx_rate + 1].fields[0].value.replace(/^\D+|\D+$/g, "")
+
+      let current = Math.floor(Date.now() / 1000)
+
+      const time_elapsed = current - componentParse[13].value
+
+      const compound = YEAR / time_elapsed
+
+      const apy = (Math.pow(rate, compound) - 1) * 100
+
+      protocol_info.push(apy)
+
+      const response3 = await fetch(
+        `https://pte01.radixdlt.com/component/${NeuRacle}`
+      );
+
+      const neuracle = await response3.json();
+
+      const neuracle_time = parseInt(JSON.parse(neuracle.state).fields[0].elements[1].value)
+
+      protocol_info.push(neuracle_time)
 
       setProtocolInfo(protocol_info)
 
@@ -288,11 +321,12 @@ function App() {
         if (unix_timestamp == 0) {
           debt_due = null
         } else {
+
           let date = new Date(unix_timestamp * 1000);
 
           let date_format = date.toLocaleString();
 
-          let current = Math.floor(Date.now() / 1000)
+          let current = protocolInfo![4]
 
           if (current <= unix_timestamp) {
             debt_status = null
@@ -343,22 +377,26 @@ function App() {
       }
     } else {
 
-      var percent = '0'
+      var risk_percent = '0'
 
       var total_account = 0
 
       var total_deposited = 0
 
+      var apy = '0'
+
       if (protocolInfo.length) {
-        percent = protocolInfo[2].toFixed(2)
+        risk_percent = protocolInfo[2].toFixed(2)
         total_account = protocolInfo[0]
         total_deposited = protocolInfo[1]
+        apy = protocolInfo[3].toFixed(2)
       }
 
       return <div className='box-stats'>
         <div className='box-stats stats borrower'><a className='title'>Total accounts</a><a className='info'>{total_account}</a></div>
         <div className='box-stats stats borrower'><a className='title'>Total deposited </a><a className='info'>{total_deposited}</a></div>
-        <div className='box-stats stats borrower'><a className='title'>Risk percent </a><a className='info'>{percent} %</a></div>
+        <div className='box-stats stats borrower'><a className='title'>Risk percent </a><a className='info'>{risk_percent} %</a></div>
+        <div className='box-stats stats borrower'><a className='title'>Current APY </a><a className='info'>{apy} %</a></div>
       </div>
       
     }
@@ -415,11 +453,12 @@ function App() {
 
         if (receipt.status == 'Success') {
           success_big("Done!", '' + receipt.logs.toString());
+          setRefresh(true)
         } else {
           failure_big("Failed", '' + receipt.logs.toString());
         }
 
-        setRefresh(true)
+        
         }
         
       }
@@ -444,11 +483,11 @@ function App() {
 
       if (receipt.status == 'Success') {
         success_big("Done!", '' + receipt.logs.toString());
+        setRefresh(true)
       } else {
         failure_big("Failed", '' + receipt.logs.toString());
       }
-
-      setRefresh(true)
+      
       }
       return
   }
@@ -467,11 +506,10 @@ function App() {
 
         if (receipt.status == 'Success') {
           success_big("Done!", '' + receipt.logs.toString());
+          setRefresh(true)
         } else {
           failure_big("Failed", '' + receipt.logs.toString());
         }
-
-        setRefresh(true)
 
   }
 
@@ -489,11 +527,10 @@ function App() {
 
     if (receipt.status == 'Success') {
       success_big("Done!", '' + receipt.logs.toString());
+      setRefresh(true)
     } else {
       failure_big("Failed", '' + receipt.logs.toString());
     }
-
-    setRefresh(true)
 
   }
 
@@ -517,11 +554,12 @@ function App() {
 
       if (receipt.status == 'Success') {
         success_big("Done!", '' + receipt.logs.toString());
+        setRefresh(true)
       } else {
         failure_big("Failed", '' + receipt.logs.toString());
       }
 
-      setRefresh(true)
+     
       }
       return
   }
@@ -548,11 +586,13 @@ function App() {
 
       if (receipt.status == 'Success') {
         success_big("Done!", '' + receipt.logs.toString());
+        setRefresh(true)
+
       } else {
         failure_big("Failed", '' + receipt.logs.toString());
       }
 
-      setRefresh(true)
+      
       }
       return
   }
@@ -573,11 +613,11 @@ function App() {
 
       if (receipt.status == 'Success') {
         success_big("Done!", '' + receipt.logs.toString());
+        setRefresh(true)
       } else {
         failure_big("Failed", '' + receipt.logs.toString());
       }
-
-      setRefresh(true)
+      
   }
 
   async function request_installment_credit() {
@@ -632,10 +672,11 @@ function App() {
 
     if (receipt.status == 'Success') {
       success_big("Done!", '' + receipt.logs.toString());
+      setRefresh(true)
     } else {
       failure_big("Failed", '' + receipt.logs.toString());
     }
-    setRefresh(true)
+    
   }
 
   useEffect(() => {

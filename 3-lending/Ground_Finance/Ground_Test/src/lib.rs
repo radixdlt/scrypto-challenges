@@ -24,6 +24,8 @@ blueprint! {
         dao: Option<ComponentAddress>,
         validators: Vec<(ComponentAddress, Vault)>,
         stakers: Vec<Vault>,
+        dao_vault: Option<Vault>,
+        cv_vault: Option<Vault>,
         etc_vault: LazyMap<ResourceAddress, Vault>,
 
     }
@@ -173,6 +175,8 @@ blueprint! {
                 dao: None,
                 validators: Vec::new(),
                 stakers: Vec::new(),
+                dao_vault: None,
+                cv_vault: None,
                 etc_vault: LazyMap::new()
 
             }
@@ -198,7 +202,8 @@ blueprint! {
         /// - credit_service: the ground credit component address from when instantiate the test component.
         /// - oracle: The oracle component address and the unix time oracle badge.
         /// - dao: None > will update through the lending protocol's method later.
-        /// - compensate_rate: 50%
+        /// - compensate_rate: 50%.
+        /// - mainnet time: 1658127359 unix time (July 18/2022)
         /// 
         /// ### List the lending protocol on the ground credit component.
         /// 
@@ -265,7 +270,8 @@ blueprint! {
                 self.ground_credit,
                 (self.neuracle, unix_time_badge),
                 None,
-                dec!("50")
+                dec!("50"),
+                1658127359u64
             );
 
             info!("Ground Lending test component address: {}", ground_lending);
@@ -410,7 +416,8 @@ blueprint! {
 
             ComponentAuthZone::push(move_proof);
 
-            self.deposit(member_sbt); self.deposit(cv); 
+            self.dao_vault = Some(Vault::with_bucket(member_sbt));
+            self.cv_vault = Some(Vault::with_bucket(cv)); 
 
             ComponentAuthZone::pop().drop();
 
