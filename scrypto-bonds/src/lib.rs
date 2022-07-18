@@ -1,6 +1,6 @@
 use scrypto::prelude::*;
 mod bond;
-mod user;
+mod order;
 mod bond_market;
 
 blueprint! {

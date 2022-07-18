@@ -1,6 +1,11 @@
 use scrypto::prelude::*;
 
 
+#[derive(NonFungibleData)]
+pub struct IssuerData {
+    bond_id: u64,
+}
+
 blueprint! {
 
     // Bond Definition
@@ -23,14 +28,16 @@ blueprint! {
         pub fn instantiate_bond(bond_id: u64, face_value: Decimal, coupon_epoch: u64, 
             maturity_epoch: u64, coupon_rate: Decimal, issue_price: Decimal, supply: u32) 
             -> (ComponentAddress, Bucket) {
-            
-            let issuer_badge: Bucket = ResourceBuilder::new_fungible()
-                .divisibility(DIVISIBILITY_NONE)
-                .metadata("name","Bond issuer badge")
-                .metadata("id", bond_id.to_string())
+        
+            let issuer_badge_data = Vec::new();
+            issuer_badge_data.push((NonFungibleId::from_u64(bond_id),
+                IssuerData { bond_id: bond_id }));
+
+            let issuer_badge: Bucket = ResourceBuilder::new_non_fungible()
+                .metadata("name", "Bond Issuer Badge")
                 .burnable(rule!(deny_all), LOCKED)
                 .restrict_withdraw(rule!(deny_all), LOCKED)
-                .initial_supply(1);
+                .initial_supply(issuer_badge_data);    
             
             // We only allow the issuer to burn the token
             let burn_rule: AccessRule = rule!( 
@@ -45,6 +52,7 @@ blueprint! {
                     "description",
                     "A bond token used to recieve the principle and to be resold",
                 )
+                .metadata("bond_id", bond_id.to_string())
                 .metadata("face_value", face_value.to_string())
                 .metadata("coupon_epoch", coupon_epoch.to_string())
                 .metadata("maturity_epoch", maturity_epoch.to_string())
@@ -80,12 +88,5 @@ blueprint! {
 
         // }
 
-        // // This is a method, because it needs a reference to self.  Methods can only be called on components
-        // pub fn free_token(&mut self) -> Bucket {
-        //     info!("My balance is: {} HelloToken. Now giving away a token!", self.sample_vault.amount());
-        //     // If the semi-colon is omitted on the last line, the last value seen is automatically returned
-        //     // In this case, a bucket containing 1 HelloToken is returned
-        //     self.sample_vault.take(1)
-        // }
     }
 }
