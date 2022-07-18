@@ -47,13 +47,13 @@ The instantiation of the RAI Lending Platform requires a oracle to provide the p
 
 # Web Frontend UI
 
-The web frontend UI is provided in a git submodule in this folder. A hosted version of the web frontend is available at https://rai-scrypto-lending-platform.dekentz.repl.co/
-Please note that the Babylon PTE Browser Extension is required to interact with the RAI Lending Platform with a test execution environment.
+The web frontend UI is provided in a git submodule in this repo. A hosted version of the web frontend is available at https://rai-scrypto-lending-platform.dekentz.repl.co/
+Please note that the Babylon PTE Browser Extension is required to interact with the RAI Lending Platform.
 
 To access a local copy of the Web Frontend UI source code, 
 1. git submodule init
 2. git submodule update
-This should fetch the source code of the Web Frontend to the local environment. 
+This should fetch the source code of the Web Frontend to the local environment. The frontend code is located in the RAI-Scrypto-Lending-Platform-PTE directory.
 
 ![image](https://user-images.githubusercontent.com/104961484/179461540-644e6574-04d4-4d45-94ac-70204937a2e6.png)
 
@@ -66,8 +66,8 @@ It is expected that blueprints and components will not be redeployed often, and 
 - src/lib.rs - core RAI Lending Platform logic
 - raitest.rev - revup script for testing RAI Lending Platform functions with resim
 
-# Design Considerations
+# Design Considerations and Limitations
 A centralized key-value store `NonFungibleId(positionId)`->`PositionInfo` located in the Rai Lending Platform contract was chosen over a Resource based approach of storing `PositionInfo` into the NonFungibleData of the nonfungible position badge for the following considerations:
-- `recallable` resource access control has not yet been implemented at the time of this challenge
-- no API exists on the Babylon PTE-SDK to view individual NonFungibleData for a specific NonFungibleId resource
-because of the above, it was more straightforward from an implementation to centralize all `PositionInfo` into the key-value store to allow the contract to revoke positions. Additionally, the frontend UI lacked the ability to display individual `PositionInfo` located in the NonFungibleData, so there was no benefit from a UX perspective from being able to view `PositionInfo` data directly from the NonFungible token resource as well. 
+- `recallable` resource access control has not yet been implemented at the time of this challenge, making it less straightforward to revoke positions that have been liquidated 
+- no API exists on the Babylon PTE-SDK to view individual NonFungibleData for a specific NonFungibleId resource. Without this API, the frontend UI lacked the ability to display individual `PositionInfo` located in the NonFungibleData from the position badge NonFungible token resource.
+- subscription to on-chain events is not available yet at the time of this challenge, making it difficult to implement any liquidation bots to subscribe to new position opens, draws, paydowns, etc. in order to track which positions can be liquidated. Gas-inefficient functions that log the global position state are provided as a workaround to allow users to manually inspect which positions can be liquidated. 
