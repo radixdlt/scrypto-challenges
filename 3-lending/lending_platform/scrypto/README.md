@@ -2,8 +2,9 @@
 
 ## Live Component Address
 
-You can interact with Lendi on the pte02 Public Test Network using the following component
-address: `020ddb692e8836ce8e12a03ab1d7a98e8c6327e60c4cc3bd5c8609`
+You can interact with Lendi on the pte02 Public Test Network using the following:
+Package address: `01007e454127802c5a6180f55a69083ed13f12625feca4a1efbce2`
+Component address: `026b8eac48b4209b01a58d03cdc0864d4c2fe23070ca512bf31c55`
 
 ## About
 
@@ -14,7 +15,7 @@ This blueprint allows you to perform the following actions:
 - Add assets/tokens to the platform using an admin badge
 - Create accounts on the lending platform
 - Deposit multiple types of assets/tokens as 'deposits'
-- Withdrawal deposited assets
+- Withdraw deposited assets
 - Borrow against deposited assets
 - Repay loans
 
@@ -208,14 +209,14 @@ CALL_METHOD
     Proof("user_badge_proof");
 ```
 
-#### Function `withdrawal_asset`
+#### Function `withdraw_asset`
 
 Format
 
 ```
 CALL_METHOD
     ComponentAddress("<<<INSERT_LENDING_PLATFORM_COMPONENT_ADDRESS_HERE>>>")
-    "withdrawal_asset"
+    "withdraw_asset"
     ResourceAddress("<<<INSERT_TOKEN_ADDRESS_HERE>>>")
     Decimal("1000")
     Proof("user_badge_proof");
@@ -226,7 +227,7 @@ Example
 ```
 CALL_METHOD
     ComponentAddress("02f59582b222e59a5561aab9677116599e64d128a90698c95ae5de")
-    "withdrawal_asset"
+    "withdraw_asset"
     ResourceAddress("030000000000000000000000000000000000000000000000000004")
     Decimal("1000")
     Proof("user_badge_proof");
@@ -290,7 +291,7 @@ Included with this example is a file called `build_rtm.sh` that performs the fol
 * Adds XRD to the lending pool with an LTV of 0.85
 * Registers the 2 user accounts with the lending platform
 * Deposits assets for both users
-* Withdrawals assets for the 2nd user
+* Withdraw assets for the 2nd user
 * 2nd User Borrows XRD against the collateral deposited by the 1st user
 * 2nd User Repays borrowed XRD
 
@@ -315,7 +316,9 @@ Run the following commands:
     * Example `Success! New Package: 01bf1510f852a54d36f169a283cc3c8dd66eb1784987c62de6e473`
         * The package address would be `01bf1510f852a54d36f169a283cc3c8dd66eb1784987c62de6e473`
 
-### Creating an instance
+### Creating a component (blueprint instance) of Lendi
+
+**NOTE : Please use the webapp to perform this action**
 
 At this point, you have published the package to the PTE. The next step is to create an instance of the blueprint.
 
@@ -330,9 +333,36 @@ the `Setting up the lending pool section`
 
 #### Create component instance
 
-Run `resim call-function <<<INSERT_PACKAGE_ADDRESS_HERE>>> LendingPlatform instantiate_lending_platform`
+Create a manifest file with the following contents
 
-Ex. `resim call-function 01bf1510f852a54d36f169a283cc3c8dd66eb1784987c62de6e473 LendingPlatform instantiate_lending_platform`
+Format:
+
+```
+CALL_FUNCTION
+    PackageAddress("<<<INSERT_PACKAGE_ADDRESS_HERE>>>")
+    "LendingPlatform"
+    "instantiate_lending_platform";
+CALL_METHOD_WITH_ALL_RESOURCES
+	ComponentAddress("INSERT_ACCOUNT_ADDRESS_HERE")
+	"deposit_batch";
+```
+
+Example:
+
+```
+CALL_FUNCTION
+    PackageAddress("01fcfd882c8486301a6a05c5991003a7342ece2a49ff77dd0f359e")
+    "LendingPlatform"
+    "instantiate_lending_platform";
+CALL_METHOD_WITH_ALL_RESOURCES
+	ComponentAddress("028941dcc6f92fc88976acb2fcf3e3b834553acbb9119c2c3fc691")
+	"deposit_batch";
+```
+
+Next, run the transaction manifest file from the resim-client
+
+* Format: `resim run <<<INSERT_PATH_FOR_MANIFEST_FILE>>>`
+* Example: `resim run /home/defi/new_lendi_component.rtm`
 
 Denote the `Component` address (instance address)
 
@@ -356,7 +386,7 @@ Using the same account from `Creating an instance` run the following:
 #### Obtain XRD address
 
 * Format: `resim show <<<ACCOUNT_ADDRESS>>>`
-* Example: `resim who 02973b7c75c73c5c348b96c4104cd93305522d34825c1922f7dcf5`
+* Example: `resim show 02973b7c75c73c5c348b96c4104cd93305522d34825c1922f7dcf5`
 * Example output:
     * `{ amount: 1000000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix",
       symbol: "XRD" }`
@@ -364,17 +394,51 @@ Using the same account from `Creating an instance` run the following:
 
 #### Create new asset
 
-From a regular terminal, create a transaction manifest file as follows: (NOTE: this is kind of a janky way to do this,
-but we cannot easily create manifest files from within the resim-client)
+**NOTE : Please use the webapp to perform this action**
+Create a manifest file with the following contents
 
-Format: `echo "CALL_METHOD ComponentAddress("<<<INSERT_LENDING_PLATFORM_COMPONENT_ADDRESS_HERE>>>")" "new_asset" ResourceAddress("<<<INSERT_TOKEN_ADDRESS_HERE>>>") Decimal("<<<INSERT_LOAN_TO_VALUE_RATIO_HERE>>>");" > <<<INSERT_PATH_FOR_MANIFEST_FILE>>>`
+Format
 
-Example: `echo "CALL_METHOD ComponentAddress("020ddb692e8836ce8e12a03ab1d7a98e8c6327e60c4cc3bd5c8609") "new_asset" ResourceAddress("030000000000000000000000000000000000000000000000000004") Decimal("0.85");" > /home/defi/new_asset_manifest_file.rtm`
+```
+CALL_METHOD
+    ComponentAddress("<<<INSERT_ADMIN_ACCOUNT_HERE>>>")
+    "create_proof"
+    ResourceAddress("<<<INSERT_LENDING_PLATFORM_ADMIN_BADGE_HERE>>>");
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("<<<INSERT_LENDING_PLATFORM_ADMIN_BADGE_HERE>>>")
+    Proof("admin_badge");
+CALL_METHOD
+    ComponentAddress("<<<INSERT_LENDING_PLATFORM_COMPONENT_ADDRESS_HERE>>>")
+    "new_asset"
+    ResourceAddress("<<<INSERT_TOKEN_ADDRESS_HERE>>>")
+    Decimal("<<<INSERT_LOAN_TO_VALUE_RATIO_HERE>>>");
+```
+
+Example
+
+```
+CALL_METHOD
+    ComponentAddress("028941dcc6f92fc88976acb2fcf3e3b834553acbb9119c2c3fc691")
+    "create_proof"
+    ResourceAddress("03810f2b7623dddb6d8ca1c96025cc4f160f86dc6fb4eb99844b25");
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("03810f2b7623dddb6d8ca1c96025cc4f160f86dc6fb4eb99844b25")
+    Proof("admin_badge");
+CALL_METHOD
+    ComponentAddress("020ddb692e8836ce8e12a03ab1d7a98e8c6327e60c4cc3bd5c8609")
+    "new_asset"
+    ResourceAddress("030000000000000000000000000000000000000000000000000004")
+    Decimal("0.85");"
+```
 
 Next, run the transaction manifest file from the resim-client
 
 * Format: `resim run <<<INSERT_PATH_FOR_MANIFEST_FILE>>>`
 * Example: `resim run /home/defi/new_asset_manifest_file.rtm`
+
+## Testing via the webapp
+
+See the `webapp` folder for a demo of how to deploy an instance of Lendi
 
 ## Testing using the PTE browser plugin
 
@@ -394,7 +458,7 @@ Format
 CALL_METHOD
     ComponentAddress("<<<lending_platform_component_address>>>")
     "new_user";
-    CALL_METHOD_WITH_ALL_RESOURCES
+CALL_METHOD_WITH_ALL_RESOURCES
     ComponentAddress("<<<account_1_address>>>")
     "deposit_batch";
 ```
@@ -405,7 +469,7 @@ Example
 CALL_METHOD
     ComponentAddress("020ddb692e8836ce8e12a03ab1d7a98e8c6327e60c4cc3bd5c8609")
     "new_user";
-    CALL_METHOD_WITH_ALL_RESOURCES
+CALL_METHOD_WITH_ALL_RESOURCES
     ComponentAddress("02e70830fe32de80be11c710bc272ac0fd3ddaabe8dc9d48f05825")
     "deposit_batch";
 ```

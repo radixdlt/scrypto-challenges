@@ -77,7 +77,7 @@ blueprint! {
             let non_fungible_id: NonFungibleId = NonFungibleId::random();
 
             let user_badge = ResourceBuilder::new_non_fungible()
-                .metadata("name", "Lending Platform User Badge")
+                // .metadata("name", "Lending Platform User Badge")
                 .initial_supply([
                     (
                         non_fungible_id,
@@ -137,13 +137,13 @@ blueprint! {
         }
 
         /// Withdraw assets for a user
-        pub fn withdrawal_asset(
+        pub fn withdraw_asset(
             &self,
             asset_address: ResourceAddress,
             amount: Decimal,
             user_badge: Proof
         ) -> Bucket {
-            info!("[LendingPlatform][withdrawal_asset] Function initiated.");
+            info!("[LendingPlatform][withdraw_asset] Function initiated.");
 
             // Retrieve user data
             let user_badge_resource_address = user_badge.resource_address();
@@ -156,7 +156,7 @@ blueprint! {
                     current_pool_liquitidy_balance = x.amount();
                     assert! (
                         x.amount() >= amount,
-                        "[LendingPlatform][withdrawal_asset][POOL] Pool only has {} of asset {} but {} was requested",
+                        "[LendingPlatform][withdraw_asset][POOL] Pool only has {} of asset {} but {} was requested",
                         x.amount(),
                         asset_address,
                         amount
@@ -165,7 +165,7 @@ blueprint! {
                 },
                 None => {
                      panic!(
-                        "[LendingPlatform][withdrawal_asset][POOL] Cannot decrease balance of asset {}. \
+                        "[LendingPlatform][withdraw_asset][POOL] Cannot decrease balance of asset {}. \
                         No liquidity exists yet for it.",
                         asset_address
                     )
@@ -174,7 +174,7 @@ blueprint! {
 
             // Update User Deposit Balance
             info!(
-                "[LendingPlatform][withdrawal_asset][USER:{}] Removing {} of {}.",
+                "[LendingPlatform][withdraw_asset][USER:{}] Removing {} of {}.",
                 user_badge_resource_address,
                 amount,
                 asset_address
@@ -183,7 +183,7 @@ blueprint! {
             self.users.insert(user_badge_resource_address, user);
 
             info!(
-                "[LendingPlatform][withdrawal_asset][POOL] Updated liquidity balance for {} from {} to {}.",
+                "[LendingPlatform][withdraw_asset][POOL] Updated liquidity balance for {} from {} to {}.",
                 asset_address,
                 current_pool_liquitidy_balance,
                 self.assets.get(&asset_address).unwrap().amount()
@@ -307,7 +307,7 @@ blueprint! {
             }
 
             // Update User Borrowed Balance
-            let current_borrow_balance = user.get_borrow_balance_value(asset_address);
+            let current_borrow_balance = user.get_resource_borrow_balance_value(asset_address);
             let updated_borrow_balance = user.decrease_borrowed_balance(asset_address, amount);
             self.users.insert(user_badge_resource_address, user);
             info!(
@@ -318,6 +318,54 @@ blueprint! {
                 updated_borrow_balance
             );
         }
+
+        /// Retrieve a user's current borrow balance for a specific asset
+        pub fn get_resource_borrow_balance(
+            &self,
+            asset_address: ResourceAddress,
+            user_badge: Proof
+        ) -> Decimal {
+            info!("[LendingPlatform][get_resource_borrow_balance] Function initiated.");
+
+            // Retrieve user data
+            let user_badge_resource_address = user_badge.resource_address();
+            let user = self.users.get(&user_badge_resource_address).unwrap();
+
+            // Update User Borrowed Balance
+            let current_borrow_balance = user.get_resource_borrow_balance_value(asset_address);
+            info!(
+                "[LendingPlatform][get_resource_borrow_balance][USER:{}] Borrow balance for asset {} is {}.",
+                user_badge_resource_address,
+                asset_address,
+                current_borrow_balance
+            );
+            current_borrow_balance
+        }
+
+        /// Retrieve a user's current deposit balance for a specific asset
+        pub fn get_resource_deposit_balance(
+            &self,
+            asset_address: ResourceAddress,
+            user_badge: Proof
+        ) -> Decimal {
+            info!("[LendingPlatform][get_resource_deposit_balance] Function initiated.");
+
+            // Retrieve user data
+            let user_badge_resource_address = user_badge.resource_address();
+            let user = self.users.get(&user_badge_resource_address).unwrap();
+
+            // Update User Borrowed Balance
+            let current_deposit_balance = user.get_resource_deposit_balance_value(asset_address);
+            info!(
+                "[LendingPlatform][get_resource_deposit_balance][USER:{}] Deposit balance for asset {} is {}.",
+                user_badge_resource_address,
+                asset_address,
+                current_deposit_balance
+            );
+            current_deposit_balance
+        }
+
+
 
     }
 }

@@ -4,7 +4,7 @@
 CALL_METHOD
     ComponentAddress("02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364")
     "create_proof"
-    ResourceAddress("03b097db9c47ffdd689238025535ec7cc55fcef22a963b0f23deb5");
+    ResourceAddress("0392a638b87df2bd56b2338d3a02a7348a6ee2dd9c42b2f1f547ca");
 
 # Add XRD to the worktop
 CALL_METHOD
@@ -21,31 +21,31 @@ TAKE_FROM_WORKTOP_BY_AMOUNT
 
 # Call `deposit_asset` to deposit the deposit_1 XRD into the lending pool
 CREATE_PROOF_FROM_AUTH_ZONE
-    ResourceAddress("03b097db9c47ffdd689238025535ec7cc55fcef22a963b0f23deb5")
+    ResourceAddress("0392a638b87df2bd56b2338d3a02a7348a6ee2dd9c42b2f1f547ca")
     Proof("user_badge_proof_instance_1");
 CALL_METHOD
-    ComponentAddress("02f59582b222e59a5561aab9677116599e64d128a90698c95ae5de")
+    ComponentAddress("02a72345b48e3f4520c608dd972ae93c6cc3992c325afe7e172065")
     "deposit_asset"
     Bucket("deposit_1")
     Proof("user_badge_proof_instance_1");
 
 # Call `deposit_asset` to deposit the deposit_1 XRD into the lending pool
 CREATE_PROOF_FROM_AUTH_ZONE
-    ResourceAddress("03b097db9c47ffdd689238025535ec7cc55fcef22a963b0f23deb5")
+    ResourceAddress("0392a638b87df2bd56b2338d3a02a7348a6ee2dd9c42b2f1f547ca")
     Proof("user_badge_proof_instance_2");
 CALL_METHOD
-    ComponentAddress("02f59582b222e59a5561aab9677116599e64d128a90698c95ae5de")
-    "withdrawal_asset"
+    ComponentAddress("02a72345b48e3f4520c608dd972ae93c6cc3992c325afe7e172065")
+    "withdraw_asset"
     ResourceAddress("030000000000000000000000000000000000000000000000000004")
     Decimal("1000")
     Proof("user_badge_proof_instance_2");
 
 # Call `borrow_asset` to borrow 500 XRD from the pool
 CREATE_PROOF_FROM_AUTH_ZONE
-    ResourceAddress("03b097db9c47ffdd689238025535ec7cc55fcef22a963b0f23deb5")
+    ResourceAddress("0392a638b87df2bd56b2338d3a02a7348a6ee2dd9c42b2f1f547ca")
     Proof("user_badge_proof_instance_3");
 CALL_METHOD
-    ComponentAddress("02f59582b222e59a5561aab9677116599e64d128a90698c95ae5de")
+    ComponentAddress("02a72345b48e3f4520c608dd972ae93c6cc3992c325afe7e172065")
     "borrow_asset"
     ResourceAddress("030000000000000000000000000000000000000000000000000004")
     Decimal("500")
@@ -57,10 +57,10 @@ TAKE_FROM_WORKTOP_BY_AMOUNT
     ResourceAddress("030000000000000000000000000000000000000000000000000004")
     Bucket("repay_1");
 CREATE_PROOF_FROM_AUTH_ZONE
-    ResourceAddress("03b097db9c47ffdd689238025535ec7cc55fcef22a963b0f23deb5")
+    ResourceAddress("0392a638b87df2bd56b2338d3a02a7348a6ee2dd9c42b2f1f547ca")
     Proof("user_badge_proof_instance_4");
 CALL_METHOD
-    ComponentAddress("02f59582b222e59a5561aab9677116599e64d128a90698c95ae5de")
+    ComponentAddress("02a72345b48e3f4520c608dd972ae93c6cc3992c325afe7e172065")
     "repay_asset"
     Bucket("repay_1")
     Proof("user_badge_proof_instance_4");

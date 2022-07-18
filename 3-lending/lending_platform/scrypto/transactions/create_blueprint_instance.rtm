@@ -1,6 +1,6 @@
 CALL_FUNCTION
-    PackageAddress("01bf1510f852a54d36f169a283cc3c8dd66eb1784987c62de6e473")
+    PackageAddress("01317b6bd1c25282d813754e6ade8f1e9404dd435332e237d60d6c")
     "LendingPlatform" "instantiate_lending_platform";
 CALL_METHOD_WITH_ALL_RESOURCES
-    ComponentAddress("0271c3ec915ee2ab726c8a6682071aa36ff785991a728758781346")
+    ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a")
     "deposit_batch";

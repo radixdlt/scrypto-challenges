@@ -1,5 +1,5 @@
 CALL_METHOD
-    ComponentAddress("02f59582b222e59a5561aab9677116599e64d128a90698c95ae5de")
+    ComponentAddress("02a72345b48e3f4520c608dd972ae93c6cc3992c325afe7e172065")
     "new_user";
 CALL_METHOD_WITH_ALL_RESOURCES
     ComponentAddress("02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364")

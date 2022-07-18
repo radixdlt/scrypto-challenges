@@ -9,7 +9,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn get_borrow_balance_value(&self, resource_address: ResourceAddress) -> Decimal {
+    pub fn get_resource_borrow_balance_value(&self, resource_address: ResourceAddress) -> Decimal {
         let balance_value = match self.borrow_balances.get(&resource_address) {
             Some(current_balance) => *current_balance,
             None => Decimal(0),
@@ -17,7 +17,21 @@ impl User {
         balance_value
     }
 
+    pub fn get_resource_deposit_balance_value(&self, resource_address: ResourceAddress) -> Decimal {
+        let balance_value = match self.deposit_balances.get(&resource_address) {
+            Some(current_balance) => *current_balance,
+            None => Decimal(0),
+        };
+        balance_value
+    }
+
     pub fn increase_deposit_balance(&mut self, resource_address: ResourceAddress, amount: Decimal) {
+        info!(
+            "[User][USER:{}] Increasing deposit balance for asset {} by {}.",
+            self.user_badge_resource_address,
+            resource_address,
+            amount
+        );
         match self.deposit_balances.get(&resource_address) {
             Some(current_balance) => {
                 let old_balance = *current_balance;
@@ -39,6 +53,12 @@ impl User {
     }
 
     pub fn decrease_deposit_balance(&mut self, resource_address: ResourceAddress, amount: Decimal) {
+        info!(
+            "[User][USER:{}] Decreasing deposit balance for asset {} by {}.",
+            self.user_badge_resource_address,
+            resource_address,
+            amount
+        );
         match self.deposit_balances.get(&resource_address) {
             Some(current_balance) => {
                 assert!(
@@ -64,6 +84,12 @@ impl User {
     }
 
     pub fn increase_borrowed_balance(&mut self, resource_address: ResourceAddress, amount: Decimal) {
+        info!(
+            "[User][USER:{}] Increasing borrow balance for asset {} by {}.",
+            self.user_badge_resource_address,
+            resource_address,
+            amount
+        );
         match self.borrow_balances.get(&resource_address) {
             Some(current_balance) => {
                 let old_balance = *current_balance;
@@ -79,6 +105,12 @@ impl User {
     }
 
     pub fn decrease_borrowed_balance(&mut self, resource_address: ResourceAddress, amount: Decimal) -> Decimal {
+        info!(
+            "[User][USER:{}] Decreasing borrow balance for asset {} by {}.",
+            self.user_badge_resource_address,
+            resource_address,
+            amount
+        );
         return match self.borrow_balances.get(&resource_address) {
             Some(current_balance) => {
                 assert!(

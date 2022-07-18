@@ -35,7 +35,7 @@ CREATE_PROOF_FROM_AUTH_ZONE
     Proof("user_badge_proof_instance_2");
 CALL_METHOD
     ComponentAddress("<<<lending_platform_component_address>>>")
-    "withdrawal_asset"
+    "withdraw_asset"
     ResourceAddress("<<<xrd_token>>>")
     Decimal("1000")
     Proof("user_badge_proof_instance_2");

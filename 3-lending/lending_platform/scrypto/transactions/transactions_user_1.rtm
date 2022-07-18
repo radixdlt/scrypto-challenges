@@ -4,13 +4,13 @@
 CALL_METHOD
     ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3")
     "create_proof"
-    ResourceAddress("03786b34f769d8eb2a1ec0a000fdd2bc3c46b4bac743edafd2770a");
+    ResourceAddress("03febac2e12ed1c01b89d5c523bd1bae544e5859ccd2d4d85ee141");
 
 # The `create_proof` method returns as Proof. As soon as a proof comes back to the transaction worktop, it gets sent
 # directly to the auth zone. Therefore, in the following instruction we're creating a `Proof` out of the badge in the
 # auth zone.
 CREATE_PROOF_FROM_AUTH_ZONE
-    ResourceAddress("03786b34f769d8eb2a1ec0a000fdd2bc3c46b4bac743edafd2770a")
+    ResourceAddress("03febac2e12ed1c01b89d5c523bd1bae544e5859ccd2d4d85ee141")
     Proof("user_badge");
 
 # Add XRD to the worktop
@@ -28,7 +28,7 @@ TAKE_FROM_WORKTOP_BY_AMOUNT
 
 # Call `deposit_asset` to deposit the `deposit_1` XRD into the lending pool
 CALL_METHOD
-    ComponentAddress("02f59582b222e59a5561aab9677116599e64d128a90698c95ae5de")
+    ComponentAddress("02a72345b48e3f4520c608dd972ae93c6cc3992c325afe7e172065")
     "deposit_asset"
     Bucket("deposit_1")
     Proof("user_badge");
