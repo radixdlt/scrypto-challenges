@@ -5,11 +5,13 @@ to gain fidelity levels inside a lending network so that they can borrow/lend wi
 
 ## Lender
 'Lender' is the main component of this project. It combines together 3 additional components:
-'LockedLoanCollateral', 'TrustedPartnerNetwork' and 'DepositContributors' into a power tool for lending that can be used by anyone without any KYC
+'LockedLoanCollateral', 'TrustedPartnerNetwork' and 'DepositContributors' into a powerful tool for lending that can be used by anyone without any KYC
 The design of this blueprint is in line with Scrypto 0.5 where dapps can be composed of multiple small components
 each with its own purpose, that are maintained and tested as separate projects. 
-The lender component is acting as a liason between these three components by connecting them together and providing the api
-for borrowers to interact with them
+The lender component is acting as a liason between these three components by connecting them together and providing the wrapper api
+for borrowers to interact with them.
+
+
 While LockedLoanCollateral and DepositContributors are used as intra-package (composition) and the Lender instantiates them locally, 
 The TrustedPartnerNetwork is designed as a cross-package communication between these two blueprints because the 
 TrustedPartnerNetwork needs its own stored across multiple lenders in order to establish a measure of trustworthiness 
@@ -18,6 +20,8 @@ Using a TrustedPartnerNetwork is also optional for lender, they can accept clien
 lenders are not required to be part of any network in order to provide lending services. But this will be at their own risk 
 because without a central component to monitor if a client is trustworthy, they cannot provide loans with less collateral 
 as they have no guarantee that a client will pay his loan.
+
+
 The Lender also has the option to make custom offers to clients that he deems trustworthy (or friends that are in need) 
 and this can be done by minting a custom lending offer nft and offering it to those clients
 The lender component is also designed to support any kind of collateral as long as it can be evaluated through external means (oracle) 
@@ -26,6 +30,8 @@ The endpoint of the borrower is to refund enough tokens in order to unlock his c
 and the amount he has to pay is greater than the evaluation of the collateral, then the borrower looses his collateral and the loan ca be liquidated. 
 The logic for unlocking the collateral and increasing/decreasing the amount the borrower needs to refund based on early/late installment payments 
 is all separated into the 'lockedLoanCollateral' component for further reause by other dapps. 
+
+
 Enabling everyone to become a lender is the purpose of DeFi but one of the downsides besides the risk is that it tends to become 
 fragmented and taking large loans would mean to take multiple small loans, which is not in the interest of borrowers. 
 This is the role of the 'DepositContributors' components - which aims to provide benefits to both contributors and the owner. 
