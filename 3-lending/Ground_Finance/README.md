@@ -130,6 +130,14 @@ and the business DAO solution from GroundBusinessDAO blueprint:
 
 The DAO also provide a "risk-backed" method called "compensate" which will compensate lenders a part of their lending, taken directly from the DAO treasury in case of cooperated loan defaults.
 
+***Automated mechanism of the protocol:***
+
+- Evaluate borrowers credit score through late (or on-time) repayment frequency.
+- Edit user's current debt or the credit's due time when borrowers take loan or make a repayment
+- Let borrowers use the installment credit badge to change their credit into installment type when taking the installment loan (Require no-debt credit status).
+- Let borrowers stop using installment credit and change the credit back into revolving type when repaid all the installment loan.
+- Apply lender's eligible interest after borrowers repay their interest.
+
 ### Protocol Entities
 
 1. **Protocol Operator**: Main manager of the protocol (can also be a DAO). Through the blueprint's method, *protocol operator* is allowed to:
@@ -142,13 +150,6 @@ The DAO also provide a "risk-backed" method called "compensate" which will compe
 - Change the protocol's tolerance threshold (the minimum remained percent in protocol's vault allowed for user to take a loan).
 - Take the protocol's fee.
 - Deposit a stable coin bucket into the protocol's vault to support the protocol in case of loan default.
-
-***Automated mechanism of the protocol:***
-
-- Evaluate borrowers credit score through late (or on-time) repayment frequency.
-- Edit user's current debt or the credit's due time when borrowers take loan or make a repayment
-- Let borrowers use the installment credit badge to change their credit into installment type when taking the installment loan (Require no-debt credit status).
-- Let borrowers stop using installment credit and change the credit back into revolving type when repaid all the installment loan.
 
 2. **Lenders**: Any wallet address (permissionless) wish to lend the protocol their stable coin to maximize earn rates. Through the blueprint's method, *lenders* are allowed to:
 
