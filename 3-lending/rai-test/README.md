@@ -36,7 +36,7 @@ At any time, anyone can call the check_protocol_solvency function, and it is not
 
 # Deployment steps
 
-The instantiation of the RAI Lending Platform requires a protocol to provide the price of XRD for collateral. In order to instantiate the platform:
+The instantiation of the RAI Lending Platform requires a oracle to provide the price of XRD for collateral. In order to instantiate the platform:
 
 1. Publish an oracle blueprint to the ledger (this submission includes an OraclePlaceholder contract in dependencies/oracle_placeholder/src/lib.rs)
 2. Instantiate an oracle component from the blueprint (and interact with this new component to set/get the price of xrd used for calculations in the contract)
