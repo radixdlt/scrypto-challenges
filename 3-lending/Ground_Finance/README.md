@@ -93,14 +93,14 @@ The blueprint also included two revolving credit types: "Monthly" and "Yearly", 
 - Review installment credit request. (Require off-chain process)
 - List, delist a lending protocol to use the Credit service. (Require off-chain process if the protocols weren't run by the same entity)
 - Blacklist, whitelist credit users who have issue with the ID SBT (wrong income, trust score) or have a large loan default. (Require off-chain process)
-- Change the credit degrade and restore rate when credit users have late (or on-time) repayment frequency.
+<!-- - Change the credit degrade and restore rate when credit users have late (or on-time) repayment frequency. -->
 
 Service operator is also required to protect user's private data.
 
 2. **Credit users**: Verified unique identity on web3 who wish to use on-chain credit or take a loan. Through the blueprint's method, *Credit users* are allowed to:
 
 - Use the ID SBT to take new credit SBT.
-- Change credit type ("Monthly" or "Yearly") (Require no-debt credit status).
+- Change credit type ("Monthly" or "Yearly") (Require no-debt credit status). The change will also reset the accumulated repaid amount on user's credit.
 - Check the maximum credit and current credit allowance.
 - Request an installment credit.
 - Take the installment credit badge after the request has passed.
@@ -130,7 +130,7 @@ and the business DAO solution from GroundBusinessDAO blueprint:
 
 - The Oracle solution is for the protocol to keep track on the passage of time, to see which repayment is on-time (or late) and which lending accounts are eligible for the interest from borrowers, enable "bank level" earning tracker for lenders.
 
-- The DAO solution is to run the protocol by collective actions, reduce human "bias" in the lending protocol.
+- The DAO solution is to run the protocol by collective actions, reduce human "bias" on the lending protocol.
 
 The DAO also provide a "risk-backed" method called "compensate" which will compensate lenders a part of their lending, taken directly from the DAO treasury in case of cooperated loan defaults.
 
@@ -141,6 +141,7 @@ The DAO also provide a "risk-backed" method called "compensate" which will compe
 - Let borrowers use the installment credit badge to change their credit into installment type when taking the installment loan (Require no-debt credit status).
 - Let borrowers stop using installment credit and change the credit back into revolving type when repaid all the installment loan.
 - Apply lender's eligible interest after borrowers repay their interest.
+- Deposit the lender's account fee or the borrower's extra debt to the fee vault (or directly into the DAO's treasury).
 
 ### Protocol Entities
 
@@ -151,7 +152,7 @@ The DAO also provide a "risk-backed" method called "compensate" which will compe
 - Funding the Oracle account from a badge received from that Oracle.
 - Change the protocol's revolving credit interest rates.
 - Change the protocol's fee and compensate rate.
-- Change the protocol's tolerance threshold (the minimum remained percent in protocol's vault allowed for user to take a loan).
+- Change the protocol's tolerance threshold (the minimum remained percent in protocol's vault allowed for borrowers to take a loan).
 - Take the protocol's fee.
 - Deposit a stable coin bucket into the protocol's vault to support the protocol in case of loan default.
 
@@ -166,7 +167,7 @@ loan through this blueprint to maximize capital efficiency.
 Through the blueprint's method, *borrowers* are allowed to:
 
 - Use the revolving credit SBT to take the revolving loan
-- Use the installment credit badge to take the installment loan and change credit SBT into installment type.
+- Use the installment credit badge to take the installment loan and change credit SBT into installment type. (require no-debt status)
 - Get the current total debt (the debt is increased if user's late on repayment).
 - Repay part of the current debt or repay in full.
 
@@ -197,7 +198,7 @@ This is a "bank-like" utility that will incentive lenders to lend their money on
 
 The Ground Lending blueprint included a Risk-tolerance mechanism, introduce a risk-tolerance threshold that prevent borrowers from getting a loan pass that risk-tolerance threshold.
 
-Specifically, if the threshold is 60%, all the borrower's current loan combined can never be >40% of the protocol's total asset.
+Specifically, if the threshold is 60%, borrower cannot make a loan when there is only (or lower than) 60% asset left compared to the amount that protocol has to return for lenders.
 
 ### Risk-backed compensation through a DAO
 
