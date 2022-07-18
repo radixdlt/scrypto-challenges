@@ -1,3 +1,3 @@
-CALL_METHOD ComponentAddress("02eb6e9865066c4beb62200ed8a0d74df51426482bb4d24ff7b8cd") "update_neuracle_data" "1658052785"; 
+CALL_METHOD ComponentAddress("02b5db58fda106b8548995662aa2d40423fc3e846e818d14b845b2") "update_neuracle_data" "1664493742"; 
 
 CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02a7c56ce94383403967562d3a7816a8a2e670d354ea66257ec7b7") "deposit_batch"; 

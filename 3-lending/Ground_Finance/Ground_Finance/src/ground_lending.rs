@@ -174,7 +174,9 @@ blueprint! {
         /// The DAO Component Address
         dao: Option<ComponentAddress>,
         /// The compensate rate in case of loan default
-        compensate_rate: Decimal
+        compensate_rate: Decimal,
+        /// The mainnet time of the protocol. This is for calculate the protocol APY rate
+        mainnet: u64
 
     }
 
@@ -195,6 +197,7 @@ blueprint! {
         /// - oracle: initial oracle component address and the time data badge.
         /// - dao: the DAO run this lending protocol (None if this is a protocol run by an individual).
         /// - compensate_rate: initial compensate rate of the protocol.
+        /// - mainnet: the mainnet time of the protocol.
         /// 
         /// ```remaining rate = vault remain / total return```
         /// ### Output: Component address and the controller badge resource address (for test purpose).
@@ -208,7 +211,8 @@ blueprint! {
             credit_service: ComponentAddress,
             oracle: (ComponentAddress, Bucket),
             dao: Option<ComponentAddress>,
-            compensate_rate: Decimal
+            compensate_rate: Decimal,
+            mainnet: u64
         ) -> (ComponentAddress, ResourceAddress) {
 
             interest_rates.check_rates();
@@ -235,6 +239,7 @@ blueprint! {
                 .method("change_tolerance_threshold", rule!(require(admin_badge)))
                 .method("change_compensate_rate", rule!(require(admin_badge)))
                 .method("withdraw_fee", rule!(require(admin_badge)))
+                .method("withdraw_extra", rule!(require(admin_badge)))
                 .default(rule!(allow_all));
 
             let controller_badge_resource_address = controller_badge.resource_address();
@@ -253,7 +258,8 @@ blueprint! {
                 credit_service: credit_service,
                 oracle: (oracle.0, Vault::with_bucket(oracle.1)),
                 dao: dao,
-                compensate_rate: compensate_rate / dec!("100")
+                compensate_rate: compensate_rate / dec!("100"),
+                mainnet: mainnet
 
             }
             .instantiate()
@@ -926,39 +932,7 @@ blueprint! {
 
                             total_repaid += new_debt + new_debt_interest;
 
-                            let debt_start = credit_data.current_debt_start_time;
-
-                            let mut eligible_return = Decimal::ZERO;
-                            
-                            for lender in self.lenders.values() {
-                                if lender.start_time <= debt_start {
-                                    eligible_return += lender.lending_amount
-                                }
-                            };
-
-                            if eligible_return != Decimal::ZERO {
-
-                                self.total_return += new_debt_interest;
-
-                                self.vault.put(repayment.take(new_debt + new_debt_interest));
-
-                                let interest = Decimal::ONE + new_debt_interest / eligible_return;
-
-                                for lender in self.lenders.values_mut() {
-
-                                    let start_time = lender.start_time;
-
-                                    if start_time <= debt_start {
-
-                                        lender.interest(interest)
-
-                                    };
-
-                                };
-                            } else {
-                                self.vault.put(repayment.take(new_debt));
-                                self.deposit_fee(repayment.take(new_debt_interest));
-                            }
+                            repayment = self.protocol_interest(self.controller_badge.create_proof(), repayment, new_debt, new_debt_interest, credit_data.current_debt_start_time);
 
                             if new_extra_debt != Decimal::ZERO {
 
@@ -992,43 +966,11 @@ blueprint! {
 
                             let remain = amount - new_debt;
 
+                            repayment = self.protocol_interest(self.controller_badge.create_proof(), repayment, new_debt, remain, credit_data.current_debt_start_time);
+
                             new_debt = Decimal::ZERO;
 
                             new_debt_interest -= remain;
-
-                            let debt_start = credit_data.current_debt_start_time;
-
-                            let mut eligible_return = Decimal::ZERO;
-                            
-                            for lender in self.lenders.values() {
-                                if lender.start_time <= debt_start {
-                                    eligible_return += lender.lending_amount
-                                }
-                            };
-
-                            if eligible_return != Decimal::ZERO {
-
-                                self.total_return += remain;
-
-                                self.vault.put(repayment.take(amount));
-
-                                let interest = Decimal::ONE + remain / eligible_return;
-
-                                for lender in self.lenders.values_mut() {
-
-                                    let start_time = lender.start_time;
-
-                                    if start_time <= debt_start {
-
-                                        lender.interest(interest)
-
-                                    };
-
-                                };
-                            } else {
-                                self.vault.put(repayment.take(new_debt));
-                                self.deposit_fee(repayment.take(remain));
-                            }
 
                             break
             
@@ -1061,38 +1003,8 @@ blueprint! {
 
                             amount -= current_debt + debt_interest;
 
-                            let debt_start = credit_data.current_debt_start_time;
+                            repayment = self.protocol_interest(self.controller_badge.create_proof(), repayment, current_debt, debt_interest, credit_data.current_debt_start_time);
 
-                            let mut eligible_return = Decimal::ZERO;
-                            
-                            for lender in self.lenders.values() {
-                                if lender.start_time <= debt_start {
-                                    eligible_return += lender.lending_amount
-                                }
-                            };
-
-                            if eligible_return != Decimal::ZERO {
-
-                                self.total_return += debt_interest;
-
-                                self.vault.put(repayment.take(current_debt + debt_interest));
-
-                                let interest = Decimal::ONE + debt_interest / eligible_return;
-
-                                for lender in self.lenders.values_mut() {
-
-                                    let start_time = lender.start_time;
-
-                                    if start_time <= debt_start {
-
-                                        lender.interest(interest)
-                                    };
-
-                                };
-                            } else {
-                                self.vault.put(repayment.take(current_debt));
-                                self.deposit_fee(repayment.take(debt_interest));
-                            }
                         } 
 
                         if extra_debt != Decimal::ZERO {
@@ -1122,41 +1034,10 @@ blueprint! {
 
                         let remain = amount - current_debt;
 
-                        let debt_start = credit_data.current_debt_start_time;
-
-                        let mut eligible_return = Decimal::ZERO;
-                        
-                        for lender in self.lenders.values() {
-                            if lender.start_time <= debt_start {
-                                eligible_return += lender.lending_amount
-                            }
-                        };
-
-                        if eligible_return != Decimal::ZERO {
-
-                            self.total_return += remain;
-
-                            self.vault.put(repayment.take(amount));
-
-                            let interest = Decimal::ONE + remain / eligible_return;
-
-                            for lender in self.lenders.values_mut() {
-
-                                let start_time = lender.start_time;
-
-                                if start_time <= debt_start {
-
-                                    lender.interest(interest)
-
-                                };
-
-                            };
-                        } else {
-                            self.vault.put(repayment.take(current_debt));
-                            self.deposit_fee(repayment.take(remain));
-                        }
+                        repayment = self.protocol_interest(self.controller_badge.create_proof(), repayment, current_debt, remain, credit_data.current_debt_start_time);
 
                         (Decimal::ZERO, debt_interest - remain, extra_debt, amount)
+                        
                     } else {
         
                         self.vault.put(repayment.take(amount));
@@ -1234,7 +1115,7 @@ blueprint! {
 
                                 let number = (Decimal::from(current - due_time)  / Decimal::from(MONTH)).ceiling().to_string().parse().expect("Cannot parse Decimal to u8");
                                 let rate = self.interest_rates.monthly.interest_rate_late;
-                                let mutiply = expo(rate, number);
+                                let mutiply = power(rate, number);
                                 current_debt * (mutiply - Decimal::ONE)
 
                             }
@@ -1242,7 +1123,7 @@ blueprint! {
                             RevolvingTypes::Yearly => {
                                 let number = (Decimal::from(current - due_time)  / Decimal::from(YEAR)).ceiling().to_string().parse().expect("Cannot parse Decimal to u8");
                                 let rate = dec!("1") + self.interest_rates.yearly.interest_rate_late;
-                                let mutiply = expo(rate, number);
+                                let mutiply = power(rate, number);
                                 current_debt * (mutiply - Decimal::ONE)
                             }
 
@@ -1253,7 +1134,7 @@ blueprint! {
 
                         let number = (Decimal::from(current - due_time) / Decimal::from(data.period_length)).ceiling().to_string().parse().expect("Cannot parse Decimal to u8");
                             let rate = data.interest_rate_late;
-                            let mutiply = expo(rate, number);
+                            let mutiply = power(rate, number);
                             current_debt * (mutiply - Decimal::ONE)
 
                     }
@@ -1561,8 +1442,6 @@ blueprint! {
         /// - amount: token amount the user has repaid.
         /// ### Output: 
         /// update repaid data and restore the credit score (if passed the maximum credit amount).
-        /// 
-        /// Notice: This will not work with restrictive proof
         pub fn update_revolving_credit_repaid_accumulate(&self, id_proof: Proof, credit_proof: Proof, protocol_proof: Proof, amount: Decimal) -> (Proof, Proof) {
 
             self.check_protocol(protocol_proof);
@@ -1640,6 +1519,51 @@ blueprint! {
             
         }
 
+        /// This method is for lending protocol to update lender's interest based on their current account data stored on the component.
+        /// 
+        /// The method can only be self called. (Unless Scrypto allow create a different resource with the same address as the protocol's controller badge).
+        pub fn protocol_interest(&mut self, protocol_proof: Proof, mut repayment: Bucket, current_debt: Decimal, interest: Decimal, debt_start: u64) -> Bucket {
+
+            self.check_protocol(protocol_proof);
+
+            let mut eligible_return = Decimal::ZERO;
+                            
+                for lender in self.lenders.values() {
+                    if lender.start_time <= debt_start {
+                        eligible_return += lender.lending_amount
+                    }
+                };
+
+                let mut interest_rate = Decimal::ONE;
+
+                if eligible_return != Decimal::ZERO {
+
+                    self.total_return += interest;
+
+                    self.vault.put(repayment.take(current_debt + interest));
+
+                    interest_rate += interest / eligible_return; // The interest rate for user since last protocol interest
+
+                    for lender in self.lenders.values_mut() {
+
+                        let start_time = lender.start_time;
+
+                        if start_time <= debt_start {
+
+                            lender.interest(interest_rate)
+
+                        };
+
+                    };
+                } else {
+                    self.vault.put(repayment.take(current_debt));
+                    self.deposit_fee(repayment.take(interest));
+                }
+
+            return repayment
+
+        }
+
         /// This method is for the protocol operator to make this protocol run by a DAO
         pub fn use_dao(&mut self, dao: ComponentAddress) {
             self.dao = Some(dao);
@@ -1699,6 +1623,22 @@ blueprint! {
                     bucket
                 }
             }
+        }
+
+        /// This method is for the protocol withdraw the extra resource from protocol's vault.
+        /// 
+        /// If after some compensate but the borrowers still repay their loan, there will be extra resources on the vault.
+        /// 
+        /// For now, lenders can take compensate but the DAO run the protocol cannot take the extra resources on the vault
+        /// because there has been none practice of feeding a transaction manifest into scrypto (can only feeding methods).
+        /// 
+        /// So, even if we run a concept from the DAO to call this method, there is no way to take the Bucket from the Component WorkTop yet,
+        /// thus might result in ResourceCheckFailure error because of dangling bucket.
+        pub fn withdraw_extra(&mut self) -> Bucket {
+            assert!(self.vault.amount() > self.total_return, "The protocol's has no extra resource");
+            let amount = self.vault.amount() - self.total_return;
+            info!("You have withdrawed {} protocol's extra stable coins", amount);
+            self.vault.take(amount)
         }
 
         pub fn change_interest_rates(&mut self, interest_rates: RevolvingCreditInterestRates) {
