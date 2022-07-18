@@ -5,6 +5,11 @@
 Decentralized Lending Platform build on Radix using Scrypto and Vue3
 
 ## Demo
+### User Experience
+![Alt Text](webapp/user_experience.gif)
+
+### Admin Experience
+![Alt Text](webapp/admin_experience.gif)
 
 
 ## Features
