@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${COMPONENT}") "new_user" ComponentAddress("${ACC_ADDRESS1}");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS1}") "deposit_batch";

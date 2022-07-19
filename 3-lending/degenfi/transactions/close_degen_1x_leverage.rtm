@@ -1,0 +1,29 @@
+# TRANSACTION 1
+# Flash borrow 1,090 USD
+CALL_METHOD ComponentAddress("${COMPONENT}") "flash_borrow" ResourceAddress("${USD}") Decimal("1090");
+
+# TRANSACTION 2
+# Pay off 1,000 loan in USD
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${PROOF2}");
+POP_FROM_AUTH_ZONE Proof("proof1");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1090") ResourceAddress("${USD}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${COMPONENT}") "repay" Proof("proof1") NonFungibleId("${LOAN2}") ResourceAddress("${USD}") Bucket("bucket1");
+
+# TRANSACTION 3
+# Redeem XRD Collateral
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${PROOF2}");
+POP_FROM_AUTH_ZONE Proof("proof2");
+CALL_METHOD ComponentAddress("${COMPONENT}") "redeem_collateral" Proof("proof2") ResourceAddress("030000000000000000000000000000000000000000000000000004") Decimal("2000");
+
+# TRANSACTION 4
+# Swap XRD for USD
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("2000") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("bucket2");
+CALL_METHOD ComponentAddress("${COMPONENT}") "swap" Bucket("bucket2");
+
+# TRANSACTION 5
+# Repay USD flash loan we took from step 1
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1090") ResourceAddress("${USD}") Bucket("bucket3");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1") ResourceAddress("${FLASH}") Bucket("bucket4");
+CALL_METHOD ComponentAddress("${COMPONENT}") "flash_repay" Bucket("bucket3") Bucket("bucket4");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS2}") "deposit_batch";
