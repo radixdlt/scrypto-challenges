@@ -16,10 +16,12 @@ The price of digital assets is characterised by high volatility, therefore a rea
 #### General Interest Rate Model
  
 The default digital asset interest rate model, which updates linearly and dynamically with the `borrow ratio`.
+
 ![default interest rate](res/def_interest_rate.png)
 
 #### Stable Coin Interest Rate Model
 Represented by digital stable coins (like `DAI`, `USDC` and `USDT`), which are relatively stable in price and value, more liquid and less responsive to changes in `borrow ratio`.
+
 ![stable interest rate](res/stable_interest_rate.png)
 
 
