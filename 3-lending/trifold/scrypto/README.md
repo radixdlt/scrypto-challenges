@@ -1,0 +1,3 @@
+- [x] off chain verification
+- [ ] voting concensus algorithm
+- [ ] karma withdrawing limits
