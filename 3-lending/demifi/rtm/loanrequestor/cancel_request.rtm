@@ -1,0 +1,40 @@
+# A participant cancels a loan request
+#
+# Parameters:
+#
+# $component: address of the LoanRequestor instance to use
+#
+# $account: address of the user account running this transaction
+#
+# $participants_nft_addr: ResourceAddress of the Participants NFTs to use
+#
+# $borrower_nfid: NonFungibleId of the participant that own the loan request
+#
+# $loanrequest_nft_addr: ResourceAddress of the LoanRequest NFTs we use
+#
+# $loanrequest_nfid: NonFungibleId of the loan request to cancel
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${participants_nft_addr}");
+
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+    TreeSet<NonFungibleId>(NonFungibleId("${borrower_nfid}"))
+    ResourceAddress("${participants_nft_addr}")
+    Proof("borrower_proof");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${loanrequest_nft_addr}");
+
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+    TreeSet<NonFungibleId>(NonFungibleId("${loanrequest_nfid}"))
+    ResourceAddress("${loanrequest_nft_addr}")
+    Proof("request_proof");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "cancel_request"
+   Proof("borrower_proof")
+   Proof("request_proof");

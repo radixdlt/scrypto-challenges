@@ -1,0 +1,11 @@
+# Reads the loan arrears votes for a loan
+#
+# Parameters:
+#
+# $component: address of the LoanAcceptor instance to use
+#
+# $loan_nfid: NonFungibleId of the loan to query
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_loan_arrears_votes"
+   NonFungibleId("${loan_nfid}");

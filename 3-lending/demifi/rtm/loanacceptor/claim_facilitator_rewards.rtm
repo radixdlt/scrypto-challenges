@@ -1,0 +1,30 @@
+# Claims facilitator rewards.
+#
+# Parameters:
+#
+# $component: ComponentAddress of LoanAcceptor component to call
+#
+# $account: address of the user account that claims rewards
+#
+# $participants_nft_addr: ResourceAddress of our Participants NFTs.
+#
+# $facilitator_nfid: NonFungibleId of the facilitator Participant.
+#                    We must be able to make a Proof of this.
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${participants_nft_addr}");
+
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+    TreeSet<NonFungibleId>(NonFungibleId("${facilitator_nfid}"))
+    ResourceAddress("${participants_nft_addr}")
+    Proof("proof");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "claim_facilitator_rewards"
+   Proof("proof");
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";

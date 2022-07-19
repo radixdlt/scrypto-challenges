@@ -1,0 +1,15 @@
+# Discovers if one Participant currently endorses another
+#
+# Parameters:
+#
+# $component: address of the Participants component to call
+#
+# $endorser_nfid: NFT id of the Participent to query
+#
+# $endorse_target_nfid: NFT id of the Participant that may or
+#                        may not be endorsed
+CALL_METHOD
+   ComponentAddress("${component}")
+   "do_i_endorse"
+   NonFungibleId("${endorser_nfid}")
+   NonFungibleId("${endorse_target_nfid}");
