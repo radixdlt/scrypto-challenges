@@ -1,0 +1,3 @@
+CALL_METHOD ComponentAddress("022b54ff498d7551bf97809e7a504a25631073f7635746af7ee644") "change_fee" Decimal("0.01"); 
+
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02a7c56ce94383403967562d3a7816a8a2e670d354ea66257ec7b7") "deposit_batch"; 
