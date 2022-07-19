@@ -382,10 +382,10 @@ blueprint! {
                 sqrt = Decimal::one();
             }
             else {
-                sqrt = Decimal::one();  // sqrt( Decimal::one() + ki * delta / v1  )
+                sqrt = ((Decimal::one() + ki * delta / v1) as f64).sqrt().floor() as Decimal;
             }
 
-            return v1 * (Decimal::one() + sqrt - Decimal::one() / (Decimal(2) * k))
+            return v1 * (Decimal::one() + sqrt - Decimal::one() / (Decimal(2) * k));
         }
 
         fn solve_quadratic_function_for_trade(
@@ -432,7 +432,8 @@ blueprint! {
                 b_abs = b_abs - part2;
             }
 
-            let square_root = Decimal::one(); //sqrt(b_abs * b_abs  + Decimal(4) * (Decimal::one() - k) * v0 * v0 * k);
+            // let square_root = sqrt(b_abs * b_abs  + Decimal(4) * (Decimal::one() - k) * v0 * v0 * k);
+            let square_root = ((b_abs * b_abs  + Decimal(4) * (Decimal::one() - k) * v0 * v0 * k) as f64).sqrt().floor() as Decimal;
 
             let denominator = Decimal(2) * (Decimal::one() - k);
             let mut numerator:Decimal = Decimal::zero();
