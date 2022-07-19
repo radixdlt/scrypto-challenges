@@ -20,7 +20,7 @@ function App() {
   const [borrowerInfo, setBorrowerInfo] = useState<Array<string>>([])
   const [protocolInfo, setProtocolInfo] = useState<Array<number>>([])
   const YEAR = 60 * 60 * 24 * 365
-  const ID_TRACK_APY = `NonFungibleId("fb99b87ec1d2888d8e48d917c67ff12d")`
+  const ID_TRACK_APY = `NonFungibleId("f51fb546b5113aa9476e539ad2a4ec2f")`
 
   async function get_borrower_data(id_id: string, credit_id: string): Promise<Array<string>> {
 
@@ -179,6 +179,10 @@ function App() {
       const neuracle_time = parseInt(JSON.parse(neuracle.state).fields[0].elements[1].value)
 
       protocol_info.push(neuracle_time)
+
+      const total_earned = parseFloat(componentParse[14].value.replace(/^\D+|\D+$/g, ""))
+
+      protocol_info.push(total_earned)
 
       setProtocolInfo(protocol_info)
 
@@ -394,17 +398,21 @@ function App() {
 
       var apy = '0'
 
+      var total_earned = '0'
+
       if (protocolInfo.length) {
         risk_percent = protocolInfo[2].toFixed(2)
         total_account = protocolInfo[0]
         total_deposited = protocolInfo[1].toFixed(2)
         apy = protocolInfo[3].toFixed(2)
+        total_earned = protocolInfo[5].toFixed(2)
       }
 
       return <div className='box-stats'>
         <div className='box-stats stats borrower'><a className='title'>Total accounts</a><a className='info'>{total_account}</a></div>
         <div className='box-stats stats borrower'><a className='title'>Total deposited </a><a className='info'>{total_deposited}</a></div>
         <div className='box-stats stats borrower'><a className='title'>Risk percent </a><a className='info'>{risk_percent} %</a></div>
+        <div className='box-stats stats borrower'><a className='title'>Total earned </a><a className='info'>{total_earned}</a></div>
         <div className='box-stats stats borrower'><a className='title'>Current APY </a><a className='info'>{apy} %</a></div>
       </div>
       

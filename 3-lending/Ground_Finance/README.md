@@ -45,7 +45,7 @@ You need a wallet address on the [PTE Browser Extension](https://docs.radixdlt.c
 **Test Component initializing and get testing resource through resim client:**
 
 1. Connect to the PTE `cd Ground_Test/resim-client && resim-client --address pte01-socket.radixdlt.com:8010`
-2. Check the test component `resim show 027ed24aa087a634fd48888d519f50682a14ec76e47cf5555d3ccd`. If the test component already existed, go directly to the step 8.
+2. Check the test component `resim show 022b54ff498d7551bf97809e7a504a25631073f7635746af7ee644`. If the test component already existed, go directly to the step 8.
 3. Close the resim client and build the test package `cd .. && scrypto build` (ignore this step if you have already dont the unit-test)
 4. Connect to the PTE again `cd resim-client && resim-client --address pte01-socket.radixdlt.com:8010` and publish the test package `resim publish ../target/wasm32-unknown-unknown/release/ground_test.wasm`
 5. Edit the package address on file [instantiate](./Ground_Test/resim-client/instantiate) and run `resim run instantiate`

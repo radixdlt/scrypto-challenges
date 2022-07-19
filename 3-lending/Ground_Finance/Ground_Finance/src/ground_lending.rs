@@ -176,7 +176,9 @@ blueprint! {
         /// The compensate rate in case of loan default
         compensate_rate: Decimal,
         /// The mainnet time of the protocol. This is for calculate the protocol APY rate
-        mainnet: u64
+        mainnet: u64,
+        /// Total interest earned from the protocol (exclude the extra interest from borrower's late repayment).
+        total_earned: Decimal
 
     }
 
@@ -259,7 +261,8 @@ blueprint! {
                 oracle: (oracle.0, Vault::with_bucket(oracle.1)),
                 dao: dao,
                 compensate_rate: compensate_rate / dec!("100"),
-                mainnet: mainnet
+                mainnet: mainnet,
+                total_earned: Decimal::ZERO
 
             }
             .instantiate()
@@ -1525,6 +1528,8 @@ blueprint! {
         pub fn protocol_interest(&mut self, protocol_proof: Proof, mut repayment: Bucket, current_debt: Decimal, interest: Decimal, debt_start: u64) -> Bucket {
 
             self.check_protocol(protocol_proof);
+
+            self.total_earned += interest;
 
             let mut eligible_return = Decimal::ZERO;
                             
