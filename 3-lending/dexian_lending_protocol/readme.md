@@ -33,9 +33,12 @@ It is an abbreviation for Collateral Debt Position. When a user uses `dxXRD` as 
 
 Over time, both borrowed and deposited assets generate interest, which is incrementally added to the index through borrow and deposit interest rates and simultaneous time changes.
 
-Interest Rates: The user’s actions of depositing, borrowing, repaying and withdrawing money will change the `borrow ratio`, which will lead to an update of the interest rate.
+#### Interest Rates
 
-#### Systematic Health Care Layer
+The user’s actions of depositing, borrowing, repaying and withdrawing money will change the `borrow ratio`, which will lead to an update of the interest rate.
+
+
+## Systematic Health Care Layer
 
 If the `borrowed asset value/collateral asset value` reaches a pre-determined upper limit of the collateral asset during the price fluctuation of the borrowed asset or collateral asset, the CDP will reach a `liquidation` status. In this status, anyone can repay the borrowed asset and obtain the equivalent value of the collateral asset at a discount.
 
@@ -189,7 +192,7 @@ resim call-method $component 'repay' "200,$usdc" "#0000000000000002,$cdp"
 * withdraw
 ```
 resim set-default-account $p2 $p2_priv
-resim call-method $component 'withdraw' $dx_usdt "360,$dx_usdt"
+resim call-method $component 'withdraw' "360,$dx_usdt"
 
 ```
 You can see the user's asset holdings with `resim show $p2`, for example: `USDT`
