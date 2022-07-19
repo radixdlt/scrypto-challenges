@@ -55,7 +55,7 @@ If the `borrowed asset value/collateral asset value` reaches a pre-determined up
 | name    | usage                                   |
 | ------- | --------------------------------------- |
 | admin   | Used to deploy the contract.            |
-| p1      | low stakes XRD, debit usdt, usdc assets |
+| p1      | supply XRD, debit usdt, usdc assets     |
 | p2      | usdt deposit user                       |
 | p3      | usdc deposit user                       |
 
