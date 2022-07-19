@@ -165,7 +165,7 @@ resim call-method $component 'supply' 360,$usdc
 You can see the user's asset holdings with `resim show $p1`, for example: `xdXRD`
 
 
-* Lending USDT, USDC as a p1 user
+* Lending USDT, USDC as the p1 user
 ```
 # p1(xrd) borrow 180 usdt
 resim set-default-account $p1 $p1_priv
