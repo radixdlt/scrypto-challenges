@@ -1,0 +1,3 @@
+[submodule "3-lending/rai-test/RAI-Scrypto-Lending-Platform-PTE"]
+	path = 3-lending/rai-test/RAI-Scrypto-Lending-Platform-PTE
+	url = git@github.com:dekentz/RAI-Scrypto-Lending-Platform-PTE.git
