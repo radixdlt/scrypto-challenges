@@ -902,22 +902,24 @@ blueprint! {
             let index = self.authorized_protocol.iter().position(|x| *x == protocol_controller_address);
 
             match index {
-                None => {info!("Doesn't have this protocol on the list.")}
+                None => {panic!("Doesn't have this protocol on the list.")}
                 Some(x) => {
 
                     self.authorized_protocol.remove(x);
 
                     info!("delisted the lending protocol with controller badge address {}", protocol_controller_address);
 
+                    self.controller_badge.authorize(|| {
+                        borrow_resource_manager!(self.credit_sbt)
+                        .set_updateable_non_fungible_data(rule!(require_any_of(self.authorized_protocol.clone())));
+                        borrow_resource_manager!(self.installment_credit_badge)
+                        .set_burnable(rule!(require_any_of(self.authorized_protocol.clone())));
+                    });
+
                 }
             }
 
-            self.controller_badge.authorize(|| {
-                borrow_resource_manager!(self.credit_sbt)
-                .set_updateable_non_fungible_data(rule!(require_any_of(self.authorized_protocol.clone())));
-                borrow_resource_manager!(self.installment_credit_badge)
-                .set_burnable(rule!(require_any_of(self.authorized_protocol.clone())));
-            });
+            
 
         }
         // /// This method is to check if the protocol is listed or not.
