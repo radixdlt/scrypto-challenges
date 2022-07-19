@@ -172,7 +172,7 @@ You can see the user's asset holdings with `resim show $p1`, for example: `USDT`
 
 
 
-* Set the setting time to one year later
+* Set the time to one year later
 * repayment `USDT`
 * repayment `USDC`
 ```
