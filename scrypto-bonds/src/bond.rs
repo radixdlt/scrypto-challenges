@@ -29,7 +29,7 @@ blueprint! {
             maturity_epoch: u64, coupon_rate: Decimal, issue_price: Decimal, supply: u32) 
             -> (ComponentAddress, Bucket) {
         
-            let issuer_badge_data = Vec::new();
+            let mut issuer_badge_data = Vec::new();
             issuer_badge_data.push((NonFungibleId::from_u64(bond_id),
                 IssuerData { bond_id: bond_id }));
 
