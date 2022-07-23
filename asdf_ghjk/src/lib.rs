@@ -15,8 +15,8 @@ blueprint! {
                 .metadata("name", "asdf_ghjk")
                 .metadata("symbol", "ASDF")
                 .metadata("team-member-1-ticket-number", "4102209389")
-                .metadata("team-member-2-ticket-number", "13")
-                .metadata("team-member-3-ticket-number", "11")
+                // .metadata("team-member-2-ticket-number", "13")
+                // .metadata("team-member-3-ticket-number", "11")
                 .initial_supply(100_000);
 
             let seller_badge: Bucket = ResourceBuilder::new_fungible()
