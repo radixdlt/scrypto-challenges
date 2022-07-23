@@ -17,12 +17,17 @@ blueprint! {
             // Create a new token called "HelloToken," with a fixed supply of 1000, and put that supply into a bucket
             let bucket: Bucket = ResourceBuilder::new_fungible()
                 .metadata("name", "Useful Token")
+                .metadata("teamname", "Rajnish Kumar")
+                .metadata("team-member-1", "4117002169")
+                .metadata("team-member-2", "0")
+                .metadata("team-member-3", "0")
+                .metadata("team-member-4", "0")
                 .metadata("symbol", "USEFUL")
-                .initial_supply(1000);
+                .initial_supply(100000);
 
 
             let seller_badge: Bucket = ResourceBuilder::new_fungible()
-                .divisibility(DIVISIBILITY_NONE)
+                .divisibility(DIVISIBILITY_MAXIMUM)
                 .metadata("name", "Seller Badge")
                 .metadata("symbol", "SELLER")
                 .initial_supply(1);
