@@ -1,5 +1,5 @@
 [package]
-name = "ZNGToken"
+name = "zng_token"
 version = "0.1.0"
 edition = "2021"
 
