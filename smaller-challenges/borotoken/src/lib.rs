@@ -11,7 +11,7 @@ blueprint! {
        pub fn new(price_per_token: Decimal) -> (ComponentAddress, Bucket) {
         let bucket: Bucket = ResourceBuilder::new_fungible()
             .metadata("name", "Boro Token")
-            .metadata("team-member-1-ticket-number", "4054353449")
+            .metadata("team-member-1-ticket-number", "#4054353449")
             .initial_supply(100000);
 
         let seller_badge: Bucket = ResourceBuilder::new_fungible()
