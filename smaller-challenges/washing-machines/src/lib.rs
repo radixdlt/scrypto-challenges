@@ -14,8 +14,9 @@ blueprint! {
         pub fn new(price_per_token: Decimal) -> (ComponentAddress, Bucket) {
             let clean_bucket: Bucket = ResourceBuilder::new_fungible()
                 .metadata("name", "WashingMachineCoin")
-                .metadata("team-member-1-ticket-number ", "40788041196549147199001")
-                .metadata("team-member-2-ticket-number ", "40804318796551903069001")
+                .metadata("team-member-1-ticket-number ", "#4078804119")
+                .metadata("team-member-2-ticket-number ", "#4080431879")
+                .metadata("team-member-3-ticket-number ", "#4099422709")
                 .divisibility(DIVISIBILITY_MAXIMUM)
                 .initial_supply(100000);
 
@@ -44,6 +45,8 @@ blueprint! {
             .instantiate()
             .add_access_check(access_rules)
             .globalize()
+
+            (componentAddress, seller_badge)
         }
 
         pub fn buy(&mut self, funds: Bucket) -> Bucket {
