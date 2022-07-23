@@ -16,12 +16,13 @@ blueprint! {
                 .metadata("team-member-3-ticket-number", "#4089286689")
                 .metadata("team-member-4-ticket-number", "#4054013949")
                 .metadata("symbol", "GT")
+                .divisibility(DIVISIBILITY_MAXIMUM)
                 .initial_supply(100_000);
 
             let seller_badge: Bucket = ResourceBuilder::new_fungible()
-                .divisibility(DIVISIBILITY_MAXIMUM)
+                .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Guildxyz Token Seller")
-                .initial_supply(18);
+                .initial_supply(1);
 
             let access_rules: AccessRules = AccessRules::new()
                 .method("withdraw_funds", rule!(require(seller_badge.resource_address())))
