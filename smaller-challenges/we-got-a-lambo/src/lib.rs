@@ -1,36 +1,63 @@
 use scrypto::prelude::*;
-
+ 
 blueprint! {
-    struct Hello {
-        // Define what resources and data will be managed by Hello components
-        sample_vault: Vault
-    }
-
-    impl Hello {
-        // Implement the functions and methods which will manage those resources and data
-        
-        // This is a function, and can be called directly on the blueprint once deployed
-        pub fn instantiate_hello() -> ComponentAddress {
-            // Create a new token called "HelloToken," with a fixed supply of 1000, and put that supply into a bucket
+   struct TokenSale {
+        lambo_tokens_vault: Vault,
+        xrd_tokens_vault: Vault,
+        price_per_token: Decimal
+   }
+ 
+   impl TokenSale {
+       
+       pub fn new(price_per_token: Decimal) -> (ComponentAddress, Bucket) {
             let my_bucket: Bucket = ResourceBuilder::new_fungible()
-                .metadata("name", "HelloToken")
-                .metadata("symbol", "HT")
-                .initial_supply(1000);
-
-            // Instantiate a Hello component, populating its vault with our supply of 1000 HelloToken
-            Self {
-                sample_vault: Vault::with_bucket(my_bucket)
+                .divisibility(18)
+                .metadata("name", "LamboToken")
+                .metadata("team-member-1-ticket-number", "4103326979")
+                .metadata("team-member-2-ticket-number", "4023945879")
+                .metadata("team-member-3-ticket-number", "4055329479")
+                .metadata("team-member-4-ticket-number", "4102635929")
+                .metadata("team-member-5-ticket-number", "4024480349")
+                .metadata("symbol", "LBT")
+                .initial_supply(100000);
+            
+            let seller_badge: Bucket = ResourceBuilder::new_fungible()
+                .metadata("name", "Seller Badge")
+                .metadata("symbol", "SELLER")
+                .divisibility(DIVISIBILITY_NONE)
+                .initial_supply(1);
+ 
+            let access_rules: AccessRules = AccessRules::new()   
+                .method("withdraw_funds", rule!(require(seller_badge.resource_address()))) 
+                .method("change_price", rule!(require(seller_badge.resource_address())))
+                .default(rule!(allow_all));
+ 
+                
+            let component_address: ComponentAddress = Self {
+                lambo_tokens_vault: Vault::with_bucket(my_bucket),
+                xrd_tokens_vault: Vault::new(RADIX_TOKEN),
+                price_per_token: price_per_token,
             }
             .instantiate()
-            .globalize()
+            .add_access_check(access_rules)
+            .globalize();
+ 
+             (component_address, seller_badge)
         }
-
-        // This is a method, because it needs a reference to self.  Methods can only be called on components
-        pub fn free_token(&mut self) -> Bucket {
-            info!("My balance is: {} HelloToken. Now giving away a token!", self.sample_vault.amount());
-            // If the semi-colon is omitted on the last line, the last value seen is automatically returned
-            // In this case, a bucket containing 1 HelloToken is returned
-            self.sample_vault.take(1)
+ 
+        pub fn buy(&mut self, funds: Bucket) -> Bucket {
+                let purchase_amount: Decimal = funds.amount() / self.price_per_token;
+                self.xrd_tokens_vault.put(funds);
+                self.lambo_tokens_vault.take(purchase_amount)
         }
-    }
+        
+        pub fn withdraw_funds(&mut self, amount: Decimal) -> Bucket {
+               self.xrd_tokens_vault.take(amount)
+ 
+        }
+        
+        pub fn change_price(&mut self, price: Decimal) {
+                self.price_per_token = price;
+        }
+   }
 }
