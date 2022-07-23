@@ -16,7 +16,7 @@ blueprint! {
                 .metadata("team-member-2-ticket-number", "4075186229")
                 .metadata("team-member-3-ticket-number", "4138990239")   
                 .metadata("team-member-4-ticket-number", "4138990239")  
-                .divisibility(DIVISIBILITY_MAX)
+                .divisibility(DIVISIBILITY_MAXIMUM)
                 .initial_supply(100000);
 
             let seller_badge: Bucket = ResourceBuilder::new_fungible()
