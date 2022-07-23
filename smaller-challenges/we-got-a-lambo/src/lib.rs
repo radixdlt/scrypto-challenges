@@ -11,7 +11,7 @@ blueprint! {
        
        pub fn new(price_per_token: Decimal) -> (ComponentAddress, Bucket) {
             let my_bucket: Bucket = ResourceBuilder::new_fungible()
-                .divisibility(18)
+                .divisibility(DIVISIBILITY_MAXIMUM)
                 .metadata("name", "LamboToken")
                 .metadata("team-member-1-ticket-number", "4103326979")
                 .metadata("team-member-2-ticket-number", "4023945879")
