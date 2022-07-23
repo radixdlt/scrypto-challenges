@@ -1,0 +1,13 @@
+CALL_METHOD
+    ComponentAddress("${account}")
+    "create_proof"
+    ResourceAddress("${badge}");
+CALL_METHOD
+    ComponentAddress("${component}")
+    "withdraw_funds"
+    Decimal("11");
+
+CALL_METHOD_WITH_ALL_RESOURCES
+    ComponentAddress("${account}")
+    "deposit_batch";
+    
