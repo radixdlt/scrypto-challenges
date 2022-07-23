@@ -2,7 +2,7 @@ use scrypto::prelude::*;
 
 blueprint! {
     struct TokenSale {
-        useful_tokens_vault: Vault,
+        vienna_city_token_vault: Vault,
         xrd_tokens_vault: Vault,
         price_per_token: Decimal,
     }
@@ -32,7 +32,7 @@ blueprint! {
 
 
             let component_address: ComponentAddress = Self {
-                useful_tokens_vault: Vault::with_bucket(bucket),
+                vienna_city_token_vault: Vault::with_bucket(bucket),
                 xrd_tokens_vault: Vault::new(RADIX_TOKEN),
                 price_per_token: price_per_token
             }
@@ -46,7 +46,7 @@ blueprint! {
         pub fn buy(&mut self, funds: Bucket) -> Bucket {
             let purchase_amount: Decimal = funds.amount() / self.price_per_token;
             self.xrd_tokens_vault.put(funds);
-            self.useful_tokens_vault.take(purchase_amount)
+            self.vienna_city_token_vault.take(purchase_amount)
         }
         
         pub fn withdraw_funds(&mut self, amount: Decimal) -> Bucket {
