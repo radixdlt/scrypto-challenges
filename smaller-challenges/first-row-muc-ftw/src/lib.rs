@@ -1,20 +1,23 @@
 use scrypto::prelude::*;
 
 blueprint! {
-    struct TokenSale{useful_tokens_vault: Vault,
-        useful_tokens_vault: Vault,
+    struct TokenSale{
+        first_row: Vault,
         xrd_tokens_vault: Vault,
         price_per_token: Decimal
-    
-    
+
     }
 
     impl TokenSale{
-        pub fn new(price_per_token: Decimal) -> ComponentAddress{
+        pub fn new(price_per_token: Decimal) -> (ComponentAddress, Bucket) {
             let bucket: Bucket = ResourceBuilder::new_fungible()
-                .metadata("name", "Useful Token")
-                .metadata("symbol", "USEFUL")
-                .initial_supply(1_000);
+                .divisibility(DIVISIBILITY_MAXIMUM)
+                .metadata("name", "first_row_muc_ftw")
+                .metadata("symbol", "FRMF")
+                .metadata("team-member-1-ticket-number", "#4050035469")
+                .metadata("team-member-2-ticket-number", "#4102984719")
+                .metadata("team-member-3-ticket-number", "#4096574359")
+                .initial_supply(100000);
 
             let seller_badge: Bucket = ResourceBuilder:: new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
@@ -28,22 +31,22 @@ blueprint! {
                 .default(rule!(allow_all));
 
             let component_address: ComponentAddress = Self {
-                useful_tokens_vault: Vault:: with_buckets(bucket),
+                first_row: Vault::with_bucket(bucket),
                 xrd_tokens_vault: Vault::new(RADIX_TOKEN),
                 price_per_token: price_per_token
             }
             .instantiate()
             .add_access_check(access_rules)
-            .globalize()
+            .globalize();
 
             (component_address, seller_badge)
-                
+
         }
 
         pub fn buy(&mut self, funds: Bucket) -> Bucket {
             let purchase_amount: Decimal = funds.amount() / self.price_per_token;
             self.xrd_tokens_vault.put(funds);
-            self.useful_tokens_vault.take(purchase_amount)
+            self.first_row.take(purchase_amount)
 
         }
 
