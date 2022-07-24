@@ -1,0 +1,3 @@
+CALL_METHOD ComponentAddress(${SELLER}) "create_proof" ResourceAddress(${BADGE});
+CALL_METHOD ComponentAddress(${COMP}) "withdraw_funds" Decimal("99");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress(${SELLER}) "deposit_batch";

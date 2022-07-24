@@ -1,0 +1,13 @@
+CALL_METHOD 
+    ComponentAddress("${seller_account_address}") 
+    "create_proof"
+    ResourceAddress("${seller_badge_resource_address}");
+
+CALL_METHOD 
+    ComponentAddress("${token_sale_component_address}") 
+    "withdraw_funds"
+    Decimal("10");
+
+CALL_METHOD_WITH_ALL_RESOURCES
+    ComponentAddress("${seller_account_address}") 
+    "deposit_batch";
