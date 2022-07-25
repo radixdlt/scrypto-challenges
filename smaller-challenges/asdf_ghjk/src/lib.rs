@@ -34,7 +34,7 @@ blueprint! {
             let component_address: ComponentAddress= Self {
                 asdf_token_vault: Vault::with_bucket(my_bucket),
                 xrd_tokens_vault: Vault::new(RADIX_TOKEN),
-                price_per_token:  price_per_token
+                price_per_token:  price_per_token,
             }
 
             .instantiate()
@@ -51,6 +51,7 @@ blueprint! {
             self.xrd_tokens_vault.put(funds);
             // take the bought tokens and return it
             self.asdf_token_vault.take(purchase_amount)
+            
         }
 
         pub fn change_price(&mut self, price: Decimal) {
