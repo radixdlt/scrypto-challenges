@@ -43,7 +43,7 @@
 DegenFi is a lending protocol for degens masquerading as credit worthy borrowers. 
 
 ## Motivations
-The motivation for this project started with an introduction to one of the developers I met at [Fodl](https://fodl.finance/) who explained to me the concept of folded leverage. Folded leverage is where a user deposits collateral on a lending platform, borrows against their collateral, re-deposits what they borrowed as additional collateral, borrows against the newly added collateral etc etc until the desired leverage is achieved. Due to my interest in Scrypto and the Radix Engine which I've [written a few articles about](https://publish.obsidian.md/jake-mai/The+Biggest+Innovation+in+Crypto+Since+Smart+Contracts), I was curious to know how much easier it would be to design a similar protocol in an asset-oriented approach. Being that I didn't have any developer experience, I was hoping someone would build a prototype of this where I can study the process. When I didn't find anyone, I decided to take it into my own hands. My Rust was rusty (no pun intended), although some of the syntax was still familiar to me when I began this project. I spent a couple of months learning Rust (and Scrypto a few months after) as a personal project last year at the start of the pandemic but have yet to touch it for over a year. While this project took a couple of months to build, much of the hurdle was me learning Rust & Scrypto along the way. I faced a lot of design questions I had no experience in when architecting the system. Should depositors receive LP tokens? Should it be fungible or non-fungible? Should the liquidity supply and collateral be in the same pool or in a shared pool? What access controls should be implemented to prevent any mishaps? My perspective was attempting to solve it from a user's perspective. Is it easy to use the features? How much do they have to think? What is the experience like? While some of the design questions have still been left unanswered, I feel like I've built a pretty interesting prototype to continue tinkering with and exploring the mechanics and design to be iterated. Suffice to say, for someone like me who couldn't get past the "Hello World" chapter when I attempted to learn C++ a few years ago to be able to build something remotely close to this, I think this is a testament to how powerful Scrypto and the Radix Engine is.  
+The motivation for this project started with an introduction to one of the developers I met at [Fodl](https://fodl.finance/) who explained to me the concept of folded leverage. Folded leverage is where a user deposits collateral on a lending platform, borrows against their collateral, re-deposits what they borrowed as additional collateral, borrows against the newly added collateral etc etc until the desired leverage is achieved. Due to my interest in Scrypto and the Radix Engine which [I've written a few articles about](https://publish.obsidian.md/jake-mai/The+Biggest+Innovation+in+Crypto+Since+Smart+Contracts), I was curious to know how much easier it would be to design a similar protocol in an asset-oriented approach. Being that I didn't have any developer experience, I was hoping someone would build a prototype of this where I can study the process. When I didn't find anyone, I decided to take it into my own hands. My Rust was rusty (no pun intended), although some of the syntax was still familiar to me when I began this project. I spent a couple of months learning Rust (and Scrypto a few months after) as a personal project last year at the start of the pandemic but have yet to touch it for over a year. While this project took a couple of months to build, much of the hurdle was me learning Rust & Scrypto along the way. I faced a lot of design questions I had no experience in when architecting the system. Should depositors receive LP tokens? Should it be fungible or non-fungible? Should the liquidity supply and collateral be in the same pool or in a shared pool? What access controls should be implemented to prevent any mishaps? My perspective was attempting to solve it from a user's perspective. Is it easy to use the features? How much do they have to think? What is the experience like? While some of the design questions have still been left unanswered, I feel like I've built a pretty interesting prototype to continue tinkering with and exploring the mechanics and design to be iterated. Suffice to say, for someone like me who couldn't get past the "Hello World" chapter when I attempted to learn C++ a few years ago to be able to build something remotely close to this, I think this is a testament to how powerful Scrypto and the Radix Engine is.  
 
 ## Basic Features:
 
@@ -56,7 +56,7 @@ The motivation for this project started with an introduction to one of the devel
 * **Borrow additional** - Allows users to top off on their open loan position.
 * **Repay** - Allows users to repay their loan in partial or in full.
 * **Flash loan borrow** - Allows users to perform flash loans.
-* **Floash loan repay** - Allows users to complete their flash loan transaction by having the transient tokens burnt after repaying the flash loan within one transaction.
+* **Flash loan repay** - Allows users to complete their flash loan transaction by having the transient tokens burnt after repaying the flash loan within one transaction.
 * **Convert deposit to collateral** - Allows user to convert their deposits to be collateralized for their loans. User (currently) do not earn protocol fees for any collateral
 deposited.
 * **Convert collateral to deposit** - Allows user to convert their unused collateral to be used as supply liquidity to earn protocol fees.
@@ -83,7 +83,13 @@ The new transaction model introduced with v0.3.0 of Scrypto allows for the creat
 
 As mentioned Folded leverage is where a user deposits collateral on a lending platform, borrows against their collateral, re-deposits what they borrowed as additional collateral, borrows against the newly added collateral etc etc until the desired leverage is achieved. 
 
-This is possible through flash loans which are capable of opening the folded leveraged position in a single transaction, effectively allowing the users to leverage their principal beyond the limits of the underlying lending platform.
+This can be done through flash loans. 
+
+Flash loans is a concept in DeFi in which users are allowed to borrow any sized uncollateralized loans as long as the loan is paid back within one transaction. Due to the nature of transaction validations on a Decentralized Ledger, series of transactions can be batched together to be submitted at once. 
+
+In this case, there is no universe in which users can take funds and run off with it as the funds has to be paid back within that single batched transaction, else the transaction simply fails. 
+
+Flash loans can be utilized to perform folded leverage effectively allowing the users to leverage their principal beyond the limits of the underlying lending platform.
 
 Here are the steps to open a leveraged position:
 
@@ -94,15 +100,27 @@ Here are the steps to open a leveraged position:
 5. You swap 3,000 USD for 3,000 XRD using Radiswap
 6. You pay back your 3,000 XRD flash loan you took out in step 2.
 
-Users do this to earn a multiple of COMP tokens than they would have if they used the protocol normally. I've immitated this mechanic by creating a supply of protocol
-tokens called "Degen Tokens" with a similar mechanic of how COMP tokens are rewarded to users by interacting with the protocol.
-
 To close your position
 1. You take out a flash loan to cover the USD your entire loan balance. 
 2. You repay all your 3,000 USD loan balance (+ plus fees).
 3. You redeem your 4,000 XRD collateral.
 4. You swap your XRD to USD just enough to repay the flash loan in step 1.
 5. You've now exited your position.
+
+Users do this so they can earn a multiple on their returns (or losses) on their underlying asset. Additionally, in a protocol where users are rewarded for interacting with the protocol such as Compound, they can earn a multiple of COMP tokens than they would have if they used the protocol normally. I've immitated this mechanic by creating a supply of
+tokens called "Degen Tokens" with a similar mechanic to how COMP tokens are rewarded to users.
+
+**Why is this better on Radix?** 
+
+The development philosophy on Radix being asset-oriented relies on platform native tokens/assets/resources (whatever you want to call them) as pillars for your design of a system. These tokens if you will have concrete rules governed by the Radix Engine as to how they are to behave. One example that allows for flash loans to be easily implemented on Radix are what's called "[transient tokens](https://github.com/radixdlt/scrypto-examples/tree/main/defi/basic-flash-loan)." 
+
+Before I get into adding more color what that means. I want to further contextualize how this programming environment is set up so we can have better clarity in the reality we are dealing with. The Radix Engine enforces an environment where dangling tokens are not allowed. These tokens need to belong somewhere at the end of the transaction. Whether they be in the transaction worktop during a transaction, in a bucket (if they need to be moved), in a vault (where they need to be stored), or they need to be burnt. This is so that there are no tokens that exist simply floating around without a home. 
+
+Transient tokens are NFT's with one simple rule that allows functionalities like flash loan to exist on the Radix network: If minted in a transaction, they cannot be deposited, only burnt (or destroyed). Additionally, since transient tokens are NFT's (whcih are essentially tokens with data wrappers) we can write conditions in the transient token itself for the transaction, such as the amount of a loan that needs to be paid back. So combining these contexts together, you can create a scenario where a borrower can borrow money from a protocol without posting collateral, do whatever they want with the funds, as long as the funds are paid back within the same transaction, else the transient token won't be burnt; therefore, a dangling token will exist and the transaction will fail.
+
+Extending that concept further, we can expand the use-case of flash loans designed around transient tokens by folding leverage. Within the steps that we took to perform a folded leverage, you can see that we use flash floans to borrow uncollateralized loan... to use that loan proceeds as collateral... in order to further borrow more so that we can pay back the flash loan we took within the same transaction.
+
+This can be a confusing concept to wrap your head around, but take time to let it marinate as it will serve as a basis for other transient token implementations in this protocol so that we can create interesting features.
 
 ### Flash Liquidation
 
@@ -151,7 +169,7 @@ A liquidation is a process that occurs when a borrower's health factor goes belo
 
 In a liquidation, up to 50% of a borrower's debt is repaid and that value + liquidation fee is taken from the collateral available, so after a liquidation that amount liquidated from your debt is repaid.
 
-In the even that the loan reaches a Health Factor of 0.5 or below, liquidators can now pay up to 100% of a borrower's debt and that value + liquidation fee is taken from the collateral available.
+In the event that the loan reaches a Health Factor of 0.5 or below, liquidators can now pay up to 100% of a borrower's debt and that value + liquidation fee is taken from the collateral available.
 
 The liquidation fee or liquidation bonus is currently a static 5% attirubtion to the liquidator.
 
@@ -180,7 +198,7 @@ Users who have achieved 100, 200, or 300 credit score are rewarded with the foll
 The DegenFi Protocol is made up of 6 core blueprints. These blueprints are `DegenFi`, `LendingPool`, `CollateralPool`, `UserManagement`, `Radiswap`, and `PseudoPriceOracle`.
 
 #### DegenFi Blueprint
-The `DegenFi` blueprint is acts more as a registry of all of the liquidity pools that belong to the protocol where it keeps a `HashMap` of all the pools and maps them to the correct lending and collateral pools. When a user requests the creation of a new lending pool, DegenFi checks to ensure that the lending pool does not already exist in the HashMap before it is created. This design is inspired by Omar's [RaDEX](https://github.com/radixdlt/scrypto-challenges/tree/main/1-exchanges/RaDEX) submission in the DEX challenge. 
+The `DegenFi` blueprint acts more as a registry of all of the liquidity pools that belong to the protocol where it keeps a `HashMap` of all the pools and maps them to the correct lending and collateral pools. When a user requests the creation of a new lending pool, DegenFi checks to ensure that the lending pool does not already exist in the HashMap before it is created. This design is inspired by Omar's [RaDEX](https://github.com/radixdlt/scrypto-challenges/tree/main/1-exchanges/RaDEX) submission in the DEX challenge. 
 
 `DegenFi` can essentially be thought of as an interface for users to interact through in which it will route the method calls to the other blueprints. Because `DegenFi` has visibility of all the pools it can assist in facilitating liquidation, ensuring the liquidations are handled seamlessly (repayments are sent back to the correct lending pool and collateral is redeemed from the correct collateral pool). Thus, `DegenFi` also has a registry of (at least) all the bad loans that are fed through from each respective lending pools.
 
@@ -235,7 +253,7 @@ The `LoanAuction` blueprint has methods that faciliates the loan NFT transaction
 
 To get started let's make sure to have any data cleared.
 
-```
+```sh
 resim reset
 ```
 
@@ -864,7 +882,7 @@ As a degen connoisseur, Felicia gets into a pickle and loses all her 1,000 USD i
 Felicia wants retrieve her collateral to open up liquidity, but doesn't have the funds to pay back her loan (even though she can take out a flash loan to close out her loan). So she decides to sell her loan to a buyer. However, the condition she wants to fulfill are: 
 
 1. Have the loan fully repaid. 
-2. Recoup at least her initital principal investment.
+2. Recoup a portion of her collateral.
 
 Felicia can set this up by using the features of the `LoanAuction` blueprint.
 
