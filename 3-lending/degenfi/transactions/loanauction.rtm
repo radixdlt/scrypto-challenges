@@ -20,7 +20,7 @@ POP_FROM_AUTH_ZONE Proof("proof4");
 CALL_METHOD ComponentAddress("${COMPONENT}") "redeem_auction_collateral" Proof("proof4") ResourceAddress("030000000000000000000000000000000000000000000000000004") Decimal("3000");
 
 # Returning collateral
-TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("bucket3");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("2000") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("bucket3");
 # Bucket 1 is the transient token
 CALL_METHOD ComponentAddress("${COMPONENT}") "return_collateral" Bucket("bucket3") Bucket("bucket1");
 CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS1}") "deposit_batch";
