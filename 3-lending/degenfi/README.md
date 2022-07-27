@@ -24,13 +24,13 @@
       - [UserManagement Blueprint](#usermanagement-blueprint)
       - [Radiswap Blueprint](#radiswap-blueprint)
       - [PseudoPriceOracle Blueprint](#pseudopriceoracle-blueprint)
-      - [Loan Auction Blueprint](#loan-auction-blueprint)
+      - [LoanAuction Blueprint](#loanauction-blueprint)
   * [Examples](#examples)
     + [Getting Started](#getting-started)
     + [Example 1: Creating pools & depositing supply](#example-1-creating-pools-&-depositing-supply)
-    + [Example 2: Leverage 1x](#example-2-leverage-1x)
-    + [Example 3: Leverage 2x](#example-3-leverage-2x)
-    + [Example 4: Leverage 3x](#example-4-leverage-3x)
+    + [Example 2: Leverage 1x Long Strategy](#example-2-leverage-1x-long-strategy)
+    + [Example 3: Leverage 2x Short Strategy](#example-3-leverage-2x-short-strategy)
+    + [Example 4: Leverage 3x Long Strategy](#example-4-leverage-3x-long-strategy)
     + [Example 5: Flash Liquidation](#example-5-flash-liquidation)
     + [Example 6: Closing out a leveraged position](#example-6-closing-out-a-leveraged-position)
     + [Example 7: Loan Auctioning](#example-7-loan-auctioning)
@@ -136,9 +136,19 @@ To perform a flash loan liquidation:
 
 ### Loan Auction
 
-The loan auction design has not been fully thought out yet so there are certainly a lot of outstanding questions to consider. Nonetheless, the design requires the seller of the loan NFT to instantitate the `LoanAuction` blueprint to deposit their loan NFT. 
+The loan auction design has not been fully thought out yet so there are certainly a lot of outstanding questions to consider. Nonetheless, the design requires the seller of the loan NFT to instantitate the `LoanAuction` blueprint to deposit their loan NFT. The example shown in [Example 7: Loan Auctioning](#example-7-loan-auctioning) may be contrived or economically unviable. However, the important note I want to convey here are these:
 
-The seller needs to determine the conditions of the sale (how much the minimum collateral is requested by the seller). The buyer is then allowed to withdraw the loan NFT from the vault, but a transient token is minted along the way the must satisfy the conditions of the sale before the loan NFT can be retrieved.
+1. There will be a situation where a borrower will need to sell their loan(s) to open up liquidity by freeing their collateral.
+2. The seller of the loan may need to sell their loan at a discount in order for the economics to make sense for the buyer. 
+3. The seller may not mind selling their loan at a discount due to opportunity cost for this seller.
+
+Due to the nature of loans being represented as NFT's in this protocol, we can transfer NFT's between users, thereby transfering ownership of the NFT and essentially transfering rights to claim the underlying asset of the loan. 
+
+We can allow sellers to auction their loans by using transient tokens. Transient tokens in this case are wonderful ways to create conditions of the sale. 
+
+The seller can deposit their loan NFT into a vault and determine the conditions of the sale (how much the minimum collateral is requested by the seller) to which these conditions will be prescribed into the transient token. 
+
+The buyer is then allowed to withdraw the loan NFT from the vault, but doing so will mint a transient token with the prescribed conditions of sale that must be satisfied sale to succeed the transaction. We can use transient tokens to create more complex trades outside of simple monetary value exchange! Please visit [Example 7: Loan Auctioning](#example-7-loan-auctioning) for a more detailed outlook of the mechanic.
 
 ## Misc. features:
 
@@ -306,7 +316,7 @@ export XRD=030000000000000000000000000000000000000000000000000004
 
 To illustrate the features of this protocol let's follow a narrative of 5 different people. Joe, Bob, Sally, Beth, and John who have different motivations when interacting when interacting with the protocol. 
 
-In this example, we'll follow Joe, who is the owner of ACC_ADDRESS1. Let's make sure that we set his account as the default. We can do this by pasting the following command.
+In this example, we'll follow Joe, who is the owner of `$ACC_ADDRESS1`. Let's make sure that we set his account as the default. We can do this by pasting the following command.
 
 ```sh
 resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
@@ -317,6 +327,12 @@ Joe wants to be the first liquidity provider of this protocol and he wants to cr
 ```sh
 M_OP=$(resim run "./transactions/mint_usd.rtm")
 export USD=$(echo "$M_OP" | sed -nr "s/└─ Resource: ([[:alnum:]_]+)/\1/p")
+```
+
+Let's also have Joe fund $10,000 USD to Sally's account to be used as collateral for [Example 3: Leverage 2x Short Strategy](#example-3-leverage-2x-short-strategy).
+
+```sh
+resim run ./transactions/fund_account.rtm
 ```
 
 Before interacting with the protocol, we must first create a user for Joe. Let's paste the transaction below.
@@ -337,8 +353,8 @@ New Entities: 0
 
 Now, Joe is ready to create and supply the initial lending pool for DegenFi! We can do this by running the following Transaction Manifest.
 
-[`./transactions/create_xrd_pool.rtm`](./transactions/create_xrd_pool.rtm)
-[`./transactions/create_usd_pool.rtm`](./transactions/create_xrd_pool.rtm)
+[./transactions/create_xrd_pool.rtm](./transactions/create_xrd_pool.rtm)
+[./transactions/create_usd_pool.rtm](./transactions/create_xrd_pool.rtm)
 
 ```sh
 resim run ./transactions/create_xrd_pool.rtm && resim run ./transactions/create_usd_pool.rtm
@@ -371,8 +387,8 @@ New Entities: 4
 
 Joe later wants to supply an additional 19,000 of XRD and USD. We can do this by pasting the following transaction manifest files below. 
 
-[`./transactions/deposit_supply_xrd.rtm`](./transactions/deposit_supply_xrd.rtm) 
-[`./transactions/deposit_supply_usd.rtm`](./transactions/deposit_supply_usd.rtm)
+[./transactions/deposit_supply_xrd.rtm](./transactions/deposit_supply_xrd.rtm) 
+[./transactions/deposit_supply_usd.rtm](./transactions/deposit_supply_usd.rtm)
 
 ```sh
 resim run ./transactions/deposit_supply_xrd.rtm && resim run ./transactions/deposit_supply_usd.rtm
@@ -430,7 +446,7 @@ Resources:
 
 So Joe has now also supplied 200,000 USD and XRD in the liquidity pool for Radiswap so that Bob, Sally, Beth, and John can begin swapping between assets.
 
-### Example 2: Leverage 1x
+### Example 2: Leverage 1x Long Strategy
 
 In this example, we're starting with Bob, the owner of ACC_ADDRESS2. He wants to open a 1x leveraged position on his XRD. He will be putting up 1,000 XRD as his principal investment and taking out a flash loan to borrow an additional 1,000 XRD to supply a total of 2,000 XRD as collateral. With, currently, a maximum collateralization factor of 75%, Bob's max borrowing limit would be $1,500 USD. If Bob were to max out his borrowing capacity, this would bring his Borrow Limit Usage to 100% defined by `Borrowing Value / (Supply Value * Supply Collateral Factor)`. The closer Bob is to 100% Borrow Limit Usage, the position could be liquidated by anyone. Therefore, Bob as an avid degen and practicing prudent risk management, will only borrow 50% of his total collateral value.
 
@@ -519,9 +535,9 @@ Logs: 8
 └─ [INFO ] [User SBT]: Number of loans paid off: 0
 ```
 
-### Example 3: Leverage 2x
+### Example 3: Leverage 2x Short Strategy
 
-This example will be more straightforward as it's mostly an extension of the previous example. Here, we have Sally who wants to open a 2x leveraged position her XRD. Like Bob, Sally will also be only be putting up 1,000 XRD as her principal investment, but now taking out a flash loan to borrow an additional 2,000 XRD to supply a total of 3,000 XRD as collateral. Beth will be borrowing $2,000 USD in this example representing a 66% Borrow Limit Usage. 
+The previous example allows Bob to open a long strategy leveraged position. This example will use the same concepts, but for a different strategy. Here, we have Sally who wants to open a 2x short strategy leveraged position against her USD 'stablecoin'. Like Bob, Sally will also be only be putting up $1,000 USD as her principal investment, but now taking out a flash loan to borrow an additional $2,000 USD to supply a total of $3,000 USD as collateral. Beth will be borrowing $2,000 XRD in this example representing a 66% Borrow Limit Usage. This is a short seller strategy, because she is betting that the value of XRD will fall relative to the underlying stable collateral. For demonstration purposes, XRD is set to $1 USD. If XRD falls in value, Sally can take a flash loan to pay back that XRD at a cheaper price, allowing her to keep more of her underlying stable asset. 
 
 Let's make sure that we are on Sally's account.
 
@@ -547,51 +563,51 @@ To perform a 2x leveraged position, we can run the following transaction manifes
 resim run ./transactions/degen_2x_leverage.rtm
 ```
 ```sh
-Logs: 21
-├─ [INFO ] [DegenFi]: Depositing 3000 of 030000000000000000000000000000000000000000000000000004 as collateral.
-├─ [INFO ] [DegenFi]: Borrowing: 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed, Amount: 2000
-├─ [INFO ] The utilization rate of this pool is 0.15
+Logs: 22
+├─ [INFO ] [DegenFi]: Depositing 3000 of 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed as collateral.
+├─ [INFO ] [DegenFi]: Borrowing: 030000000000000000000000000000000000000000000000000004, Amount: 2000
+├─ [INFO ] The utilization rate of this pool is 0.1
 ├─ [INFO ] [Lending Pool]: Loan NFT created.
 ├─ [INFO ] [Lending Pool]: Origination fee: 0.01
 ├─ [INFO ] [Lending Pool]: Origination fee charged: 20
-├─ [INFO ] [Loan NFT]: Asset: 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed
-├─ [INFO ] [Loan NFT]: Collateral: 03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed
+├─ [INFO ] [Loan NFT]: Asset: 030000000000000000000000000000000000000000000000000004
+├─ [INFO ] [Loan NFT]: Collateral: 030000000000000000000000000000000000000000000000000004
 ├─ [INFO ] [Loan NFT]: Principal Loan Amount: 2000
 ├─ [INFO ] [Loan NFT]: Interest Rate: 0.08
 ├─ [INFO ] [Loan NFT]: Origination Fee: 0.01
 ├─ [INFO ] [Loan NFT]: Origination Fee Charged: 20
-├─ [INFO ] [Loan NFT]: Owner: 9266c381b18c6b038a25900f9c06f39b
+├─ [INFO ] [Loan NFT]: Owner: ea5275b8df79db795b6f51079a995705
 ├─ [INFO ] [Loan NFT]: Remaining Balance: 2180
 ├─ [INFO ] [Loan NFT]: Collateral amount: 3000
 ├─ [INFO ] [Loan NFT]: Health Factor: 1.032110091743119266
 ├─ [INFO ] [Loan NFT]: Interest Expense: 160
 ├─ [INFO ] You were able to increase your max collateralization by 0 due to your credit!
 ├─ [INFO ] You were able to reduce your interest rate by 0 percent due to your credit!
-├─ [INFO ] The utilization rate of this pool is 0.15
-└─ [INFO ] Your original interest rate was 0.08
-New Entities: 0
+├─ [INFO ] The utilization rate of this pool is 0.1
+├─ [INFO ] Your original interest rate was 0.08
+└─ [INFO ] Please note you have borrowed less than $1,000 of value. You must borrow a minimum of $1,000 in value to begin earning credit.
 ```
-```
+```sh
 Resources:
 ├─ { amount: 5, resource address: 0385e64b569439f95a01b816d7be0504ccd67e667d012214d0772b, name: "Degen Token", symbol: "DT" }
 ```
-```
+```sh
 resim run ./transactions/get_sbt_info_acc3.rtm
 ```
-```
+```sh
 Logs: 8
 ├─ [INFO ] [User SBT]: Credit Score: 0
 ├─ [INFO ] [User SBT]: Deposit Balance: {}
-├─ [INFO ] [User SBT]: Collateral Balance: {030000000000000000000000000000000000000000000000000004: 3000}
-├─ [INFO ] [User SBT]: Borrow Balance: {03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed: 2180}
-├─ [INFO ] [User SBT]: Open Loans: {03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed: 523ad2f961a9665e7653148211b47241}
+├─ [INFO ] [User SBT]: Collateral Balance: {03612c739a20344116aa67cd53479986c0228ea3e46d7dbb1a57ed: 3000}
+├─ [INFO ] [User SBT]: Borrow Balance: {030000000000000000000000000000000000000000000000000004: 2180}
+├─ [INFO ] [User SBT]: Open Loans: {030000000000000000000000000000000000000000000000000004: cded00f899a2116dd37d43ae054e196b}
 ├─ [INFO ] [User SBT]: Closed Loans: {}
 ├─ [INFO ] [User SBT]: Number of times liquidated: 0
 └─ [INFO ] [User SBT]: Number of loans paid off: 0
 ```
-This is all very similar to Sally, but a 2x position. 
+This is all very similar to Bob, but a 2x position on a short strategy. 
 
-### Example 4: Leverage 3x
+### Example 4: Leverage 3x Long Strategy
 
 Beth, the owner of account 4, is who you would consider a final form of degeneracy. Beth wants to open a 3x leveraged position on her XRD. Like Bob and Sally, she will also only be putting up 1,000 XRD as her principal investment and now taking out a flash loan to borrow an additional 3,000 XRD to supply a total of 4,000 XRD as collateral. Because Beth likes to catch falling knives, Beth will be maxing out her borrowing capacity at 75% collaterization with this example, taking out $3,000 USD; which represents a 100% Borrow Limit Usage.
 
@@ -643,7 +659,6 @@ Logs: 21
 └─ [INFO ] Your original interest rate was 0.08
 New Entities: 0
 ```
-
 
 ## Example 5: Flash liquidation
 
@@ -830,9 +845,9 @@ Bob closed out his position with the following series of instructions within one
 
 ### Example 7: Loan Auctioning
 
-Note: Please note that this feature was done last minute as a result of a realization of how my protocol was architected and how the transient token was designed. I was able to come up with a loan auctioning design for those who want to free up their liquidity without paying back the loan by selling the loan to a buyer. This was made possible due to the nature of loans being represented as NFT's and the elegant design of transient tokens allowing transactions to commit as long as a preset condition was met. While this is an interesting idea, I have not tested all the edge cases yet (such us the condition in which the loan become defaulted in an auction) nor have I fully thought out the economics of this use case. The fact that this is possible in an easy way was enough for me to give this a try.
+Note: Please note that this feature was done last minute as a result of a realization of how my protocol was architected and how the transient token was designed. I was able to come up with a loan auctioning design for those who want to free up their liquidity without paying back the loan by selling the loan to a buyer. This was made possible due to the nature of loans being represented as NFT's and the elegant design of transient tokens allowing transactions to commit as long as a preset condition was met. While this is an interesting idea, I have not tested all the edge cases yet (such us the condition in which the loan become defaulted in an auction) nor have I fully thought out the economics of this use case. The fact that this is possible in an easy way was enough for me to give this a try. The economics of this example may be contrived or economically unviable. 
 
-In this contrived example, Felicia will deposit 3,000 XRD as collateral and borrow $1,000 XRD against her collateral. She will run into a situation where she needs to close out her loan posiiton and redeem her collateral, but don't have the funds to do so. Joe will be the buyer of Felicia's loan NFT.
+In this contrived example, Felicia will deposit 3,000 XRD as collateral and borrow $1,000 XRD against her collateral. She will run into a situation where she needs to close out her loan posisiton and redeem her collateral, but don't have the funds to do so. Joe will be the buyer of Felicia's loan NFT.
 
  Let's switch to her account.
 
@@ -1016,12 +1031,7 @@ We can take a look at Joe's wallet and see that the loan NFT is now in Joe's pos
 │  └─ NonFungible { id: 2987fe19c3ff4d15be9aa59463b67ba3, immutable_data: Struct(),
 ```
 
-We can see from an abstract of the account wallet that the ownership of the loan NFT has also changed from Felicia to Joe. Additionally, from the abstract below, Joe's XRD balance has also increased by 2,000 XRD as Joe redeemd 3,000 of Felicia's collateral, returned her required 1,000 XRD principal investment, and keeping the 2,000 XRD for himself. 
-
-
-```
-├─ { amount: 982000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
-```
+We can see from an abstract of the account wallet that the ownership of the loan NFT has also changed from Felicia to Joe. Additionally, from the abstract below, Joe's XRD balance has also increased by 1,000 XRD as Joe redeemd 3,000 of Felicia's collateral, returned her required 2,000 XRD collateral, and keeping the 1,000 XRD for himself. 
 
 Let's move back to Felicia's account and take a look at Felicia's SBT information.
 
@@ -1061,8 +1071,6 @@ This is quite an interesting mechanic that I would love to explore more in the f
 
 While Joe withdraws the loan NFT, giving ownership of the loan to him and has the claim to the collateral (along with the balance); Joe can't simply redeem the collateral since it's not technically directly in his possession yet (the loan NFT also does not reflect change in ownership). Before any of these changes happens, the transaction must first complete. Before the transaction completes, the transient token must be burnt. Before the transient token can be burnt, the conditions must be met. That's how powerful and flexible the token system is on the Radix Engine.
 
-Now that the transaction has completed we can now view Joe's account and view that he has earned some of Felicia's collateral.
-
 Now let's head over back to Felicia's account and review her XRD balance. We see that there's 997,000 XRD.
 
 ```sh
@@ -1075,10 +1083,10 @@ Since Joe returned the collateral to the `LoanAuction` component vault, Felicia 
 resim call-method $COMPONENT claim_collateral 1,$PROOF6
 ```
 
-After the authentication is verified, she now has claimed her prinipal investment and 1,000 XRD is deposited into her account.
+After the authentication is verified, she now has claimed her collateral and 2,000 XRD is deposited into her account.
 
 ```
-├─ { amount: 998000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+├─ { amount: 999000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 ```
 
 I haven't fully encapsulated economic design of this mechanic yet, or fully explored its practicality. Although, I do certainly see the need for someone who wants to sell their loan to someone else. Having loans represent as NFT's allow for this to happen. Implementing transient tokens to meet certain conditions also is a powerful mechanic to ensure transactions integrity remains intact.

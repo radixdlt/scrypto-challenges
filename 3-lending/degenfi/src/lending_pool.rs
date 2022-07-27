@@ -965,7 +965,7 @@ blueprint! {
 
         }
 
-                /// Repays the loan in partial or in full.
+        /// Repays the loan in partial or in full.
         /// 
         /// This method is used to calculate the amount of tokens owed to the liquidity provider and take them out of
         /// the lending pool and return them to the liquidity provider.
@@ -978,17 +978,15 @@ blueprint! {
         /// 
         /// * `user_id` (NonFungibleId) - The NonFungibleId that identifies the specific NFT which represents the user. It is used 
         /// to update the data of the NFT.
-        /// 
+        /// * `loan_id` (NonFungibleId) - The NonFungibleId of the loan that would like to be repaid.
         /// * `token_address` (ResourceAddress) - This is the token address of the requested loan payoff.
-        /// 
-        /// * `repay_amount` (Decimal) - This is the amount to repay the loan.
+        /// * `transient_token_id` (NonFungibleId) - The NonFungibleId of the transient token used to view the transient token data.
+        /// * `transient_token_address` (ResourceAddress) - This is the resource addres of the transient token used to view the transient token data.
+        /// * `repay_amount` (Bucket) - The Bucket that contains the repayment amount.
         /// 
         /// # Returns:
         /// 
-        /// * `Bucket` - A Bucket of the tokens to be redeemed.
-        /// 
-        /// # Design questions:
-        /// * Ideally we would only need the user_id and loans are identified by the protocol as opposed to the user having to retrieve the loan NFT.
+        /// This method doesn't return any assets.
         pub fn auction_repay(
             &mut self,
             user_id: NonFungibleId,
