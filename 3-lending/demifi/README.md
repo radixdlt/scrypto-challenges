@@ -1,4 +1,4 @@
-![](./web/public/DeMiFi logo.png)
+![](./web/public/DeMiFi%20logo.png)
 
 # DeMiFi - Decentralized Micro-Finance
 This project provides a set of blueprints which when used together
