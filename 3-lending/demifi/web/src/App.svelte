@@ -102,7 +102,7 @@
     {#if (!$appStarted)}
       <StartScreen />
     {:else}
-      <LendingApp />
+      <div style:width="100vw" style:height="100vh"><LendingApp /></div>
     {/if}
   </Modal>
 </main>

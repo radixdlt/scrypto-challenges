@@ -92,97 +92,87 @@
   const resetChanges = () => {
     open(ReallyResetChanges);
   }
+
 </script>
 
-<div>
-  <div class="topPadding" />
-  <div class="topbar unselectable"
+<div 
+     style:display="flex"
+     style:width="100%"
+     style:flex-direction="column"
+     style:justify-content="space-between"
+     style:align-content="space-between">
+  <div class="unselectable"
+       style:flex-grow="1"
+       style:width="100%"
        style:display="flex"
-       style:align-items="baseline" >
-    <div on:click="{openProfile}" style:cursor="pointer"><UserIcon  nfid="{$userNfid}"/></div>
-    <div on:click="{openProfile}" style:cursor="pointer" style:margin="0 0 0 5px" style:font-size="32px">
-      {#if $allParticipants.get($userNfid)}
-	<b>{$allParticipants.get($userNfid).userName}</b>
-      {:else}
-	<b>???</b>
-      {/if}
+       style:align-items="baseline"
+       style:justify-content="space-between"
+       style:align-content="space-between">
+    <div style:display="flex"
+	 style:align-items="baseline"
+	 style:margin="0.5em 0 0 0.5em">
+      <div on:click="{openProfile}" style:cursor="pointer"><UserIcon  nfid="{$userNfid}"/></div>
+      <div on:click="{openProfile}" style:cursor="pointer" style:margin="0 0 0 5px" style:font-size="32px">
+	{#if $allParticipants.get($userNfid)}
+	  <b>{$allParticipants.get($userNfid).userName}</b>
+	{:else}
+	  <b>???</b>
+	{/if}
+      </div>
+      <div style:margin="0 0 0 5px" style:font-size="12px"><NumericAddress address={$userNfid}/> </div>
     </div>
-    <div style:margin="0 0 0 5px" style:font-size="12px"><NumericAddress address={$userNfid}/> </div>
-  </div>
-  <div class="toprightbar unselectable" style="display: flex; align-items: center;">
-    {#if $participantsDirty}
-      <div transition:fade
-	   display="flex"
-	   style:align-items="center"
-	   style:align-content="center"
-	   style:margin="0 5px 0 0">
-	<span class="unselectable"
-	      style:align-self="flex-end"
-	      style:margin="0 5px 0 0"
-	      style:cursor="pointer"
-	      on:click="{resetChanges}" >
-	  <Icon data={imgReset} size="12px"/>
-	</span>
-	<button bind:this={$commitButton} >
-	  <span ><Icon data={imgWarning} fill="red" stroke="red" size="12px"/></span>
-	  <span align="center" on:click="{commitChanges}" >Commit Changes</span>
-	</button>
-      </div>{
-      /if}
-      {#if !$tourist}
-	<NumericAddress address="{$walletAddress}"/>
-      {/if}
-    <button style:margin="0 0 0 5px" on:click="{maybeDisconnect}">Disconnect</button></div>
-  <div class="apps unselectable" >
-    <button>People</button>
-    <button disabled="true">Lending</button>
-    <button disabled="true">Borrowing</button>
-	  <span 
-	       style:cursor="pointer"
-	       on:click="{showInstructions}">
-	    <Icon fill="blue" stroke="blue" data={imgInfo} size="18px"/>
+    <div style:display="flex"
+	 style:align-items="baseline"
+	 style:margin="0 0.5em 0 0">
+      {#if $participantsDirty}
+	<div transition:fade
+	     style:display="flex"
+	     style:align-items="center"
+	     style:align-content="center"
+	     style:margin="0 5px 0 0">
+	  <span class="unselectable"
+		style:align-self="flex-end"
+		style:margin="0 5px 0 0"
+		style:cursor="pointer"
+		on:click="{resetChanges}" >
+	    <Icon data={imgReset} size="12px"/>
 	  </span>
+	  <button bind:this={$commitButton} >
+	    <span ><Icon data={imgWarning} fill="red" stroke="red" size="12px"/></span>
+	    <span align="center" on:click="{commitChanges}" >Commit Changes</span>
+	  </button>
+	</div>
+      {/if}
+      {#if !$tourist}
+	<div><NumericAddress address="{$walletAddress}"/></div>
+      {/if}
+      <div><button style:margin="0 0 0 5px" on:click="{maybeDisconnect}">Disconnect</button></div>
+    </div>
+  </div>
+  <div class="unselectable"
+       style:display="flex"
+       style:align-items="baseline"
+       style:margin="0 0.5em 0 0.5em">
+    <div><button>People</button></div>
+    <div><button disabled="true">Lending</button></div>
+    <div><button disabled="true">Borrowing</button></div>
+    <div
+      style:cursor="pointer"
+      style:margin="0 0.5em 0 0.5em"
+      on:click="{showInstructions}">
+      <Icon fill="blue" stroke="blue" data={imgInfo} size="18px"/>
+    </div>
     
     {#if $participantNftCount > $loadedParticipantCount}
-      <progress transition:fade max="{$participantNftCount}" value="{$loadedParticipantCount}"/>
+      <div><progress transition:fade max="{$participantNftCount}" value="{$loadedParticipantCount}"/></div>
     {/if}
   </div>
-  <div class="spacer"/>
-  <People/>
+  <div >
+    <People/>
+  </div>
 </div>
 
 <style>
-  .spacer {
-    width: 100%;
-    height: 55px;
-  }
-  .topPadding {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 80px;
-    width: 100%;
-    background-color: white;
-  }
-  .topbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    margin: 5px;
-    background-color: white;
-  }
-  .toprightbar {
-    position: fixed;
-    top: 0;
-    right: 0;
-    margin: 5px;
-  }
-  .apps {
-    position: fixed;
-    top: 2em;
-    left: 0;
-    margin: 5px;
-  }
   .unselectable {
     -webkit-touch-callout: none;
     -webkit-user-select: none;

@@ -22,14 +22,17 @@
 
   let viewportWidth: int;
   let tableBgColor: string = '#f0f0f0';
+  let everyoneDiv;
 
-  const TABLE_MARGIN: int = 5;
-  
   function determineViewportSize(): void {
     viewportWidth = Math.max(document.documentElement.clientWidth || 0,
 			     window.innerWidth || 0);
     $viewportHeight = Math.max(document.documentElement.clientHeight || 0,
-			      window.innerHeight || 0);
+			       window.innerHeight || 0);
+    if (everyoneDiv !== undefined) {
+      let pos = findPos(everyoneDiv);
+      if (pos !== undefined) topOfEveryone = pos[1];
+    }
   }
   
   window.addEventListener('resize', determineViewportSize);
@@ -87,12 +90,6 @@
   }
 
   let typedEveryoneFilter;
-  let tableWidth;
-  let tableHeight;
-  let belowTablePosY;
-  $: tableWidth = viewportWidth/3 - 4 * TABLE_MARGIN;
-  $: tableHeight = ($viewportHeight - TABLE_MARGIN - 90) / 3;
-  $: belowTablePosY = 90+2*tableHeight+TABLE_MARGIN;
   $: everyoneList = calcEveryoneList($allParticipants, $mainParticipantsFilter, typedEveryoneFilter);
   $: endorsingList = calcEndorsingList($allParticipants);
   $: endorsementsList = calcEndorsementsList($allParticipants);
@@ -112,7 +109,6 @@
   || $isPfpDirty
   || $editedUrl && $editedUrl !== $allParticipants.get($userNfid).url;
 
-
   const showProfile = (nfid) => {
     if ($allParticipants.get(nfid)) {
       open(ParticipantPopup, { nfid: nfid, participant: $allParticipants.get(nfid) });
@@ -123,21 +119,48 @@
     $mainParticipantsFilter = undefined;
     $mainParticipantsFilterTitle = undefined;
   }
+
+  function findPos(obj) {
+    var curleft = 0;
+    var curtop = 0;
+    if (obj && obj.offsetParent) {
+      do {
+	curleft += obj.offsetLeft;
+	curtop += obj.offsetTop;
+      } while (obj = obj.offsetParent);
+      return [curleft,curtop];
+    }
+    return undefined;
+  }
+
+  let topOfEveryone: number = 0;
+  
+  $: if (everyoneDiv !== undefined) {
+    topOfEveryone = findPos(everyoneDiv)[1];
+  }
+
 </script>
 
 
-<div>
+<div
+     style:display="flex"
+     style:flex-direction="row"
+     style:align-content="stretch"
+     style:justify-content="space-evenly"
+     style:margin="0.5em 0.25em 0 0.25em"
+     >
   <div class="unselectable inside"
        style:background-color="{tableBgColor}"
-       style:width="{tableWidth}px"
-       style:top="90px"
-       style:left="{TABLE_MARGIN}px"
-       style:height="{2*tableHeight}px">
+       style:flex-grow="1"
+       style:flex-basis="50px"
+       style:margin="0 0.25em 0 0.25em"
+       >
     <div class="tableHeader">People I Endorse</div>
     <div style:overflow-y="auto"
 	 style:display="flex"
 	 style:flex-direction="column"
-	 style:height="90%">
+	 style:max-height="50vh"
+	 style:margin="0 0 1em 0">
       {#each endorsingList as nfid}
 	<ParticipantCell {nfid} icon="{imgStar}" fill="yellow" pfpClick="{showProfile}" toggleStore="{unendorseStore}"/>
       {/each}
@@ -145,15 +168,16 @@
   </div>
   <div class="unselectable inside"
        style:background-color="{tableBgColor}"
-       style:width="{tableWidth}px"
-       style:top="90px"
-       style:left="{tableWidth+2*TABLE_MARGIN}px"
-       style:height="{2*tableHeight}px">
+       style:flex-grow="1"
+       style:flex-basis="50px"
+       style:margin="0 0.25em 0 0.25em"
+       >
     <div class="tableHeader">People I Sponsor</div>
     <div style:overflow-y="auto"
 	 style:display="flex"
 	 style:flex-direction="column"
-	 style:height="90%" >
+	 style:max-height="40vh"
+	 style:margin="0 0 1em 0">
       {#each sponsorshipsList as nfid}
 	<ParticipantCell {nfid} icon="{imgBadge}" fill="fuchsia" pfpClick="{showProfile}" toggleStore="{unsponsorStore}"/>
       {/each}
@@ -161,27 +185,32 @@
   </div>
   <div class="unselectable inside"
        style:background-color="{tableBgColor}"
-       style:width="{viewportWidth - TABLE_MARGIN - (2*tableWidth+3*TABLE_MARGIN)}px"
-       style:top="90px"
-       style:left="{2*tableWidth+3*TABLE_MARGIN}px"
-       style:height="{2*tableHeight}px">
+       style:flex-grow="1"
+       style:flex-basis="50px"
+       style:margin="0 0.25em 0 0.25em"
+       >
     <div class="tableHeader">People Who Endorse Me</div>
     <div style:overflow-y="auto"
 	 style:display="flex"
 	 style:flex-direction="column"
-	 style:height="90%" >
+	 style:max-height="40vh"
+	 style:margin="0 0 1em 0">
       {#each endorsementsList as nfid}
 	<ParticipantCell {nfid} pfpClick="{showProfile}" icon="{imgHeart}"/>
       {/each}
     </div>
   </div>
+</div>
+
+<div 
+     style:margin="1em 0.5em 0.5em 0.5em">
   <div class="unselectable below"
        style:background-color="{tableBgColor}"
-       style:width="{viewportWidth - 2*TABLE_MARGIN}px"
-       style:top="{belowTablePosY}px"
-       style:height="{tableHeight-TABLE_MARGIN}px"
-       style:left="{TABLE_MARGIN}px">
-    <div class="tableHeader" style="display: flex; align-items: center;justify-content:space-between;">
+       >
+    <div class="tableHeader"
+	 style:display="flex"
+	 style:align-items="center"
+	 style:justify-content="space-between">
       <div style:margin="0 0 0 10px">
 	{everyoneListTitle}
 	{#if $mainParticipantsFilterTitle !== undefined}
@@ -222,7 +251,9 @@
 	 style:grid-template-columns="25% 25% 25% 25%"
 	 style:gap="0px"
 	 style:grid-auto-rows="min-content"
-	 style:height="80%">
+	 bind:this={everyoneDiv}
+     	 style:max-height="calc(100vh - {topOfEveryone}px - 1.5em)"
+	 style:margin="0 0 1.5em 0">
       {#each everyoneList as nfid}
 	<ParticipantCell {nfid} pfpClick="{showProfile}" showStatusIcons="true" unselbackground="#c0c0c0" />
       {/each}
@@ -237,11 +268,9 @@
     padding: 10px 0 10px 0;
   }
   .inside {
-    position: fixed;
     border-radius: 25px;
   }
   .below {
-    position: fixed;
     border-radius: 25px;
   }
   .unselectable {

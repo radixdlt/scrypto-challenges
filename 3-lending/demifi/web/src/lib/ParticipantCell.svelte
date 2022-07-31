@@ -76,7 +76,6 @@
       {:then p}
 	{#if p !== undefined}
 	<b>{p.userName.length<=30?p.userName:p.userName.substr(0,30)+'…'}</b>
-<!--	<b>{$allParticipants.get(nfid).userName.length<=30?$allParticipants.get(nfid).userName:$allParticipants.get(nfid).userName.substr(0,30)+'…'}</b>-->
         {/if}
       {/await}
     </div>
