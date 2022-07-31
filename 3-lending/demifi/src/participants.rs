@@ -123,6 +123,9 @@ blueprint! {
         /// The NFT resource address of this Participant catalog.
         nft_address: ResourceAddress,
 
+        /// NonFungibleIds are allocated from this counter.
+        nft_serial: u64,
+
         /// Our admin badge, used to manage the Participent NFTs.
         admin_badge: Vault,
 
@@ -181,6 +184,7 @@ blueprint! {
             let (nft, nfid) = Participants::create_participant(
                 &badge,
                 nft_address,
+                0,
                 root_participant_name.unwrap_or(
                     "Loan market creator".to_string()),
                 "".to_string(),
@@ -190,6 +194,7 @@ blueprint! {
             let participants =
                 Self {
                     nft_address,
+                    nft_serial: 0,
                     admin_badge: badge,
                     catalog_creator: nfid.clone(),
                 }
@@ -217,14 +222,16 @@ blueprint! {
         /// ```text
         #[doc = include_str!("../rtm/participants/new_participant.rtm")]
         /// ```
-        pub fn new_participant(&self,
+        pub fn new_participant(&mut self,
                                name: String,
                                url: String,
                                id_ref: String,
                                expect_sponsor: Option<NonFungibleId>) -> (Bucket, NonFungibleId)
         {
+            self.nft_serial += 1;
             Participants::create_participant(&self.admin_badge,
                                              self.nft_address,
+                                             self.nft_serial,
                                              name,
                                              url,
                                              id_ref,
@@ -525,6 +532,18 @@ blueprint! {
             self.nft_address
         }
 
+        /// Retrieves the last serial number used to create a
+        /// Participant NFT.
+        ///
+        /// ---
+        ///
+        /// **Access control:** Read only, allows anyone.
+        ///
+        /// **Transaction manifest:** TODO
+        pub fn read_participants_nft_serial(&self) -> u64 {
+            self.nft_serial
+        }
+
         /// Retrieves address of the catalog creator's Participant
         /// NFT.
         ///
@@ -548,12 +567,13 @@ blueprint! {
         /// Helper function to create a new Participant.
         fn create_participant(admin_badge: &Vault,
                               nft_address: ResourceAddress,
+                              nft_serial: u64,
                               name: String,
                               url: String,
                               id_ref: String,
                               expect_sponsor: Option<NonFungibleId>) -> (Bucket, NonFungibleId)
         {
-            let nfid: NonFungibleId = NonFungibleId::random();
+            let nfid: NonFungibleId = NonFungibleId::from_u64(nft_serial);
             let nft: Bucket = admin_badge.authorize(||
                 borrow_resource_manager!(nft_address)
                     .mint_non_fungible(
