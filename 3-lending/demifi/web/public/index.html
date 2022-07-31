@@ -67,10 +67,35 @@
     it's supported and it demonstrates the functionality.</p>
     <p><button id="pledgeLoan">Make a pledge</button></p>
     <pre id="pledgeOk"></pre></p>
+    <p>After doing this, if you run resim show on Alice's account you
+    will see that she's poorer, and if you run it on the LoanRequester
+    component address (see above) you will see that it now has some
+    funding.</p>
 
-    <h2>And then time ran out for the dev.</h2>
+    <h2>9. Alice converts her now full loan request into a loan</h2>
+    <p>That one pledge was all we asked for so let's pull out the
+    money and start up a Loan NFT.</p>
+    <p><button id="startLoan">Start the Loan!</button></p>
+    <p>Loan NFT id:<br><pre id="loanNfid"></pre></p>
 
-    <h2>Final error:</h2>
-    <p><pre id="errorReturn"></pre></p>
+    <h2>10. Alice pays installments on her loans</h2>
+    <p>Payback time is upon her. At 3000 per installment Alice has to
+    pay two of them.</p>
+    <p><button id="payInstallment">Pay up (do this twice)</button>
+    <pre id="payInstallmentStatus"></pre></p>
+    <p>After doing this, if you run resim show on Alice's account you
+    will see that she's poorer, and if you run it on the LoanAcceptor
+    component address (see above) you will see that it now has some
+    rewards in it.</p>
+
+    <h2>11. Alice claims her rewards (from herself)</h2>
+    <p>Payout time is upon her.</p>
+    <p><button id="claimRewards">Pay out</button>
+    <pre id="claimRewardsStatus"></pre></p>
+    <p>After doing this, if you run resim show on Alice's account you
+    will see that she has all her XRD back.</p>
+    
+<!--    <h2>Final error:</h2>
+    <p><pre id="errorReturn"></pre></p>-->
     </body>
 </html>

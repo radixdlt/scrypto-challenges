@@ -238,3 +238,85 @@ document.getElementById('pledgeLoan').onclick = async function () {
   }
 }
 
+
+document.getElementById('startLoan').onclick = async function () {
+
+  {
+    // Construct manifest
+    const manifest = new ManifestBuilder()
+      .withdrawFromAccountByIds(accountAddress, [ loanRequestNfid ], loanRequestNftAddress)
+      .takeFromWorktopByIds([ loanRequestNfid ], loanRequestNftAddress, 'loan_request')
+      .createProofFromAccountByIds(accountAddress, [ participantNfid ], participantsNftAddress)
+      .popFromAuthZone('participant_proof')
+      .callMethod(requestorComponentAddress, 'start_loan',
+         ['Proof("participant_proof")',
+	  'Bucket("loan_request")'])
+      .callMethodWithAllResources(accountAddress, 'deposit_batch')
+      .build()
+      .toString();
+  
+    // Send manifest to extension for signing
+    const receipt = await signTransaction(manifest);
+
+    // Update UI
+    if (receipt.status == 'Success') {
+      loanNfid = receipt.outputs[4].match(/"value":"NonFungibleId\(\\"(.*?)\\"/)[1];
+      document.getElementById('loanNfid').innerText = loanNfid;
+    } else {
+      document.getElementById('loanNfid').innerText = 'Error: ' + receipt.status;
+    }
+  }
+}
+
+document.getElementById('payInstallment').onclick = async function () {
+
+  {
+    // Construct manifest
+    const manifest = new ManifestBuilder()
+      .withdrawFromAccountByAmount(accountAddress, 5000, RADIX_TOKEN)
+      .takeFromWorktopByAmount(5000, RADIX_TOKEN, 'payment')
+      .callMethod(acceptorComponentAddress, 'pay_installment',
+         ['NonFungibleId("'+loanNfid+'")',
+	  'Bucket("payment")'])
+      .callMethodWithAllResources(accountAddress, 'deposit_batch')
+      .build()
+      .toString();
+  
+    // Send manifest to extension for signing
+    const receipt = await signTransaction(manifest);
+
+    // Update UI
+    if (receipt.status == 'Success') {
+      document.getElementById('payInstallmentStatus').innerText = document.getElementById('payInstallmentStatus').innerText + " Ok";
+    } else {
+      document.getElementById('payInstallmentStatus').innerText = 'Error: ' + receipt.status;
+    }
+  }
+}
+
+
+document.getElementById('claimRewards').onclick = async function () {
+
+  {
+    // Construct manifest
+    const manifest = new ManifestBuilder()
+      .createProofFromAccountByIds(accountAddress, [ participantNfid ], participantsNftAddress)
+      .popFromAuthZone('participant_proof')
+      .callMethod(acceptorComponentAddress, 'claim_lender_rewards',
+         ['Proof("participant_proof")'])
+      .callMethodWithAllResources(accountAddress, 'deposit_batch')
+      .build()
+      .toString();
+  
+    // Send manifest to extension for signing
+    const receipt = await signTransaction(manifest);
+
+//document.getElementById('errorReturn').innerText = 'Error: ' + JSON.stringify(receipt, null, 2);
+    // Update UI
+    if (receipt.status == 'Success') {
+      document.getElementById('claimRewardsStatus').innerText = 'Ok';
+    } else {
+      document.getElementById('claimRewardsStatus').innerText = 'Error: ' + receipt.status;
+    }
+  }
+}
