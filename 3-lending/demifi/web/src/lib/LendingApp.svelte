@@ -122,16 +122,16 @@
       <div style:margin="0 0 0 5px" style:font-size="12px"><NumericAddress address={$userNfid}/> </div>
     </div>
     <div style:display="flex"
-	 style:align-items="baseline"
-	 style:margin="0 0.5em 0 0">
+	 style:align-items="center"
+	 style:margin="0.5em 0.5em 0 0">
       {#if $participantsDirty}
 	<div transition:fade
 	     style:display="flex"
 	     style:align-items="center"
 	     style:align-content="center"
-	     style:margin="0 5px 0 0">
+	     style:margin="0 0.5em 0 0">
 	  <span class="unselectable"
-		style:align-self="flex-end"
+
 		style:margin="0 5px 0 0"
 		style:cursor="pointer"
 		on:click="{resetChanges}" >
