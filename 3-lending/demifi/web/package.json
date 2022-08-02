@@ -1,18 +1,33 @@
 {
+  "name": "DeMiFi",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "start": "snowpack dev --polyfill-node",
-    "build": "snowpack build --polyfill-node",
-    "test": "echo \"This template does not include a test runner by default.\" && exit 1",
-    "format": "prettier --write \"src/**/*.js\"",
-    "lint": "prettier --check \"src/**/*.js\""
-  },
-  "dependencies": {
-    "pte-browser-extension-sdk": "^0.1.22",
-    "pte-sdk": "^0.1.22",
-    "typescript": "^4.6.3"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
-    "prettier": "^2.2.1",
-    "snowpack": "^3.3.7"
+    "@sveltejs/vite-plugin-svelte": "^1.0.1",
+    "@tsconfig/svelte": "^3.0.0",
+    "rollup-plugin-string": "^3.0.0",
+    "svelte": "^3.49.0",
+    "svelte-check": "^2.8.0",
+    "svelte-icon": "^1.2.4",
+    "svelte-preprocess": "^4.10.7",
+    "tslib": "^2.4.0",
+    "typescript": "^4.6.4",
+    "vite": "^3.0.0"
+  },
+  "dependencies": {
+    "@sveltejs/svelte-scroller": "^2.0.7",
+    "npm": "^8.15.0",
+    "pte-browser-extension-sdk": "^0.1.22",
+    "pte-sdk": "^0.1.22",
+    "svelte-simple-modal": "^1.4.1",
+    "vercel": "^19.1.2",
+    "yarn": "^1.22.19"
   }
 }

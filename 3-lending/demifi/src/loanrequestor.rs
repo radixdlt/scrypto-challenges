@@ -194,10 +194,11 @@
 //! Participants catalog should get the job done --- but I don't know
 //! your business.)
 //!
-//! Each LoanRequestor instance needs to paired with one LoanAcceptor
-//! instance (see [crate::loanacceptor]). The requestor manages the
-//! loan request negotiation, and the acceptor converts the request
-//! into an actual loan and manages the repayment etc. of that loan.
+//! Each LoanRequestor instance needs to be paired with one
+//! LoanAcceptor instance (see [crate::loanacceptor]). The requestor
+//! manages the loan request negotiation, and the acceptor converts
+//! the request into an actual loan and manages the repayment etc. of
+//! that loan.
 //!
 //! # Load balancing
 //!
