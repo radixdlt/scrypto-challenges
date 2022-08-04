@@ -1,0 +1,3 @@
+CALL_METHOD ComponentAddress("${ORACLE}") "set_price" ResourceAddress("030000000000000000000000000000000000000000000000000004") Decimal("1");
+CALL_METHOD ComponentAddress("${ORACLE}") "set_price" ResourceAddress("${USD}") Decimal("1");
+CALL_METHOD ComponentAddress("${ORACLE}") "set_price" ResourceAddress("${DOGE}") Decimal("1");
