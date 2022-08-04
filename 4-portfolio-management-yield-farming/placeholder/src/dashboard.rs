@@ -1,4 +1,5 @@
 use scrypto::prelude::*;
+use radex::radex::*;
 use crate::structs::*;
 use crate::fundlockers::*;
 use crate::price_oracle::*;
@@ -10,6 +11,7 @@ blueprint! {
         asset_manager_address: ResourceAddress,
         fund_lockers: HashMap<String, ComponentAddress>,
         price_oracle_address: ComponentAddress,
+        radex_address: ComponentAddress,
     }
 
     impl MainDashboard {
@@ -40,6 +42,7 @@ blueprint! {
                 asset_manager_address: asset_manager_address,
                 fund_lockers: HashMap::new(),
                 price_oracle_address: PriceOracle::new(),
+                radex_address: RaDEX::new(),
             }
             .instantiate()
             .globalize()
@@ -83,14 +86,17 @@ blueprint! {
 
             let fund_ticker2 = fund_ticker.clone();
 
-            let price_oracle_address: ComponentAddress = self.price_oracle_address.into();
+            let price_oracle_address: ComponentAddress = self.price_oracle_address;
+            let radex_address: ComponentAddress = self.radex_address;
 
             let fund_locker: ComponentAddress = FundLocker::new(
                 fund_name, 
                 fund_ticker, 
                 starting_share_price, 
                 tokens,
-                price_oracle_address);
+                price_oracle_address,
+                radex_address
+            );
 
             self.fund_lockers.insert(fund_ticker2, fund_locker);
         }

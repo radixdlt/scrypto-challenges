@@ -1,4 +1,5 @@
 use scrypto::prelude::*;
+use radex::radex::*;
 use crate::price_oracle::*;
 
 blueprint! {
@@ -9,6 +10,7 @@ blueprint! {
         fund_token_address: ResourceAddress,
         starting_share_price: Decimal,
         price_oracle_address: ComponentAddress,
+        radex_address: ComponentAddress,
     }
 
     impl FundLocker {
@@ -19,6 +21,7 @@ blueprint! {
             starting_share_price: Decimal,
             tokens: HashMap<ResourceAddress, Decimal>,
             price_oracle_address: ComponentAddress,
+            radex_address: ComponentAddress,
         ) -> ComponentAddress 
         {
 
@@ -54,6 +57,7 @@ blueprint! {
                 fund_token_address: fund_token_address,
                 starting_share_price: starting_share_price,
                 price_oracle_address: price_oracle_address,
+                radex_address: radex_address,
             }
             .instantiate()
             .globalize()
