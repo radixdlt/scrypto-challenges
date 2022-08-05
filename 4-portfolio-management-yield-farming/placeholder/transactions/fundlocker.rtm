@@ -5,8 +5,7 @@ CALL_FUNCTION
     "Scrooples Index"
     "SCRP"
     Decimal("1.00")
-    HashMap<ResourceAddress, Decimal>(ResourceAddress("030000000000000000000000000000000000000000000000000004"), Decimal(".33"), 
+    HashMap<ResourceAddress, Decimal>(ResourceAddress("${XRD}"), Decimal("0.33"), 
     ResourceAddress("${USD}"), Decimal("0.33"), 
     ResourceAddress("${DOGE}"), Decimal("0.33"))
-    ComponentAddress("${ORACLE}")
-    ComponentAddress("${RADEX}");
+    ComponentAddress("${ORACLE}");

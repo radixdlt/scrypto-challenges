@@ -33,7 +33,7 @@ blueprint! {
                 .initial_supply(1);
 
             let fund_token_address = ResourceBuilder::new_fungible()
-                .divisibility(DIVISIBILITY_MAXIMUM)
+                .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", format!("{} Tokens", fund_name))
                 .metadata("symbol", format!("{}", fund_ticker))
                 .metadata("description", "Tokens that represent ownerhip of the fund.")
@@ -63,41 +63,34 @@ blueprint! {
             .globalize()
         }
 
-        pub fn buy(
-            &mut self,
-            xrd: Bucket
-        )  -> Bucket
-        {
-            assert_eq!(xrd.resource_address(), RADIX_TOKEN,
-                "[Fund Locker]: You can only purchase Fund Tokens with XRD."
-            );
+        // pub fn buy(
+        //     &mut self,
+        //     token: Bucket
+        // )  
+        // {
 
-            let token_address: ResourceAddress = xrd.resource_address();
+        //     let token_address = token.resource_address();
 
-            let output_token: ResourceAddress = self.fund_token_address; 
-            let radex: RaDEX = self.radex_address.into();
-            let return_bucket: Bucket = radex.swap(xrd, output_token);
+        //     // let output_token = self.fundcoins_address; 
+        //     // let radex = self.radex.into();
+        //     // let return_bucket = radex.swap(token, output_token);
 
-            return_bucket
-        }
+        //     // return_bucket
+        // }
 
-        pub fn sell(
-            &mut self,
-            fund_token: Bucket
-        ) -> Bucket
-        {
-            assert_eq!(fund_token.resource_address(), self.fund_token_address,
-                "[Fund Locker]: You can only sell Fund Tokens."
-            );
+        // pub fn sell(
+        //     &mut self,
+        //     token: Bucket
+        // )
+        // {
+        //     let token_address = token.resource_address();
 
-            let token_address = fund_token.resource_address();
+        //     let output_token = RADIX_TOKEN;
+        //     // let radex = self.radex.into();
+        //     // let return_bucket = radex.swap(token, output_token);
 
-            let output_token = RADIX_TOKEN;
-            let radex: RaDEX = self.radex_address.into();
-            let return_bucket: Bucket = radex.swap(fund_token, output_token);
-
-            return_bucket   
-        }
+        //     // return_bucket   
+        // }
 
         pub fn issue_tokens(
             &mut self,
@@ -106,30 +99,12 @@ blueprint! {
         {
             // Retrieves how many bucket of tokens are being passed.
             let number_of_tokens = tokens.len();
-
-            let mut cumulative_token_amount: Decimal = Decimal::zero();
-            let mut cumulative_value: Decimal = Decimal::zero();
-
-            let tokens_iter = tokens.iter();
-
-            let price_oracle: PriceOracle = self.price_oracle_address.into();
-
-            for bucket in tokens_iter {
-                let token_amount: Decimal = bucket.amount();
-                let price: Decimal = price_oracle.get_price(bucket.resource_address());
-                let token_value: Decimal = token_amount * price; 
-                cumulative_token_amount += token_amount;
-                cumulative_value += token_value;
-            }
-
-            info!("Amount of tokens: {:?}", cumulative_token_amount);
-            info!("Value of tokens: {:?}", cumulative_value);
-            
-
+            let mut counter = 0;
             let mut amount_to_mint: Decimal = Decimal::zero();
 
-            let mut counter = 0;
-            while counter < number_of_tokens {
+            info!("# of tokens: {:?}", number_of_tokens);
+
+            while counter <= number_of_tokens {
                 // Retrieves each bucket of tokens.
                 let token_buckets: Option<Bucket> = tokens.pop();
 
@@ -146,25 +121,27 @@ blueprint! {
                         // Retrieves amount of each token.
                         let token_amount: Decimal = token.amount();
 
-                        // * VALUES THE TOKEN RECEIVED * //
+                        // * VALUES THE TOKEN RECEIVED * //.
                         let price_oracle: PriceOracle = self.price_oracle_address.into();
                         let price: Decimal = price_oracle.get_price(token_address);
+
                         let token_value: Decimal = token_amount * price;
 
                         // * MINTS FUND TOKENS * //
                         let token_weight: Decimal = *self.token_weights.get(&token_address).unwrap();
                         let fund_tokens_to_mint: Decimal = token_value * token_weight;
 
-                        amount_to_mint += fund_tokens_to_mint;
-
                         assert_eq!(self.fund_vaults.contains_key(&token_address), true,
                             "[Fund Locker]: This token does not belong to this fund."
                         );
 
-                        let fund_vault: &mut Vault = self.fund_vaults.get_mut(&token_address).unwrap();
+                        let fund_vault = self.fund_vaults.get_mut(&token_address).unwrap();
+
+                        amount_to_mint += fund_tokens_to_mint;
 
                         fund_vault.put(token);
 
+                        counter += 1;
                     }
                     None => {
                         
@@ -172,21 +149,19 @@ blueprint! {
 
                     }
                 }
-
-                counter += 1;
+                
 
                 info!("[Fund Locker]: Fund tokens issues: {:?}", amount_to_mint);
+                info!("[Fund Locker]: Counter {:?}", counter);
 
                 }
+                info!("[Fund Locker]: Counter {:?}", counter);
 
             if counter == number_of_tokens {
                 let fund_token = self.fund_admin_vault.authorize(|| 
                     borrow_resource_manager!(self.fund_token_address).mint(amount_to_mint)
                 );
-
-                let price_oracle: PriceOracle = self.price_oracle_address.into();
-                price_oracle.set_price(self.fund_token_address, Decimal::one());
-
+                
                 info!("[Fund Locker]: Amount of Fund Tokens issued: {:?}", amount_to_mint);
 
                 fund_token
@@ -195,54 +170,6 @@ blueprint! {
 
                 empty_bucket
             }
-
-        }
-
-        pub fn redeem(
-            &mut self,
-            fund_token: Bucket,
-        ) -> Vec<Bucket>
-        {
-            assert_eq!(fund_token.resource_address(), self.fund_token_address,
-                "[Fund Locker]: You may only redeem fund tokens that belongs to this index."
-            );
-
-            let token_amount: Decimal = fund_token.amount();
-
-            let price_oracle: PriceOracle = self.price_oracle_address.into();
-            let token_price: Decimal = price_oracle.get_price(fund_token.resource_address());
-
-            let token_value: Decimal = token_price * token_amount;
-
-            let number_of_tokens: usize = self.token_weights.len();
-
-            let mut token_addresses = self.fund_vaults.keys().cloned().collect::<Vec<ResourceAddress>>();
-            let mut counter = 0;
-
-            let mut return_collateral: Vec<Bucket> = Vec::new();
-
-            while counter <= number_of_tokens {
-                let collateral_token: Option<ResourceAddress> = token_addresses.pop();
-                match collateral_token {
-                    Some(token) => {
-                        let collateral_weight: Decimal = *self.token_weights.get(&token).unwrap();
-                        let collateral_price = price_oracle.get_price(token);
-                        let collateral_value = collateral_price * collateral_weight;
-                        let collateral_amount = token_value * collateral_value;
-
-                        let collateral_bucket: Bucket = self.fund_vaults.get_mut(&token).unwrap().take(collateral_amount);
-                        return_collateral.push(collateral_bucket);
-
-                        counter += 1;
-                        info!("[Redeem]: {:?} of {:?}", token, collateral_amount);
-                        info!("[Redeem]: Counter: {:?}", counter);
-                    }
-                    None => {}
-                }
-            }
-            let bucket_amount = return_collateral.len();
-            info!("[Redeem]: Bucket: {:?}", bucket_amount);
-            return_collateral
 
         }
 
@@ -308,16 +235,14 @@ blueprint! {
 
         pub fn swap(
             &mut self,
-            collateral_address: ResourceAddress,
+            token_address: ResourceAddress,
             amount: Decimal,
             output_token: ResourceAddress,
         ) -> Bucket
         {
-            let input_bucket: Bucket = self.withdraw(collateral_address, amount);
-            let radex: RaDEX = self.radex_address.into();
-            let return_bucket = radex.swap(input_bucket, output_token);
+            let bucket: Bucket = self.withdraw(token_address, amount);
 
-            return_bucket
+            bucket
         }
     }
 }
