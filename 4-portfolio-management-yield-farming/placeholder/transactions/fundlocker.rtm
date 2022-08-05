@@ -8,4 +8,5 @@ CALL_FUNCTION
     HashMap<ResourceAddress, Decimal>(ResourceAddress("${XRD}"), Decimal("0.33"), 
     ResourceAddress("${USD}"), Decimal("0.33"), 
     ResourceAddress("${DOGE}"), Decimal("0.33"))
-    ComponentAddress("${ORACLE}");
+    ComponentAddress("${ORACLE}")
+    ComponentAddress("${RADEX}");

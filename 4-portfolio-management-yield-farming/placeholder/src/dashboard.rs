@@ -1,7 +1,7 @@
 use scrypto::prelude::*;
 use radex::radex::*;
 use crate::structs::*;
-use crate::fundlockers::*;
+use crate::index_fund::*;
 use crate::price_oracle::*;
 
 blueprint! {
@@ -59,13 +59,12 @@ blueprint! {
                     // The User id
                     &NonFungibleId::random(),
                     // The User data
-                    AssetManager {
-                        funds: BTreeSet::new(),
+                    User {
+                        funds_managed: HashMap::new(),
+                        funds_invested: HashMap::new(),
                     },
                 )
             });
-
-
 
             info!("[Maple Finance]: The resource address of your Asset Manager badge is: {:?}", am_badge.resource_address());
 
@@ -74,9 +73,13 @@ blueprint! {
 
         pub fn create_fund(
             &mut self,
+            fund_type: FundType,
             fund_name: String,
             fund_ticker: String,
             starting_share_price: Decimal,
+            leverage: bool,
+            liquidity_provider: bool,
+            governance: bool,
             tokens: HashMap<ResourceAddress, Decimal>,
         )
         {
@@ -89,10 +92,13 @@ blueprint! {
             let price_oracle_address: ComponentAddress = self.price_oracle_address;
             let radex_address: ComponentAddress = self.radex_address;
 
-            let fund_locker: ComponentAddress = FundLocker::new(
+            let fund_locker: ComponentAddress = IndexFund::new(
                 fund_name, 
                 fund_ticker, 
-                starting_share_price, 
+                starting_share_price,
+                leverage, 
+                liquidity_provider,
+                governance,
                 tokens,
                 price_oracle_address,
                 radex_address
@@ -114,7 +120,7 @@ blueprint! {
 
             let fund_locker_address = *self.fund_lockers.get_mut(&fund_ticker).unwrap();
 
-            let fund_locker: FundLocker = fund_locker_address.into();
+            let fund_locker: IndexFund = fund_locker_address.into();
 
             fund_locker.issue_tokens(tokens);
 

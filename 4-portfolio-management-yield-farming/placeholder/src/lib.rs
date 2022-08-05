@@ -1,4 +1,4 @@
 mod dashboard;
-mod fundlockers;
+mod index_fund;
 mod structs;
 mod price_oracle;
