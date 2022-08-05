@@ -2,6 +2,7 @@ OP1=$(resim new-account)
 export PRIV_KEY1=$(echo "$OP1" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
 export PUB_KEY1=$(echo "$OP1" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
 export ACC_ADDRESS1=$(echo "$OP1" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
 
 M_OP=$(resim run "./transactions/mint_tokens.rtm")
 export USD=$(echo "$M_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
@@ -12,10 +13,12 @@ PK_OP=$(resim publish ".")
 export PACKAGE=$(echo "$PK_OP" | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
 PO_OP=$(resim run "./transactions/price_oracle.rtm")
 export ORACLE=$(echo "$PO_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+R_OP=$(resim run "./transactions/radex.rtm")
+export RADEX=$(echo "$R_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
 CP_OP=$(resim run "./transactions/fundlocker.rtm")
 export COMPONENT=$(echo "$CP_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
 
-
+resim run ./transactions/fundlocker.rtm
 resim run ./transactions/set_price.rtm
 
 resim run ./transactions/issue_tokens.rtm

@@ -48,28 +48,35 @@ blueprint! {
             .globalize()
         }
 
-        pub fn create_am_badge(
-            &mut self
+        pub fn create_badge(
+            &mut self,
+            user_type: UserType,
         ) -> Bucket
         {
+            match user_type {
+                UserType::AssetManager => {
 
-            let am_badge = self.admin_vault.authorize(|| {
-                let resource_manager: &ResourceManager = borrow_resource_manager!(self.asset_manager_address);
-                resource_manager.mint_non_fungible(
-                    // The User id
-                    &NonFungibleId::random(),
-                    // The User data
-                    AssetManager {
-                        funds: BTreeSet::new(),
-                    },
-                )
-            });
+                    let am_badge = self.admin_vault.authorize(|| {
+                        let resource_manager: &ResourceManager = borrow_resource_manager!(self.asset_manager_address);
+                        resource_manager.mint_non_fungible(
+                            // The User id
+                            &NonFungibleId::random(),
+                            // The User data
+                            AssetManager {
+                                funds: HashMap::new(),
+                            },
+                        )
+                    });
 
+                    info!("[Maple Finance]: The resource address of your Asset Manager badge is: {:?}", am_badge.resource_address());
 
-
-            info!("[Maple Finance]: The resource address of your Asset Manager badge is: {:?}", am_badge.resource_address());
-
-            am_badge
+                    am_badge
+                }
+                UserType::Investor => {
+                    let empty_bucket = self.admin_vault.take(0);
+                    empty_bucket
+                }
+            }
         }
 
         pub fn create_fund(
@@ -118,6 +125,19 @@ blueprint! {
 
             fund_locker.issue_tokens(tokens);
 
+        }
+
+        pub fn view_funds(
+            &self,
+        ) -> HashMap<String, ComponentAddress>
+        {
+            let fund_lockers = self.fund_lockers.iter();
+            let mut retrieve_fund_lockers: HashMap<String, ComponentAddress> = HashMap::new();
+            for (fund_ticker, fund_locker) in fund_lockers {
+                retrieve_fund_lockers.insert(fund_ticker.clone(), *fund_locker);
+            } 
+
+            retrieve_fund_lockers
         }
 
     }

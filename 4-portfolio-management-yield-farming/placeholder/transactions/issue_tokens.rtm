@@ -1,15 +1,15 @@
-CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "withdraw_by_amount" Decimal("10") ResourceAddress("${XRD}");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "withdraw_by_amount" Decimal("10") ResourceAddress("030000000000000000000000000000000000000000000000000004");
 CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "withdraw_by_amount" Decimal("10") ResourceAddress("${USD}");
 CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "withdraw_by_amount" Decimal("10") ResourceAddress("${DOGE}");
 
-TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("10") ResourceAddress("${XRD}") Bucket("bucket1");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("10") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("bucket1");
 TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("10") ResourceAddress("${USD}") Bucket("bucket2");
 TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("10") ResourceAddress("${DOGE}") Bucket("bucket3");
 
 
 CALL_METHOD
-    ComponentAddress("${COMPONENT}")
-    "issue_tokens"
-    Vec<Bucket>(Bucket("bucket1"), Bucket("bucket2"), Bucket("bucket3"));
+ComponentAddress("${COMPONENT}")
+"issue_tokens"
+Vec<Bucket>(Bucket("bucket1"), Bucket("bucket2"), Bucket("bucket3"));
 
 CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS1}") "deposit_batch";
