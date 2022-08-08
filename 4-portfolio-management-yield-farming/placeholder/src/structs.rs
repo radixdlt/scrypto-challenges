@@ -12,14 +12,6 @@ pub enum FundType {
     DebtFund,
 }
 
-#[derive(Debug, Describe, Encode, Decode, TypeId, PartialEq, Eq, Hash)]
-pub struct Modules { 
-    pub leverage: bool, 
-    pub liquidity_provider: bool, 
-    pub governance: bool
-}
-
-
 /// This is an NFT that represents the loan terms. We can consider this NFT as loan documents and hopefully in the future can
 /// be represented as legal documents or a digital representation of a legal document. This NFT is given to the borrower.
 /// For now its purpose is to simply tract the health factor of the loan. If the loan is in bad health, liquidators can
@@ -101,22 +93,24 @@ pub enum RequestStatus {
 
 #[derive(TypeId, Encode, Decode, Describe, Debug, PartialEq)]
 pub enum Badges {
-    PoolDelegate,
+    FundManager,
     Investor,
     Borrower,
     TemporaryBadge,
 }
 
 pub enum BadgeContainer {
-    PoolDelegateContainer(PoolDelegate),
+    FundManagerContainer(FundManager),
     InvestorContainer(Investor),
     BorrowerContainer(Borrower),
     TemporaryBadgeContainer(TemporaryBadge),
 }
 
 #[derive(NonFungibleData, Debug, Describe, Encode, Decode, TypeId, PartialEq)]
-pub struct PoolDelegate {
+pub struct FundManager {
     pub name: String,
+    pub managed_index_funds: HashMap<(String, String), ComponentAddress>,
+    pub managed_debt_funds: HashMap<NonFungibleId, ComponentAddress>,
 }
 
 #[derive(NonFungibleData, Debug, Describe, Encode, Decode, TypeId, PartialEq)]
@@ -141,7 +135,7 @@ pub struct TemporaryBadge {
 
 #[derive(Debug, Describe, Encode, Decode, TypeId, PartialEq)]
 pub enum UserType {
-    PoolDelegate,
+    FundManager,
     Borrower,
 }
 

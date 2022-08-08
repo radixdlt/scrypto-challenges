@@ -4,15 +4,17 @@ use crate::fundinglocker::*;
 use crate::lending_pool::*;
 use crate::maple_finance_global::*;
 use crate::structs::*;
+use crate::utils::*;
 
-// Allows approved Pool Delegate to manage pools.
+// Allows approved Fund Manager to manage pools.
 
 blueprint! {
-    struct PoolDelegateDashboard {
+    struct FundManagerDashboard {
+        fund_manager_address: ResourceAddress,
+        fund_manager_id: NonFungibleId,
+        fund_manager_admin_vault: Vault,
         lending_pools: HashMap<(String, ResourceAddress), ComponentAddress>,
         funding_lockers: HashMap<NonFungibleId, ComponentAddress>,
-        fund_admin_address: ResourceAddress,
-        fund_admin_id: NonFungibleId,
         loan_request_nft_admin: Vault,
         loan_nft_admin: Vault,
         loan_nft_address: ResourceAddress,
@@ -21,28 +23,29 @@ blueprint! {
         maple_finance_global_address: ComponentAddress,
     }
 
-    impl PoolDelegateDashboard {
+    impl FundManagerDashboard {
 
         pub fn new(
+            fund_manager_admin: Bucket,
             maple_finance_global_address: ComponentAddress,
-            fund_admin_address: ResourceAddress,
-            fund_admin_id: NonFungibleId,
+            fund_manager_address: ResourceAddress,
+            fund_manager_id: NonFungibleId,
             loan_request_nft_admin: Bucket,
             price_oracle_address: ComponentAddress,
         ) -> ComponentAddress
         {
             let fund_master_admin = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
-                .metadata("name", "Pool Delegate Master Admin Badge")
+                .metadata("name", "Fund Manager Master Admin Badge")
                 .metadata("symbol", "PDMAB")
-                .metadata("description", "Allows Pool Delegates to mint/burn loan NFTs.")
+                .metadata("description", "Allows Fund Managers to mint/burn loan NFTs.")
                 .initial_supply(1);
 
             let loan_nft_admin = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Loan NFT Admin Badge")
                 .metadata("symbol", "LNFTAB")
-                .metadata("description", "Allows Pool Delegates to mint/burn loan NFTs.")
+                .metadata("description", "Allows Fund Managers to mint/burn loan NFTs.")
                 .mintable(rule!(require(fund_master_admin.resource_address())), LOCKED)
                 .burnable(rule!(require(fund_master_admin.resource_address())), LOCKED)
                 .initial_supply(1);
@@ -57,10 +60,11 @@ blueprint! {
                 .no_initial_supply();
 
             return Self {
+                fund_manager_admin_vault: Vault::with_bucket(fund_manager_admin),
                 lending_pools: HashMap::new(),
                 funding_lockers: HashMap::new(),
-                fund_admin_address: fund_admin_address,
-                fund_admin_id: fund_admin_id,
+                fund_manager_address: fund_manager_address,
+                fund_manager_id: fund_manager_id,
                 loan_request_nft_admin: Vault::with_bucket(loan_request_nft_admin),
                 loan_nft_admin: Vault::with_bucket(loan_nft_admin),
                 loan_nft_address: loan_nft_address,
@@ -125,12 +129,12 @@ blueprint! {
             //
             let token_address = initial_funds.resource_address();
 
-            let fund_admin_id: NonFungibleId = fund_admin_admin_badge.non_fungible::<PoolDelegate>().id();
+            let fund_manager_id: NonFungibleId = fund_admin_admin_badge.non_fungible::<FundManager>().id();
 
             // Instantiates the lending pool and collateral pool.
             let (lending_pool, tracking_tokens): (ComponentAddress, Bucket) = LendingPool::new(
                 fund_admin_admin_badge.resource_address(), 
-                fund_admin_id, 
+                fund_manager_id, 
                 initial_funds
             );
 
@@ -166,12 +170,12 @@ blueprint! {
             origination_fee: Decimal,
         ) 
         {
-            assert_eq!(fund_admin_admin_badge.resource_address(), self.fund_admin_address,
-                "[Pool Delegate Dashboard]: This badge does not belong to this protocol."
+            assert_eq!(fund_admin_admin_badge.resource_address(), self.fund_manager_address,
+                "[Fund Manager Dashboard]: This badge does not belong to this protocol."
             );
 
-            assert_eq!(fund_admin_admin_badge.non_fungible::<PoolDelegate>().id(), self.fund_admin_id,
-                "[Pool Delegate Dashboard]: Incorrect Pool Delegate."
+            assert_eq!(fund_admin_admin_badge.non_fungible::<FundManager>().id(), self.fund_manager_id,
+                "[Fund Manager Dashboard]: Incorrect Fund Manager."
             );
 
             let origination_fee_charged = loan_amount * origination_fee;
@@ -186,8 +190,8 @@ blueprint! {
                     // The User data
                     Loan {
                         borrower_id: borrower_id,
-                        lender_id: self.fund_admin_id.clone(),
-                        lender_address: self.fund_admin_address,
+                        lender_id: self.fund_manager_id.clone(),
+                        lender_address: self.fund_manager_address,
                         principal_loan_amount: loan_amount,
                         asset: asset_address,
                         collateral: collateral_address,
@@ -248,12 +252,12 @@ blueprint! {
         // {
         //     assert_eq!(
         //         fund_admin_badge.resource_address(), self.fund_admin_admin_address,
-        //         "[Pool Delegate Dashboard: Incorrect Proof passed."
+        //         "[Fund Manager Dashboard: Incorrect Proof passed."
         //     );
 
         //     assert_eq!(
-        //         fund_admin_badge.non_fungible::<PoolDelegate>().id(), self.fund_admin_id,
-        //         "[Pool Delegate Dashboard: Incorrect Proof passed."
+        //         fund_admin_badge.non_fungible::<FundManager>().id(), self.fund_manager_id,
+        //         "[Fund Manager Dashboard: Incorrect Proof passed."
         //     );
 
         //     let optional_lending_pool: Option<&ComponentAddress> = self.lending_pools.get(&token_requested);
@@ -279,40 +283,70 @@ blueprint! {
             fund_admin_badge: Proof,
             fund_type: FundType,
             fund_name: String,
+            fee_to_pool: Decimal,
             fund_ticker: String,
             starting_share_price: Decimal,
             tokens: HashMap<ResourceAddress, Decimal>,
-        )
+        ) -> Bucket
         {
             let maple_finance: MapleFinance = self.maple_finance_global_address.into();
 
-            assert_eq!(fund_admin_badge.resource_address(), self.fund_admin_address,
-                "[Pool Delegate Dashboard]: This badge does not belong to this protocol."
+            assert_eq!(fund_admin_badge.resource_address(), self.fund_manager_address,
+                "[Fund Manager Dashboard]: This badge does not belong to this protocol."
             );
 
-            assert_eq!(fund_admin_badge.non_fungible::<PoolDelegate>().id(), self.fund_admin_id,
-                "[Pool Delegate Dashboard]: Incorrect Pool Delegate."
+            assert_eq!(fund_admin_badge.non_fungible::<FundManager>().id(), self.fund_manager_id,
+                "[Fund Manager Dashboard]: Incorrect Fund Manager."
             );
 
-            assert_ne!(maple_finance.retrieve_index_fund(fund_ticker), true, 
-                "The ticker for this fund already exist. Please choose another."
+            assert_ne!(maple_finance.assert_index_fund(fund_name.clone()), true, 
+                "[Fund Manager Dashboard]: The name or ticker for this fund already exist. Please choose another."
             );
 
-            let fund_ticker2 = fund_ticker.clone();
+            let (fund_name, fund_ticker): (String, String) = sort_string(fund_name.clone(), fund_ticker);
+            let fund_id: (String, String) = (fund_name.clone(), fund_ticker.clone());
 
             let price_oracle_address: ComponentAddress = self.price_oracle_address;
 
-            let fund_master_admin_address = self.fund_master_admin.resource_address();
-            let fund_locker: ComponentAddress = IndexFund::new(
-                fund_master_admin_address,
-                fund_name, 
-                fund_ticker, 
+            let (index_fund, fund_admin): (ComponentAddress, Bucket) = IndexFund::new(
+                fund_name.clone(), 
+                fund_ticker.clone(),
+                fee_to_pool, 
                 starting_share_price,
                 tokens,
                 price_oracle_address,
             );
 
-            maple_finance.insert_index_fund(fund_ticker2, fund_locker);
+            let fund_manager_data: FundManager = self.get_resource_manager();
+            let mut managed_index_funds = fund_manager_data.managed_index_funds;
+            managed_index_funds.insert(fund_id.clone(), index_fund);
+            self.authorize_update(fund_manager_data);
+
+            maple_finance.insert_index_fund_name(fund_name.clone(), fund_ticker.clone());
+            maple_finance.insert_index_fund(fund_id, index_fund);
+
+            fund_admin
+        }
+
+        fn get_resource_manager(
+            &self,
+        ) -> FundManager
+        {
+            let resource_manager = borrow_resource_manager!(self.fund_manager_address);
+            let fund_manager_data: FundManager = resource_manager.get_non_fungible_data(&self.fund_manager_id);
+
+            fund_manager_data 
+        }
+
+        fn authorize_update(
+            &self,
+            fund_manager_data: FundManager
+        )
+        {
+            let resource_manager = borrow_resource_manager!(self.fund_manager_address);
+            self.fund_manager_admin_vault.authorize(|| 
+                resource_manager.update_non_fungible_data(&self.fund_manager_id, fund_manager_data)
+            );
         }
     }
 }

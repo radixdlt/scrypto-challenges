@@ -11,11 +11,13 @@ blueprint! {
         loan_request_nft_address: ResourceAddress,
         loan_requests: Vault,
         funding_lockers: HashMap<NonFungibleId, ComponentAddress>,
+        maple_finance_global_address: ComponentAddress,
     }
 
     impl BorrowerDashboard {
 
         pub fn new(
+            maple_finance_global_address: ComponentAddress,
             borrower_admin_address: ResourceAddress,
             borrower_id: NonFungibleId,
             loan_request_nft_admin: Bucket) -> ComponentAddress
@@ -37,6 +39,7 @@ blueprint! {
                 loan_request_nft_address: loan_request_nft_address,
                 loan_requests: Vault::new(loan_request_nft_address),
                 funding_lockers: HashMap::new(),
+                maple_finance_global_address: maple_finance_global_address,
             }
             .instantiate()
             .globalize();

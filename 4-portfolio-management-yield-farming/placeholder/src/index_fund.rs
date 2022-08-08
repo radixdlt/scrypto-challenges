@@ -5,12 +5,13 @@ use crate::price_oracle::*;
 
 blueprint! {
     struct IndexFund {
-        fund_master_admin_address: ResourceAddress,
+        fund_admin_address: ResourceAddress,
         fund_name: String,
         fund_ticker: String,
         fund_vaults: HashMap<ResourceAddress, Vault>,
         token_weights: HashMap<ResourceAddress, Decimal>,
-        fund_admin_vault: Vault,
+        // Mints fund tokens
+        fund_token_admin_vault: Vault,
         fund_token_address: ResourceAddress,
         starting_share_price: Decimal,
         price_oracle_address: ComponentAddress,
@@ -19,25 +20,43 @@ blueprint! {
         degenfi_vaults: HashMap<ResourceAddress, Vault>,
         borrow_vaults: HashMap<ResourceAddress, Vault>,
         loan_vault: Option<Vault>,
+        fee_to_pool: Decimal,
         fee_vault: Vault,
     }
 
     impl IndexFund {
         
         pub fn new(
-            fund_master_admin_address: ResourceAddress,
             fund_name: String,
             fund_ticker: String,
+            fee_to_pool: Decimal,
             starting_share_price: Decimal,
             tokens: HashMap<ResourceAddress, Decimal>,
             price_oracle_address: ComponentAddress,
-        ) -> ComponentAddress 
+        ) -> (ComponentAddress, Bucket)
         {
-            let fund_admin = ResourceBuilder::new_fungible()
+            assert!(
+                (fee_to_pool >= Decimal::zero()) & (fee_to_pool <= dec!("100")), 
+                "[Fund Creation]: Fee must be between 0 and 100"
+            );
+
+            assert!(
+                starting_share_price > Decimal::zero(), 
+                "[Fund Creation]: Starting share price must be greater than zero"
+            );
+
+            let fund_admin: Bucket = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", format!("{} Admin Badge", fund_name))
+                .metadata("symbol", "FO")
+                .metadata("description", "Badge that represents admin authority of the fund.")
+                .initial_supply(1);
+            
+            let fund_token_admin: Bucket = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_NONE)
+                .metadata("name", format!("{} Token Admin Badge", fund_name))
                 .metadata("symbol", "FAB")
-                .metadata("description", "Component Admin authority")
+                .metadata("description", format!("Admin badge to mint/burn {} tokens", fund_ticker))
                 .initial_supply(1);
 
             let fund_token_address = ResourceBuilder::new_fungible()
@@ -45,8 +64,8 @@ blueprint! {
                 .metadata("name", format!("{} Tokens", fund_name))
                 .metadata("symbol", format!("{}", fund_ticker))
                 .metadata("description", "Tokens that represent ownerhip of the fund.")
-                .mintable(rule!(require(fund_admin.resource_address())), LOCKED)
-                .burnable(rule!(require(fund_admin.resource_address())), LOCKED)
+                .mintable(rule!(require(fund_token_admin.resource_address())), LOCKED)
+                .burnable(rule!(require(fund_token_admin.resource_address())), LOCKED)
                 .no_initial_supply();
             
             let vault_amount = tokens.iter();
@@ -55,24 +74,27 @@ blueprint! {
 
             let mut cumulative_token_weight: Decimal = Decimal::zero();
             for (token_address, token_weight) in vault_amount {
+                assert_ne!(
+                    borrow_resource_manager!(*token_address).resource_type(), ResourceType::NonFungible,
+                    "[Fund Creation]: Assets must be fungible."
+                );
                 cumulative_token_weight += *token_weight;
                 fund_vaults.insert(*token_address, Vault::new(*token_address));
                 token_weights.insert(*token_address, *token_weight);
             };
 
             assert_eq!(cumulative_token_weight, Decimal::one(), 
-                "[{:?} Fund]: The total weighting of collections of tokens must equal to 100%.",
-                fund_name
+                "[Fund Creation]: The total weighting of collections of tokens must equal to 100%.",
             );
 
-            return Self {
-                fund_master_admin_address: fund_master_admin_address,
+            let index_fund: ComponentAddress = Self {
+                fund_admin_address: fund_admin.resource_address(),
                 fund_name: fund_name,
                 fund_ticker: fund_ticker.clone(),
                 fund_vaults: fund_vaults,
                 starting_share_price: starting_share_price,
                 token_weights: token_weights,
-                fund_admin_vault: Vault::with_bucket(fund_admin),
+                fund_token_admin_vault: Vault::with_bucket(fund_token_admin),
                 fund_token_address: fund_token_address,
                 price_oracle_address: price_oracle_address,
                 radex_address: None,
@@ -80,12 +102,13 @@ blueprint! {
                 degenfi_vaults: HashMap::new(),
                 borrow_vaults: HashMap::new(),
                 loan_vault: None,
+                fee_to_pool: fee_to_pool,
                 fee_vault: Vault::new(fund_token_address),
             }
             .instantiate()
             .globalize();
 
-
+            return (index_fund, fund_admin);
         }
 
         /// Gets the resource addresses of the tokens in this liquidity pool and returns them as a `Vec<ResourceAddress>`.
@@ -200,64 +223,6 @@ blueprint! {
             return_bucket   
         }
 
-        pub fn view_weights(
-            &self,
-        ) -> HashMap<ResourceAddress, Decimal>
-        {
-            return self.token_weights.clone()
-        }
-
-        pub fn view_token_weights(
-            &self,
-        ) -> HashMap<ResourceAddress, Decimal>
-        {
-            let mut token_weights: HashMap<ResourceAddress, Decimal> = HashMap::new();
-            let price_oracle: PriceOracle = self.price_oracle_address.into();
-
-            let fund_vaults = self.fund_vaults.iter();
-            for (token_address, vaults) in fund_vaults {
-                let token_price: Decimal = price_oracle.get_price(*token_address);
-                
-                let vault = self.fund_vaults.get(token_address).unwrap();
-
-                let vault_amount = vault.amount();
-
-                let token_value = vault_amount * token_price;
-
-                let cumulative_value: Decimal = self.get_cumulative_value();
-
-                let token_weight: Decimal = token_value / cumulative_value;
-
-                token_weights.insert(*token_address, token_weight);
-            }
-
-            token_weights
-        }
-
-        fn get_cumulative_value(
-            &self,
-        ) -> Decimal
-        {
-            let mut cumulative_value: Decimal = Decimal::zero();
-            let price_oracle: PriceOracle = self.price_oracle_address.into();
-
-            let fund_vaults = self.fund_vaults.iter();
-            for (token_address, vaults) in fund_vaults {
-                let token_price: Decimal = price_oracle.get_price(*token_address);
-                
-                let vault = self.fund_vaults.get(token_address).unwrap();
-
-                let vault_amount = vault.amount();
-
-                let token_value = vault_amount * token_price;
-
-                cumulative_value += token_value;
-                
-            }
-
-            cumulative_value
-        }
-
         pub fn issue_tokens(
             &mut self,
             mut tokens: Vec<Bucket>,
@@ -331,7 +296,7 @@ blueprint! {
                 }
 
             if counter == number_of_tokens {
-                let fund_token = self.fund_admin_vault.authorize(|| 
+                let fund_token = self.fund_token_admin_vault.authorize(|| 
                     borrow_resource_manager!(self.fund_token_address).mint(amount_to_mint)
                 );
 
@@ -342,7 +307,7 @@ blueprint! {
 
                 fund_token
             } else {
-                let empty_bucket = self.fund_admin_vault.take(0);
+                let empty_bucket = self.fund_token_admin_vault.take(0);
 
                 empty_bucket
             }
@@ -400,7 +365,7 @@ blueprint! {
             let bucket_amount = return_collateral.len();
             info!("[Redeem]: Bucket: {:?}", bucket_amount);
 
-            self.fund_admin_vault.authorize(|| fund_token.burn());
+            self.fund_token_admin_vault.authorize(|| fund_token.burn());
 
             return_collateral
 
@@ -422,7 +387,7 @@ blueprint! {
         /// 
         /// # Arguments:
         /// 
-        /// * `fund_master_admin` (Proof) - The Proof of the fund master badge.
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
         /// * `token1_address` (ResourceAddress) - The ResourceAddress of the first requested token
         /// to be used to supply liquidity.
         /// * `token1_amount` (Decimal) - The amount of Token 1 requested to supply liquidity.
@@ -431,15 +396,20 @@ blueprint! {
         /// * `token2_amount` (Decimal) - The amount of Token 2 requested to supply liquidity.
         pub fn add_liquidity(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             token1_address: ResourceAddress,
             token1_amount: Decimal,
             token2_address: ResourceAddress,
             token2_amount: Decimal,
         )
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Trading feature has not been integrated. You must first integrate RaDEX",
                 self.fund_name
             );
 
@@ -482,18 +452,23 @@ blueprint! {
         /// 
         /// # Arguments:
         /// 
-        /// * `fund_master_admin` (Proof) - The Proof of the fund master badge.
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
         /// * `tracking_tokens_address` (ResourceAddress) - The ResourceAddress of the LP Tokens.
         /// * `tracking_tokens_amount` (Decimal) - The amount of tracking tokens to redeem.
         pub fn remove_liquidity(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             tracking_tokens_address: ResourceAddress,
             tracking_tokens_amount: Decimal,
         )
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Trading feature has not been integrated. You must first integrate RaDEX",
                 self.fund_name
             );
 
@@ -534,14 +509,19 @@ blueprint! {
 
         pub fn swap(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             token_address: ResourceAddress,
             amount: Decimal,
             output_token: ResourceAddress,
         ) -> Bucket
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Trading feature has not been integrated. You must first integrate RaDEX",
                 self.fund_name
             );
 
@@ -559,11 +539,16 @@ blueprint! {
 
         pub fn register_degenfi_user(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
         )
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Leverage feature has not been integrated. You must first integrate DegenFi",
                 self.fund_name
             );
 
@@ -575,16 +560,20 @@ blueprint! {
 
         pub fn new_lending_pool(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             token_address: ResourceAddress,
             deposit_amount: Decimal,
         )
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
                 self.fund_name
             );
 
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Leverage feature has not been integrated. You must first integrate DegenFi",
+                self.fund_name
+            );
 
             assert_eq!(self.fund_vaults.contains_key(&token_address), true, 
                 "[{:?} Fund]: This fund does not hold this asset in its vault",
@@ -603,13 +592,18 @@ blueprint! {
 
         pub fn deposit_supply(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             token_address: ResourceAddress,
             deposit_amount: Decimal,
         )
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Leverage feature has not been integrated. You must first integrate DegenFi",
                 self.fund_name
             );
 
@@ -630,13 +624,18 @@ blueprint! {
 
         pub fn deposit_collateral(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             collateral_address: ResourceAddress,
             collateral_amount: Decimal,
         )
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Leverage feature has not been integrated. You must first integrate DegenFi",
                 self.fund_name
             );
 
@@ -657,15 +656,20 @@ blueprint! {
 
         pub fn deposit_additional_collateral(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             loan_id: NonFungibleId,
             collateral_address: ResourceAddress,
             collateral_amount: Decimal,
         )
         {
 
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Leverage feature has not been integrated. You must first integrate DegenFi",
                 self.fund_name
             );
 
@@ -687,14 +691,19 @@ blueprint! {
 
         pub fn borrow(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             token_requested: ResourceAddress,
             collateral_address: ResourceAddress,
             amount: Decimal,
         )
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Leverage feature has not been integrated. You must first integrate DegenFi",
                 self.fund_name
             );
 
@@ -719,14 +728,19 @@ blueprint! {
 
         pub fn borrow_additional(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             loan_id: NonFungibleId,
             token_requested: ResourceAddress,
             amount: Decimal,
         )
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Leverage feature has not been integrated. You must first integrate DegenFi",
                 self.fund_name
             );
 
@@ -749,17 +763,21 @@ blueprint! {
 
         pub fn repay(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             loan_id: NonFungibleId,
             token_requested: ResourceAddress,
             amount: Decimal,
         ) 
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
                 self.fund_name
             );
 
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Leverage feature has not been integrated. You must first integrate DegenFi",
+                self.fund_name
+            );
             let loan_vault = self.loan_vault;
 
             match loan_vault {
@@ -799,13 +817,18 @@ blueprint! {
 
         pub fn redeem_collateral(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             collateral_address: ResourceAddress,
             amount: Decimal,
         )
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Leverage feature has not been integrated. You must first integrate DegenFi",
                 self.fund_name
             );
 
@@ -821,13 +844,18 @@ blueprint! {
 
         pub fn flash_borrow(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             token_requested: ResourceAddress,
             amount: Decimal,
         )
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Leverage feature has not been integrated. You must first integrate DegenFi",
                 self.fund_name
             );
 
@@ -843,13 +871,18 @@ blueprint! {
 
         pub fn flash_repay(
             &mut self,
-            fund_master_admin: Proof,
+            fund_admin: Proof,
             repay_amount: Bucket,
             flash_loan: Bucket,
         )
         {
-            assert_eq!(fund_master_admin.resource_address(), self.fund_master_admin_address, 
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            assert_eq!(self.degenfi_address.is_some(), true, 
+                "[{:?} Fund]: Leverage feature has not been integrated. You must first integrate DegenFi",
                 self.fund_name
             );
 
@@ -881,11 +914,102 @@ blueprint! {
             }
         }
 
+        pub fn view_weights(
+            &self,
+        ) -> HashMap<ResourceAddress, Decimal>
+        {
+            return self.token_weights.clone()
+        }
+
+        pub fn view_token_weights(
+            &self,
+        ) -> HashMap<ResourceAddress, Decimal>
+        {
+            let mut token_weights: HashMap<ResourceAddress, Decimal> = HashMap::new();
+            let price_oracle: PriceOracle = self.price_oracle_address.into();
+
+            let fund_vaults = self.fund_vaults.iter();
+            for (token_address, vaults) in fund_vaults {
+                let token_price: Decimal = price_oracle.get_price(*token_address);
+                
+                let vault = self.fund_vaults.get(token_address).unwrap();
+
+                let vault_amount = vault.amount();
+
+                let token_value = vault_amount * token_price;
+
+                let cumulative_value: Decimal = self.get_cumulative_value();
+
+                let token_weight: Decimal = token_value / cumulative_value;
+
+                token_weights.insert(*token_address, token_weight);
+            }
+
+            token_weights
+        }
+
+        fn get_cumulative_value(
+            &self,
+        ) -> Decimal
+        {
+            let mut cumulative_value: Decimal = Decimal::zero();
+            let price_oracle: PriceOracle = self.price_oracle_address.into();
+
+            let fund_vaults = self.fund_vaults.iter();
+            for (token_address, vaults) in fund_vaults {
+                let token_price: Decimal = price_oracle.get_price(*token_address);
+                
+                let vault = self.fund_vaults.get(token_address).unwrap();
+
+                let vault_amount = vault.amount();
+
+                let token_value = vault_amount * token_price;
+
+                cumulative_value += token_value;
+                
+            }
+
+            cumulative_value
+        }
+
         pub fn view_loans(
             &self,
         ) -> BTreeSet<NonFungibleId>
         {
             return self.loan_vault.as_ref().unwrap().non_fungible_ids();
+        }
+
+        pub fn calculate_fees(
+            &mut self
+        )
+        {
+            let price_oracle: PriceOracle = self.price_oracle_address.into();
+
+            let fee = self.get_cumulative_value() * self.fee_to_pool;
+            let fund_token_price: Decimal = price_oracle.get_price(self.fund_token_address);
+            let fund_token_amount: Decimal = fee / fund_token_price;
+
+            let fund_tokens: Bucket = self.fund_token_admin_vault.authorize(|| 
+                borrow_resource_manager!(self.fund_token_address).mint(fund_token_amount)
+            );
+
+            self.fee_vault.put(fund_tokens);
+        }
+
+        pub fn claim_fees(
+            &mut self,
+            fund_admin: Proof,
+            amount: Decimal,
+        ) -> Bucket
+        {
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
+                "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+
+            let fund_tokens: Bucket = self.withdraw(self.fund_token_address, amount);
+
+            fund_tokens
         }
     }
 }

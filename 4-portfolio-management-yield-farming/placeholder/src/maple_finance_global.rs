@@ -1,9 +1,10 @@
 use scrypto::prelude::*;
-use crate::pool_delegate_dashboard::*;
+use crate::fund_manager_dashboard::*;
 use crate::borrower_dashboard::*;
 use crate::structs::*;
 use crate::index_fund::*;
 use crate::price_oracle::*;
+use crate::utils::*;
 
 blueprint! {
     struct MapleFinance {
@@ -11,9 +12,10 @@ blueprint! {
         admin_vault: Vault,
         loan_request_nft_admin_address: ResourceAddress,
         pool_delegates: HashSet<NonFungibleId>,
-        pool_delegate_admin_address: ResourceAddress,
-        pool_delegate_dashboards: HashMap<NonFungibleId, ComponentAddress>,
-        pool_delegate_admin_badge_vault: Vault,
+        fund_manager_address: ResourceAddress,
+        fund_manager_admin_address: ResourceAddress,
+        fund_manager_dashbaords: HashMap<NonFungibleId, ComponentAddress>,
+        fund_manager_badge_vault: Vault,
         borrowers: HashSet<NonFungibleId>,
         borrower_admin_address: ResourceAddress,
         borrower_dashboards: HashMap<NonFungibleId, ComponentAddress>,
@@ -23,7 +25,8 @@ blueprint! {
         pending_approvals: HashMap<String, NonFungibleId>,
         approvals: HashMap<NonFungibleId, NonFungibleId>,
         loan_requests_global: HashMap<ResourceAddress, BTreeSet<NonFungibleId>>,
-        global_index_funds: HashMap<String, ComponentAddress>,
+        global_index_funds: HashMap<(String, String), ComponentAddress>,
+        global_index_funds_name: HashMap<String, String>,
         price_oracle_address: ComponentAddress,
         maple_finance_global_address: Option<ComponentAddress>,
     }
@@ -56,15 +59,29 @@ blueprint! {
                 .mintable(rule!(require(admin.resource_address())), LOCKED)
                 .burnable(rule!(require(admin.resource_address())), LOCKED)
                 .no_initial_supply();
-        
-            // NFT description for Pool Delegates
-            let pool_delegate_admin_address: ResourceAddress = ResourceBuilder::new_non_fungible()
-                .metadata("name", "Pool Delegate NFT")
-                .metadata("symbol", "PDNFT")
-                .metadata("description", "Pool Delegate Admin Badge")
+
+            let fund_manager_admin_address = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_NONE)
+                .metadata("name", "Fund Manager Admin Badge")
+                .metadata("symbol", "FM_AB")
+                .metadata("description", "Admin Badge to control Fund Manager Badge")
                 .mintable(rule!(require(admin.resource_address())), LOCKED)
                 .burnable(rule!(require(admin.resource_address())), LOCKED)
-                .updateable_non_fungible_data(rule!(require(admin.resource_address())), LOCKED)
+                .no_initial_supply();
+
+            let allowed_badge: Vec<ResourceAddress> = vec!(
+                admin.resource_address(), 
+                fund_manager_admin_address,
+            );
+
+            // NFT description for Fund Managers
+            let fund_manager_address: ResourceAddress = ResourceBuilder::new_non_fungible()
+                .metadata("name", "Fund Manager NFT")
+                .metadata("symbol", "PDNFT")
+                .metadata("description", "Fund Manager Admin Badge")
+                .mintable(rule!(require(admin.resource_address())), LOCKED)
+                .burnable(rule!(require(admin.resource_address())), LOCKED)
+                .updateable_non_fungible_data(rule!(require_any_of(allowed_badge)), LOCKED)
                 .no_initial_supply();
             
             let investor_admin_address: ResourceAddress = ResourceBuilder::new_non_fungible()
@@ -88,7 +105,7 @@ blueprint! {
             let temporary_badge_address: ResourceAddress = ResourceBuilder::new_non_fungible()
                 .metadata("name", "Temporary Badge NFT")
                 .metadata("symbol", "TBNFT")
-                .metadata("description", "Temporary Badge NFT for Pool Delegates/Borrowers")
+                .metadata("description", "Temporary Badge NFT for Fund Managers/Borrowers")
                 .mintable(rule!(require(admin.resource_address())), LOCKED)
                 .burnable(rule!(require(admin.resource_address())), LOCKED)
                 .updateable_non_fungible_data(rule!(require(admin.resource_address())), LOCKED)
@@ -106,9 +123,10 @@ blueprint! {
                 admin_vault: Vault::with_bucket(admin),
                 loan_request_nft_admin_address: loan_request_nft_admin_address,
                 pool_delegates: HashSet::new(),
-                pool_delegate_admin_address: pool_delegate_admin_address,
-                pool_delegate_dashboards: HashMap::new(),
-                pool_delegate_admin_badge_vault: Vault::new(pool_delegate_admin_address),
+                fund_manager_address: fund_manager_address,
+                fund_manager_admin_address: fund_manager_admin_address,
+                fund_manager_dashbaords: HashMap::new(),
+                fund_manager_badge_vault: Vault::new(fund_manager_address),
                 borrowers: HashSet::new(),
                 borrower_admin_address: borrower_admin_address,
                 borrower_dashboards: HashMap::new(),
@@ -119,6 +137,7 @@ blueprint! {
                 approvals: HashMap::new(),
                 loan_requests_global: HashMap::new(),
                 global_index_funds: HashMap::new(),
+                global_index_funds_name: HashMap::new(),
                 price_oracle_address: PriceOracle::new(),
                 maple_finance_global_address: None,
             }
@@ -143,7 +162,7 @@ blueprint! {
             badge_name: Badges) -> BadgeContainer
         {
             let badge_address = match badge_name {
-                Badges::PoolDelegate => self.pool_delegate_admin_address,
+                Badges::FundManager => self.fund_manager_address,
                 Badges::Investor => self.borrower_admin_address,
                 Badges::Borrower => self.borrower_admin_address,
                 Badges::TemporaryBadge => self.temporary_badge_address,
@@ -152,9 +171,9 @@ blueprint! {
             let resource_manager = borrow_resource_manager!(badge_address);
 
             match badge_name {
-                Badges::PoolDelegate => {
-                    let nft_data: PoolDelegate = resource_manager.get_non_fungible_data(&nft_id);
-                    return BadgeContainer::PoolDelegateContainer(nft_data)
+                Badges::FundManager => {
+                    let nft_data: FundManager = resource_manager.get_non_fungible_data(&nft_id);
+                    return BadgeContainer::FundManagerContainer(nft_data)
                 }
                 Badges::Investor => {
                     let nft_data: Investor = resource_manager.get_non_fungible_data(&nft_id);
@@ -178,7 +197,7 @@ blueprint! {
             nft_data: BadgeContainer)
         {
             let badge_address = match badge_name {
-                Badges::PoolDelegate => self.pool_delegate_admin_address,
+                Badges::FundManager => self.fund_manager_address,
                 Badges::Investor => self.investor_admin_address,
                 Badges::Borrower => self.borrower_admin_address,
                 Badges::TemporaryBadge => self.temporary_badge_address,
@@ -187,7 +206,7 @@ blueprint! {
             let resource_manager = borrow_resource_manager!(badge_address);
             
             match nft_data {
-                BadgeContainer::PoolDelegateContainer(pool_delegate) => {
+                BadgeContainer::FundManagerContainer(pool_delegate) => {
                     self.admin_vault.authorize(|| 
                         resource_manager.update_non_fungible_data(nft_id, pool_delegate)
                     );
@@ -243,17 +262,17 @@ blueprint! {
             temporary_badge
         }
 
-        /// Creates an admin badge for each Pool Delegates and instantiates a Pool Delegate Dashboard.
+        /// Creates an admin badge for each Fund Managers and instantiates a Fund Manager Dashboard.
         /// 
-        /// This method is used to allow authorized Maple Finance team to onboard approved Pool Delegates.
-        /// Prospective Pool Delegates must first request approval to become a Pool Delegate by filing out the request form
+        /// This method is used to allow authorized Maple Finance team to onboard approved Fund Managers.
+        /// Prospective Fund Managers must first request approval to become a Fund Manager by filing out the request form
         /// via create_temporary_badge method. Maple Finance team will view the approval request via pending_approvals 
-        /// data field and approve selected Pool Delegates. A Pool Delegate admin badge will be minted where approved
-        /// Pool Delegates can claim via their TemporaryBadge. A Pool Delegate Dashboard will be created where approved
-        /// Pool Delegates can access their controls.
+        /// data field and approve selected Fund Managers. A Fund Manager admin badge will be minted where approved
+        /// Fund Managers can claim via their TemporaryBadge. A Fund Manager Dashboard will be created where approved
+        /// Fund Managers can access their controls.
         /// 
         ///  
-        pub fn create_pool_delegate(
+        pub fn create_fund_manager(
             &mut self,
             maple_finance_admin: Proof,
             name: String) -> ComponentAddress
@@ -263,34 +282,36 @@ blueprint! {
                 "[Maple Finance]: Unauthorized Access."
             );
 
-            // Mint Pool Delegate admin badge.
-            let pool_delegate_admin_badge = self.admin_vault.authorize(|| {
-                let resource_manager: &ResourceManager = borrow_resource_manager!(self.pool_delegate_admin_address);
+            // Mint Fund Manager admin badge.
+            let fund_manager_badge = self.admin_vault.authorize(|| {
+                let resource_manager: &ResourceManager = borrow_resource_manager!(self.fund_manager_address);
                 resource_manager.mint_non_fungible(
                     // The User id
                     &NonFungibleId::random(),
                     // The User data
-                    PoolDelegate {
+                    FundManager {
                         name: name.clone(),
+                        managed_index_funds: HashMap::new(),
+                        managed_debt_funds: HashMap::new(),
                     },
                 )
             });
 
-            // Retrieve the prospective Pool Delegate via pending_approvals data field.
+            // Retrieve the prospective Fund Manager via pending_approvals data field.
             let pending_user: &NonFungibleId = self.pending_approvals.get(&name).unwrap();
 
-            // Retrieve the NFT data of the Temporary Badge of the prospective Pool Delegate.
+            // Retrieve the NFT data of the Temporary Badge of the prospective Fund Manager.
             let nft_data = self.get_resource_manager(pending_user, Badges::TemporaryBadge);
 
-            // Change NFT data of the Temporary Badge to indicate the prospective Pool Delegate has been approved.
+            // Change NFT data of the Temporary Badge to indicate the prospective Fund Manager has been approved.
             match nft_data {
-                BadgeContainer::PoolDelegateContainer(_pool_delegate) => {}
+                BadgeContainer::FundManagerContainer(_pool_delegate) => {}
                 BadgeContainer::InvestorContainer(_investor) => {}
                 BadgeContainer::BorrowerContainer(_borrower) => {}
                 BadgeContainer::TemporaryBadgeContainer(mut temporary_badge) => {
 
-                    assert_eq!(temporary_badge.user_type, UserType::PoolDelegate,
-                        "[Maple Finance - Pool Delegate badge creation]: Incorrect user type."
+                    assert_eq!(temporary_badge.user_type, UserType::FundManager,
+                        "[Maple Finance - Fund Manager badge creation]: Incorrect user type."
                     );
 
                     temporary_badge.status = RequestStatus::Approved;
@@ -304,17 +325,17 @@ blueprint! {
                 }
             };
 
-            // Retrieve NFT ID of the Pool Delegate admin badge.
-            let pool_delegate_id: NonFungibleId = pool_delegate_admin_badge.non_fungible::<PoolDelegate>().id();
+            // Retrieve NFT ID of the Fund Manager admin badge.
+            let fund_manager_id: NonFungibleId = fund_manager_badge.non_fungible::<FundManager>().id();
 
             // Insert in the approvals data field. 
-            self.approvals.insert(pending_user.clone(), pool_delegate_id.clone());
+            self.approvals.insert(pending_user.clone(), fund_manager_id.clone());
 
-            // Remove prospective Pool Delegate from the pending_approvals data field.
+            // Remove prospective Fund Manager from the pending_approvals data field.
             self.pending_approvals.remove_entry(&name);
 
-            // Record the NFT ID of the new approved Pool Delegate.
-            self.borrowers.insert(pool_delegate_id.clone());
+            // Record the NFT ID of the new approved Fund Manager.
+            self.borrowers.insert(fund_manager_id.clone());
 
             let loan_request_nft_admin = self.admin_vault.authorize(|| {
                     let resource_manager: &ResourceManager = borrow_resource_manager!(self.loan_request_nft_admin_address);
@@ -322,26 +343,33 @@ blueprint! {
                 }
             );
 
+            let fund_manager_admin: Bucket = self.admin_vault.authorize(|| {
+                    let resource_manager: &ResourceManager = borrow_resource_manager!(self.fund_manager_admin_address);
+                    resource_manager.mint(1)
+                }
+            );
+
             let price_oracle_address: ComponentAddress = self.price_oracle_address.into();
             let maple_finance_global_address: ComponentAddress = self.maple_finance_global_address.unwrap().into();
 
-            // Instantiates the Pool Delegate Dashboard for the recently approved Pool Delegate.
-            let pool_delegate_dashboard: ComponentAddress = PoolDelegateDashboard::new(
-                maple_finance_admin_address,
-                self.pool_delegate_admin_address, 
-                pool_delegate_id.clone(),
+            // Instantiates the Fund Manager Dashboard for the recently approved Fund Manager.
+            let pool_delegate_dashboard: ComponentAddress = FundManagerDashboard::new(
+                fund_manager_admin,
+                maple_finance_global_address,
+                self.fund_manager_address, 
+                fund_manager_id.clone(),
                 loan_request_nft_admin,
                 price_oracle_address,
             );
 
-            // Insert the ComponentAddress of the Pool Delegate Dashboard for this particular Pool Delegate.
-            self.pool_delegate_dashboards.insert(
-                pool_delegate_id, 
+            // Insert the ComponentAddress of the Fund Manager Dashboard for this particular Fund Manager.
+            self.fund_manager_dashbaords.insert(
+                fund_manager_id, 
                 pool_delegate_dashboard
             );
 
-            // Put the Pool Delegate admin badge for the recently approved Pool Delegate to claim.
-            self.pool_delegate_admin_badge_vault.put(pool_delegate_admin_badge);
+            // Put the Fund Manager admin badge for the recently approved Fund Manager to claim.
+            self.fund_manager_badge_vault.put(fund_manager_badge);
 
            pool_delegate_dashboard
         }
@@ -373,15 +401,15 @@ blueprint! {
             // Retrieve the NFT data of the Temporary Badge of the prospective Borrower.
             let nft_data = self.get_resource_manager(pending_user, Badges::TemporaryBadge);
 
-            // Change NFT data of the Temporary Badge to indicate the prospective Pool Delegate has been approved.
+            // Change NFT data of the Temporary Badge to indicate the prospective Fund Manager has been approved.
             match nft_data {
-                BadgeContainer::PoolDelegateContainer(_pooldelegate) => {}
+                BadgeContainer::FundManagerContainer(_FundManager) => {}
                 BadgeContainer::InvestorContainer(_investor) => {}
                 BadgeContainer::BorrowerContainer(_borrower) => {}
                 BadgeContainer::TemporaryBadgeContainer(mut temporary_badge) => {
 
                     assert_eq!(temporary_badge.user_type, UserType::Borrower,
-                        "[Maple Finance - Pool Delegate badge creation]: Incorrect user type."
+                        "[Maple Finance - Fund Manager badge creation]: Incorrect user type."
                     );
 
                     temporary_badge.status = RequestStatus::Approved;
@@ -395,7 +423,7 @@ blueprint! {
                 }
             };
 
-            let borrower_id = borrower_admin_badge.non_fungible::<PoolDelegate>().id();
+            let borrower_id = borrower_admin_badge.non_fungible::<FundManager>().id();
 
             // Insert in the approvals data field. 
             self.approvals.insert(pending_user.clone(), borrower_id.clone());
@@ -430,7 +458,7 @@ blueprint! {
             borrower_dashboard
         }
 
-        /// Allows recently approved Pool Delegates to claim their admin badge to access their Pool Delegate Dashboard.
+        /// Allows recently approved Fund Managers to claim their admin badge to access their Fund Manager Dashboard.
         /// 
         /// This method performs
         /// 
@@ -452,12 +480,12 @@ blueprint! {
             let user_type = temporary_badge_data.user_type;
 
             match user_type {
-                UserType::PoolDelegate => {
-                    // Matches the Temporary Badge NFT ID with the approved Pool Delegate admin badge.
+                UserType::FundManager => {
+                    // Matches the Temporary Badge NFT ID with the approved Fund Manager admin badge.
                     let claim_badge: &NonFungibleId = self.approvals.get(&temporary_badge_id).unwrap();
 
-                    // Returns the Pool Delegate admin badge.
-                    let return_pool_delegate_admin_badge: Bucket = self.pool_delegate_admin_badge_vault.take_non_fungible(claim_badge);
+                    // Returns the Fund Manager admin badge.
+                    let return_fund_manager_badge: Bucket = self.fund_manager_badge_vault.take_non_fungible(claim_badge);
 
                     // Removes the entry from the approved list.
                     self.approvals.remove_entry(&temporary_badge_id);
@@ -466,16 +494,16 @@ blueprint! {
                         temporary_badge.burn()
                     );
 
-                    info!("[Maple Finance]: The resource address of your NFT is: {:?}", return_pool_delegate_admin_badge.resource_address());
+                    info!("[Maple Finance]: The resource address of your NFT is: {:?}", return_fund_manager_badge.resource_address());
 
-                    return_pool_delegate_admin_badge
+                    return_fund_manager_badge
                 }
                 UserType::Borrower => {
 
-                    // Matches the Temporary Badge NFT ID with the approved Pool Delegate admin badge.
+                    // Matches the Temporary Badge NFT ID with the approved Fund Manager admin badge.
                     let claim_badge: &NonFungibleId = self.approvals.get(&temporary_badge_id).unwrap();
 
-                    // Returns the Pool Delegate admin badge.
+                    // Returns the Fund Manager admin badge.
                     let return_borrower_admin_badge: Bucket = self.borrower_admin_badge_vault.take_non_fungible(claim_badge);
 
                     // Removes the entry from the approved list.
@@ -517,25 +545,80 @@ blueprint! {
             return self.loan_requests_global.clone()
         }
 
+        pub fn assert_index_fund(
+            &self,
+            fund_name: String,
+        ) -> bool
+        {
+            let fund_id: (String, String) = self.get_index_name_pair(fund_name);
+            return self.global_index_funds.contains_key(&fund_id);
+        }
+
+        fn get_index_name_pair(
+            &self,
+            fund_name: String,
+        ) -> (String, String)
+        {
+            let fund_ticker: String = self.global_index_funds_name.get(&fund_name).unwrap().to_string();
+            let (fund_name, fund_ticker): (String, String) = sort_string(fund_name, fund_ticker);
+            let fund_id: (String, String) = (fund_name, fund_ticker);
+            fund_id
+        }
+
         pub fn insert_index_fund(
             &mut self,
-            fund_ticker: String,
+            fund_id: (String, String),
             index_fund_address: ComponentAddress,
         )
         {
-            assert_ne!(self.global_index_funds.contains_key(&fund_ticker), true, 
+            assert_ne!(self.global_index_funds.contains_key(&fund_id), true, 
                 "Fund ticker already exist, please use a different name"
             );
 
-            self.global_index_funds.insert(fund_ticker, index_fund_address);
+            self.global_index_funds.insert(fund_id, index_fund_address);
         }
 
-        pub fn retrieve_index_fund(
-            &self,
+        pub fn insert_index_fund_name(
+            &mut self,
+            fund_name: String,
             fund_ticker: String,
+        )
+        {
+            assert_ne!(self.global_index_funds_name.contains_key(&fund_name), true, 
+                "Fund ticker already exist, please use a different name"
+            );
+
+            self.global_index_funds_name.insert(fund_name, fund_ticker);
+        }
+
+        pub fn assert_index_fund_name(
+            &self,
+            fund_name: String,
         ) -> bool
         {
-            return self.global_index_funds.contains_key(&fund_ticker);
+            return self.global_index_funds_name.contains_key(&fund_name);
+        }
+
+        pub fn get_index_fund(
+            &self,
+            fund_name: String,
+        ) -> ComponentAddress
+        {
+            let fund_id: (String, String) = self.get_index_name_pair(fund_name);
+            return *self.global_index_funds.get_mut(&fund_id).unwrap();
+        }
+
+        pub fn index_fund_list(
+            &self,
+        ) -> HashMap<(String, String), ComponentAddress>
+        {
+            let mut index_fund_lists: HashMap<(String, String), ComponentAddress> = HashMap::new();
+            let global_index_funds = self.global_index_funds.iter();
+            for ((fund_name, fund_ticker), index_fund) in global_index_funds {
+                index_fund_lists.insert((*fund_name, *fund_ticker), index_fund.clone());
+            }
+
+            index_fund_lists
         }
     }
 }
