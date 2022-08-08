@@ -1,5 +1,6 @@
 use scrypto::prelude::*;
 use radex::radex::*;
+use degenfi::degenfi::*;
 use crate::structs::*;
 use crate::index_fund::*;
 use crate::price_oracle::*;
@@ -12,6 +13,7 @@ blueprint! {
         fund_lockers: HashMap<String, ComponentAddress>,
         price_oracle_address: ComponentAddress,
         radex_address: ComponentAddress,
+        degenfi_address: ComponentAddress,
     }
 
     impl MainDashboard {
@@ -43,6 +45,7 @@ blueprint! {
                 fund_lockers: HashMap::new(),
                 price_oracle_address: PriceOracle::new(),
                 radex_address: RaDEX::new(),
+                degenfi_address: DegenFi::new(),
             }
             .instantiate()
             .globalize()
@@ -91,6 +94,7 @@ blueprint! {
 
             let price_oracle_address: ComponentAddress = self.price_oracle_address;
             let radex_address: ComponentAddress = self.radex_address;
+            let degenfi_address: ComponentAddress = self.degenfi_address;
 
             let fund_locker: ComponentAddress = IndexFund::new(
                 fund_name, 
@@ -101,7 +105,8 @@ blueprint! {
                 governance,
                 tokens,
                 price_oracle_address,
-                radex_address
+                radex_address,
+                degenfi_address,
             );
 
             self.fund_lockers.insert(fund_ticker2, fund_locker);
