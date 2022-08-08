@@ -120,6 +120,11 @@ blueprint! {
             return self.degenfi_vaults.keys().cloned().collect::<Vec<ResourceAddress>>();
         }
 
+        /// Allows Fund Manager to use RaDEX in order to make trades and rebalance portfolio.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// This method does not take any arguments.
         pub fn integrate_dex(
             &mut self, 
             radex_address: ComponentAddress
@@ -128,6 +133,11 @@ blueprint! {
             self.radex_address = Some(radex_address);
         }
 
+        /// Allows Fund Manager to use DegenFi in order to take out loans and leverage the fund.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// This method does not take any arguments.
         pub fn integrate_lending(
             &mut self, 
             degenfi_address: ComponentAddress
@@ -513,7 +523,7 @@ blueprint! {
             token_address: ResourceAddress,
             amount: Decimal,
             output_token: ResourceAddress,
-        ) -> Bucket
+        ) 
         {
             assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
                 "[{:?} Fund]: Badge not authorized.",
@@ -531,10 +541,11 @@ blueprint! {
             );
 
             let input_bucket: Bucket = self.withdraw(token_address, amount);
+
             let radex: RaDEX = self.radex_address.unwrap().into();
             let return_bucket = radex.swap(input_bucket, output_token);
 
-            return_bucket
+            self.fund_vaults.get_mut(return_bucket.resource_address()).unwrap().put(return_bucket);
         }
 
         pub fn register_degenfi_user(

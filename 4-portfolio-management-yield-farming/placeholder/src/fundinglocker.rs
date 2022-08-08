@@ -3,6 +3,7 @@ use crate::structs::*;
 
 blueprint! {
     struct FundingLocker {
+        fund_admin_vault: Vault,
         loan_funding_vault: Vault,
         loan_repay_vault: Vault,
         grace_period: u64,
@@ -26,6 +27,13 @@ blueprint! {
             loan_nft_admin: Bucket,
         ) -> ComponentAddress 
         {
+            let fund_admin: Bucket = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_NONE)
+                .metadata("name", format!("{} Admin Badge", fund_name))
+                .metadata("symbol", "FO")
+                .metadata("description", "Badge that represents admin authority of the fund.")
+                .initial_supply(1);
+            
             let loan_nft_data = loan_nft.non_fungible::<Loan>().data();
             let lender_id = loan_nft_data.lender_id;
             let lender_address = loan_nft_data.lender_address;
@@ -35,6 +43,7 @@ blueprint! {
             let loan_nft_address = loan_nft.resource_address();
 
             return Self {
+                fund_admin_vault: Vault::with_bucket(fund_admin),
                 loan_repay_vault: Vault::new(loan_asset_address),
                 loan_funding_vault: Vault::new(loan_asset_address),
                 grace_period: 10,
@@ -136,12 +145,40 @@ blueprint! {
             }
         }
 
-        // pub fn draw_loan(
-        //     &mut self) -> Bucket 
-        // {
-        //     let draw: Bucket = self.loan_funding_vault.take(1);
-        //     draw
-        // }
+        pub fund(
+            &mut self,
+            fund_admin: Proof,
+            amount: Bucket,
+        )
+        {
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
+                "[Fund]: Badge not authorized.",
+            );
+
+            assert_eq!(amount.resource_address(), self.loan_funding_vault,
+                "[Fund]: Must fund with the correct ResourceAddress."
+            );
+
+            // Logic to assert the the right amount has been funded.
+            // when the right amount has been funded. The locker is ready to 
+            // be drawn by the borrower.
+
+            self.loan_funding_vault.put(amount);
+        }
+
+        pub fn draw_loan(
+            &mut self,
+            loan_badge: Proof,
+            amount: Decimal,
+        ) -> Bucket 
+        {
+            let loan_nft_vault = Some(self.loan_nft_vault);
+            assert_eq!(loan_badge.resource_address(), self.loan_nft_vault.resource_address(),
+                "Incorrect loan badge provided."
+            );
+            let loan_draw: Bucket = self.loan_funding_vault.take(amount);
+            loan_draw
+        }
 
         // pub fn make_payment(
         //     &mut self,

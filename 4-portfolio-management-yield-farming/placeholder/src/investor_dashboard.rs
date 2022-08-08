@@ -1,15 +1,11 @@
 use scrypto::prelude::*;
 use crate::maple_finance_global::*;
-use crate::{structs::*, fundinglocker::FundingLocker};
 
 // Allows approved Pool Delegate to manage pools.
 
 blueprint! {
     struct InvestorDashboard {
-        borrower_admin_address: ResourceAddress,
-        borrower_id: NonFungibleId,
-
-        funding_lockers: HashMap<NonFungibleId, ComponentAddress>,
+        investor_address: ResourceAddress,
         maple_finance_global_address: ComponentAddress,
     }
 
@@ -17,15 +13,11 @@ blueprint! {
 
         pub fn new(
             maple_finance_global_address: ComponentAddress,
-            borrower_admin_address: ResourceAddress,
-            borrower_id: NonFungibleId,
-            loan_request_nft_admin: Bucket) -> ComponentAddress
+            investor_address: ResourceAddress
+        ) -> ComponentAddress
         {
-
             return Self {
-                borrower_admin_address: borrower_admin_address,
-                borrower_id: borrower_id,
-                funding_lockers: HashMap::new(),
+                investor_address: investor_address,
                 maple_finance_global_address: maple_finance_global_address,
             }
             .instantiate()
@@ -42,12 +34,40 @@ blueprint! {
 
         pub fn buy_fund_tokens(
             &mut self,
+            investor_badge: Proof,
             fund_name: String,
-            amount: Bucket,
-        )
+            xrd: Bucket,
+        ) -> Bucket
         {
+            assert_eq!(invest_badge.resource_address(), self.investor_address,
+                "[Investor Dashboard]: This badge does not belong to this protocol."
+            );
+
             let maple_finance_global: MapleFinance = self.maple_finance_global_address.into();
-            let index_fund_address: ComponentAddress = maple_finance_global.get_index_fund(fund_name);   
+            let index_fund_address: ComponentAddress = maple_finance_global.get_index_fund(fund_name);
+            let index_fund: IndexFund = index_fund_address.into();
+            let fund_tokens: Bucket = index_fund.buy(xrd);
+
+            fund_tokens
+        }
+
+        pub fn sell_fund_tokens(
+            &mut self,
+            invest_badge: Proof,
+            fund_name: String,
+            fund_token: Bucket,
+        ) -> Bucket
+        {
+            assert_eq!(invest_badge.resource_address(), self.investor_address,
+                "[Investor Dashboard]: This badge does not belong to this protocol."
+            );
+
+            let maple_finance_global: MapleFinance = self.maple_finance_global_address.into();
+            let index_fund_address: ComponentAddress = maple_finance_global.get_index_fund(fund_name);
+            let index_fund: IndexFund = index_fund_address.into();
+            let xrd_bucket: Bucket = index_fund.sell(fund_token);
+
+            xrd_bucket
         }
 
     }

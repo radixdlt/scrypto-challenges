@@ -319,7 +319,9 @@ blueprint! {
 
             let fund_manager_data: FundManager = self.get_resource_manager();
             let mut managed_index_funds = fund_manager_data.managed_index_funds;
+            
             managed_index_funds.insert(fund_id.clone(), index_fund);
+
             self.authorize_update(fund_manager_data);
 
             maple_finance.insert_index_fund_name(fund_name.clone(), fund_ticker.clone());
