@@ -1,9 +1,9 @@
 CALL_FUNCTION
     PackageAddress("${PACKAGE}")
-    "FundLocker"
+    "IndexFund"
     "new"
     "Scrooples Index"
-    "SCRP"
+    "$SCRP"
     Decimal("1.00")
     HashMap<ResourceAddress, Decimal>(ResourceAddress("${XRD}"), Decimal("0.33"), 
     ResourceAddress("${USD}"), Decimal("0.33"), 

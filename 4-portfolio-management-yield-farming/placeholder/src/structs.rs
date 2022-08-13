@@ -29,6 +29,7 @@ pub struct Loan {
     pub principal_loan_amount: Decimal,
     pub asset: ResourceAddress,
     pub collateral: ResourceAddress,
+    #[scrypto(mutable)]
     pub collateral_percent: Decimal,
     #[scrypto(mutable)]
     pub annualized_interest_rate: Decimal,
@@ -40,8 +41,10 @@ pub struct Loan {
     pub annualized_interest_expense: Decimal,
     #[scrypto(mutable)]
     pub remaining_balance: Decimal,
+    pub draw_limit: Decimal,
+    pub draw_minimum: Decimal,
     #[scrypto(mutable)]
-    pub last_update: u64,
+    pub last_draw: u64,
     #[scrypto(mutable)]
     pub collateral_amount: Decimal,
     #[scrypto(mutable)]
@@ -52,10 +55,21 @@ pub struct Loan {
     pub loan_status: Status,
 }
 
+#[derive(NonFungibleData, Describe, Encode, Decode, TypeId)]
+pub struct FundingLockerAdmin {
+}
+
+#[derive(NonFungibleData, Describe, Encode, Decode, TypeId)]
+pub struct DrawRequest {
+    pub amount: Decimal,
+}
+
+/// Organize better
 #[derive(TypeId, Encode, Decode, Describe, Debug, PartialEq)]
 pub enum Status {
     AwaitingCollateral,
     ReadyToFund,
+    Unfunded,
     Funded,
     PaidOff,
     Defaulted,
@@ -92,6 +106,17 @@ pub enum RequestStatus {
 }
 
 #[derive(TypeId, Encode, Decode, Describe, Debug, PartialEq)]
+pub enum BorrowerBadges {
+    LoanRequestNFT,
+    Borrower,
+}
+
+pub enum BorrowerBadgeContainer {
+    LoanRequestNFTContainer(LoanRequest),
+    BorrowerContainer(Borrower),
+}
+
+#[derive(TypeId, Encode, Decode, Describe, Debug, PartialEq)]
 pub enum Badges {
     FundManager,
     Investor,
@@ -110,7 +135,9 @@ pub enum BadgeContainer {
 pub struct FundManager {
     pub name: String,
     pub managed_index_funds: HashMap<(String, String), ComponentAddress>,
-    pub managed_debt_funds: HashMap<NonFungibleId, ComponentAddress>,
+    pub managed_funding_lockers: HashMap<NonFungibleId, ComponentAddress>,
+    pub managed_funding_locker_admin: HashMap<NonFungibleId, NonFungibleId>,
+    pub managed_debt_funds: HashMap<ResourceAddress, ComponentAddress>,
 }
 
 #[derive(NonFungibleData, Debug, Describe, Encode, Decode, TypeId, PartialEq)]
@@ -122,6 +149,8 @@ pub struct Investor {
 #[derive(NonFungibleData, Debug, Describe, Encode, Decode, TypeId, PartialEq)]
 pub struct Borrower {
     pub name: String,
+    pub loan_requests: BTreeSet<NonFungibleId>,
+    pub loans: BTreeSet<NonFungibleId>,
 }
 
 #[derive(NonFungibleData, Debug, Describe, Encode, Decode, TypeId, PartialEq)]

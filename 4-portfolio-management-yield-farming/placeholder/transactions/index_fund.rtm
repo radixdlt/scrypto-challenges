@@ -1,0 +1,17 @@
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${FA}");
+POP_FROM_AUTH_ZONE Proof("proof1");
+
+CALL_METHOD
+    ComponentAddress("${FUND}")
+    "create_fund"
+    Proof("proof1")
+    "Scrooples Index"
+    Decimal("1.00")
+    "$SCRP"
+    Decimal("1.00")
+    HashMap<ResourceAddress, Decimal>(ResourceAddress("${XRD}"), Decimal("0.25"), 
+    ResourceAddress("${USD}"), Decimal("0.25"),
+    ResourceAddress("${BTC}"), Decimal("0.25"), 
+    ResourceAddress("${DOGE}"), Decimal("0.25"));
+
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS2}") "deposit_batch";

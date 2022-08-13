@@ -2,7 +2,6 @@ use scrypto::prelude::*;
 use crate::fund_manager_dashboard::*;
 use crate::borrower_dashboard::*;
 use crate::structs::*;
-use crate::index_fund::*;
 use crate::price_oracle::*;
 use crate::utils::*;
 
@@ -11,6 +10,7 @@ blueprint! {
         maple_finance_admin_address: ResourceAddress,
         admin_vault: Vault,
         loan_request_nft_admin_address: ResourceAddress,
+        loan_request_nft_address: ResourceAddress,
         pool_delegates: HashSet<NonFungibleId>,
         fund_manager_address: ResourceAddress,
         fund_manager_admin_address: ResourceAddress,
@@ -24,7 +24,10 @@ blueprint! {
         temporary_badge_address: ResourceAddress,
         pending_approvals: HashMap<String, NonFungibleId>,
         approvals: HashMap<NonFungibleId, NonFungibleId>,
-        loan_requests_global: HashMap<ResourceAddress, BTreeSet<NonFungibleId>>,
+        global_loan_requests: HashMap<NonFungibleId, BTreeSet<NonFungibleId>>,
+        global_loan_requests_vault: Vault,
+        global_debt_funds: HashMap<NonFungibleId, HashSet<ComponentAddress>>,
+        global_funding_lockers: HashMap<NonFungibleId, ComponentAddress>,
         global_index_funds: HashMap<(String, String), ComponentAddress>,
         global_index_funds_name: HashMap<String, String>,
         price_oracle_address: ComponentAddress,
@@ -58,6 +61,16 @@ blueprint! {
                 .metadata("description", "Admin authority")
                 .mintable(rule!(require(admin.resource_address())), LOCKED)
                 .burnable(rule!(require(admin.resource_address())), LOCKED)
+                .no_initial_supply();
+            
+            // NFT description for Pool Delegates
+            let loan_request_nft_address: ResourceAddress = ResourceBuilder::new_non_fungible()
+                .metadata("name", "Loan Request NFT")
+                .metadata("symbol", "LRNFT")
+                .metadata("description", "Loan Request Terms")
+                .mintable(rule!(require(loan_request_nft_admin_address)), LOCKED)
+                .burnable(rule!(require(loan_request_nft_admin_address)), LOCKED)
+                .updateable_non_fungible_data(rule!(require(loan_request_nft_admin_address)), LOCKED)
                 .no_initial_supply();
 
             let fund_manager_admin_address = ResourceBuilder::new_fungible()
@@ -122,6 +135,7 @@ blueprint! {
                 maple_finance_admin_address: maple_finance_admin.resource_address(),
                 admin_vault: Vault::with_bucket(admin),
                 loan_request_nft_admin_address: loan_request_nft_admin_address,
+                loan_request_nft_address: loan_request_nft_address,
                 pool_delegates: HashSet::new(),
                 fund_manager_address: fund_manager_address,
                 fund_manager_admin_address: fund_manager_admin_address,
@@ -135,7 +149,10 @@ blueprint! {
                 temporary_badge_address: temporary_badge_address,
                 pending_approvals: HashMap::new(),
                 approvals: HashMap::new(),
-                loan_requests_global: HashMap::new(),
+                global_loan_requests: HashMap::new(),
+                global_loan_requests_vault: Vault::new(loan_request_nft_address),
+                global_debt_funds: HashMap::new(),
+                global_funding_lockers: HashMap::new(),
                 global_index_funds: HashMap::new(),
                 global_index_funds_name: HashMap::new(),
                 price_oracle_address: PriceOracle::new(),
@@ -229,6 +246,19 @@ blueprint! {
             }
         }
 
+        pub fn deposit_loan_requests(
+            &mut self,
+            loan_request_nft: Bucket
+        )
+        {
+            assert_eq!(
+                loan_request_nft.resource_address(), self.loan_request_nft_address,
+                "The bucket passed must contains a loan request NFT."
+            );
+
+            self.global_loan_request_vault.put(loan_request_nft);
+        }
+
         pub fn create_temporary_badge(
             &mut self,
             name: String,
@@ -292,6 +322,8 @@ blueprint! {
                     FundManager {
                         name: name.clone(),
                         managed_index_funds: HashMap::new(),
+                        managed_funding_lockers: HashMap::new(),
+                        managed_funding_locker_admin: HashMap::new(),
                         managed_debt_funds: HashMap::new(),
                     },
                 )
@@ -357,8 +389,8 @@ blueprint! {
                 fund_manager_admin,
                 maple_finance_global_address,
                 self.fund_manager_address, 
-                fund_manager_id.clone(),
                 loan_request_nft_admin,
+                self.loan_request_nft_address,
                 price_oracle_address,
             );
 
@@ -391,6 +423,8 @@ blueprint! {
                     // The User data
                     Borrower {
                         name: name.clone(),
+                        loan_requests: BTreeSet::new(),
+                        loans: BTreeSet::new(),
                     },
                 )
             });
@@ -403,7 +437,7 @@ blueprint! {
 
             // Change NFT data of the Temporary Badge to indicate the prospective Fund Manager has been approved.
             match nft_data {
-                BadgeContainer::FundManagerContainer(_FundManager) => {}
+                BadgeContainer::FundManagerContainer(_fundmanager) => {}
                 BadgeContainer::InvestorContainer(_investor) => {}
                 BadgeContainer::BorrowerContainer(_borrower) => {}
                 BadgeContainer::TemporaryBadgeContainer(mut temporary_badge) => {
@@ -445,7 +479,8 @@ blueprint! {
                 maple_finance_global_address,
                 self.borrower_admin_address, 
                 borrower_id.clone(), 
-                loan_request_nft_admin
+                loan_request_nft_admin,
+                self.loan_request_nft_address,
             );
 
             self.borrower_dashboards.insert(
@@ -520,29 +555,71 @@ blueprint! {
             }
         }
 
-        fn retrieve_loan_requests(
-            &mut self)
+        // fn retrieve_loan_requests(
+        //     &mut self)
+        // {
+        //     let borrower_dashboards = self.borrower_dashboards.iter();
+        //     for (borrower, _dashboards) in borrower_dashboards {
+        //         let borrower_dashboard_address: ComponentAddress = *self.borrower_dashboards.get(&borrower).unwrap();
+        //         let borrower_dashboard: BorrowerDashboard = borrower_dashboard_address.into();
+        //         let loan_requests: HashMap<ResourceAddress, BTreeSet<NonFungibleId>> = borrower_dashboard.broadcast_loan_requests();
+        //         let loan_requests_iter = loan_requests.iter();
+        //         for (loan_requests_nft_address, loan_requests_nft_id) in loan_requests_iter {
+        //             self.loan_requests_global.insert(
+        //                 *loan_requests_nft_address, 
+        //                 loan_requests_nft_id.clone()
+        //             );
+        //         }
+        //     }
+        // }
+
+        // pub fn broadcast_loan_requests(
+        //     &mut self) -> HashMap<ResourceAddress, BTreeSet<NonFungibleId>>
+        // {
+        //     self.retrieve_loan_requests();
+        //     return self.loan_requests_global.clone()
+        // }
+
+        pub fn insert_global_loan_requests(
+            &mut self,
+            borrower_id: NonFungibleId,
+            loan_request_id: BTreeSet<NonFungibleId>,
+        )
         {
-            let borrower_dashboards = self.borrower_dashboards.iter();
-            for (borrower, _dashboards) in borrower_dashboards {
-                let borrower_dashboard_address: ComponentAddress = *self.borrower_dashboards.get(&borrower).unwrap();
-                let borrower_dashboard: BorrowerDashboard = borrower_dashboard_address.into();
-                let loan_requests: HashMap<ResourceAddress, BTreeSet<NonFungibleId>> = borrower_dashboard.broadcast_loan_requests();
-                let loan_requests_iter = loan_requests.iter();
-                for (loan_requests_nft_address, loan_requests_nft_id) in loan_requests_iter {
-                    self.loan_requests_global.insert(
-                        *loan_requests_nft_address, 
-                        loan_requests_nft_id.clone()
-                    );
-                }
-            }
+            assert_ne!(self.global_loan_requests.contains_key(&borrower_id), true, 
+                "Pool name already exist, please use a different name"
+            );
+
+            self.global_loan_requests.insert(borrower_id, loan_request_id);
         }
 
-        pub fn broadcast_loan_requests(
-            &mut self) -> HashMap<ResourceAddress, BTreeSet<NonFungibleId>>
+        pub fn insert_funding_lockers(
+            &mut self,
+            loan_id: NonFungibleId,
+            funding_locker_address: ComponentAddress,
+        )
         {
-            self.retrieve_loan_requests();
-            return self.loan_requests_global.clone()
+            assert_ne!(self.global_funding_lockers.contains_key(&loan_id), true, 
+                "Pool name already exist, please use a different name"
+            );
+
+            self.global_funding_lockers.insert(loan_id, funding_locker_address);
+        }
+
+        pub fn insert_debt_fund(
+            &mut self,
+            fund_manager_id: NonFungibleId,
+            debt_fund_address: ComponentAddress,
+        )
+        {
+            assert_ne!(self.global_debt_funds.contains_key(&fund_manager_id), true, 
+                "Pool name already exist, please use a different name"
+            );
+
+            let mut hashset: HashSet<ComponentAddress> = HashSet::new();
+            hashset.insert(debt_fund_address);
+
+            self.global_debt_funds.insert(fund_manager_id, hashset);
         }
 
         pub fn assert_index_fund(
@@ -600,7 +677,7 @@ blueprint! {
         }
 
         pub fn get_index_fund(
-            &self,
+            &mut self,
             fund_name: String,
         ) -> ComponentAddress
         {
@@ -615,7 +692,7 @@ blueprint! {
             let mut index_fund_lists: HashMap<(String, String), ComponentAddress> = HashMap::new();
             let global_index_funds = self.global_index_funds.iter();
             for ((fund_name, fund_ticker), index_fund) in global_index_funds {
-                index_fund_lists.insert((*fund_name, *fund_ticker), index_fund.clone());
+                index_fund_lists.insert((fund_name.to_string(), fund_ticker.to_string()), index_fund.clone());
             }
 
             index_fund_lists

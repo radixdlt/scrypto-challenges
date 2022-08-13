@@ -1,15 +1,17 @@
-CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "withdraw_by_amount" Decimal("10") ResourceAddress("${XRD}");
-CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "withdraw_by_amount" Decimal("10") ResourceAddress("${USD}");
-CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "withdraw_by_amount" Decimal("10") ResourceAddress("${DOGE}");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "withdraw_by_amount" Decimal("1250") ResourceAddress("${XRD}");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "withdraw_by_amount" Decimal("1250") ResourceAddress("${USD}");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "withdraw_by_amount" Decimal("1250") ResourceAddress("${BTC}");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "withdraw_by_amount" Decimal("1250") ResourceAddress("${DOGE}");
 
-TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("10") ResourceAddress("${XRD}") Bucket("bucket1");
-TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("10") ResourceAddress("${USD}") Bucket("bucket2");
-TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("10") ResourceAddress("${DOGE}") Bucket("bucket3");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1250") ResourceAddress("${XRD}") Bucket("bucket1");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1250") ResourceAddress("${USD}") Bucket("bucket2");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1250") ResourceAddress("${BTC}") Bucket("bucket3");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1250") ResourceAddress("${DOGE}") Bucket("bucket4");
 
 
 CALL_METHOD
-    ComponentAddress("${COMPONENT}")
+    ComponentAddress("${INDEX}")
     "issue_tokens"
-    Vec<Bucket>(Bucket("bucket1"), Bucket("bucket2"), Bucket("bucket3"));
+    Vec<Bucket>(Bucket("bucket1"), Bucket("bucket2"), Bucket("bucket3"), Bucket("bucket4"));
 
-CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS1}") "deposit_batch";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS2}") "deposit_batch";

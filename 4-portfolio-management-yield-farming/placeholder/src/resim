@@ -2,22 +2,63 @@ OP1=$(resim new-account)
 export PRIV_KEY1=$(echo "$OP1" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
 export PUB_KEY1=$(echo "$OP1" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
 export ACC_ADDRESS1=$(echo "$OP1" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
-resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
+OP2=$(resim new-account)
+export PRIV_KEY2=$(echo "$OP2" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export PUB_KEY2=$(echo "$OP2" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS2=$(echo "$OP2" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+OP3=$(resim new-account)
+export PRIV_KEY3=$(echo "$OP3" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export PUB_KEY3=$(echo "$OP3" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS3=$(echo "$OP3" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 
-M_OP=$(resim run "./transactions/mint_tokens.rtm")
-export USD=$(echo "$M_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
-export DOGE=$(echo "$M_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
-export XRD=030000000000000000000000000000000000000000000000000004
+resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
 
 PK_OP=$(resim publish ".")
 export PACKAGE=$(echo "$PK_OP" | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
-PO_OP=$(resim run "./transactions/price_oracle.rtm")
-export ORACLE=$(echo "$PO_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+M_OP=$(resim run "./transactions/maplefinance.rtm")
+export ORACLE=$(echo "$M_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+export MAPLE=$(echo "$M_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
+export MADMIN=$(echo "$M_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
 R_OP=$(resim run "./transactions/radex.rtm")
 export RADEX=$(echo "$R_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+D_OP=$(resim run "./transactions/degenfi.rtm")
+export DEGENFI=$(echo "$D_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '3q;d')
+export FLASH=$(echo "$D_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
+
+
 CP_OP=$(resim run "./transactions/fundlocker.rtm")
 export COMPONENT=$(echo "$CP_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
 
+
+PO_OP=$(resim run "./transactions/price_oracle.rtm")
+export ORACLE=$(echo "$PO_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+
+
+resim run ./transactions/set_maple.rtm
+---------
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+
+M_OP=$(resim run "./transactions/mint_tokens.rtm")
+export USD=$(echo "$M_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+export BTC=$(echo "$M_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
+export DOGE=$(echo "$M_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '3q;d')
+export XRD=030000000000000000000000000000000000000000000000000004
+C_TB=$(resim run "./transactions/create_tb.rtm")
+export TB=$(echo "$C_TB" | sed -nr "s/.* The resource address of your temporary badge is: ([[:alnum:]_]+)/\1/p")
+
+---------
+resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
+
+C_FM=$(resim run "./transactions/create_fm.rtm")
+export FUND=$(echo "$C_FM" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+----------
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+
+C_CB=$(resim run "./transactions/claim_badge.rtm")
+export FA=$(echo "$C_CB" | sed -nr "s/.* The resource address of your NFT is: ([[:alnum:]_]+)/\1/p")
+C_IF=$(resim run "./transactions/index_fund.rtm")
+export INDEX=$(echo "$C_IF" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+export PROOF=$(echo "$C_IF" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
 
 resim run ./transactions/set_price.rtm
 
@@ -27,3 +68,5 @@ resim run ./transactions/issue_tokens.rtm
 // Connect index fund to the pool_delegate dashboard
 // Consider access control between maple finance, pool delegate dashboard, index fund and debt fund.
 
+// Add a whitelist/blacklist of componentaddress
+// Transfer ownership of the fund

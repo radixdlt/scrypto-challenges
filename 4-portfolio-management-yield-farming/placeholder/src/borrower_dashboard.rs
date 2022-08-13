@@ -1,4 +1,5 @@
 use scrypto::prelude::*;
+use crate::maple_finance_global::*;
 use crate::{structs::*, fundinglocker::FundingLocker};
 
 // Allows approved Pool Delegate to manage pools.
@@ -20,17 +21,10 @@ blueprint! {
             maple_finance_global_address: ComponentAddress,
             borrower_admin_address: ResourceAddress,
             borrower_id: NonFungibleId,
-            loan_request_nft_admin: Bucket) -> ComponentAddress
+            loan_request_nft_admin: Bucket,
+            loan_request_nft_address: ResourceAddress,
+        ) -> ComponentAddress
         {
-            // NFT description for Pool Delegates
-            let loan_request_nft_address: ResourceAddress = ResourceBuilder::new_non_fungible()
-                .metadata("name", "Loan Request NFT")
-                .metadata("symbol", "LRNFT")
-                .metadata("description", "Loan Request Terms")
-                .mintable(rule!(require(loan_request_nft_admin.resource_address())), LOCKED)
-                .burnable(rule!(require(loan_request_nft_admin.resource_address())), LOCKED)
-                .updateable_non_fungible_data(rule!(require(loan_request_nft_admin.resource_address())), LOCKED)
-                .no_initial_supply();
 
             return Self {
                 borrower_admin_address: borrower_admin_address,
@@ -47,11 +41,55 @@ blueprint! {
 
         fn get_resource_manager(
             &self,
-            loan_request_id: &NonFungibleId) -> LoanRequest
+            nft_id: &NonFungibleId,
+            borrower_badge: BorrowerBadges
+        ) -> BorrowerBadgeContainer
         {
-            let resource_manager = borrow_resource_manager!(self.loan_request_nft_address);
-            let loan_request_nft_data: LoanRequest = resource_manager.get_non_fungible_data(loan_request_id);
-            loan_request_nft_data
+            let badge_address = match borrower_badge {
+                BorrowerBadges::LoanRequestNFT => self.loan_request_nft_address,
+                BorrowerBadges::Borrower => self.borrower_admin_address,
+            };
+
+            let resource_manager = borrow_resource_manager!(badge_address);
+
+            match borrower_badge {
+                BorrowerBadges::LoanRequestNFT => {
+                    let nft_data: LoanRequest = resource_manager.get_non_fungible_data(&nft_id);
+                    return BorrowerBadgeContainer::LoanRequestNFTContainer(nft_data)
+                }
+                BorrowerBadges::Borrower => {
+                    let nft_data: Borrower = resource_manager.get_non_fungible_data(&nft_id);
+                    return BorrowerBadgeContainer::BorrowerContainer(nft_data)
+                }
+            }
+        }
+
+        fn authorize_update(
+            &self,
+            nft_id: &NonFungibleId,
+            borrower_badge: BorrowerBadges,
+            nft_data: BorrowerBadgeContainer
+        )
+        {
+            let badge_address = match borrower_badge {
+                BorrowerBadges::LoanRequestNFT => self.loan_request_nft_address,
+                BorrowerBadges::Borrower => self.borrower_admin_address,
+            };
+
+            let resource_manager = borrow_resource_manager!(badge_address);
+            
+            match nft_data {
+                BorrowerBadgeContainer::LoanRequestNFTContainer(loan_request) => {
+                    self.admin_vault.authorize(|| 
+                        resource_manager.update_non_fungible_data(nft_id, loan_request)
+                    );
+                }
+                BorrowerBadgeContainer::BorrowerContainer(borrower) => {
+                    self.admin_vault.authorize(|| 
+                        resource_manager.update_non_fungible_data(nft_id, borrower)
+                    );
+                }
+            }
         }
 
         pub fn request_new_loan(
@@ -65,11 +103,12 @@ blueprint! {
             annualized_interest_rate: Decimal,
             payment_frequency: PaymentFrequency)
         {
+            let borrower_id: NonFungibleId = borrower_proof.non_fungible::<Borrower>().id();
             assert_eq!(borrower_proof.resource_address(), self.borrower_admin_address, 
                 "[Borrower Dashboard: Incorrect Proof passed."
             );
 
-            assert_eq!(borrower_proof.non_fungible::<Borrower>().id(), self.borrower_id,
+            assert_eq!(borrower_id.clone(), self.borrower_id,
                 "[Borrower Dashboard: Incorrect user."
             );
 
@@ -87,7 +126,7 @@ blueprint! {
                         term_length: term_length,
                         annualized_interest_rate: annualized_interest_rate,
                         payment_frequency: payment_frequency,
-                        borrower: borrower_proof.non_fungible::<Borrower>().id(),
+                        borrower: borrower_id.clone(),
                         status: RequestStatus::Pending,
                         loan_nft_id: None,
                         funding_locker_address: None,
@@ -99,7 +138,9 @@ blueprint! {
                 loan_request_nft.non_fungible::<LoanRequest>().id()
             );
 
-            self.loan_requests.put(loan_request_nft);
+            let maple_finance: MapleFinance = self.maple_finance_global_address.into();
+            maple_finance.deposit_loan_requests(loan_request_nft);
+            maple_finance.insert_global_loan_requests(borrower_id, self.loan_requests.non_fungible_ids().clone());
         }
 
         /// Broadcast loan requests from this borrower.
@@ -213,7 +254,8 @@ blueprint! {
             &mut self,
             borrower_proof: Proof,
             loan_request_nft_id: NonFungibleId,
-            collateral: Bucket) -> Option<Bucket>
+            collateral: Bucket
+        ) -> Option<Bucket>
         {
             assert_eq!(borrower_proof.resource_address(), self.borrower_admin_address,
                 "[Borrower Dashboard]: Incorrect borrower."

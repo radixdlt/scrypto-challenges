@@ -1,14 +1,18 @@
 use scrypto::prelude::*;
 use radex::radex::*;
 use degenfi::degenfi::*;
+use num_rational;
 use crate::price_oracle::*;
 
 blueprint! {
     struct IndexFund {
         fund_admin_address: ResourceAddress,
+        fund_admin_vault: Vault,
+        fund_trader_address: ResourceAddress,
         fund_name: String,
         fund_ticker: String,
         fund_vaults: HashMap<ResourceAddress, Vault>,
+        // Need to get rid of this
         token_weights: HashMap<ResourceAddress, Decimal>,
         // Mints fund tokens
         fund_token_admin_vault: Vault,
@@ -51,6 +55,15 @@ blueprint! {
                 .metadata("symbol", "FO")
                 .metadata("description", "Badge that represents admin authority of the fund.")
                 .initial_supply(1);
+
+            let fund_trader_address = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_NONE)
+                .metadata("name", format!("{} Trader", fund_name))
+                .metadata("symbol", "FT")
+                .metadata("description", "Trader authority of the fund.")
+                .mintable(rule!(require(fund_admin.resource_address())), LOCKED)
+                .burnable(rule!(require(fund_admin.resource_address())), LOCKED)
+                .no_initial_supply();
             
             let fund_token_admin: Bucket = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
@@ -74,21 +87,29 @@ blueprint! {
 
             let mut cumulative_token_weight: Decimal = Decimal::zero();
             for (token_address, token_weight) in vault_amount {
+                
                 assert_ne!(
                     borrow_resource_manager!(*token_address).resource_type(), ResourceType::NonFungible,
                     "[Fund Creation]: Assets must be fungible."
                 );
+
                 cumulative_token_weight += *token_weight;
+
                 fund_vaults.insert(*token_address, Vault::new(*token_address));
                 token_weights.insert(*token_address, *token_weight);
+
+                info!("[Fund Creation]: Token: {:?} Weight: {:?} ",
+                token_address, token_weight);
             };
 
-            assert_eq!(cumulative_token_weight, Decimal::one(), 
+            assert_eq!(cumulative_token_weight.round(1, RoundingMode::TowardsNearestAndHalfAwayFromZero), Decimal::one(), 
                 "[Fund Creation]: The total weighting of collections of tokens must equal to 100%.",
             );
 
             let index_fund: ComponentAddress = Self {
                 fund_admin_address: fund_admin.resource_address(),
+                fund_admin_vault: Vault::new(fund_admin.resource_address()),
+                fund_trader_address: fund_trader_address,
                 fund_name: fund_name,
                 fund_ticker: fund_ticker.clone(),
                 fund_vaults: fund_vaults,
@@ -137,7 +158,7 @@ blueprint! {
         /// 
         /// This method does not perform any checks.
         /// 
-        /// This method does not take any arguments.
+        /// This method does not take any arguments. 
         pub fn integrate_lending(
             &mut self, 
             degenfi_address: ComponentAddress
@@ -147,58 +168,27 @@ blueprint! {
             self.degenfi_address = Some(degenfi_address);
         }
 
-        pub fn add_token(
+        pub fn create_trader_badge(
             &mut self,
-            token: HashMap<ResourceAddress, Decimal>
-        )
+        ) -> Bucket
         {
-            let tokens = token.iter();
-            let mut cumulative_token_weight: Decimal = Decimal::one();
-            for (token_address, token_weight) in tokens{
-                cumulative_token_weight += *token_weight;
-                self.token_weights.entry(*token_address).and_modify(|e| { *e = *token_weight }).or_insert(*token_weight);
-                self.fund_vaults.entry(*token_address).or_insert(Vault::new(*token_address));
-            }
-
-            assert_eq!(cumulative_token_weight, Decimal::one(), 
-                "[{:?} Fund]: The total weighting of collections of tokens must equal to 100%.",
-                self.fund_name
+            let fund_trader_badge: Bucket = self.fund_admin_vault.authorize(|| 
+                borrow_resource_manager!(self.fund_trader_address).mint(1)
             );
+            
+            fund_trader_badge
         }
 
-        /// Ensure that the remove tokens don't have a position in liquidity pool.
-        pub fn remove_token(
+        /// Enforcing weight doesn't matter after inception of the fund.
+        pub fn add_token(
             &mut self,
-            token: HashMap<ResourceAddress, Decimal>,
-            mut token_to_remove: Vec<ResourceAddress>, 
+            token: Vec<ResourceAddress>
         )
         {
-            // * REMOVES TOKENS * //
-            let remove_len = token_to_remove.len();
-            let mut counter = 0;
-            while counter < remove_len {
-                let token_address: Option<ResourceAddress> = token_to_remove.pop(); 
-                match token_address {
-                    Some(token) => {
-                        self.token_weights.remove_entry(&token);
-                    }
-                    None => {}
-                }
-                counter += 1;
-            }
-
-            // * REBALANCES TOKEN WEIGHTS * //
             let tokens = token.iter();
-            let mut cumulative_token_weight: Decimal = Decimal::one();
-            for (token_address, token_weight) in tokens{
-                cumulative_token_weight += *token_weight;
-                self.token_weights.entry(*token_address).and_modify(|e| { *e = *token_weight });
+            for token_address in tokens {
+                self.fund_vaults.entry(*token_address).or_insert(Vault::new(*token_address));
             }
-
-            assert_eq!(cumulative_token_weight, Decimal::one(), 
-                "[{:?} Fund]: The total weighting of collections of tokens must equal to 100%.",
-                self.fund_name
-            );
         }
 
         pub fn buy(
@@ -240,23 +230,24 @@ blueprint! {
         {
             // Retrieves how many bucket of tokens are being passed.
             let number_of_tokens = tokens.len();
-
-            // * CALCULATE THE TOTAL AMOUNT OF TOKENS AND CUMULATIVE VALUE OF TOKENS * //
-            let mut cumulative_token_amount: Decimal = Decimal::zero();
-            let mut cumulative_value: Decimal = Decimal::zero();
-            let tokens_iter = tokens.iter();
-            let price_oracle: PriceOracle = self.price_oracle_address.into();
-            for bucket in tokens_iter {
-                let token_amount: Decimal = bucket.amount();
-                let price: Decimal = price_oracle.get_price(bucket.resource_address());
-                let token_value: Decimal = token_amount * price; 
-                cumulative_token_amount += token_amount;
-                cumulative_value += token_value;
-            }
-            info!("Amount of tokens: {:?}", cumulative_token_amount);
-            info!("Value of tokens: {:?}", cumulative_value);
             
-            let mut amount_to_mint: Decimal = Decimal::zero();
+            let amount_to_mint: Decimal = if self.get_vault_cumulative_value() == Decimal::zero() { 
+                let amount_to_mint: Decimal = self.get_amount_to_mint(&tokens);
+                amount_to_mint
+            } else {
+                let amount_to_mint: Decimal = self.get_amount_to_mint2(&tokens);
+                amount_to_mint
+            };
+
+            info!("[Fund Locker]: Amount of Fund Tokens issued: {:?}", amount_to_mint);
+
+            // * MINTS FUND TOKENS * //
+            let fund_token = self.fund_token_admin_vault.authorize(|| 
+                borrow_resource_manager!(self.fund_token_address).mint(amount_to_mint)
+            );
+
+            let price_oracle: PriceOracle = self.price_oracle_address.into();
+            price_oracle.set_price(self.fund_token_address, Decimal::one());
 
             let mut counter = 0;
             while counter < number_of_tokens {
@@ -273,24 +264,16 @@ blueprint! {
 
                         let token_address: ResourceAddress = token.resource_address();
 
-                        // * MINTS FUND TOKENS * //
+                        // * CALCULATES AMOUNT OF FUND TOKENS TO MINT * //
                         // Takes the weight of one of the collateral and multiplies against the total value of the tokens
                         // deposited. The total weight of each collateral should equal to 100%.
-                        let token_weight: Decimal = *self.token_weights.get(&token_address).unwrap();
-                        let fund_tokens_to_mint: Decimal = cumulative_value * token_weight;
-
-                        info!("Token weight: {:?}", token_weight);
-                        
-                        amount_to_mint += fund_tokens_to_mint.round(0, RoundingMode::TowardsPositiveInfinity);
 
                         assert_eq!(self.fund_vaults.contains_key(&token_address), true,
                             "[Fund Locker]: This token does not belong to this fund."
                         );
 
-                        let fund_vault: &mut Vault = self.fund_vaults.get_mut(&token_address).unwrap();
-
-                        fund_vault.put(token);
-
+                        self.fund_vaults.get_mut(&token_address).unwrap().put(token);
+                    
                     }
                     None => {
                         
@@ -301,26 +284,9 @@ blueprint! {
 
                 counter += 1;
 
-                info!("[Fund Locker]: Fund tokens issues: {:?}", amount_to_mint);
-
-                }
-
-            if counter == number_of_tokens {
-                let fund_token = self.fund_token_admin_vault.authorize(|| 
-                    borrow_resource_manager!(self.fund_token_address).mint(amount_to_mint)
-                );
-
-                let price_oracle: PriceOracle = self.price_oracle_address.into();
-                price_oracle.set_price(self.fund_token_address, Decimal::one());
-
-                info!("[Fund Locker]: Amount of Fund Tokens issued: {:?}", amount_to_mint);
-
-                fund_token
-            } else {
-                let empty_bucket = self.fund_token_admin_vault.take(0);
-
-                empty_bucket
             }
+
+            fund_token
         }
 
         pub fn redeem(
@@ -438,15 +404,17 @@ blueprint! {
 
             let radex: RaDEX = self.radex_address.unwrap().into();
 
-            let (option_bucket1, option_bucket2, tracking_tokens): 
+            let (_option_bucket1, _option_bucket2, tracking_tokens): 
             (Option<Bucket>, Option<Bucket>, Bucket) = radex.add_liquidity(token1, token2);
 
             // Retrieves the corresponding tracking token address. If the key exist, the value is
             // returned and the bucket of tokens is deposited into the vault. If not, a vault is 
             // created with the bucket of tokens. 
-            self.fund_vaults.entry(tracking_tokens.resource_address())
-            .and_modify(|e| {e.put(tracking_tokens) } )
-            .or_insert(Vault::with_bucket(tracking_tokens));
+            if self.fund_vaults.contains_key(&tracking_tokens.resource_address()) == true {
+                self.fund_vaults.get_mut(&tracking_tokens.resource_address()).unwrap().put(tracking_tokens);
+            } else {
+                self.fund_vaults.insert(tracking_tokens.resource_address(), Vault::with_bucket(tracking_tokens));
+            };
         }
 
         /// Allows Fund Manager to exit out of their liquidity pool position. 
@@ -530,7 +498,7 @@ blueprint! {
                 self.fund_name
             );
 
-            assert_eq!(self.degenfi_address.is_some(), true, 
+            assert_eq!(self.radex_address.is_some(), true, 
                 "[{:?} Fund]: Trading feature has not been integrated. You must first integrate RaDEX",
                 self.fund_name
             );
@@ -545,7 +513,10 @@ blueprint! {
             let radex: RaDEX = self.radex_address.unwrap().into();
             let return_bucket = radex.swap(input_bucket, output_token);
 
-            self.fund_vaults.get_mut(return_bucket.resource_address()).unwrap().put(return_bucket);
+            self.fund_vaults.get_mut(&return_bucket.resource_address()).unwrap().put(return_bucket);
+
+            // Add logic to view token weights after swaps are performed.
+            self.view_token_weights();
         }
 
         pub fn register_degenfi_user(
@@ -789,7 +760,8 @@ blueprint! {
                 "[{:?} Fund]: Leverage feature has not been integrated. You must first integrate DegenFi",
                 self.fund_name
             );
-            let loan_vault = self.loan_vault;
+
+            let loan_vault = self.loan_vault.as_ref();
 
             match loan_vault {
                 Some(vault) => {
@@ -873,9 +845,7 @@ blueprint! {
             let addresses: Vec<ResourceAddress> = self.addresses();
 
             let degenfi: DegenFi = self.degenfi_address.unwrap().into();
-            let degenfi_badge_proof: Proof = self.degenfi_vaults[&addresses[0]].create_proof();
-
-            let (return_borrow, transient_token, degen_token): (Bucket, Bucket, Bucket) = degenfi.flash_borrow(token_requested, amount);
+            let (_return_borrow, _transient_token, degen_token): (Bucket, Bucket, Bucket) = degenfi.flash_borrow(token_requested, amount);
 
             self.degenfi_vaults.get_mut(&addresses[1]).unwrap().put(degen_token);
         }
@@ -900,9 +870,10 @@ blueprint! {
             let addresses: Vec<ResourceAddress> = self.addresses();
 
             let degenfi: DegenFi = self.degenfi_address.unwrap().into();
-            let degenfi_badge_proof: Proof = self.degenfi_vaults[&addresses[0]].create_proof();
             
             let degen_token: Bucket = degenfi.flash_repay(repay_amount, flash_loan);
+
+            self.degenfi_vaults.get_mut(&addresses[1]).unwrap().put(degen_token);
         }
 
         pub fn view_fund_tokens(
@@ -911,55 +882,41 @@ blueprint! {
         {
             let fund_vaults = self.fund_vaults.iter();
             for (token_address, vaults) in fund_vaults {
-                info!("[{:?} Fund]: Token: {:?} | Amount: {:?}",
-                self.fund_name, token_address, vaults.amount()
-            );
-
             let price_oracle: PriceOracle = self.price_oracle_address.into();
             let token_price: Decimal = price_oracle.get_price(*token_address);
             let token_value: Decimal = token_price * vaults.amount();
-            info!("[{:?} Fund]: Token: {:?} | Value: {:?}",
-                self.fund_name, token_address, token_value
+            info!("[{:?} Fund]: Token: {:?} | Amount: {:?} | Value: {:?}",
+                self.fund_name, token_address, vaults.amount(), token_value
             );
 
             }
-        }
-
-        pub fn view_weights(
-            &self,
-        ) -> HashMap<ResourceAddress, Decimal>
-        {
-            return self.token_weights.clone()
         }
 
         pub fn view_token_weights(
             &self,
-        ) -> HashMap<ResourceAddress, Decimal>
+        ) 
         {
-            let mut token_weights: HashMap<ResourceAddress, Decimal> = HashMap::new();
             let price_oracle: PriceOracle = self.price_oracle_address.into();
-
+            info!("[{:?} Fund]: The token weights are:", self.fund_name);
             let fund_vaults = self.fund_vaults.iter();
             for (token_address, vaults) in fund_vaults {
                 let token_price: Decimal = price_oracle.get_price(*token_address);
-                
-                let vault = self.fund_vaults.get(token_address).unwrap();
 
-                let vault_amount = vault.amount();
+                let vault_amount = vaults.amount();
 
                 let token_value = vault_amount * token_price;
 
-                let cumulative_value: Decimal = self.get_cumulative_value();
+                let cumulative_value: Decimal = self.get_vault_cumulative_value();
 
                 let token_weight: Decimal = token_value / cumulative_value;
 
-                token_weights.insert(*token_address, token_weight);
+                info!("Token Address: {:?} | Token Weight: {:?}", 
+                    token_address, token_weight
+                );
             }
-
-            token_weights
         }
 
-        fn get_cumulative_value(
+        fn get_vault_cumulative_value(
             &self,
         ) -> Decimal
         {
@@ -967,7 +924,7 @@ blueprint! {
             let price_oracle: PriceOracle = self.price_oracle_address.into();
 
             let fund_vaults = self.fund_vaults.iter();
-            for (token_address, vaults) in fund_vaults {
+            for (token_address, _vaults) in fund_vaults {
                 let token_price: Decimal = price_oracle.get_price(*token_address);
                 
                 let vault = self.fund_vaults.get(token_address).unwrap();
@@ -978,6 +935,146 @@ blueprint! {
 
                 cumulative_value += token_value;
                 
+            }
+
+            cumulative_value
+        }
+
+        fn get_amount_to_mint(
+            &self,
+            tokens: &Vec<Bucket>
+        ) -> Decimal
+        {
+            let cumulative_value: Decimal = self.get_total_bucket_value(&tokens);
+
+            info!("1cumulative value: {:?}", cumulative_value);
+
+            let mut cumulative_amount: Decimal = Decimal::zero();
+
+            let mut amount_to_mint: Decimal = Decimal::zero();
+
+            let buckets = tokens.iter();
+            for token in buckets {
+
+                let token_amount: Decimal = token.amount();
+                let price_oracle: PriceOracle = self.price_oracle_address.into();
+                let token_price: Decimal = price_oracle.get_price(token.resource_address());
+                let token_value: Decimal = token_amount * token_price;
+                let token_weight: Decimal = token_value / cumulative_value;
+                let mint: Decimal = cumulative_value * token_weight;
+
+                info!("1Token Address: {:?}", token.resource_address());
+                info!("1Token weight: {:?}", token_weight);
+                info!("1Mint: {:?}", mint);
+                info!("1Amount: {:?}", token_amount);
+
+                cumulative_amount += token_amount;
+
+                amount_to_mint += mint;
+            }
+
+            info!("1cumulative amount: {:?}", cumulative_amount);
+
+            amount_to_mint
+        }
+
+        fn get_amount_to_mint2(
+            &self,
+            tokens: &Vec<Bucket>
+        ) -> Decimal
+        {
+
+            let mut cumulative_value: Decimal = self.get_vault_cumulative_value();
+
+            info!("2cumulative value: {:?}", cumulative_value);
+
+            let mut cumulative_amount: Decimal = Decimal::zero();
+
+            // The purpose of this iteration is to calculate the cumulative value. 
+            // Which takes the cumulative value of all the tokens currently existing the vault
+            // and adds all the value of each bucket (since the buckets will be deposited)
+            // when they are exchanged for Fund Tokens. We retrieve the cumulative value this way
+            // because we need to calculate the weights based on updated numbers. 
+            let buckets = tokens.iter();
+            for token in buckets {
+                let token_address: ResourceAddress = token.resource_address();
+
+                let token_amount: Decimal = token.amount();
+
+                let price_oracle: PriceOracle = self.price_oracle_address.into();
+                let token_price: Decimal = price_oracle.get_price(token_address);
+                let token_value: Decimal = token_amount * token_price;
+
+                cumulative_value += token_value;
+
+                info!("2Token Address: {:?}", token_address);
+                info!("2Amount: {:?}", token_amount);
+
+                cumulative_amount += token_amount;
+                // multiply current cumulative token weight with total bucket value
+            }
+
+            info!("3new cumulative value: {:?}", cumulative_value);
+
+            let total_bucket_value: Decimal = self.get_total_bucket_value(&tokens);
+
+            info!("3total bucket value: {:?}", total_bucket_value);
+
+            let mut amount_to_mint: Decimal = Decimal::zero();
+            let buckets = tokens.iter();
+
+
+            // This is where the logic to specify amount to be minted.
+            for token in buckets {
+                let token_address: ResourceAddress = token.resource_address();
+
+                // We calculate the cumulative token amount with what is existing in the vaults
+                // along with what is in the buckets so that we have the current + new amounts.
+                let token_amount: Decimal = token.amount();
+                let vault_amount: Decimal = self.fund_vaults.get(&token_address).unwrap().amount();
+                let cumulative_token_amount = token_amount + vault_amount;
+
+                // Calculate the value of the existing tokens in the vault + the tokens in the bucket.
+                let price_oracle: PriceOracle = self.price_oracle_address.into();
+                let token_price: Decimal = price_oracle.get_price(token_address);
+                let token_value: Decimal = cumulative_token_amount * token_price;
+
+                // Calculate the cumulative individual token value against the new cumulative value
+                // that was calculated in the previous iteration.
+                let token_weight: Decimal = token_value / cumulative_value;
+
+                // The amount to mint is calculated by the total value of all the tokens in each bucket
+                // passed multiplied by the updated weights.
+                let mint: Decimal = total_bucket_value * token_weight;
+
+                info!("3Token Address: {:?}", token_address);
+                info!("3Token weight: {:?}", token_weight);
+                info!("3Amount: {:?}", cumulative_token_amount);
+                info!("3Vault value: {:?}", token_value);
+                info!("3Mint: {:?}", mint);
+
+                amount_to_mint += mint;
+            }
+
+            info!("1cumulative amount: {:?}", cumulative_amount);
+            amount_to_mint
+        }
+
+        fn get_total_bucket_value(
+            &self,
+            tokens: &Vec<Bucket>
+        ) -> Decimal
+        {
+            let mut cumulative_value: Decimal = Decimal::zero();
+            let buckets = tokens.iter();
+
+            for token in buckets {
+                let token_amount: Decimal = token.amount();
+                let price_oracle: PriceOracle = self.price_oracle_address.into();
+                let token_price: Decimal = price_oracle.get_price(token.resource_address());
+                let token_value: Decimal = token_amount * token_price;
+
+                cumulative_value += token_value;
             }
 
             cumulative_value
@@ -996,7 +1093,7 @@ blueprint! {
         {
             let price_oracle: PriceOracle = self.price_oracle_address.into();
 
-            let fee = self.get_cumulative_value() * self.fee_to_pool;
+            let fee = self.get_vault_cumulative_value() * self.fee_to_pool;
             let fund_token_price: Decimal = price_oracle.get_price(self.fund_token_address);
             let fund_token_amount: Decimal = fee / fund_token_price;
 

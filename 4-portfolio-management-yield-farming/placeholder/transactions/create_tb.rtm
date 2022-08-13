@@ -1,0 +1,7 @@
+CALL_METHOD
+    ComponentAddress("${MAPLE}")
+    "create_temporary_badge"
+    "Fund Manager"
+    Enum("FundManager");
+
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS2}") "deposit_batch";

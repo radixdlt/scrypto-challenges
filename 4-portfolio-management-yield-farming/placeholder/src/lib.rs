@@ -5,6 +5,6 @@ mod price_oracle;
 mod fundinglocker;
 mod fund_manager_dashboard;
 mod borrower_dashboard;
-mod lending_pool;
+mod debt_fund;
 mod utils;
 mod investor_dashboard;

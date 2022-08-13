@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${MAPLE}") "set_address" ComponentAddress("${MAPLE}");
+

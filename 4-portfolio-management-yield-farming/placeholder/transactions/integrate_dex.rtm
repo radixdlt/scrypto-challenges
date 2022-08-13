@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${INDEX}") "integrate_dex" ComponentAddress("${RADEX}");
+
