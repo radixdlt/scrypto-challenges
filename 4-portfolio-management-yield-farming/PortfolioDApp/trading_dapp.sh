@@ -61,6 +61,9 @@ resim show $lending_component
 echo '====== PORTFOLIO COMPONENT ======'
 resim show $portfolio_component
 
+echo '====== BUY GENERIC ======'
+resim call-method $component buy_generic 500,$xrd  $eth
+
 echo '====== BUY ======'
 resim call-method $component buy 500,$xrd 
 
@@ -80,7 +83,7 @@ echo '====== FUND by USING PORTFOLIO ======'
 resim call-method $portfolio_component fund_portfolio 10000,$xrd
 
 echo '====== BUY by USING PORTFOLIO ======'
-resim call-method $portfolio_component buy 500
+resim call-method $portfolio_component buy 500 $account $btc
 echo '====== SELL by USING PORTFOLIO ======'
 resim call-method $portfolio_component sell 12.5
 
@@ -90,10 +93,45 @@ resim show $portfolio_component
 echo '====== COMPONENT ======'
 resim show $component
 
-
+echo '====== BUY for later checking AUTO CLOSE ======'
+resim call-method $portfolio_component buy 100 $account $btc
 
 echo '====== N. RANDOM ======'
 resim call-method $component current_price $xrd $btc 
+
+epoch=$(($epoch + 1))
+resim set-current-epoch $epoch
+resim call-method $component current_price $xrd $btc
+
+echo '====== BUY for later checking AUTO CLOSE ======'
+resim call-method $portfolio_component buy 100 $account $btc
+
+epoch=$(($epoch + 1))
+resim set-current-epoch $epoch
+resim call-method $component current_price $xrd $btc
+
+echo '====== BUY for later checking AUTO CLOSE ======'
+resim call-method $portfolio_component buy 100 $account $btc
+
+
+epoch=$(($epoch + 1))
+resim set-current-epoch $epoch
+resim call-method $component current_price $xrd $btc 
+
+echo '====== BUY for later checking AUTO CLOSE ======'
+resim call-method $portfolio_component buy 100 $account $btc
+
+
+epoch=$(($epoch + 1))
+resim set-current-epoch $epoch
+resim call-method $component current_price $xrd $btc 
+
+echo '====== BUY for later checking AUTO CLOSE ======'
+resim call-method $portfolio_component buy 100 $account $btc
+
+
+echo '====== RUNNING OPERATION ======'
+resim call-method $portfolio_component position
 
 
 # logc "Advance epoch by 1."

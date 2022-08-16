@@ -1,5 +1,5 @@
 use scrypto::prelude::*;
-use rand::Rng;
+// use rand::Rng;
 
 blueprint! {
     #[derive(Debug)]
@@ -14,7 +14,12 @@ blueprint! {
         token2_pool: Vault,
 
         /// The reserve for trading token1 main pool
-        token3_pool: Vault
+        token3_pool: Vault,
+
+        // Starting epoch of trading app
+        last_epoch: u64,
+        //current simulated price of first pair
+        current_value: u64,
     }
 
 
@@ -23,12 +28,19 @@ blueprint! {
         pub fn create_market(token_a_address: ResourceAddress, token_b_address: ResourceAddress, 
                             token_c_address: ResourceAddress, token_d_address: ResourceAddress) -> ComponentAddress {
 
+            // Get the starting epoch .
+            let last_epoch = Runtime::current_epoch();
+
+            let current_value: u64 = "40".parse().expect("Not a number!");
+
             // Instantiate our tradingapp component
             let tradingapp = Self {
                 main_pool: Vault::new(token_a_address),
                 token1_pool: Vault::new(token_b_address),
                 token2_pool: Vault::new(token_c_address),
                 token3_pool: Vault::new(token_d_address),
+                last_epoch: last_epoch,
+                current_value: current_value,
             }
             .instantiate();
             // Return the new Tradingapp component
@@ -71,54 +83,75 @@ blueprint! {
             info!("=== BUY OPERATION START === ");
             let token_received = xrd_tokens.amount();
             self.main_pool.put(xrd_tokens);
-            let mut return_toked = Bucket::new(token_to_buy);
+            let mut returned_bucket = Bucket::new(token_to_buy);
 
-            info!("=== BUY OPERATION END === ");
             // Return the tokens along with NFT
             if self.token1_pool.resource_address()==token_to_buy {
-                let current_value: Decimal = dec!("0,04");
+                let current_value: Decimal = dec!("0.04");
                 let how_many = token_received / current_value;
-                info!("N. to buy1: {}", how_many);
-                return_toked = self.token1_pool.take(how_many);
+                info!("N. token1 to buy: {}", how_many);
+                returned_bucket.put(self.token1_pool.take(how_many))
             } else if self.token2_pool.resource_address()==token_to_buy {
-                let current_value: Decimal = dec!("40");
-                let how_many = token_received / current_value;
-                info!("N. to buy2: {}", how_many);                
-                return_toked = self.token2_pool.take(how_many);
+                let how_many = token_received / self.current_value;
+                info!("N. token2 to buy: {}", how_many);              
+                returned_bucket.put(self.token2_pool.take(how_many))
             } else if self.token3_pool.resource_address()==token_to_buy {
                 let current_value: Decimal = dec!("10");
                 let how_many = token_received / current_value;
-                info!("N. to buy3: {}", how_many);
-                return_toked = self.token3_pool.take(how_many);
-            }
-
-            return_toked
+                info!("N. token3 to buy: {}", how_many);
+                returned_bucket.put(self.token3_pool.take(how_many))
+            } 
+            info!("=== BUY OPERATION END === ");
+            returned_bucket
         }
 
         //buy from the token1_pool (should be replace by buy_generic method)
         pub fn buy(&mut self, xrd_tokens: Bucket) -> Bucket {
             info!("=== BUY OPERATION START === ");
-            let current_value: Decimal = dec!("40");
 
-            let how_many = xrd_tokens.amount() / current_value;
+            let how_many = xrd_tokens.amount() / self.current_value;
             info!("N. to buy: {}", how_many);
 
             self.main_pool.put(xrd_tokens);
 
-            info!("=== BUY OPERATION END === ");
-            // Return the tokens along with NFT
+            // Return the tokens 
             let return_toked = self.token1_pool.take(how_many);
 
+            info!("=== BUY OPERATION END === ");
             return_toked
         }
 
-        // pub fn current_price(&mut self, token_a_address: ResourceAddress, token_b_address: ResourceAddress)  {
-        //     info!("=== GENERATE NUMBER === ");
-        //     let current = Runtime::current_epoch();
-        //     println!("Current epoch: {}", current);
-        //     let secret_number = rand::thread_rng().gen_range(-10..10);
-        //     println!("The secret number is: {}", secret_number);
-        // }
+        pub fn current_price(&mut self, _token_a_address: ResourceAddress, _token_b_address: ResourceAddress) -> u64 {
+            info!("=== GENERATE NUMBER === ");
+            let current = Runtime::current_epoch();
+            info!("Current epoch {} vs last epoch {}", current, self.last_epoch);
+            // let secret_number = rand::thread_rng().gen_range(1..10);
+            // println!("The secret number is: {}", secret_number);
+
+            //se l'epoch è cambiata allora cambio anche il prezzo dell'asset
+            if current > self.last_epoch {
+                let random_number = self.get_random() % 10 + 1;
+                let random_direction = self.get_random() % 2;
+                info!("The random movement is: {} and direction is {} ", random_number, random_direction);
+                if random_direction==0 { 
+                    self.current_value = self.current_value - (random_number as u64);
+                } 
+                else { 
+                    self.current_value = self.current_value + (random_number as u64);
+                } 
+                
+                info!("New price is : {} ", self.current_value);
+                self.last_epoch = current;
+            } 
+
+            self.current_value
+        }
+
+        // This is a pseudorandom function and not a true random number function.
+        pub fn get_random(&self) -> u128 {
+            Runtime::generate_uuid() 
+        }
+       
 
         //sell from the token1_pool (should be replace by sell_generic method)
         pub fn sell(&mut self, tokens: Bucket) -> Bucket {

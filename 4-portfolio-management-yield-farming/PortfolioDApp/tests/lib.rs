@@ -163,10 +163,10 @@ fn test_portfolio_app() {
     // Test the `fund_token1` method.... not working 
     let component = receipt1.new_component_addresses[0];
     let transaction3 = TransactionBuilder::new()
-        .call_method(component, "fund_token1", args![])
-        .call_method_with_all_resources(account, "deposit_batch")
-        .build(executor.get_nonce([pk]))
-        .sign([&sk]);
+        .call_method(component, "current_price", args![btc_resource_address,eth_resource_address])
+        // .call_method_with_all_resources(account, "deposit_batch")
+        .build(executor.get_nonce([_beneficiary_public_key]))
+        .sign([&_beneficiary_private_key]);
     let receipt3 = executor.validate_and_execute(&transaction3).unwrap();
     println!("{:?}\n", receipt3);
     assert!(receipt3.result.is_ok());

@@ -3,6 +3,8 @@ use crate::lending_app::LendingApp;
 use crate::trading_app::TradingApp;
 use crate::utils::*;
 
+const FIXED_FEE: i32 = 10;
+
 // Here, we define the data that will be present in
 // each of the user . 
 #[derive(NonFungibleData)]
@@ -17,6 +19,41 @@ struct UserHistory {
     expert: bool          
 }
 
+// definition of operation 
+#[derive(TypeId, Encode, Decode, Describe)]
+struct OperationHistory {
+    username: ComponentAddress,
+    operation_id: u128,    
+    xrd_tokens: Decimal,    
+    current_price: u64,
+    token_a_address: ResourceAddress, 
+    token_b_address: ResourceAddress,
+    num_token_b_received: Decimal,
+    date_opened: u64, 
+    date_closed: Option<u64>,     
+    current_standing: Option<bool>,    
+    number_of_request_for_autoclosing: Option<u32>,  
+    current_requestor_for_closing: Option<ResourceAddress>   
+}
+
+impl ToString for OperationHistory {
+    fn to_string(&self) -> String {
+        return format!("{}|{}|{}|{}|{}|{}|{}|{}|{:?}|{:?}|{:?}|{:?}", 
+        self.username,
+        self.operation_id,    
+        self.xrd_tokens,  
+        self.current_price,  
+        self.token_a_address,    
+        self.token_a_address,    
+        self.num_token_b_received,
+        self.date_opened, 
+        self.date_closed,     
+        self.current_standing,    
+        self.number_of_request_for_autoclosing,
+        self.current_requestor_for_closing
+        );
+    }
+}
 
 blueprint!{
     /// The Portfolio blueprint 
@@ -35,7 +72,10 @@ blueprint!{
         /// The resource definition of UserHistory token.
         username_nft_resource_def: ResourceAddress,
         /// Vault with admin badge for managine UserHistory NFT.
-        username_nft_admin_badge: Vault,       
+        username_nft_admin_badge: Vault,    
+        
+        //positions opened/closed
+        positions: Vec<OperationHistory>,
     }
 
     // resim call-function $package TradingApp create_market $xrd $btc $eth $leo
@@ -79,6 +119,7 @@ blueprint!{
                 trading_app: trading_app,
                 username_nft_resource_def: username_nft,
                 username_nft_admin_badge: Vault::with_bucket(user_mint_badge),
+                positions: Vec::new(),
             }
             .instantiate()
             // .add_access_check(rules)
@@ -113,11 +154,29 @@ blueprint!{
         }
 
        /// # Execute a buy operation by means of the portfolio.
-       pub fn buy(&mut self,xrd_tokens: Decimal
-        )   {
+       pub fn buy(&mut self,xrd_tokens: Decimal, user_account: ComponentAddress, token_to_buy: ResourceAddress)   {
             let trading_app: TradingApp = self.trading_app.into();
-            // let value: String = "yes".to_string();
             self.token1_pool.put(trading_app.buy(self.main_pool.take(xrd_tokens)));
+            
+            let current_price = trading_app.current_price(RADIX_TOKEN,token_to_buy);
+            let how_many = xrd_tokens / current_price;
+
+            let trade1 = OperationHistory {
+                username: user_account,
+                operation_id: Runtime::generate_uuid(),    
+                xrd_tokens: xrd_tokens,    
+                current_price: current_price,    
+                token_a_address: RADIX_TOKEN,
+                token_b_address: token_to_buy,
+                num_token_b_received: how_many,
+                date_opened: Runtime::current_epoch(),
+                date_closed: None,
+                current_requestor_for_closing: None, 
+                current_standing: None,
+                number_of_request_for_autoclosing: None,
+            };
+
+            self.positions.push(trade1);
         }
 
         pub fn sell(&mut self,tokens: Decimal
@@ -131,6 +190,37 @@ blueprint!{
             info!("Registering for lending with {} ", address) ;
             let lending_app: LendingApp = self.lending_app.into();
             return lending_app.register();
+        }
+
+        pub fn position(&self)  {
+            info!("Position size {}", self.positions.len());
+            let trading_app: TradingApp = self.trading_app.into();
+            for inner_position in &self.positions {
+                info!("Inner Position {}", inner_position.to_string());            
+
+                info!("Ready to get current price ");
+                let updated_value = trading_app.current_price(inner_position.token_a_address,inner_position.token_b_address);
+                info!("Xrd used for trade {}", inner_position.xrd_tokens);
+                info!("Starting price {:?}", inner_position.current_price );
+                info!("Current price {:?}", updated_value );
+                let net_result = updated_value.wrapping_sub(inner_position.current_price);
+                info!("Position net result {:?}", net_result);
+            }        
+        }
+
+        pub fn close_position(&mut self, operation_id: u128,)  {
+            info!("Position size {}", self.positions.len());
+            
+            let mut amount_to_sell: Decimal = Decimal::zero();
+            for inner_position in &self.positions {
+                info!("Inner Position {}", inner_position.to_string());            
+
+                if inner_position.operation_id==operation_id {
+                    amount_to_sell = inner_position.num_token_b_received.clone();
+                }
+            }    
+            info!("Ready to close position {}", operation_id);
+            self.sell(amount_to_sell);    
         }
 
 
