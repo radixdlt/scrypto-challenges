@@ -5,7 +5,7 @@ use crate::debt_fund::*;
 blueprint! {
     struct FundingLocker {
         /// The ResourceAddress of the Fund Manager that has authority over this Funding Locker. 
-        funding_locker_admin_address: ResourceAddress,
+        access_badge_address: ResourceAddress,
         /// The Vault the contains the loan proceeds.
         loan_proceeds_vault: Vault,
         draw_limit: Decimal,
@@ -45,7 +45,7 @@ blueprint! {
             loan_nft_admin: Bucket,
         ) -> (ComponentAddress, Bucket) 
         {
-            let funding_locker_admin = ResourceBuilder::new_non_fungible()
+            let access_badge = ResourceBuilder::new_non_fungible()
                 .metadata("name", "Funding Locker Admin Badge")
                 .initial_supply([(
                         NonFungibleId::from_u64(1u64),
@@ -58,8 +58,8 @@ blueprint! {
                 .metadata("name", "Lending Pool Access Badge")
                 .metadata("symbol", "LPAB")
                 .metadata("description", "Provides access to authorized method calls be the lending pool.")
-                .mintable(rule!(require(funding_locker_admin.resource_address())), LOCKED)
-                .burnable(rule!(require(funding_locker_admin.resource_address())), LOCKED)
+                .mintable(rule!(require(access_badge.resource_address())), LOCKED)
+                .burnable(rule!(require(access_badge.resource_address())), LOCKED)
                 .no_initial_supply();
 
             // NFT description for Pool Delegates
@@ -67,7 +67,7 @@ blueprint! {
                 .metadata("name", "Draw Request NFT")
                 .metadata("symbol", "DR_NFT")
                 .metadata("description", "Draw requests from the Borrower")
-                .burnable(rule!(require(funding_locker_admin.resource_address())), LOCKED)
+                .burnable(rule!(require(access_badge.resource_address())), LOCKED)
                 .no_initial_supply();
             
             let loan_nft_data = loan_nft.non_fungible::<Loan>().data();
@@ -79,7 +79,7 @@ blueprint! {
             let loan_nft_address = loan_nft.resource_address();
 
             let funding_locker: ComponentAddress = Self {
-                funding_locker_admin_address: funding_locker_admin.resource_address(),
+                access_badge_address: access_badge.resource_address(),
                 loan_repay_vault: Vault::new(loan_asset_address),
                 loan_proceeds_vault: Vault::new(loan_asset_address),
                 draw_limit: draw_limit,
@@ -103,7 +103,7 @@ blueprint! {
             .instantiate()
             .globalize();
 
-            return (funding_locker, funding_locker_admin);
+            return (funding_locker, access_badge);
         }
 
         fn get_resource_manager(
@@ -376,9 +376,15 @@ blueprint! {
         /// Note that Debt Fund component at this point already has an access badge.
         pub fn claim_fees(
             &mut self,
+            access_badge: Proof,
             percentage: Decimal,
         ) -> Bucket
         {
+            assert_eq!(
+                access_badge.resource_address(), self.access_badge_address,
+                "[Funding Locker - Claim Fees]: Unauthorized Access."
+            );
+            
             let amount: Decimal = self.fee_vault.amount() * percentage;
             
             let fee_bucket: Bucket = self.fee_vault.take(amount);
