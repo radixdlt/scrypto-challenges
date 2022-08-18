@@ -126,7 +126,14 @@ blueprint! {
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Loan Token Auth")
                 .metadata("description", "Authorizes the withdraw of the nft and the updates of metadata")
-                .initial_supply(1);    
+                .initial_supply(1);
+
+            // let loan_admin_id_badge = ResourceBuilder::new_non_fungible()
+            //     .metadata("name", " Lending ID badge")
+            //     .mintable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
+            //     .burnable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
+            //     .restrict_withdraw(rule!(deny_all), LOCKED)
+            //     .no_initial_supply();                                
                 
             // Create the non fungible resource that will represent the lendings
             let lending_nft: ResourceAddress = ResourceBuilder::new_non_fungible()
@@ -135,6 +142,7 @@ blueprint! {
                 .burnable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
                 .updateable_non_fungible_data(rule!(require(loan_admin_badge.resource_address())), LOCKED)
                 .restrict_withdraw(rule!(deny_all), MUTABLE(rule!(require(loan_admin_badge.resource_address()))))
+                // .restrict_withdraw(rule!(require(loan_admin_id_badge)), MUTABLE(rule!(require(loan_admin_badge.resource_address()))))
                 .no_initial_supply();                
 
             // Create the non fungible resource that will represent the borrowings
@@ -144,6 +152,7 @@ blueprint! {
                 .burnable(rule!(require(loan_admin_badge.resource_address())), LOCKED)
                 .updateable_non_fungible_data(rule!(require(loan_admin_badge.resource_address())), LOCKED)
                 .restrict_withdraw(rule!(deny_all), MUTABLE(rule!(require(loan_admin_badge.resource_address()))))
+                // .restrict_withdraw(rule!(require(loan_admin_id_badge)), MUTABLE(rule!(require(loan_admin_badge.resource_address()))))
                 .no_initial_supply();                 
 
             let loan_tokens = ResourceBuilder::new_fungible()
@@ -205,6 +214,7 @@ blueprint! {
 
             info!("Min/Max Ratio for lenders is: {}  {}", self.min_ratio_for_lend,  self.max_ratio_for_lend);
             info!("Extra L1 reward is : {} and L2 reward is : {}", self.extra_reward_l1, self.extra_reward_l2);
+            info!("Lending NFT resource address : {} ", lending_nft.resource_address());
 
             // Return the NFT
             lending_nft

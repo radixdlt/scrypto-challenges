@@ -10,7 +10,7 @@ const FIXED_FEE: i32 = 10;
 #[derive(NonFungibleData)]
 struct UserHistory {
     #[scrypto(mutable)]
-    username: ResourceAddress,
+    username: ComponentAddress,
     #[scrypto(mutable)]   
     positive_operation: u32,    
     #[scrypto(mutable)]   
@@ -76,7 +76,11 @@ blueprint!{
         
         //positions opened/closed
         positions: Vec<OperationHistory>,
+
+        lending_nft_vault: Vault,
     }
+
+    
 
     // resim call-function $package TradingApp create_market $xrd $btc $eth $leo
 //procedo con il funding del market
@@ -88,7 +92,8 @@ blueprint!{
             xrd_address: ResourceAddress, 
             token_1_address: ResourceAddress,
             lending_app: ComponentAddress,
-            trading_app: ComponentAddress) -> ComponentAddress {
+            trading_app: ComponentAddress,
+            lending_nft_resource_def: ResourceAddress) -> ComponentAddress {
 
             // let rules = AccessRules::new()
             // .method("issue_new_credit_sbt", rule!(require(admin_badge)))
@@ -120,6 +125,7 @@ blueprint!{
                 username_nft_resource_def: username_nft,
                 username_nft_admin_badge: Vault::with_bucket(user_mint_badge),
                 positions: Vec::new(),
+                lending_nft_vault: Vault::new(lending_nft_resource_def),
             }
             .instantiate()
             // .add_access_check(rules)
@@ -128,8 +134,7 @@ blueprint!{
 
 
 
-        pub fn register(&mut self,address: ResourceAddress) -> Bucket {
-
+        pub fn register(&mut self,address: ComponentAddress) -> Bucket {
             let nft = self.username_nft_admin_badge.authorize(|| {
                 let resource_manager = borrow_resource_manager!(self.username_nft_resource_def);
                 resource_manager.mint_non_fungible(
@@ -144,17 +149,24 @@ blueprint!{
                     },
                 )
             });
-
             nft
         }
 
-        pub fn fund_portfolio(&mut self, starting_tokens: Bucket) {
+        pub fn fund_portfolio(&mut self, starting_tokens: Bucket, ticket: Proof) {
             info!("=== FUND PORTFOLIO OPERATION START === ");
                 self.main_pool.put(starting_tokens);
+        }
+        pub fn withdraw_portfolio(&mut self, tokens_to_withdraw: Decimal) {
+            info!("=== WITHDRAW PORTFOLIO OPERATION START === ");
+                self.main_pool.take(tokens_to_withdraw);
         }
 
        /// # Execute a buy operation by means of the portfolio.
        pub fn buy(&mut self,xrd_tokens: Decimal, user_account: ComponentAddress, token_to_buy: ResourceAddress)   {
+            assert!(
+                self.main_pool.amount() >= xrd_tokens,
+                "Main vault has not sufficient tokens to buy ! Please fund portfolio !"
+            );   
             let trading_app: TradingApp = self.trading_app.into();
             self.token1_pool.put(trading_app.buy(self.main_pool.take(xrd_tokens)));
             
@@ -184,19 +196,17 @@ blueprint!{
             let trading_app: TradingApp = self.trading_app.into();
             self.main_pool.put(trading_app.sell(self.token1_pool.take(tokens)));
         }
+   
 
-
-        pub fn register_for_lending(&mut self,address: ResourceAddress) -> Bucket {
-            info!("Registering for lending with {} ", address) ;
-            let lending_app: LendingApp = self.lending_app.into();
-            return lending_app.register();
-        }
-
-        pub fn position(&self)  {
+        pub fn position(&self) -> Vec<u128> {
             info!("Position size {}", self.positions.len());
             let trading_app: TradingApp = self.trading_app.into();
+
+            let mut losing_positions: Vec<u128> = Vec::new();
+            let mut result: Decimal = Decimal::zero();
             for inner_position in &self.positions {
-                info!("Inner Position {}", inner_position.to_string());            
+                info!("Inner Position {}", inner_position.to_string());    
+                info!("Position Id {}", inner_position.operation_id);          
 
                 info!("Ready to get current price ");
                 let updated_value = trading_app.current_price(inner_position.token_a_address,inner_position.token_b_address);
@@ -205,15 +215,36 @@ blueprint!{
                 info!("Current price {:?}", updated_value );
                 let net_result = updated_value.wrapping_sub(inner_position.current_price);
                 info!("Position net result {:?}", net_result);
+
+                if net_result >= 0 {
+                    let trade1 = OperationHistory {
+                        username: inner_position.username,
+                        operation_id: inner_position.operation_id,    
+                        xrd_tokens: inner_position.xrd_tokens,    
+                        current_price: inner_position.current_price,    
+                        token_a_address: RADIX_TOKEN,
+                        token_b_address: inner_position.token_b_address,
+                        num_token_b_received: inner_position.num_token_b_received,
+                        date_opened: inner_position.date_opened,
+                        date_closed: None,
+                        current_requestor_for_closing: None, 
+                        current_standing: None,
+                        number_of_request_for_autoclosing: None,
+                    };
+                    losing_positions.push(inner_position.operation_id);
+                };
+
             }        
+
+            losing_positions
         }
 
-        pub fn close_position(&mut self, operation_id: u128,)  {
+        pub fn close_position(&mut self, operation_id: u128)  {
             info!("Position size {}", self.positions.len());
-            
             let mut amount_to_sell: Decimal = Decimal::zero();
             for inner_position in &self.positions {
-                info!("Inner Position {}", inner_position.to_string());            
+                info!("Inner Position {}", inner_position.to_string());           
+                info!("Position Id {}", inner_position.operation_id);    
 
                 if inner_position.operation_id==operation_id {
                     amount_to_sell = inner_position.num_token_b_received.clone();
@@ -224,14 +255,36 @@ blueprint!{
         }
 
 
-        pub fn lend(
-            &mut self,
-            tokens: Bucket,
-            ticket: Proof,
-        ) -> Bucket {
+        pub fn register_for_lending(&mut self)  {
+            info!("Registering for lending ") ;
+            info!("Vault for Lending NFT, accept resource address : {:?} ", self.lending_nft_vault.resource_address());
+            let lending_app: LendingApp = self.lending_app.into();
+            let bucket: Bucket = lending_app.register();
+            self.lending_nft_vault.put(bucket);
+        }
+        pub fn register_for_lending_old(&mut self) -> Bucket {
+            info!("Registering for lending ") ;
+            let lending_app: LendingApp = self.lending_app.into();
+            return lending_app.register();
+        }
+        pub fn register_for_borrowing(&mut self) -> Bucket {
+            info!("Registering for borrowing ") ;
+            let lending_app: LendingApp = self.lending_app.into();
+            return lending_app.register_borrower();
+        }     
+
+        pub fn lend(&mut self,tokens: Bucket) -> Bucket {
             info!("Lending ");
             let lending_app: LendingApp = self.lending_app.into();
-            return lending_app.lend_money(tokens, ticket);
+            let proof: Proof = self.lending_nft_vault.create_proof_by_amount(dec!(1));
+            return lending_app.lend_money(tokens, proof);
+        }
+
+        pub fn take_back(&mut self, lnd_tokens: Bucket) -> Bucket {
+            info!("Take back ");
+            let lending_app: LendingApp = self.lending_app.into();
+            let proof: Proof = self.lending_nft_vault.create_proof_by_amount(dec!(1));
+            return lending_app.take_money_back(lnd_tokens, proof);
         }
 
             // This is a pseudorandom function and not a true random number function.

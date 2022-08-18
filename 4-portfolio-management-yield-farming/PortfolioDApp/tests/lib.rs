@@ -86,41 +86,42 @@ fn test_portfolio_app() {
 
     // Creating a new blueprint TradingApp 
     let args = args![RADIX_TOKEN, btc_resource_address, eth_resource_address, leo_resource_address];
-    let transaction1 = TransactionBuilder::new()
+    let transaction_trading_app = TransactionBuilder::new()
         .call_function(package, "TradingApp", "create_market", args)
         .build(executor.get_nonce([pk]))
         .sign([&sk]);
-    let receipt1 = executor.validate_and_execute(&transaction1).unwrap();
-    println!("Package Trading created {:?} \n", receipt1);
-    assert!(receipt1.result.is_ok());
-    let trading = receipt1.new_component_addresses.get(0).unwrap();
-    println!("Trading Component Address  {:} ", trading);
+    let receipt_trading_app = executor.validate_and_execute(&transaction_trading_app).unwrap();
+    println!("Package Trading created {:?} \n", receipt_trading_app);
+    assert!(receipt_trading_app.result.is_ok());
+    let trading_component = receipt_trading_app.new_component_addresses.get(0).unwrap();
+    println!("Trading Component Address  {:} ", trading_component);
 
     // Creating a new blueprint LendingApp 
     let _args_lending = args![RADIX_TOKEN, dec!(1000), dec!(7), dec!(10)];
-    let transaction2 = TransactionBuilder::new()
+    let transaction_lending_app = TransactionBuilder::new()
         .withdraw_from_account(RADIX_TOKEN, account)
         .take_from_worktop_by_amount(dec!("1000"), RADIX_TOKEN, |builder, bucket_id| {
             builder.call_function(package, "LendingApp", "instantiate_pool", args![Bucket(bucket_id),dec!(1000), dec!(10), dec!(7)])
         })    
         .build(executor.get_nonce([_beneficiary_public_key]))
         .sign([&sk]);
-    let receipt2 = executor.validate_and_execute(&transaction2).unwrap();
-    println!("Package Lending created {:?} \n", receipt2);
+    let receipt_lending_app = executor.validate_and_execute(&transaction_lending_app).unwrap();
+    println!("Package Lending created {:?} \n", receipt_lending_app);
     // assert!(receipt2.result.is_ok());
-    let lending = receipt2.new_component_addresses.get(0).unwrap();
-    println!("Lending Component Address  {} ", lending);
+    let lending_component = receipt_lending_app.new_component_addresses.get(0).unwrap();
+    println!("Lending Component Address  {} ", lending_component);
 
-    // Creating a new blueprint PortfolioTradingApp 
-    // let args_lending = args![RADIX_TOKEN, dec!(1000), dec!(7), dec!(10)];
-    // let transaction2 = TransactionBuilder::new()
-    //     .call_function(package, "LendingApp", "instantiate_pool", args_lending)
-    //     .build(executor.get_nonce([pk]))
-    //     .sign([&sk]);
-    // let receipt2 = executor.validate_and_execute(&transaction2).unwrap();
-    // println!("Package Lending created {:?} \n", receipt1);
-    // assert!(receipt2.result.is_ok());
-    // let lending = receipt2.new_component_addresses.get(0).unwrap();    
+    // Creating a new blueprint PortfolioApp 
+    let args_portfolio = args![RADIX_TOKEN, btc_resource_address, *lending_component, *trading_component];
+    let transaction_portfolio_app = TransactionBuilder::new()
+        .call_function(package, "Portfolio", "new", args_portfolio)
+        .build(executor.get_nonce([pk]))
+        .sign([&sk]);
+    let receipt_portfolio_app = executor.validate_and_execute(&transaction_portfolio_app).unwrap();
+    println!("Package Portfolio created {:?} \n", receipt_portfolio_app);
+    assert!(receipt_portfolio_app.result.is_ok());
+    let portfolio_component = receipt_portfolio_app.new_component_addresses.get(0).unwrap();    
+    println!("Package Component Address  {:?} \n", portfolio_component);
 
     // let mut xrd_bucket = Bucket::new(rdx_resource_address);
     // println!("Bucket1 created");  
@@ -134,42 +135,79 @@ fn test_portfolio_app() {
     let _args = args![dec!("1")];
 
     // Test the `fund_token1` method.
-    let register_transaction = TransactionBuilder::new()
+    let fund_token1_transaction = TransactionBuilder::new()
     .withdraw_from_account(RADIX_TOKEN, account)
     .take_from_worktop_by_amount(dec!("100"), RADIX_TOKEN, |builder, bucket_id| {
-        builder.call_method(*trading, "fund_token1", args![Bucket(bucket_id)])
+        builder.call_method(*trading_component, "fund_token1", args![Bucket(bucket_id)])
     })
     .call_method_with_all_resources(account, "deposit_batch")
     .build(executor.get_nonce([_beneficiary_public_key]))
     .sign([&sk]);
-    let register_receipt = executor.validate_and_execute(&register_transaction).unwrap();
-    println!("Method fund1 executed {:?} \n", register_receipt);
-    assert!(register_receipt.result.is_ok());
+    let register_fund_token1 = executor.validate_and_execute(&fund_token1_transaction).unwrap();
+    println!("Method fund1 executed {:?} \n", register_fund_token1);
+    assert!(register_fund_token1.result.is_ok());
 
     // Test the `fund_token2` method.
-    let register_transaction_2 = TransactionBuilder::new()
+    let fund_token2_transaction = TransactionBuilder::new()
     .withdraw_from_account(btc_resource_address, _beneficiary_address)
     .take_from_worktop_by_amount(dec!("10"), btc_resource_address, |builder, bucket_id| {
-        builder.call_method(*trading, "fund_token2", args![Bucket(bucket_id)])
+        builder.call_method(*trading_component, "fund_token2", args![Bucket(bucket_id)])
     })
     .call_method_with_all_resources(_beneficiary_address, "deposit_batch")
     .build(executor.get_nonce([_beneficiary_public_key]))
     .sign([&_beneficiary_private_key]);
-    let register_receipt_2 = executor.validate_and_execute(&register_transaction_2).unwrap();
-    println!("Method fund2 executed {:?} \n", register_receipt_2);
-    assert!(register_receipt_2.result.is_ok());
+    let register_fund_token2 = executor.validate_and_execute(&fund_token2_transaction).unwrap();
+    println!("Method fund2 executed {:?} \n", register_fund_token2);
+    assert!(register_fund_token2.result.is_ok());
 
     
-    // Test the `fund_token1` method.... not working 
-    let component = receipt1.new_component_addresses[0];
-    let transaction3 = TransactionBuilder::new()
-        .call_method(component, "current_price", args![btc_resource_address,eth_resource_address])
+    // Test the `current_price` method
+    let transaction_current_price = TransactionBuilder::new()
+        .call_method(*trading_component, "current_price", args![btc_resource_address,eth_resource_address])
         // .call_method_with_all_resources(account, "deposit_batch")
         .build(executor.get_nonce([_beneficiary_public_key]))
         .sign([&_beneficiary_private_key]);
-    let receipt3 = executor.validate_and_execute(&transaction3).unwrap();
-    println!("{:?}\n", receipt3);
-    assert!(receipt3.result.is_ok());
+    let current_price_receipt = executor.validate_and_execute(&transaction_current_price).unwrap();
+    println!("Method current_price executed {:?}\n", current_price_receipt);
+    assert!(current_price_receipt.result.is_ok());
+
+    // Test the `fund_portfolio` method
+    let fund_portfolio_transaction = TransactionBuilder::new()
+    .withdraw_from_account(RADIX_TOKEN, _beneficiary_address)
+    .take_from_worktop_by_amount(dec!("10000"), RADIX_TOKEN, |builder, bucket_id| {
+        builder.call_method(*portfolio_component, "fund_portfolio", args![Bucket(bucket_id)])
+    })
+    .call_method_with_all_resources(_beneficiary_address, "deposit_batch")
+    .build(executor.get_nonce([_beneficiary_public_key]))
+    .sign([&_beneficiary_private_key]);
+    let fund_portfolio_register = executor.validate_and_execute(&fund_portfolio_transaction).unwrap();
+    println!("Method fund_portfolio executed {:?} \n", fund_portfolio_register);
+    assert!(fund_portfolio_register.result.is_ok());
+
+    // Test the `buy` method
+    let component = receipt_trading_app.new_component_addresses[0];
+    let transaction_buy = TransactionBuilder::new()
+        .call_method(*portfolio_component, "buy", args![dec!(100), _beneficiary_address,btc_resource_address])
+        // .call_method_with_all_resources(account, "deposit_batch")
+        .build(executor.get_nonce([_beneficiary_public_key]))
+        .sign([&_beneficiary_private_key]);
+    let buy_receipt = executor.validate_and_execute(&transaction_buy).unwrap();
+    println!("Method buy executed {:?}\n", buy_receipt);
+    assert!(buy_receipt.result.is_ok());
+
+    // Test the `position` method
+    let component = receipt_trading_app.new_component_addresses[0];
+    let transaction_position = TransactionBuilder::new()
+        .call_method(*portfolio_component, "position", args![])
+        // .call_method_with_all_resources(account, "deposit_batch")
+        .build(executor.get_nonce([_beneficiary_public_key]))
+        .sign([&_beneficiary_private_key]);
+    let position_receipt = executor.validate_and_execute(&transaction_position).unwrap();
+    println!("Method 'losing position' executed {:?}\n", position_receipt);
+    assert!(position_receipt.result.is_ok());
+
+    // let losing_position: Vec<u128>  = position_receipt.into();
+
 
 //     CALL_METHOD ComponentAddress("${account}") "withdraw_by_amount" Decimal("80") ResourceAddress("${xrd}");
 // TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("80") ResourceAddress("${xrd}") Bucket("bucket1");
