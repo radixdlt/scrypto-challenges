@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("02e66d3340f5e9c272ff2592e8e8e8b05376af3e35fd2e3f3ce30d") "buy" Decimal("1000") ComponentAddress("021025cfda90adea21506170be47c67ec169e41dbbdd063d54d409") ResourceAddress("0396c203d001f1fa99fdf081dc2f30e7f3b921eb1b5c9cc9487630");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02bf3aa95784d95a63dd6f8e3f0d06de6127e114cc275a13ae47b5") "deposit_batch";

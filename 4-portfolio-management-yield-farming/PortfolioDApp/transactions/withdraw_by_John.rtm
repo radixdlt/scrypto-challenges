@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("02bf3aa95784d95a63dd6f8e3f0d06de6127e114cc275a13ae47b5") "create_proof_by_amount" Decimal("1") ResourceAddress("03cacd11c325cd75f7693ed8d99187f65ec303bdc1a0622cca283f");
+POP_FROM_AUTH_ZONE Proof("proof1");
+CALL_METHOD ComponentAddress("02e66d3340f5e9c272ff2592e8e8e8b05376af3e35fd2e3f3ce30d") "withdraw_portfolio" Proof("proof1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02bf3aa95784d95a63dd6f8e3f0d06de6127e114cc275a13ae47b5") "deposit_batch";

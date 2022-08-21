@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("021025cfda90adea21506170be47c67ec169e41dbbdd063d54d409") "withdraw_by_amount" Decimal("1000") ResourceAddress("030000000000000000000000000000000000000000000000000004");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("bucket1");
+CALL_FUNCTION PackageAddress("01b55979a8d47551c2207c14f16479da4432bbc85d63b1e0cf9f5b") "LendingApp" "instantiate_pool" Bucket("bucket1") Decimal("1000") Decimal("10") Decimal("7");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("021025cfda90adea21506170be47c67ec169e41dbbdd063d54d409") "deposit_batch";

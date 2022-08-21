@@ -110,9 +110,15 @@ fn test_portfolio_app() {
     // assert!(receipt2.result.is_ok());
     let lending_component = receipt_lending_app.new_component_addresses.get(0).unwrap();
     println!("Lending Component Address  {} ", lending_component);
+    let lending_badge = receipt_lending_app.new_resource_addresses.get(0).unwrap();
+    println!("Lending Admin Badge  {} ", lending_badge);
+    let lending_nft_resource_address = receipt_lending_app.new_resource_addresses.get(1).unwrap();
+    println!("Lending NFT  {} ", lending_nft_resource_address);
+    let borrow_nft = receipt_lending_app.new_resource_addresses.get(2).unwrap();
+    println!("Borrowing NFT {} ", borrow_nft);
 
     // Creating a new blueprint PortfolioApp 
-    let args_portfolio = args![RADIX_TOKEN, btc_resource_address, *lending_component, *trading_component];
+    let args_portfolio = args![RADIX_TOKEN, btc_resource_address, *lending_component, *trading_component, *lending_nft_resource_address];
     let transaction_portfolio_app = TransactionBuilder::new()
         .call_function(package, "Portfolio", "new", args_portfolio)
         .build(executor.get_nonce([pk]))
@@ -203,8 +209,10 @@ fn test_portfolio_app() {
         .build(executor.get_nonce([_beneficiary_public_key]))
         .sign([&_beneficiary_private_key]);
     let position_receipt = executor.validate_and_execute(&transaction_position).unwrap();
-    println!("Method 'losing position' executed {:?}\n", position_receipt);
+    println!("Method 'position' executed {:?}\n", position_receipt);
     assert!(position_receipt.result.is_ok());
+    let log_message = &position_receipt.logs.get(0).unwrap().1;
+    println!("Position Id needed for closing the position {:?}\n", log_message);
 
     // let losing_position: Vec<u128>  = position_receipt.into();
 

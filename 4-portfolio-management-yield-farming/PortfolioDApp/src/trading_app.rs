@@ -53,19 +53,19 @@ blueprint! {
 
         //the following methods should be replace by 'fund_market'
         pub fn fund_token1(&mut self, starting_tokens: Bucket) {
-            info!("=== FUND TOKEN 1 OPERATION START === ");
+            info!("=== FUND ONLY TOKEN 1 OPERATION START === ");
                 self.main_pool.put(starting_tokens);
         }
         pub fn fund_token2(&mut self, starting_tokens: Bucket) {
-            info!("=== FUND TOKEN 2 OPERATION START === ");
+            info!("=== FUND ONLY TOKEN 2 OPERATION START === ");
                 self.token1_pool.put(starting_tokens);
         }
         pub fn fund_token3(&mut self, starting_tokens: Bucket) {
-            info!("=== FUND TOKEN 3 OPERATION START === ");
+            info!("=== FUND ONLY TOKEN 3 OPERATION START === ");
                 self.token2_pool.put(starting_tokens);
         }
         pub fn fund_token4(&mut self, starting_tokens: Bucket) {
-            info!("=== FUND TOKEN 4 OPERATION START === ");
+            info!("=== FUND ONLY TOKEN 4 OPERATION START === ");
                 self.token3_pool.put(starting_tokens);
         }                        
 
@@ -109,7 +109,7 @@ blueprint! {
         pub fn buy(&mut self, xrd_tokens: Bucket) -> Bucket {
             info!("=== BUY OPERATION START === ");
 
-            let how_many = xrd_tokens.amount() / self.current_value;
+            let how_many = (xrd_tokens.amount() / self.current_value).round(2,RoundingMode::TowardsPositiveInfinity);
             info!("N. to buy: {}", how_many);
 
             self.main_pool.put(xrd_tokens);
@@ -121,12 +121,25 @@ blueprint! {
             return_toked
         }
 
+        //sell from the token1_pool (should be replace by sell_generic method)
+        pub fn sell(&mut self, tokens: Bucket) -> Bucket {
+            info!("=== SELL OPERATION START === ");
+            let price = self.current_price(RADIX_TOKEN, tokens.resource_address());
+            let current_value = price;
+
+            let how_many = (tokens.amount() * current_value).round(2,RoundingMode::TowardsPositiveInfinity);
+            info!("N. xrd to receive: {}", how_many);
+            let xrd_tokens = self.main_pool.take(how_many);
+            self.token1_pool.put(tokens);
+            
+            // Return the tokens along with NFT
+            xrd_tokens
+        }
+
         pub fn current_price(&mut self, _token_a_address: ResourceAddress, _token_b_address: ResourceAddress) -> u64 {
             info!("=== GENERATE NUMBER === ");
             let current = Runtime::current_epoch();
             info!("Current epoch {} vs last epoch {}", current, self.last_epoch);
-            // let secret_number = rand::thread_rng().gen_range(1..10);
-            // println!("The secret number is: {}", secret_number);
 
             //se l'epoch è cambiata allora cambio anche il prezzo dell'asset
             if current > self.last_epoch {
@@ -134,16 +147,16 @@ blueprint! {
                 let random_direction = self.get_random() % 2;
                 info!("The random movement is: {} and direction is {} ", random_number, random_direction);
                 if random_direction==0 { 
-                    self.current_value = self.current_value - (random_number as u64);
+                    self.current_value = self.current_value - (self.current_value*(random_number as u64)/100);
                 } 
                 else { 
-                    self.current_value = self.current_value + (random_number as u64);
+                    self.current_value = self.current_value + (self.current_value*(random_number as u64)/100);
                 } 
                 
                 info!("New price is : {} ", self.current_value);
                 self.last_epoch = current;
             } 
-
+            info!("Current price of {}/{} is {} ", _token_a_address, _token_b_address , self.current_value);
             self.current_value
         }
 
@@ -152,20 +165,6 @@ blueprint! {
             Runtime::generate_uuid() 
         }
        
-
-        //sell from the token1_pool (should be replace by sell_generic method)
-        pub fn sell(&mut self, tokens: Bucket) -> Bucket {
-            info!("=== SELL OPERATION START === ");
-            let current_value: Decimal = dec!("45");
-
-            let how_many = tokens.amount() * current_value;
-            info!("N. xrd to receive: {}", how_many);
-            let xrd_tokens = self.main_pool.take(how_many);
-            self.token1_pool.put(tokens);
-            
-            // Return the tokens along with NFT
-            xrd_tokens
-        }
 
         //returns the pool size/address
         pub fn token1_pool_size(&self) -> Decimal {
