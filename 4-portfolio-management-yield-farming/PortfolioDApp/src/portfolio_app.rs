@@ -100,8 +100,9 @@ blueprint!{
 
         //vault containing borrowing nft for using the lendingapp component
         borrowing_nft_vault: Vault,
-        //vault containing LND 
         
+        //vault containing LND 
+        lnd_vault: Vault,
     }
 
     
@@ -118,7 +119,8 @@ blueprint!{
             lending_app: ComponentAddress,
             trading_app: ComponentAddress,
             lending_nft_resource_def: ResourceAddress,
-            borrowing_nft_resource_def: ResourceAddress) -> ComponentAddress {
+            borrowing_nft_resource_def: ResourceAddress,
+            loan_tokens_resource_def: ResourceAddress) -> ComponentAddress {
 
             // let rules = AccessRules::new()
             // .method("issue_new_credit_sbt", rule!(require(admin_badge)))
@@ -166,6 +168,7 @@ blueprint!{
                 lending_nft_vault: Vault::new(lending_nft_resource_def),
                 user_account_funding_nft_resource_def: user_account_funding_nft,
                 borrowing_nft_vault: Vault::new(borrowing_nft_resource_def),
+                lnd_vault: Vault::new(loan_tokens_resource_def),
             }
             .instantiate()
             .add_access_check(rules)
@@ -192,7 +195,7 @@ blueprint!{
             nft
         }
 
-        pub fn fund_portfolio(&mut self, starting_tokens: Bucket, user_account_trading_nft: Proof) -> Bucket {
+        pub fn fund_portfolio(&mut self, starting_tokens: Bucket) -> Bucket {
             info!("=== FUND PORTFOLIO OPERATION START === ");
             let how_many: Decimal = starting_tokens.amount();
             self.main_pool.put(starting_tokens);

@@ -40,7 +40,7 @@ echo 'borrow_nft = '$borrow_nft
 echo 'lnd = ' $lnd
 
 echo '====== Ready to create Portfolio component ======'
-output=`resim call-function $tradingapp_package Portfolio new $xrd $btc $lending_component $component $lend_nft $borrow_nft | awk '/Component: |Resource: / {print $NF}'`
+output=`resim call-function $tradingapp_package Portfolio new $xrd $btc $lending_component $component $lend_nft $borrow_nft $lnd | awk '/Component: |Resource: / {print $NF}'`
 export portfolio_component=`echo $output | cut -d " " -f1`
 export ADMIN_BADGE=`echo $output | cut -d " " -f2`
 export user_account_history_nft=`echo $output | cut -d " " -f3`
@@ -80,22 +80,23 @@ resim call-method $component buy 500,$xrd
 echo '====== SELL DIRECTLY WITH TRADING APP ======'
 resim call-method $component sell 12.5,$btc
 
-echo '====== ACCOUNT ======'
-resim show $account
-echo '====== PORTFOLIO COMPONENT ======'
-resim show $portfolio_component
 
 echo '====== LENDING WITH PORTFOLIO APP ======'
 resim call-method $portfolio_component lend 100,$xrd
 resim call-method $portfolio_component take_back 107,$lnd
 
+echo '====== ACCOUNT ======'
+resim show $account
+echo '====== PORTFOLIO COMPONENT ======'
+resim show $portfolio_component
+
 echo '===================================='
 echo '====== FUND PORTFOLIO APP ======'
-resim call-method $portfolio_component fund_portfolio 10000,$xrd 1,$user_account_funding_nft
+resim call-method $portfolio_component fund_portfolio 10000,$xrd 
 echo '====== WITHDRAW PORTFOLIO APP ======'
 resim call-method $portfolio_component withdraw_portfolio 1,$user_account_funding_nft
 echo '====== FUND AGAIN PORTFOLIO APP ======'
-resim call-method $portfolio_component fund_portfolio 10000,$xrd 1,$user_account_funding_nft
+resim call-method $portfolio_component fund_portfolio 10000,$xrd 
 
 
 echo '====== BUY by USING PORTFOLIO ======'
