@@ -103,6 +103,8 @@ blueprint!{
         
         //vault containing LND 
         lnd_vault: Vault,
+
+        amount_funded: Decimal
     }
 
     
@@ -137,9 +139,9 @@ blueprint!{
                 .metadata("name", "User Mint Badge")
                 .initial_supply(1);
 
-            let rules = AccessRules::new()
-                .method("sell", rule!(require(user_mint_badge.resource_address())))
-                .default(rule!(allow_all));                          
+            // let rules = AccessRules::new()
+            //     .method("sell", rule!(require(user_mint_badge.resource_address())))
+            //     .default(rule!(allow_all));                          
 
             let user_account_trading_history_nft = ResourceBuilder::new_non_fungible()
                 .metadata("name", "User Account Trading History")
@@ -169,9 +171,10 @@ blueprint!{
                 user_account_funding_nft_resource_def: user_account_funding_nft,
                 borrowing_nft_vault: Vault::new(borrowing_nft_resource_def),
                 lnd_vault: Vault::new(loan_tokens_resource_def),
+                amount_funded: dec!(0),
             }
             .instantiate()
-            .add_access_check(rules)
+            // .add_access_check(rules)
             .globalize();            
         }
 
@@ -203,6 +206,8 @@ blueprint!{
             // The ratio funded compared to the total amount.
             let funded_ratio = how_many * dec!("100") / total_amount;
             let epoch_funded: u64 = Runtime::current_epoch();
+            //update the total funded in the portfolio
+            self.amount_funded = self.amount_funded  + how_many;
 
             let portfolio_id = get_non_fungible_id();             
             // Create a NFT. TODO: If this already exist this needs to be updated
@@ -224,11 +229,16 @@ blueprint!{
             let actual_epoch: u64 = Runtime::current_epoch();
             let total_amount_at_the_time_of_funding: Decimal = portfolio_nft_data.total_amount;
             let total_amount_at_the_time_of_withdraw: Decimal = self.main_pool.amount();
+
+            //update the total funded in the portfolio
+            info!(" Amount of funded tokens in the portfolio {} " , self.amount_funded);  
+            info!(" Amount of yours funded tokens in the portfolio {} " , portfolio_nft_data.xrd_tokens);  
+
             let portfolio_tokens_value: Decimal = self.portfolio_value();
             let total = portfolio_tokens_value+total_amount_at_the_time_of_withdraw;
-            // The ratio of increment/decrease of the main pool.
-            let diff_ratio: Decimal = ((total / total_amount_at_the_time_of_funding) * dec!("100") )-dec!(100);
             info!(" Portfolio amount at time of funding {} and actual {} " , total_amount_at_the_time_of_funding, total);  
+            // The ratio of increment/decrease of the main pool.
+            let diff_ratio: Decimal = ((total / self.amount_funded) * dec!("100") )-dec!(100);
             info!(" Portfolio increase/decrease ratio  {} " , diff_ratio);  
 
             //the amount of tokens to be returned with increase or decrease
@@ -238,6 +248,9 @@ blueprint!{
             //return the tokens to the user account
             let to_be_returned: Bucket = self.main_pool.take(diff_tokens);
 
+            //update the total funded in the portfolio
+            self.amount_funded = self.amount_funded - total_amount_at_the_time_of_funding;
+            info!(" Updated Amount of funded tokens  {} " , self.amount_funded);  
 
             // // Update the data on that NFT globally
             portfolio_nft_data.in_progress = false;
@@ -320,6 +333,20 @@ blueprint!{
             
             let total: Decimal = self.token1_pool.amount()*(trading_app.current_price(RADIX_TOKEN,self.token1_pool.resource_address()));
             info!("Added value from token1 vault {:?}", total);
+
+            total
+        }
+
+        pub fn portfolio_total_value(&self) -> Decimal {
+            info!("Position size inside portfolio {}", self.positions.len());
+            let trading_app: TradingApp = self.trading_app.into();
+            
+            let mut total: Decimal = self.portfolio_value();
+            info!("Added value from token1 vault {:?}", total);
+            let totalxrd: Decimal = self.main_pool.amount();
+            info!("Value in main vault {:?}", totalxrd);
+            total = total + totalxrd;
+            info!("Grandtotal {:?}", total);
 
             total
         }

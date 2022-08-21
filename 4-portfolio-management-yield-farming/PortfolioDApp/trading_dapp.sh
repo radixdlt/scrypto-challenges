@@ -4,7 +4,12 @@ export xrd=030000000000000000000000000000000000000000000000000004
 
 echo "Resetting environment"
 resim reset
-export account=$(resim new-account | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+#export account=$(resim new-account | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+
+OP1=$(resim new-account)
+export PRIV_KEY1=$(echo "$OP1" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export PUB_KEY1=$(echo "$OP1" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export account=$(echo "$OP1" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 
 echo "Publishing dapp"
 export tradingapp_package=$(resim publish . | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
@@ -20,7 +25,22 @@ echo "eth = " $eth
 export leo=$(resim new-token-fixed --symbol leo 10000 | sed -nr "s/└─ Resource: ([[:alnum:]_]+)/\1/p")
 echo "leo = " $leo
 
+echo '====== SHOW ACCOUNT ======'
 resim show $account
+
+echo '====== CREATE ACCOUNTS ======'
+OP2=$(resim new-account)
+export PRIV_KEY2=$(echo "$OP2" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export PUB_KEY2=$(echo "$OP2" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS2=$(echo "$OP2" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+OP3=$(resim new-account)
+export PRIV_KEY3=$(echo "$OP3" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export PUB_KEY3=$(echo "$OP3" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS3=$(echo "$OP3" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+OP4=$(resim new-account)
+export PRIV_KEY4=$(echo "$OP4" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
+export PUB_KEY4=$(echo "$OP4" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
+export ACC_ADDRESS4=$(echo "$OP4" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 
 echo '====== Ready to create Trading component ======'
 export component=$(resim call-function $tradingapp_package TradingApp create_market $xrd $btc $eth $leo | sed -nr "s/└─ Component: ([[:alnum:]_]+)/\1/p")
@@ -72,8 +92,11 @@ resim call-method $portfolio_component register_for_lending
 echo '====== REGISTER ON PORTFOLIO FOR BORROWING ======'
 resim call-method $portfolio_component register_for_borrowing
 
+
 echo '====== BUY GENERIC DIRECTLY WITH TRADING APP ======'
 resim call-method $component buy_generic 500,$xrd  $eth
+echo '====== SELL GENERIC DIRECTLY WITH TRADING APP ======'
+#resim call-method $component sell_generic 500,$xrd  $eth
 
 echo '====== BUY DIRECTLY WITH TRADING APP ======'
 resim call-method $component buy 500,$xrd 
@@ -102,7 +125,7 @@ resim call-method $portfolio_component fund_portfolio 10000,$xrd
 echo '====== BUY by USING PORTFOLIO ======'
 resim call-method $portfolio_component buy 500 $account $btc
 echo '====== SELL by USING PORTFOLIO ======'
-resim call-method $portfolio_component sell 12.5 $ADMIN_BADGE
+resim call-method $portfolio_component sell 12.5 
 
 
 echo '===================================='
@@ -119,27 +142,28 @@ resim show $account
 echo '===================================='
 echo '====== BUY for later checking AUTO CLOSE ======'
 resim call-method $portfolio_component buy 100 $account $btc
-
-
-echo '===================================='
-echo '====== N. RANDOM ======'
-resim call-method $component current_price $xrd $btc 
-
+echo '====== CHECK PRICE ======'
 epoch=$(($epoch + 1))
 resim set-current-epoch $epoch
 resim call-method $component current_price $xrd $btc
 
 echo '====== BUY for later checking AUTO CLOSE ======'
 resim call-method $portfolio_component buy 100 $account $btc
-
+echo '====== CHECK PRICE ======'
 epoch=$(($epoch + 1))
 resim set-current-epoch $epoch
 resim call-method $component current_price $xrd $btc
 
 echo '====== BUY for later checking AUTO CLOSE ======'
 resim call-method $portfolio_component buy 100 $account $btc
+echo '====== CHECK PRICE ======'
+epoch=$(($epoch + 1))
+resim set-current-epoch $epoch
+resim call-method $component current_price $xrd $btc 
 
-
+echo '====== BUY for later checking AUTO CLOSE ======'
+resim call-method $portfolio_component buy 100 $account $btc
+echo '====== CHECK PRICE ======'
 epoch=$(($epoch + 1))
 resim set-current-epoch $epoch
 resim call-method $component current_price $xrd $btc 
@@ -148,22 +172,37 @@ echo '====== BUY for later checking AUTO CLOSE ======'
 resim call-method $portfolio_component buy 100 $account $btc
 
 
-epoch=$(($epoch + 1))
-resim set-current-epoch $epoch
-resim call-method $component current_price $xrd $btc 
-
-echo '====== BUY for later checking AUTO CLOSE ======'
-resim call-method $portfolio_component buy 100 $account $btc
 
 echo '===================================='
-echo '====== RUNNING OPERATION ======'
+echo '====== RUNNING OPERATIONS ======'
 resim call-method $portfolio_component position
 
 echo '====== ACCOUNT ======'
 resim show $account
 
+echo '====== SOME NEW ACCOUNTS ARE FUNDING IN THE PORTFOLIO APP ======'
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+resim call-method $portfolio_component register $ACC_ADDRESS2
+resim call-method $portfolio_component fund_portfolio 10000,$xrd 
+
+resim set-default-account $ACC_ADDRESS3 $PRIV_KEY3
+resim call-method $portfolio_component register $ACC_ADDRESS3
+resim call-method $portfolio_component fund_portfolio 10000,$xrd 
+
+resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
+resim call-method $portfolio_component register $ACC_ADDRESS4
+resim call-method $portfolio_component fund_portfolio 10000,$xrd 
+
+echo '====== CURRENT PORTFOLIO VALUE ======'
+resim call-method $portfolio_component portfolio_total_value
+
 echo '====== WITHDRAW PORTFOLIO APP ======'
+resim set-default-account $account $PRIV_KEY1
 resim call-method $portfolio_component withdraw_portfolio 1,$user_account_funding_nft
+
+echo '====== CURRENT PORTFOLIO VALUE ======'
+resim call-method $portfolio_component portfolio_total_value
+
 
 echo '====== CLOSE ALL POSITIONS OPERATION ======'
 export fake_id=12345

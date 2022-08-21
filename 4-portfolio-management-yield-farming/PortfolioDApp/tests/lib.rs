@@ -116,9 +116,11 @@ fn test_portfolio_app() {
     println!("Lending NFT  {} ", lending_nft_resource_address);
     let borrow_nft = receipt_lending_app.new_resource_addresses.get(2).unwrap();
     println!("Borrowing NFT {} ", borrow_nft);
+    let lnd_token = receipt_lending_app.new_resource_addresses.get(3).unwrap();
+    println!("LND Token {} ", lnd_token);    
 
     // Creating a new blueprint PortfolioApp 
-    let args_portfolio = args![RADIX_TOKEN, btc_resource_address, *lending_component, *trading_component, *lending_nft_resource_address];
+    let args_portfolio = args![RADIX_TOKEN, btc_resource_address, *lending_component, *trading_component, *lending_nft_resource_address, *borrow_nft, *lnd_token];
     let transaction_portfolio_app = TransactionBuilder::new()
         .call_function(package, "Portfolio", "new", args_portfolio)
         .build(executor.get_nonce([pk]))
