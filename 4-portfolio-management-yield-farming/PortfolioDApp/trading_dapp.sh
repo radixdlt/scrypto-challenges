@@ -18,7 +18,7 @@ echo "Package = " $tradingapp_package
 echo "Account = " $account
 echo "XRD = " $xrd
 
-export btc=$(resim new-token-fixed --symbol btc 100 | sed -nr "s/└─ Resource: ([[:alnum:]_]+)/\1/p")
+export btc=$(resim new-token-fixed --symbol btc 400 | sed -nr "s/└─ Resource: ([[:alnum:]_]+)/\1/p")
 echo "btc = " $btc
 export eth=$(resim new-token-fixed --symbol eth 2000 | sed -nr "s/└─ Resource: ([[:alnum:]_]+)/\1/p")
 echo "eth = " $eth
@@ -75,7 +75,7 @@ echo '====== ACCOUNT ======'
 resim show $account
 
 echo '================== FUND TRADING APP ======'
-resim call-method $component fund_market 100000,$xrd 20,$btc 1000,$eth 1000,$leo
+resim call-method $component fund_market 100000,$xrd 400,$btc 1000,$eth 1000,$leo
 
 echo '====== TRADING COMPONENT ======'
 resim show $component
@@ -104,26 +104,26 @@ echo '====== SELL DIRECTLY WITH TRADING APP ======'
 resim call-method $component sell 12.5,$btc
 
 
-echo '====== LENDING WITH PORTFOLIO APP ======'
-resim call-method $portfolio_component lend 100,$xrd
-resim call-method $portfolio_component take_back 107,$lnd
-
-echo '====== ACCOUNT ======'
-resim show $account
-echo '====== PORTFOLIO COMPONENT ======'
-resim show $portfolio_component
-
 echo '===================================='
 echo '====== FUND PORTFOLIO APP ======'
-resim call-method $portfolio_component fund_portfolio 10000,$xrd 
+resim call-method $portfolio_component fund_portfolio 10000,$xrd 1,$user_account_funding_nft
 echo '====== WITHDRAW PORTFOLIO APP ======'
 resim call-method $portfolio_component withdraw_portfolio 1,$user_account_funding_nft
 echo '====== FUND AGAIN PORTFOLIO APP ======'
-resim call-method $portfolio_component fund_portfolio 10000,$xrd 
+resim call-method $portfolio_component fund_portfolio 1000,$xrd 1,$user_account_funding_nft
+
+
+
+echo '====== LENDING WITH PORTFOLIO APP ======'
+resim call-method $portfolio_component lend 100
+resim call-method $portfolio_component take_back 107
+
+echo '====== ACCOUNT ======'
+resim show $account
 
 
 echo '====== BUY by USING PORTFOLIO ======'
-resim call-method $portfolio_component buy 500 $account $btc
+resim call-method $portfolio_component buy 500 $account $btc 1,$user_account_funding_nft
 echo '====== SELL by USING PORTFOLIO ======'
 resim call-method $portfolio_component sell 12.5 
 
@@ -140,36 +140,36 @@ resim show $account
 
 
 echo '===================================='
-echo '====== BUY for later checking AUTO CLOSE ======'
-resim call-method $portfolio_component buy 100 $account $btc
+echo '====== BUY  ======'
+resim call-method $portfolio_component buy 100 $account $btc 1,$user_account_funding_nft
 echo '====== CHECK PRICE ======'
 epoch=$(($epoch + 1))
 resim set-current-epoch $epoch
 resim call-method $component current_price $xrd $btc
 
-echo '====== BUY for later checking AUTO CLOSE ======'
-resim call-method $portfolio_component buy 100 $account $btc
+echo '====== BUY  ======'
+resim call-method $portfolio_component buy 100 $account $btc 1,$user_account_funding_nft
 echo '====== CHECK PRICE ======'
 epoch=$(($epoch + 1))
 resim set-current-epoch $epoch
 resim call-method $component current_price $xrd $btc
 
-echo '====== BUY for later checking AUTO CLOSE ======'
-resim call-method $portfolio_component buy 100 $account $btc
+echo '====== BUY  ======'
+resim call-method $portfolio_component buy 100 $account $btc 1,$user_account_funding_nft
 echo '====== CHECK PRICE ======'
 epoch=$(($epoch + 1))
 resim set-current-epoch $epoch
 resim call-method $component current_price $xrd $btc 
 
-echo '====== BUY for later checking AUTO CLOSE ======'
-resim call-method $portfolio_component buy 100 $account $btc
+echo '====== BUY  ======'
+resim call-method $portfolio_component buy 100 $account $btc 1,$user_account_funding_nft
 echo '====== CHECK PRICE ======'
 epoch=$(($epoch + 1))
 resim set-current-epoch $epoch
 resim call-method $component current_price $xrd $btc 
 
-echo '====== BUY for later checking AUTO CLOSE ======'
-resim call-method $portfolio_component buy 100 $account $btc
+echo '====== BUY  ======'
+resim call-method $portfolio_component buy 100 $account $btc 1,$user_account_funding_nft
 
 
 
@@ -183,15 +183,23 @@ resim show $account
 echo '====== SOME NEW ACCOUNTS ARE FUNDING IN THE PORTFOLIO APP ======'
 resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
 resim call-method $portfolio_component register $ACC_ADDRESS2
-resim call-method $portfolio_component fund_portfolio 10000,$xrd 
+resim call-method $portfolio_component fund_portfolio 50000,$xrd 1,$user_account_funding_nft
 
 resim set-default-account $ACC_ADDRESS3 $PRIV_KEY3
 resim call-method $portfolio_component register $ACC_ADDRESS3
-resim call-method $portfolio_component fund_portfolio 10000,$xrd 
+resim call-method $portfolio_component fund_portfolio 50000,$xrd 1,$user_account_funding_nft
 
 resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
 resim call-method $portfolio_component register $ACC_ADDRESS4
-resim call-method $portfolio_component fund_portfolio 10000,$xrd 
+resim call-method $portfolio_component fund_portfolio 50000,$xrd 1,$user_account_funding_nft
+
+echo '====== PORTFOLIO COMPONENT before leveraged buy  ======'
+resim show $portfolio_component
+echo '====== SET DEFAULT ACCOUNT (AMOUNT FUNDED 1000)  ======'
+resim set-default-account $account $PRIV_KEY1
+echo '====== BUY LEVERAGED  ======'
+resim call-method $portfolio_component buy 10000 $account $btc 1,$user_account_funding_nft
+
 
 echo '====== CURRENT PORTFOLIO VALUE ======'
 resim call-method $portfolio_component portfolio_total_value
@@ -205,5 +213,7 @@ resim call-method $portfolio_component portfolio_total_value
 
 
 echo '====== CLOSE ALL POSITIONS OPERATION ======'
-export fake_id=12345
-resim call-method $portfolio_component close_position $position_id
+#export fake_id=12345
+#resim call-method $portfolio_component close_position $position_id
+#
+# This has been tested and described in the documentation

@@ -19,7 +19,11 @@ blueprint! {
         // Starting epoch of trading app
         last_epoch: u64,
         //current simulated price of first pair
-        current_value: u64,
+        token1_starting_value: u64,
+        //current simulated price of second pair
+        token2_starting_value: u64,
+        //current simulated price of third pair
+        token3_starting_value: u64,        
     }
 
 
@@ -31,7 +35,9 @@ blueprint! {
             // Get the starting epoch .
             let last_epoch = Runtime::current_epoch();
 
-            let current_value: u64 = "40".parse().expect("Not a number!");
+            let token1_starting_value: u64 = "40".parse().expect("Not a number!");
+            let token2_starting_value: u64 = "10".parse().expect("Not a number!");
+            let token3_starting_value: u64 = "4".parse().expect("Not a number!");
 
             // Instantiate our tradingapp component
             let tradingapp = Self {
@@ -40,7 +46,9 @@ blueprint! {
                 token2_pool: Vault::new(token_c_address),
                 token3_pool: Vault::new(token_d_address),
                 last_epoch: last_epoch,
-                current_value: current_value,
+                token1_starting_value: token1_starting_value,
+                token2_starting_value: token2_starting_value,
+                token3_starting_value: token3_starting_value,
             }
             .instantiate();
             // Return the new Tradingapp component
@@ -87,17 +95,15 @@ blueprint! {
 
             // Return the tokens along with NFT
             if self.token1_pool.resource_address()==token_to_buy {
-                let current_value: Decimal = dec!("0.04");
-                let how_many = token_received / current_value;
+                let how_many = token_received / self.token1_starting_value;
                 info!("N. token1 to buy: {}", how_many);
                 returned_bucket.put(self.token1_pool.take(how_many))
             } else if self.token2_pool.resource_address()==token_to_buy {
-                let how_many = token_received / self.current_value;
+                let how_many = token_received / self.token2_starting_value;
                 info!("N. token2 to buy: {}", how_many);              
                 returned_bucket.put(self.token2_pool.take(how_many))
             } else if self.token3_pool.resource_address()==token_to_buy {
-                let current_value: Decimal = dec!("10");
-                let how_many = token_received / current_value;
+                let how_many = token_received / self.token3_starting_value;
                 info!("N. token3 to buy: {}", how_many);
                 returned_bucket.put(self.token3_pool.take(how_many))
             } 
@@ -109,7 +115,7 @@ blueprint! {
         pub fn buy(&mut self, xrd_tokens: Bucket) -> Bucket {
             info!("=== BUY OPERATION START === ");
 
-            let how_many = (xrd_tokens.amount() / self.current_value).round(2,RoundingMode::TowardsPositiveInfinity);
+            let how_many = (xrd_tokens.amount() / self.token1_starting_value).round(2,RoundingMode::TowardsPositiveInfinity);
             info!("N. to buy: {}", how_many);
 
             self.main_pool.put(xrd_tokens);
@@ -132,32 +138,35 @@ blueprint! {
             let xrd_tokens = self.main_pool.take(how_many);
             self.token1_pool.put(tokens);
             
-            // Return the tokens along with NFT
+            // Return the tokens 
             xrd_tokens
         }
 
+        //here we simulate the change in price each time the epoch changes
+        //this should return the price respect of token_a/token_b pair
+        //TODO For the scope of this demo this method instead return the price respect of token_a/token1:resource address
         pub fn current_price(&mut self, _token_a_address: ResourceAddress, _token_b_address: ResourceAddress) -> u64 {
             info!("=== GENERATE NUMBER === ");
             let current = Runtime::current_epoch();
             info!("Current epoch {} vs last epoch {}", current, self.last_epoch);
 
-            //se l'epoch è cambiata allora cambio anche il prezzo dell'asset
+            //if epoch has changed then I change also the price of the asset
             if current > self.last_epoch {
                 let random_number = self.get_random() % 10 + 1;
                 let random_direction = self.get_random() % 2;
                 info!("The random movement is: {} and direction is {} ", random_number, random_direction);
                 if random_direction==0 { 
-                    self.current_value = self.current_value - (self.current_value*(random_number as u64)/100);
+                    self.token1_starting_value = self.token1_starting_value - (self.token1_starting_value*(random_number as u64)/100);
                 } 
                 else { 
-                    self.current_value = self.current_value + (self.current_value*(random_number as u64)/100);
+                    self.token1_starting_value = self.token1_starting_value + (self.token1_starting_value*(random_number as u64)/100);
                 } 
                 
-                info!("New price is : {} ", self.current_value);
+                info!("New price is : {} ", self.token1_starting_value);
                 self.last_epoch = current;
             } 
-            info!("Current price of {}/{} is {} ", _token_a_address, _token_b_address , self.current_value);
-            self.current_value
+            info!("Current price of {}/{} is {} ", _token_a_address, _token_b_address , self.token1_starting_value);
+            self.token1_starting_value
         }
 
         // This is a pseudorandom function and not a true random number function.

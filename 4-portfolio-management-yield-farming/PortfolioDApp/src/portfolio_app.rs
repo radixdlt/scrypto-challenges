@@ -3,10 +3,10 @@ use crate::lending_app::LendingApp;
 use crate::trading_app::TradingApp;
 use crate::utils::*;
 
+//fee for each operation executed by the portfolio
 const FIXED_FEE: i32 = 10;
 
-// Here, we define the data that will be present in
-// each of the user . 
+// Here, we define the data that will contain the number of positive/negative operation of the user 
 #[derive(NonFungibleData)]
 struct UserHistory {
     #[scrypto(mutable)]
@@ -19,9 +19,9 @@ struct UserHistory {
     expert: bool          
 }
 
-// definition of operation 
+// Here, we define the operation data detail of a single operation 
 #[derive(TypeId, Encode, Decode, Describe,NonFungibleData)]
-struct OperationHistory {
+struct OperationDetail {
     username: ComponentAddress,
     operation_id: u128,    
     xrd_tokens: Decimal,    
@@ -35,8 +35,8 @@ struct OperationHistory {
     number_of_request_for_autoclosing: Option<u32>,  
     current_requestor_for_closing: Option<ResourceAddress>   
 }
-
-impl ToString for OperationHistory {
+//method used for logging data 
+impl ToString for OperationDetail {
     fn to_string(&self) -> String {
         return format!("{}|{}|{}|{}|{}|{}|{}|{}|{:?}|{:?}|{:?}|{:?}", 
         self.username,
@@ -55,8 +55,11 @@ impl ToString for OperationHistory {
     }
 }
 
-// Here, we define the data that will be present in
-// each of the lending ticket NFTs.
+// Here, we define the data of the user fundings 
+// xrd_tokens: amount of xrd funded in the portfolio
+// in_progress: funded active/terminated
+// total_amount: amount of the main vault at the time of funding
+// epoch_funded: epoch at the time of funding
 #[derive(NonFungibleData)]
 struct UserAccountFundingData {
     #[scrypto(mutable)]
@@ -80,18 +83,24 @@ blueprint!{
 
         /// The reserve for trading token1 main pool
         token1_pool: Vault,
+        /// The reserve for trading token2 main pool
+        // token2_pool: Vault,
+        /// The reserve for trading token2 main pool
+        // token2_pool: Vault,                
 
+        //address of the lendingapp blueprint 
         lending_app: ComponentAddress,
-
+        //address of the tradingapp blueprint 
         trading_app: ComponentAddress,
 
         /// The resource definition of User Account Trading History token.
         user_account_trading_nft_resource_def: ResourceAddress,
-        /// Vault with admin badge for managine UserHistory NFT.
-        user_account_trading_history_nft_admin_badge: Vault,    
+        /// Vault with admin badge for managine User Account Trading History NFT.
+        user_account_nft_admin_badge: Vault,    
         
-        //positions opened/closed
-        positions: Vec<OperationHistory>,
+        //Vector containing positions opened/closed
+        positions: Vec<OperationDetail>,
+
         //vault containing lending nft for using the lendingapp component
         lending_nft_vault: Vault,
 
@@ -101,17 +110,12 @@ blueprint!{
         //vault containing borrowing nft for using the lendingapp component
         borrowing_nft_vault: Vault,
         
-        //vault containing LND 
+        //vault containing LND received from the lendingapp component
         lnd_vault: Vault,
 
+        //Decimal to contain the total amount funded in the portfolio (useful for calculate the ratio)
         amount_funded: Decimal
     }
-
-    
-
-    // resim call-function $package TradingApp create_market $xrd $btc $eth $leo
-//procedo con il funding del market
-// resim call-method $component fund_market 1000,$xrd 1000,$btc 1000,$eth 1000,$leo
 
     impl Portfolio {
         /// Instantiates a new Portfolio component. 
@@ -165,7 +169,7 @@ blueprint!{
                 lending_app: lending_app,
                 trading_app: trading_app,
                 user_account_trading_nft_resource_def: user_account_trading_history_nft,
-                user_account_trading_history_nft_admin_badge: Vault::with_bucket(user_mint_badge),
+                user_account_nft_admin_badge: Vault::with_bucket(user_mint_badge),
                 positions: Vec::new(),
                 lending_nft_vault: Vault::new(lending_nft_resource_def),
                 user_account_funding_nft_resource_def: user_account_funding_nft,
@@ -179,9 +183,10 @@ blueprint!{
         }
 
 
-
-        pub fn register(&mut self,address: ComponentAddress) -> Bucket {
-            let nft = self.user_account_trading_history_nft_admin_badge.authorize(|| {
+        // anyone as to register itself before using the portfolio component
+        // and receives an NFT
+        pub fn register(&mut self,address: ComponentAddress) -> (Bucket, Bucket) {
+            let nft = self.user_account_nft_admin_badge.authorize(|| {
                 let resource_manager = borrow_resource_manager!(self.user_account_trading_nft_resource_def);
                 resource_manager.mint_non_fungible(
                     // The NFT id
@@ -195,12 +200,25 @@ blueprint!{
                     },
                 )
             });
-            nft
+
+            let portfolio_id = get_non_fungible_id();        
+            let epoch_registered: u64 = Runtime::current_epoch();     
+            // Create a NFT. TODO: If this already exist this needs to be updated
+            let user_account_funding_nft = self.user_account_nft_admin_badge.authorize(|| {
+                borrow_resource_manager!(self.user_account_funding_nft_resource_def)
+                    .mint_non_fungible(&portfolio_id, UserAccountFundingData {xrd_tokens: dec!("0"), in_progress: false, total_amount: dec!("0"), funded_ratio: dec!("0"), epoch_funded: epoch_registered  })
+                });             
+
+            (nft,user_account_funding_nft)
         }
 
-        pub fn fund_portfolio(&mut self, starting_tokens: Bucket) -> Bucket {
+        // anyone has to fund tokens in the portfolio 
+        // before starting to operate on behalf ot itself 
+        // and on behalf of anyone else
+        pub fn fund_portfolio(&mut self, starting_tokens: Bucket, user_account_funding_nft: Proof)  {
             info!("=== FUND PORTFOLIO OPERATION START === ");
             let how_many: Decimal = starting_tokens.amount();
+            //put in the main vault
             self.main_pool.put(starting_tokens);
             let total_amount: Decimal = self.main_pool.amount();
             // The ratio funded compared to the total amount.
@@ -209,31 +227,45 @@ blueprint!{
             //update the total funded in the portfolio
             self.amount_funded = self.amount_funded  + how_many;
 
-            let portfolio_id = get_non_fungible_id();             
-            // Create a NFT. TODO: If this already exist this needs to be updated
-            let user_account_funding_nft = self.user_account_trading_history_nft_admin_badge.authorize(|| {
-                borrow_resource_manager!(self.user_account_funding_nft_resource_def)
-                    .mint_non_fungible(&portfolio_id, UserAccountFundingData {xrd_tokens: how_many,  in_progress: true, total_amount, funded_ratio, epoch_funded  })
-                });             
-            user_account_funding_nft
+
+            // Get the data associated with the User Account Trading History NFT and update the variable values
+            let non_fungible: NonFungible<UserAccountFundingData> = user_account_funding_nft.non_fungible();
+            let mut portfolio_nft_data = non_fungible.data();  
+            assert!(portfolio_nft_data.in_progress==false, "You have already funded the portfolio! If you want fund more please withdraw first and then fund again!");      
+
+            //update the nft data 
+            portfolio_nft_data.in_progress = true;
+            portfolio_nft_data.xrd_tokens = how_many;
+            portfolio_nft_data.total_amount = total_amount;
+            portfolio_nft_data.funded_ratio = funded_ratio;
+            portfolio_nft_data.epoch_funded = epoch_funded;
+            // portfolio_nft_data.xrd_tokens - tokens_to_withdraw;
+            self.user_account_nft_admin_badge.authorize(|| {
+                borrow_resource_manager!(self.user_account_funding_nft_resource_def).update_non_fungible_data(&non_fungible.id(), portfolio_nft_data);
+            });  
         }
 
-        pub fn withdraw_portfolio(&mut self, user_account_trading_nft: Proof) -> Bucket {
+        //anyone can withdraw its fundings even with opened position
+        //any open position can be closed by anyone else later
+        pub fn withdraw_portfolio(&mut self, user_account_funding_nft: Proof) -> Bucket {
             info!("=== WITHDRAW PORTFOLIO OPERATION START === ");
 
-            // Get the data associated with the Lending NFT and update the variable values
-            let non_fungible: NonFungible<UserAccountFundingData> = user_account_trading_nft.non_fungible();
+            //TODO asser that a funding is in progress, otherwise stop the withdraw
+
+            // Get the data associated with the User Account Funding History NFT and update the variable values
+            let non_fungible: NonFungible<UserAccountFundingData> = user_account_funding_nft.non_fungible();
             let mut portfolio_nft_data = non_fungible.data();                
             
             let starting_epoch: u64 = portfolio_nft_data.epoch_funded;
             let actual_epoch: u64 = Runtime::current_epoch();
+            //get total to calculate if the portfolio value has risen in value or not
             let total_amount_at_the_time_of_funding: Decimal = portfolio_nft_data.total_amount;
             let total_amount_at_the_time_of_withdraw: Decimal = self.main_pool.amount();
 
             //update the total funded in the portfolio
             info!(" Amount of funded tokens in the portfolio {} " , self.amount_funded);  
             info!(" Amount of yours funded tokens in the portfolio {} " , portfolio_nft_data.xrd_tokens);  
-
+            //total current portfolio value at now 
             let portfolio_tokens_value: Decimal = self.portfolio_value();
             let total = portfolio_tokens_value+total_amount_at_the_time_of_withdraw;
             info!(" Portfolio amount at time of funding {} and actual {} " , total_amount_at_the_time_of_funding, total);  
@@ -241,7 +273,7 @@ blueprint!{
             let diff_ratio: Decimal = ((total / self.amount_funded) * dec!("100") )-dec!(100);
             info!(" Portfolio increase/decrease ratio  {} " , diff_ratio);  
 
-            //the amount of tokens to be returned with increase or decrease
+            //the amount of tokens to be returned to the user account with increase or decrease
             let diff_tokens = portfolio_nft_data.xrd_tokens * (dec!("100") + diff_ratio) / dec!("100");
          
             info!(" you got {} from {} in {} epoch " , diff_tokens , portfolio_nft_data.xrd_tokens , (actual_epoch-starting_epoch));            
@@ -259,33 +291,35 @@ blueprint!{
             portfolio_nft_data.epoch_funded = Runtime::current_epoch();
 
             // portfolio_nft_data.xrd_tokens - tokens_to_withdraw;
-            self.user_account_trading_history_nft_admin_badge.authorize(|| {
+            self.user_account_nft_admin_badge.authorize(|| {
                 borrow_resource_manager!(self.user_account_funding_nft_resource_def).update_non_fungible_data(&non_fungible.id(), portfolio_nft_data);
             });
 
-            // // Burn the badge to only allow one call to approve per badge
-            // self.username_nft_admin_badge.authorize(|| {
-            //     ticket.burn();
-            // });
-            // self.username_nft_admin_badge.authorize(|| {
-            //     borrow_resource_manager!(self.portfolio_nft_resource_def).burn(Bucket::new(ticket));
-            // });
             to_be_returned
         }
 
-       /// # Execute a buy operation by means of the portfolio.
-       pub fn buy(&mut self,xrd_tokens: Decimal, user_account: ComponentAddress, token_to_buy: ResourceAddress)   {
+       // Execute a buy operation by means of the portfolio.
+       pub fn buy(&mut self,xrd_tokens: Decimal, user_account: ComponentAddress, token_to_buy: ResourceAddress, user_account_funding_nft: Proof)   {
             assert!(
                 self.main_pool.amount() >= xrd_tokens,
                 "Main vault has not sufficient tokens to buy ! Please fund portfolio !"
             );   
+            // Get the data associated with the User Account Funding History NFT and update the variable values
+            let non_fungible: NonFungible<UserAccountFundingData> = user_account_funding_nft.non_fungible();
+            let mut portfolio_nft_data = non_fungible.data();       
+            assert!(portfolio_nft_data.in_progress, "You first need to fund the portfolio then you can operate on behalf of it!!");      
+            assert!(
+                portfolio_nft_data.xrd_tokens*10 >= xrd_tokens,
+                "You can use max 10x leverage !!"
+            );   
+
             let trading_app: TradingApp = self.trading_app.into();
             self.token1_pool.put(trading_app.buy(self.main_pool.take(xrd_tokens)));
             
             let current_price = trading_app.current_price(RADIX_TOKEN,token_to_buy);
             let how_many = xrd_tokens / current_price;
 
-            let trade1 = OperationHistory {
+            let trade1 = OperationDetail {
                 username: user_account,
                 operation_id: Runtime::generate_uuid(),    
                 xrd_tokens: xrd_tokens,    
@@ -301,35 +335,20 @@ blueprint!{
             };     
 
             self.positions.push(trade1);
-
-            // let user_account_history_id = get_non_fungible_id();             
-            // // Create a NFT. Note that this contains the number of lending and the level arwarded
-            // let user_account_history_nft = self.user_account_trading_history_nft_admin_badge.authorize(|| {
-            //     borrow_resource_manager!(self.user_account_funding_nft_resource_def)
-            //         .mint_non_fungible(&user_account_history_id, trade1)
-            //     });             
-            // user_account_history_nft                   
+                
         }
 
+        // Execute a sell operation by means of the portfolio.
         pub fn sell(&mut self,tokens: Decimal
         )   {
             let trading_app: TradingApp = self.trading_app.into();
             self.main_pool.put(trading_app.sell(self.token1_pool.take(tokens)));
         }
 
+        // Calculate the value of the other vault (getting the token current price from the tradingapp component)
         pub fn portfolio_value(&self) -> Decimal {
             info!("Position size inside portfolio {}", self.positions.len());
             let trading_app: TradingApp = self.trading_app.into();
-
-            // let mut total: Decimal = Decimal::zero();
-            // for inner_position in &self.positions {
-            //     info!("Position Id {}", inner_position.operation_id);          
-            //     info!("Ready to get current price ");
-            //     let updated_value = trading_app.current_price(inner_position.token_a_address,inner_position.token_b_address);
-            //     info!("Xrd used for trade {} at Current price {:?} ", inner_position.xrd_tokens, updated_value);
-            //     total = total + (inner_position.xrd_tokens*updated_value);
-            //     info!("Calculated value {:?}", total);
-            // }      
             
             let total: Decimal = self.token1_pool.amount()*(trading_app.current_price(RADIX_TOKEN,self.token1_pool.resource_address()));
             info!("Added value from token1 vault {:?}", total);
@@ -337,21 +356,22 @@ blueprint!{
             total
         }
 
+        // Calculate the total value of the portfolio (main vault + other vault + lnd vault)
         pub fn portfolio_total_value(&self) -> Decimal {
-            info!("Position size inside portfolio {}", self.positions.len());
             let trading_app: TradingApp = self.trading_app.into();
             
             let mut total: Decimal = self.portfolio_value();
-            info!("Added value from token1 vault {:?}", total);
             let totalxrd: Decimal = self.main_pool.amount();
             info!("Value in main vault {:?}", totalxrd);
-            total = total + totalxrd;
+            let totallnd: Decimal = self.lnd_vault.amount();
+            info!("Value in lnd vault {:?}", totallnd);            
+            total = total + totalxrd + totallnd;
             info!("Grandtotal {:?}", total);
 
             total
         }
    
-
+        // calculate the list of open position (positionId can be used for closing)
         pub fn position(&self) -> Vec<u128> {
             info!("Position size {}", self.positions.len());
             let trading_app: TradingApp = self.trading_app.into();
@@ -371,7 +391,7 @@ blueprint!{
                 info!("Position net result {:?}", net_result);
 
                 if net_result >= 0 {
-                    let trade1 = OperationHistory {
+                    let trade1 = OperationDetail {
                         username: inner_position.username,
                         operation_id: inner_position.operation_id,    
                         xrd_tokens: inner_position.xrd_tokens,    
@@ -393,6 +413,7 @@ blueprint!{
             losing_positions
         }
 
+        // Close a position, method can be executed by anyone register with the portfolio by using the positionId 
         pub fn close_position(&mut self, operation_id: u128)  {
             info!("Position size {}", self.positions.len());
             let mut amount_to_sell: Decimal = Decimal::zero();
@@ -408,7 +429,8 @@ blueprint!{
             self.sell(amount_to_sell);    
         }
 
-
+        //Method using the LendingApp component
+        //Here, the platform register itself to be able to lend tokens to the LendingApp component
         pub fn register_for_lending(&mut self)  {
             info!("Registering for lending ") ;
             info!("Vault for Lending NFT, accept resource address : {:?} ", self.lending_nft_vault.resource_address());
@@ -416,6 +438,7 @@ blueprint!{
             let bucket: Bucket = lending_app.register();
             self.lending_nft_vault.put(bucket);
         }
+        //Here, the platform register itself to be able to borrow tokens from the LendingApp component
         pub fn register_for_borrowing(&mut self) {
             info!("Registering for borrowing ") ;
             info!("Vault for Borrowing NFT, accept resource address : {:?} ", self.borrowing_nft_vault.resource_address());
@@ -423,20 +446,28 @@ blueprint!{
             let bucket: Bucket = lending_app.register_borrower();
             self.borrowing_nft_vault.put(bucket);            
         }     
-
-        pub fn lend(&mut self,tokens: Bucket) -> Bucket {
+        //Here, the user account can order the platform component to lend tokens to the LendingApp component
+        pub fn lend(&mut self,xrd_tokens: Decimal)  {
             info!("Lending ");
+            let lending_app: LendingApp = self.lending_app.into();
+
+            let xrd_to_lend: Bucket = self.main_pool.take(xrd_tokens);
+            let proof: Proof = self.lending_nft_vault.create_proof_by_amount(dec!(1));
+            
+            //return lending_app.lend_money(tokens, proof);
+            self.lnd_vault.put(lending_app.lend_money(xrd_to_lend, proof));
+        }
+        //Here, the user account can order the platform component to get back tokens from the LendingApp component
+        pub fn take_back(&mut self, lnd_tokens: Decimal)  {
+            info!("Take back ");
+
+            let xrd_to_get_back: Bucket = self.lnd_vault.take(lnd_tokens);
+
             let lending_app: LendingApp = self.lending_app.into();
             let proof: Proof = self.lending_nft_vault.create_proof_by_amount(dec!(1));
             
-            return lending_app.lend_money(tokens, proof);
-        }
-
-        pub fn take_back(&mut self, lnd_tokens: Bucket) -> Bucket {
-            info!("Take back ");
-            let lending_app: LendingApp = self.lending_app.into();
-            let proof: Proof = self.lending_nft_vault.create_proof_by_amount(dec!(1));
-            return lending_app.take_money_back(lnd_tokens, proof);
+            //return lending_app.take_money_back(xrd_to_get_back, proof);
+            self.main_pool.put(lending_app.take_money_back(xrd_to_get_back, proof));
         }
 
     }

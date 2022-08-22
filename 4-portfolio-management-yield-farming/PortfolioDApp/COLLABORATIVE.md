@@ -2,7 +2,12 @@
 
 The Collaborative dApp is a decentralized application where users can collaborate to a portfolio management solution where no users profiling exist and it is completely permissionless, any user can deposit asset and any user can put asset at work towards the simulated available deFi applications.
 
-It is a kind of a social trading application but it differs from it because we think that financial knowledge is spread and also the final user has a great understanding and could operate in such a broad market for opportunities.
+It is a kind of a social trading application but it differs from it because we think that financial knowledge is spread and also the final retail user has a great understanding and could operate in such a broad market for opportunities.
+
+It is different from a usual social trading application where retail traders have the opportunity to follow experienced traders copying their portfolio.
+It is different because I think that also the experts get things wrong so there is no guarenteed result and also I think that is a no-brainer for a retail trader to simply copy trades decided by others.
+
+This is a social collaborative portfolio management solution where anyone can put its tokens and execute operation on behalf of the whole community, at the time of withdraw the user account gets back its tokens with a reward or penalty based on the performance of the portfolio. There is not a personal user account on the platform, the positive or negative portfolio result is redistributed among all participants,
 
 Collaborative dApp has only some simple rules:
 * users can deposit asset
@@ -14,13 +19,14 @@ Collaborative dApp has only some simple rules:
 The rules aim: 
    - to incentivates users that have not sufficient capital to put it at work but have instead knowledge 
    - to help users to close their losing position that is usually a difficult decision to put in action
+   - empower the user that his operations are valid for everyone
 
 Operations history will be registered on each user so anyone can evaluate each other's.
 
 Simulated deFi applications used in this portfolio management solution are the following:
 - Lending application (we'll use LendingdApp developed for the previous challenge)
-- Trading application
-- Swap application
+- Trading application [Price changes is simulated and changes randomly when epoch advances]
+- Swap application [Not implemented]
 
 # Design
 
@@ -41,7 +47,6 @@ And also some for closing orders/operations:
 - close_operation(proof) -> account that has opened the operation can close it anytime
 - list_open_operation() -> list of open operation and its account creator 
 - close_someone_else_operation(operation_id) -> close an operation opened by someone else, available only if the operation is losing
-
 
 The following methods should update the soulbound token of the account that has created the operation:
 - sell      -> should update in the sbt the number of positive operation if the result has been positive, otherwise no
@@ -511,7 +516,6 @@ Eseguire 'scrypto test'
 # TODO
 
 Su ogni account vengono registrati erroneamente 2 User Account Trading History NFT
-IL LND token va sull'account utente anzichè sul portfolio
-Withdraw non funziona al secondo tentativo
-Il tak back non funziona (Transaction Status: AuthorizationError { function: "take_from_vault", authorization: DenyAll, error: NotAuthorized })
-calcolo del movimento del prezzo in percentuale e non in assoluto
+
+gestione di tutti i token
+
