@@ -1,6 +1,6 @@
 # Indexer
 
-Indexer allows anyone to easily create their own index fund, utilizing resources created on the Radix network. Once a index fund is created, anyone can invest in the fund. Each time someone deposits XRD into the newly created index fund, the XRD is equally split across each token making up the index fund and the depositor receives Indexer Tokens. The Indexer Token is similar to an LP token and keep track of % ownership of the index fund. 
+Indexer allows anyone to easily create their own index fund, utilizing resources created on the Radix network. Once a index fund is created, anyone can invest in the fund. Each time someone deposits XRD into the newly created index fund, the XRD is equally split across each token making up the index fund and the depositor receives Indexer Tokens. The Indexer Token is similar to an LP token and keeps track of % ownership of the index fund. 
 
 ## Features
 
@@ -10,15 +10,15 @@ Indexer allows anyone to easily create their own index fund, utilizing resources
 
 ## Design Details
 
-A index fund may be created by choosing individual resources to make up the index fund. The XRD token will need to be apart of the index fund. The individual tokens that make up the index fund are stored in vaults. When users deposit XRD into the index fund, the XRD is split evenly across each token making up the index fund. The protocol automatically take the XRD and swaps them to each resource that make up the index fund. 
+A index fund may be created by choosing individual resources to make up the index fund. The XRD token will need to be apart of the index fund. The individual tokens that make up the index fund are stored in vaults. When users deposit XRD into the index fund, the XRD is split evenly across each token making up the index fund. The protocol automatically takes the XRD and swaps them into each resource that makes up the index fund. 
 
-Users will receive Indexer Tokens, which keeps track of % ownership of the index fund. The protocol mints and burns Indexer Tokens when users deposit or redeem their Indexer Tokens. The amount of Indexer Tokens that are minted are based on the amount of XRD divided across the number of index pools. For example, say you invest 1000 XRD into a index fund consisting of 10 tokens. Each token index would receive 100 XRD worth of tokens. 100 Indexer tokens would be minted. 100 XRD tokens will be swapped for each resource that makes up the index fund and deposited in their vaults. 
+Users will receive Indexer Tokens, which keeps track of % ownership of the index fund. The protocol mints and burns Indexer Tokens when users deposit or redeem their Indexer Tokens. The amount of Indexer Tokens that are minted are based on the amount of XRD divided across the number of index pools. For example, say you invest 1000 XRD into a index fund consisting of 10 tokens. Each token index would receive 100 XRD worth of tokens. 100 Indexer Tokens would be minted. 100 XRD tokens will be swapped for each resource that makes up the index fund and deposited in their vaults. 
 
-When users redeem their Indexer Tokens, an equal number of XRD worth of tokens will be taken from each index pool. Continuing with the same example above, the user presents 100 Indexer Tokens for redemption. 100 XRD worth of tokens will be taken from each index pool swapped for XRD and returned to the user. The user will receive their portion of fees generated from arbitrage and flash loans. 
+When users redeem their Indexer Tokens, an equal number of XRD worth of tokens will be taken from each index pool. Continuing with the same example above, the user presents 100 Indexer Tokens for redemption. 100 XRD worth of tokens will be taken from each index pool swapped to XRD and returned to the user. The user will receive their portion of fees generated from arbitrage and flash loans. 
 
 ## Getting Started
 
-1. Lets start off by creating 4 new accounts so we can test our index fund. 
+1. Lets start off by creating 4 new accounts so we can test the Indexer Protocal. 
 
 ```sh
 resim reset
@@ -40,15 +40,15 @@ export PUB_KEY4=$(echo "$OP4" | sed -nr "s/Public key: ([[:alnum:]_]+)/\1/p")
 export ACC_ADDRESS4=$(echo "$OP4" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 ```
 
-2. Account 1 will be used to set up Ociswap and the Oracle and create a index fund. The other accounts will represent other 
+2. Account 1 will be used to set up Ociswap, RaDEX, Oracle1, and Oracle2 and create our first index fund. The other accounts will represent other 
 users who invest in the newly created fund.
 
 ```sh
 resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
 ```
 
-3. We will need to create some tokens to add to the index fund. The files [`token_creation.rtm`](./transactions/token_creation.rtm) 
-contain the instructions needed for account 1 to create 9 different tokens. To run the transaction file and save export to 
+3. We will need to create some tokens to add to the index fund. The file [`token_creation.rtm`](./transactions/token_creation.rtm) 
+contain the instructions needed for account 1 to create 9 different tokens. To run the transaction file and export values to 
 variables run the following command: 
 
 ```sh
@@ -65,8 +65,8 @@ export QUANT=$(echo "$OP2" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed
 export XRD=030000000000000000000000000000000000000000000000000004
 ```
 
-4. We can now publish the Indexer package and also instantiate a new Indexer, Ociswap, and Oracle component by running the following commands:
-We are saving the component addresses for each bluprints and the Indexer Token resource address to variables.
+4. We can now publish the Indexer package and also instantiate a new Indexer, Ociswap, RaDEX, Oracle1, and Oracle2 component by running the following commands:
+We are exporting the component addresses for each blueprint and the Indexer Token resource address to variables.
 
 ```sh
 PK_OP=$(resim publish ".")
@@ -84,7 +84,7 @@ export ORACLE1_COMPONENT=$(echo "$ORACLE1_CP_OP" | sed -nr "s/.* Component: ([[:
 ORACLE2_CP_OP=$(resim call-function $PACKAGE Oracle2 new)
 export ORACLE2_COMPONENT=$(echo "$ORACLE2_CP_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
 ```
-5. Lets quickly set up Ociswap and Radex with some liquidity pools so we can use it to trade tokens.
+5. Lets quickly set up Ociswap and Radex with some liquidity pools so we can use them to trade tokens.
 
 ```sh
 BITCOIN_POOL1=$(resim call-method $OCI_COMPONENT create_pool $BITCOIN)
@@ -155,7 +155,7 @@ resim call-method $RADEX_COMPONENT add_liquidity 1000000,$QUANT
 resim call-method $RADEX_COMPONENT add_liquidity 50000,$XRD 
 ```
 
-7. Lets set some price for the Oracle component. Note the prices for Oracle2 are set slightly lower.
+7. Lets set some price for the Oracle component. Note the prices for Oracle2 are set slightly lower.  We will use this to demonstrate an arbitrage trade.  
 
 ```sh
 resim call-method $ORACLE1_COMPONENT set_price $BITCOIN 21300
@@ -181,8 +181,7 @@ resim call-method $ORACLE2_COMPONENT set_price $QUANT 100
 resim call-method $ORACLE2_COMPONENT set_price $XRD .6
 ```
 
-8. Now we need to add the Ociswap and Oracle component address to the Indexer component and add the Oracle 
-component address to the Ociswap component. 
+8. Now we need to add the Ociswap, RaDEX, Oracle1, and Oracle2 component address to the Indexer component, add the Oracle1 component address to the Ociswap component, and Oracle2 component address to the RaDEX component.  
 
 ```sh
 resim call-method $INDEXER_COMPONENT oci_address $OCI_COMPONENT
@@ -193,7 +192,7 @@ resim call-method $OCI_COMPONENT oracle1_address $ORACLE1_COMPONENT
 resim call-method $RADEX_COMPONENT oracle2_address $ORACLE2_COMPONENT
 ```
 
-9. Now we can finally create our custom index fund. We will add 10 tokens to out index fund.
+9. Now we can finally create our custom index fund. We will add 10 tokens to our index fund.
 
 ```sh
 resim call-method $INDEXER_COMPONENT create_index_pool $BITCOIN
@@ -225,7 +224,7 @@ resim call-method $INDEXER_COMPONENT deposit 30000,$XRD
 resim call-method $INDEXER_COMPONENT show_index_pool
 ```
 
-12. Lets generate some yield using the index pool tokens and performing arbitrage on tokens trading at a discount on Radex. We will sell the tokens on Ociswap and buy them back cheaper on Radex.
+12. Lets generate some yield using the index pool tokens and performing arbitrage trades with tokens trading at a discount on RaDEX. We will sell the tokens on Ociswap and buy them back cheaper on RaDEX.
 
 ```sh
 resim call-method $INDEXER_COMPONENT arb_oci_radex $LITECOIN
@@ -253,11 +252,32 @@ resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
 resim call-method $INDEXER_COMPONENT withdraw 1000,$INDEXER_TOKEN
 ```
 
-15. Lets check the account balance of accounts 2, 3, and 4. Each account balance starts with 1 million XRD. Anything in addition to this amount represents the fees accrued. The fees accrued are proportional to the initial amount deposited by accounts 2, 3, and 4. Account 4 fees accrued should be equal to the sum of account 2 and 3 accrued, Account 3 fees accrued should be double that of Account 2. 
+15. Lets check the account balance of accounts 2, 3, and 4. Each account balance starts with 1 million XRD. Anything in addition to this amount represents the fees accrued. The fees accrued are proportional to the initial amount deposited by accounts 2, 3, and 4. Account 4 accrued fees should be equal to the sum of account 2 and 3 accrued fees. Account 3 accrued fees should be double that of Account 2. 
 
 ```sh
 resim show $ACC_ADDRESS2
 resim show $ACC_ADDRESS3
 resim show $ACC_ADDRESS4
 ```
+
+16. Useful methods...
+
+    16.1 Show token balances in index pools
+
+    ```sh 
+    resim call-method $INDEXER_COMPONENT show_index_pool
+    ```
+
+    16.2 Show token balance in Ociswap liquidity pools
+
+    ```sh
+    resim call-method $OCI_COMPONENT show_liquidity_pool
+    ```
+
+    16.3 Show token balanace in RaDEX liquidity pools
+
+    ```sh
+    resim call-method $RADEX_COMPONENT show_liquidity_pool
+    ```
+
 
