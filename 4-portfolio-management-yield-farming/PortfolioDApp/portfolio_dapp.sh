@@ -200,6 +200,12 @@ resim set-default-account $account $PRIV_KEY1
 echo '====== BUY LEVERAGED  ======'
 resim call-method $portfolio_component buy 10000 $account $btc 1,$user_account_funding_nft
 
+echo '====== ANOTHER EPOCH ADVANCE ======'
+epoch=$(($epoch + 1))
+resim set-current-epoch $epoch
+
+echo '====== RUNNING OPERATIONS UPDATE ======'
+resim call-method $portfolio_component position
 
 echo '====== CURRENT PORTFOLIO VALUE ======'
 resim call-method $portfolio_component portfolio_total_value
@@ -211,6 +217,10 @@ resim call-method $portfolio_component withdraw_portfolio 1,$user_account_fundin
 echo '====== CURRENT PORTFOLIO VALUE ======'
 resim call-method $portfolio_component portfolio_total_value
 
+echo '====== PORTFOLIO COMPONENT  ======'
+resim show $portfolio_component
+echo '====== ACCOUNT ======'
+resim show $account
 
 echo '====== CLOSE ALL POSITIONS OPERATION ======'
 #export fake_id=12345

@@ -20,7 +20,7 @@ struct UserHistory {
 }
 
 // Here, we define the operation data detail of a single operation 
-#[derive(TypeId, Encode, Decode, Describe,NonFungibleData)]
+#[derive(TypeId, Encode, Decode, Describe,NonFungibleData,Copy, Clone)]
 struct OperationDetail {
     username: ComponentAddress,
     operation_id: u128,    
@@ -387,29 +387,16 @@ blueprint!{
                 info!("Xrd used for trade {}", inner_position.xrd_tokens);
                 info!("Starting price {:?}", inner_position.current_price );
                 info!("Current price {:?}", updated_value );
-                let net_result = updated_value.wrapping_sub(inner_position.current_price);
+                let net_result: Decimal = inner_position.xrd_tokens*Decimal::from(updated_value)/Decimal::from(inner_position.current_price)-inner_position.xrd_tokens;
                 info!("Position net result {:?}", net_result);
 
-                if net_result >= 0 {
-                    let trade1 = OperationDetail {
-                        username: inner_position.username,
-                        operation_id: inner_position.operation_id,    
-                        xrd_tokens: inner_position.xrd_tokens,    
-                        current_price: inner_position.current_price,    
-                        token_a_address: RADIX_TOKEN,
-                        token_b_address: inner_position.token_b_address,
-                        num_token_b_received: inner_position.num_token_b_received,
-                        date_opened: inner_position.date_opened,
-                        date_closed: None,
-                        current_requestor_for_closing: None, 
-                        current_standing: None,
-                        number_of_request_for_autoclosing: None,
-                    };
+                if net_result <= Decimal::ZERO {
+                    info!("Found a suffering position , ID = {}", inner_position.operation_id);
                     losing_positions.push(inner_position.operation_id);
                 };
 
             }        
-
+            info!("Losing Position size {}", losing_positions.len());
             losing_positions
         }
 
@@ -417,15 +404,22 @@ blueprint!{
         pub fn close_position(&mut self, operation_id: u128)  {
             info!("Position size {}", self.positions.len());
             let mut amount_to_sell: Decimal = Decimal::zero();
-            for inner_position in &self.positions {
-                info!("Inner Position {}", inner_position.to_string());           
+            let mut remaining_positions: Vec<OperationDetail> = Vec::new();
+            for inner_position in &self.positions {     
                 info!("Position Id {}", inner_position.operation_id);    
 
                 if inner_position.operation_id==operation_id {
                     amount_to_sell = inner_position.num_token_b_received.clone();
+                } else {
+                    remaining_positions.push(inner_position.clone());
                 }
             }    
             info!("Ready to close position {}", operation_id);
+            //replace the Vec with the new one with the closed position is missing
+            self.positions = remaining_positions;
+
+            info!("Position size after removing the closed position {}", self.positions.len());
+
             self.sell(amount_to_sell);    
         }
 

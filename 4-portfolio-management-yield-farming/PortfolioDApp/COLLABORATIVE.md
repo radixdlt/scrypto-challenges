@@ -69,114 +69,73 @@ The data about the operation contains the following:
 - number_of_request_for_autoclosing: number or request needed for the operation to be closed even if creator does not agree
 - [current_requestor_for_closing]: account requesting its closing
  
-# Preparazione simulatore
-
-//eseguo il publish
-resim publish .
-export package=
-
-//creo i tokens
-resim new-token-fixed --name bitcoin --symbol btc 10000
-resim new-token-fixed --name ethereum --symbol eth 1000
-resim new-token-fixed --name leonets --symbol leo 10000
-export xrd=030000000000000000000000000000000000000000000000000004
-
-//creo l'account
-resim new-account
-export account=
-
-//creo il component
--- resim call-function $package TradingApp create_market 1000,$xrd 10,$btc 1000,$eth 1000,$leo
-export component=0273ab5508a644b26b3b2f06e56edea9e40e16d99c5b9f03130791
-//per poter eseguire il test del componente devo crearlo senza bucket ma con i resource address e poi farne il funding
-resim call-function $package TradingApp create_market $xrd $btc $eth $leo
-
-
---dopo la creazione dei fixed token questi si trovano tutti nell'account principale
-
-//procedo con il funding del market
-resim call-method $component fund_market 1000,$xrd 1000,$btc 1000,$eth 1000,$leo
-
-//eseguo un'operazione di acquisto (non funziona)
-resim call-method $component buy_generic 1000,$xrd $eth
-
-//eseguo un'operazione di acquisto e poi una di vendita (funziona)
-resim call-method $component buy 1000,$xrd "no"
-resim call-method $component sell 25,$btc "no"
-
-//aggiorno il package
-resim publish . --package-address $package
 
 # Portfolio dApp 
 
-Let's proceed with a demo of the blueprints.
+Let's proceed with a demo of the blueprints, start publishing the package
 
-//publish the package
-
-resim publish .
-
-export package=
-
-//create the first account, name it Bob (the Admin)
-
-resim new-account
 ```
+resim publish .
+export package=
+```
+
+Then create the first account, name it Bob (the Admin)
+
+```
+resim new-account
 A new account has been created!
 Account component address: 021025cfda90adea21506170be47c67ec169e41dbbdd063d54d409
 Public key: 0426599006343468593571484e418be9c40db4ffaf60ff9d98e6ccb13aec950ce2b70cd20e293909a6f1c380ab2cbad6c527c552c6aa7b7a664722df08fda26b8f
 Private key: d86e8112f3c4c4442126f8e9f44f16867da487f29052bf91b810457db34209a4
-```
 export account=
-
 export priv1=
-
-//create the second account, name it John
-
-resim new-account
 ```
+
+Then create the second account, name it John
+
+```
+resim new-account
 A new account has been created!
 Account component address: 02d0da3fc806e20c508841efdcd412a53e50d1b80fb35ff1263214
 Public key: 042f3ce83809c2c67057ff9aba2a95127e729b5439993051cc168a2939f655c904e976cf6db5cc51106dcd83b4b24d75c5e4e6f07c948b2cbca6eaef82bdc81832
 Private key: f0a0278e4372459cca6159cd5e71cfee638302a7b9ca9b05c34181ac0a65ac5d
-```
 export account2=
-
 export priv2=
-
-//create the second account, name it John
-
-resim new-account
 ```
+
+Then create the third account, name it Max
+
+```
+resim new-account
 A new account has been created!
 Account component address: 02bf3aa95784d95a63dd6f8e3f0d06de6127e114cc275a13ae47b5
 Public key: 04c1b4e1a0f1290b46b1836c4c4a9e6c7c963eb9b71e91bc0c3b32a99f79081634aa9719b7f8e5019bb918ace34f29d2ed66449eaf1c43deb9993642add0417b5a
 Private key: 205df2fd636e9a2b6e81c3987fa3dcdd09d64c5c710dd61aaa50a97d222a3f74
-```
 export account3=02bf3aa95784d95a63dd6f8e3f0d06de6127e114cc275a13ae47b5
-
 export priv3=205df2fd636e9a2b6e81c3987fa3dcdd09d64c5c710dd61aaa50a97d222a3f74
+```
 
-//create tokens to be used in the trading dapp
+Then create the tokens to be used in the trading dapp
 
+```
 resim new-token-fixed --name bitcoin --symbol btc 10000
-
 resim new-token-fixed --name ethereum --symbol eth 1000
-
 resim new-token-fixed --name leonets --symbol leo 100
-
 export xrd=030000000000000000000000000000000000000000000000000004
+```
 
-//create the TradingApp component, it needs the resource address of 4 tokens
+Then create the TradingApp component, it needs the resource address of 4 tokens and later on it needs to have its vaults funded
 
-//per poter eseguire il test del componente devo crearlo senza bucket ma con i resource address e poi farne il funding
-
+```
 resim call-function $package TradingApp create_market $xrd $btc $eth $leo
-
 export trading=
+```
 
-//The TradingApp component has been created so now Bob needs to fund its vaults
+The TradingApp component has been created so now Bob needs to fund its vaults
 
+```
 resim call-method $component fund_market 1000,$xrd 1000,$btc 1000,$eth 100,$leo
+```
 
 This is the Bob's account after he has funded the TradingApp component
 ```
@@ -198,13 +157,14 @@ Resources:
 └─ { amount: 1000, resource address: 0396c203d001f1fa99fdf081dc2f30e7f3b921eb1b5c9cc9487630, name: "bitcoin", symbol: "btc" }
 ```
 
+Then we can create another component to be used in the Portfolio App
+
+```
 resim call-function $package LendingApp instantiate_pool 1000,$xrd 1000 10 7
-
 export lending='component address'
-
 export lend_nft='second resource address'
-
 export lnd='fourth resource address'
+```
 
 The LendingApp component output its address plus some resource address we will not use here, except for the lending_nft and the lnd token
 
@@ -232,7 +192,9 @@ Logs: 5
 
 Now we have created the two components we need for the main component, the PortfolioApp
 
+```
 resim call-function $package Portfolio new $xrd $btc $lending $trading $lend_nft
+```
 
 The call-function outputs the address of the component/resources created
 ```
@@ -243,17 +205,20 @@ New Entities: 4
 └─ Resource: 03cacd11c325cd75f7693ed8d99187f65ec303bdc1a0622cca283f
 ```
 
+Let's export the variables we'll need later
+
+```
 $ export portfolio=02e66d3340f5e9c272ff2592e8e8e8b05376af3e35fd2e3f3ce30d
-
 $ export ADMIN_BADGE=03786df5a8851edaf8bf0ef318104b9c41f895c946fb080ca7c9dd
-
 $ export user_account_history_nft=03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9
-
 $ export user_account_funding_nft=03cacd11c325cd75f7693ed8d99187f65ec303bdc1a0622cca283f
+```
 
 The following operation we need to execute is the register, we have two different types of registering, one for the user account to operate on the PortfolioApp and the others for the PortfolioApp itself with the LendingApp component
 
+```
 resim call-method $portfolio register $account
+```
 
 After the user account has been registered itself with the PortfolioApp component we can see the NFT that has been added to its resource's list 
 ```
@@ -261,7 +226,11 @@ After the user account has been registered itself with the PortfolioApp componen
 │  └─ NonFungible { id: 0bfa93aa9159a62422fd0868d0ae4a16e32eff89f39d206bb5eb8267f265c424, immutable_data: Struct(), mutable_data: Struct(ComponentAddress("021025cfda90adea21506170be47c67ec169e41dbbdd063d54d409"), 0u32, 0u32, false) }
 ```
 
+Let's register with the component
+
+```
 resim call-method $portfolio register_for_lending (resim run transactions/register_for_lending.rtm)
+```
 
 Here we get the output log from the LendingApp component 
 
@@ -274,7 +243,11 @@ Logs: 5
 └─ [INFO ] Lending NFT resource address : 0391dadf83168f81053b8ea363479a8d773f1472f46fae205d93d0 
 ```
 
+Let's register with the component
+
+```
 resim call-method $portfolio register_for_borrowing (resim run transactions/register_for_borrowing.rtm)
+```
 
 Here we get the output log from the LendingApp component
 
@@ -297,7 +270,9 @@ If we look at the resources in the PortfolioApp component we can see the new NFT
 
 Bob could operate directly with the TradingApp...
 
+```
 resim call-method $trading buy 500,$xrd (resim call-method $trading buy 500,$xrd  --manifest transactions/buy_with_trading.rtm)
+```
 
 The current pair value of this operation for this demo is fixed and is xrd/btc = 40 so Bob gets 12.5 btc for its 500 xrd
 
@@ -307,14 +282,16 @@ The current pair value of this operation for this demo is fixed and is xrd/btc =
 
 Let's advance some epoch so to let the price changes...
 
+```
 epoch=$(($epoch + 1))
 resim set-current-epoch $epoch
+```
 
 Then let's look at the price...
 
+```
 resim call-method $trading current_price $xrd $btc (resim call-method $trading current_price $xrd $btc --manifest transactions/current_price.rtm)
 
-```
 ├─ [INFO ] Current epoch 1 vs last epoch 0
 ├─ [INFO ] The random movement is: 5 and direction is 1 
 └─ [INFO ] New price is : 45 
@@ -328,9 +305,10 @@ resim set-current-epoch $epoch
 
 Then let's look at the price again...
 
-resim call-method $trading current_price $xrd $btc (resim call-method $trading current_price $xrd $btc --manifest transactions/current_price.rtm)
 
 ```
+resim call-method $trading current_price $xrd $btc (resim call-method $trading current_price $xrd $btc --manifest transactions/current_price.rtm)
+
 ├─ [INFO ] Current epoch 2 vs last epoch 1
 ├─ [INFO ] The random movement is: 9 and direction is 0 
 └─ [INFO ] New price is : 36 
@@ -338,9 +316,10 @@ resim call-method $trading current_price $xrd $btc (resim call-method $trading c
 
 Now Bob decides to sell 
 
-resim call-method $trading sell 12.5,$btc  (resim call-method $trading sell 12.5,$btc   --manifest transactions/sell_with_trading.rtm)
 
 ```
+resim call-method $trading sell 12.5,$btc  (resim call-method $trading sell 12.5,$btc   --manifest transactions/sell_with_trading.rtm)
+
 ├─ [INFO ] Current epoch 2 vs last epoch 2
 ├─ [INFO ] Current price of 030000000000000000000000000000000000000000000000000004/0396c203d001f1fa99fdf081dc2f30e7f3b921eb1b5c9cc9487630 is 36 
 └─ [INFO ] N. xrd to receive: 450
@@ -352,7 +331,9 @@ Now let's instead what could happen if Bob uses the PortfolioDapp
 
 In this example Bob, as all the other users, has to fund directly inside the PortfolioApp component before starting to operate
 
+```
 resim call-method $portfolio fund_portfolio 10000,$xrd 1,$user_account_history_nft (resim call-method $portfolio fund_portfolio 10000,$xrd 1,$user_account_history_nft --manifest transactions/fund_portfolio_by_Bob.rtm)
+```
 
 The user account of Bob show the NFT of its 10000 xrd funded, he obsiously will need this to get back its xrd tokens
 
@@ -365,30 +346,37 @@ The same should be done by John and Max.
 
 At the end of their funding we can look at the portfolio component.
 
+```
 $resim set-default-account $account2 $priv2
 
 Default account updated!
 
 resim call-method $portfolio register $account2 (resim call-method $portfolio register $account2 --manifest transactions/register_with_portfolio_by_John.rtm)
+```
 
 Also John gets its NFT
 
 '''
 ├─ { amount: 1, resource address: 03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9, name: "User Account Trading History" }
 │  └─ NonFungible { id: 63d6d06bb0ba110877aff6def72a699ae852f4f7f14c546ef11f8c69638f47d7, immutable_data: Struct(), mutable_data: Struct(ComponentAddress("02d0da3fc806e20c508841efdcd412a53e50d1b80fb35ff1263214"), 0u32, 0u32, false) }
-'''
 
 export user_account_history2=03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9
+'''
+
 
 And then he can fund the Portfolio
 
+```
 resim call-method $portfolio fund_portfolio 10000,$xrd 1,$user_account_history2
+```
 
 The same has been done with Max's account
 
+```
 resim call-method $portfolio register $account3 (resim call-method $portfolio register $account3 --manifest transactions/register_with_portfolio_by_Max.rtm)
 
 resim call-method $portfolio fund_portfolio 10000,$xrd 1,$user_account_history3
+```
 
 At this point the Portfolio has been funded all the user account registered
 
@@ -406,9 +394,10 @@ resim run transactions/show_positions.rtm
 
 So let's execute some operation, Max and and John are buying 
 
-resim run transactions/buy_by_Max.rtm
 
 ```
+resim run transactions/buy_by_Max.rtm
+
 ├─ [INFO ] N. to buy: 27.777777777777777777
 └─ [INFO ] Current price of 030000000000000000000000000000000000000000000000000004/0396c203d001f1fa99fdf081dc2f30e7f3b921eb1b5c9cc9487630 is 36 
 ```
@@ -517,5 +506,8 @@ Eseguire 'scrypto test'
 
 Su ogni account vengono registrati erroneamente 2 User Account Trading History NFT
 
-gestione di tutti i token
+test di tutti i token
+
+//aggiorno il package
+resim publish . --package-address $package
 

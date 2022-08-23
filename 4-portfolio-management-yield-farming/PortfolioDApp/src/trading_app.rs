@@ -24,13 +24,16 @@ blueprint! {
         token2_starting_value: u64,
         //current simulated price of third pair
         token3_starting_value: u64,        
+
+        //vault for trading fees
+        trading_fees: Vault,
     }
 
 
     impl TradingApp {
         /// Creates a TradingApp component and returns the component address
         pub fn create_market(token_a_address: ResourceAddress, token_b_address: ResourceAddress, 
-                            token_c_address: ResourceAddress, token_d_address: ResourceAddress) -> ComponentAddress {
+                            token_c_address: ResourceAddress, token_d_address: ResourceAddress) -> (ComponentAddress, Bucket) {
 
             // Get the starting epoch .
             let last_epoch = Runtime::current_epoch();
@@ -38,6 +41,22 @@ blueprint! {
             let token1_starting_value: u64 = "40".parse().expect("Not a number!");
             let token2_starting_value: u64 = "10".parse().expect("Not a number!");
             let token3_starting_value: u64 = "4".parse().expect("Not a number!");
+
+            // Create the admin badges
+            let admin_badge: Bucket = ResourceBuilder::new_fungible() 
+            .divisibility(DIVISIBILITY_NONE)
+            .metadata("name", "Admin Badge")
+            .initial_supply(1);
+
+            // Define the access rules for this blueprint.
+            let access_rules = AccessRules::new()
+            .method("fund_market", rule!(require(admin_badge.resource_address()))) 
+            .method("fund_token1", rule!(require(admin_badge.resource_address()))) 
+            .method("fund_token2", rule!(require(admin_badge.resource_address()))) 
+            .method("fund_token3", rule!(require(admin_badge.resource_address()))) 
+            .method("fund_token4", rule!(require(admin_badge.resource_address()))) 
+            .default(rule!(allow_all));
+
 
             // Instantiate our tradingapp component
             let tradingapp = Self {
@@ -49,10 +68,12 @@ blueprint! {
                 token1_starting_value: token1_starting_value,
                 token2_starting_value: token2_starting_value,
                 token3_starting_value: token3_starting_value,
+                trading_fees: Vault::new(RADIX_TOKEN),
             }
             .instantiate();
+            //.add_access_check(access_rules);
             // Return the new Tradingapp component
-            tradingapp.globalize()
+            (tradingapp.globalize(),admin_badge)
         }
 
         pub fn fund(&mut self) {
@@ -86,7 +107,7 @@ blueprint! {
                 self.token3_pool.put(token_index3);
         }
 
-        //buy generic, with resource address
+        //use xrd tokens to buy the tokens you desire specifying its resource address
         pub fn buy_generic(&mut self, xrd_tokens: Bucket, token_to_buy: ResourceAddress) -> Bucket {
             info!("=== BUY OPERATION START === ");
             let token_received = xrd_tokens.amount();
@@ -109,6 +130,28 @@ blueprint! {
             } 
             info!("=== BUY OPERATION END === ");
             returned_bucket
+        }
+
+        //sell tokens and receives xrd
+        pub fn sell_generic(&mut self, tokens: Bucket) -> Bucket {
+            info!("=== SELL OPERATION START === ");
+            let price = self.current_price(RADIX_TOKEN, tokens.resource_address());
+            let current_value = price;
+            let how_many = (tokens.amount() * current_value).round(2,RoundingMode::TowardsPositiveInfinity);
+            info!("N. xrd to receive: {}", how_many);
+            let returned_tokens = self.main_pool.take(how_many);
+            //put the tokens received in the correct vault
+            if tokens.resource_address()==self.token1_pool.resource_address() {
+                self.token1_pool.put(tokens);
+            } else if tokens.resource_address()==self.token2_pool.resource_address() {
+                self.token2_pool.put(tokens);
+            } else if tokens.resource_address()==self.token3_pool.resource_address() {
+                self.token3_pool.put(tokens);
+            } 
+
+            info!("=== SELL OPERATION END === ");
+            // Return the tokens 
+            returned_tokens
         }
 
         //buy from the token1_pool (should be replace by buy_generic method)
@@ -146,28 +189,57 @@ blueprint! {
         //this should return the price respect of token_a/token_b pair
         //TODO For the scope of this demo this method instead return the price respect of token_a/token1:resource address
         pub fn current_price(&mut self, _token_a_address: ResourceAddress, _token_b_address: ResourceAddress) -> u64 {
-            info!("=== GENERATE NUMBER === ");
             let current = Runtime::current_epoch();
             info!("Current epoch {} vs last epoch {}", current, self.last_epoch);
+            let mut value: u64 = 0;
 
             //if epoch has changed then I change also the price of the asset
             if current > self.last_epoch {
+                //max move is 10%
                 let random_number = self.get_random() % 10 + 1;
                 let random_direction = self.get_random() % 2;
                 info!("The random movement is: {} and direction is {} ", random_number, random_direction);
                 if random_direction==0 { 
                     self.token1_starting_value = self.token1_starting_value - (self.token1_starting_value*(random_number as u64)/100);
+                    self.token2_starting_value = self.token2_starting_value - (self.token2_starting_value*(random_number as u64)/100);
+                    self.token3_starting_value = self.token3_starting_value - (self.token3_starting_value*(random_number as u64)/100);
                 } 
                 else { 
                     self.token1_starting_value = self.token1_starting_value + (self.token1_starting_value*(random_number as u64)/100);
+                    self.token2_starting_value = self.token2_starting_value + (self.token2_starting_value*(random_number as u64)/100);
+                    self.token3_starting_value = self.token3_starting_value + (self.token3_starting_value*(random_number as u64)/100);
                 } 
                 
-                info!("New price is : {} ", self.token1_starting_value);
+                info!("New price for {} is : {} ", self.token1_pool.resource_address(), self.token1_starting_value);
+                info!("New price for {} is : {} ", self.token2_pool.resource_address(), self.token2_starting_value);
+                info!("New price for {} is : {} ", self.token3_pool.resource_address(), self.token3_starting_value);
                 self.last_epoch = current;
             } 
-            info!("Current price of {}/{} is {} ", _token_a_address, _token_b_address , self.token1_starting_value);
-            self.token1_starting_value
+            
+            if _token_b_address==self.token1_pool.resource_address() {
+                info!("Current price of {}/{} is {} ", _token_a_address, _token_b_address , self.token1_starting_value);
+                value = self.token1_starting_value;
+            } else if _token_b_address==self.token2_pool.resource_address() {
+                info!("Current price of {}/{} is {} ", _token_a_address, _token_b_address , self.token2_starting_value);
+                value = self.token2_starting_value;
+            } else if _token_b_address==self.token3_pool.resource_address() {
+                info!("Current price of {}/{} is {} ", _token_a_address, _token_b_address , self.token3_starting_value);
+                value = self.token3_starting_value;
+            } 
+
+            value
         }
+
+        //withdraw all the fees collected 
+        pub fn withdraw(&mut self) -> Bucket {
+            info!("=== WITHDRAW FEES === ");
+
+            let xrd_tokens_from_fees = self.trading_fees.take_all();
+
+            // Return the tokens 
+            xrd_tokens_from_fees
+        }
+
 
         // This is a pseudorandom function and not a true random number function.
         pub fn get_random(&self) -> u128 {
