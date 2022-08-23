@@ -274,7 +274,7 @@ resim show $ACC_ADDRESS4
     resim call-method $OCI_COMPONENT show_liquidity_pool
     ```
 
-    16.3 Show token balanace in RaDEX liquidity pools
+    16.3 Show token balance in RaDEX liquidity pools
 
     ```sh
     resim call-method $RADEX_COMPONENT show_liquidity_pool
