@@ -279,5 +279,4 @@ resim show $ACC_ADDRESS4
     ```sh
     resim call-method $RADEX_COMPONENT show_liquidity_pool
     ```
-
-
+    
