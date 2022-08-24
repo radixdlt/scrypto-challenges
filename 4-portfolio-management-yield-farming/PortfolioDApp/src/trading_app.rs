@@ -26,7 +26,7 @@ blueprint! {
         token3_starting_value: u64,        
 
         //vault for trading fees
-        // trading_fees: Vault,
+        trading_fees: Vault,
     }
 
 
@@ -40,7 +40,7 @@ blueprint! {
 
             let token1_starting_value: u64 = "40".parse().expect("Not a number!");
             let token2_starting_value: u64 = "10".parse().expect("Not a number!");
-            let token3_starting_value: u64 = "4".parse().expect("Not a number!");
+            let token3_starting_value: u64 = "5".parse().expect("Not a number!");
 
             // Create the admin badges
             // let admin_badge: Bucket = ResourceBuilder::new_fungible() 
@@ -48,7 +48,7 @@ blueprint! {
             // .metadata("name", "Admin Badge")
             // .initial_supply(1);
 
-            // Define the access rules for this blueprint.
+            // // Define the access rules for this blueprint.
             // let access_rules = AccessRules::new()
             // .method("fund_market", rule!(require(admin_badge.resource_address()))) 
             // .method("fund_token1", rule!(require(admin_badge.resource_address()))) 
@@ -68,7 +68,7 @@ blueprint! {
                 token1_starting_value: token1_starting_value,
                 token2_starting_value: token2_starting_value,
                 token3_starting_value: token3_starting_value,
-                // trading_fees: Vault::new(RADIX_TOKEN),
+                trading_fees: Vault::new(token_a_address),
             }
             .instantiate();
             //.add_access_check(access_rules);
@@ -231,15 +231,15 @@ blueprint! {
             value
         }
 
-        //withdraw all the fees collected 
-        // pub fn withdraw(&mut self) -> Bucket {
-        //     info!("=== WITHDRAW FEES === ");
+        // withdraw all the fees collected 
+        pub fn withdraw(&mut self) -> Bucket {
+            info!("=== WITHDRAW FEES === ");
 
-        //     let xrd_tokens_from_fees = self.trading_fees.take_all();
+            let xrd_tokens_from_fees = self.trading_fees.take_all();
 
-        //     // Return the tokens 
-        //     xrd_tokens_from_fees
-        // }
+            // Return the tokens 
+            xrd_tokens_from_fees
+        }
 
 
         // This is a pseudorandom function and not a true random number function.

@@ -60,7 +60,7 @@ echo 'borrow_nft = '$borrow_nft
 echo 'lnd = ' $lnd
 
 echo '====== Ready to create Portfolio component ======'
-output=`resim call-function $tradingapp_package Portfolio new $xrd $btc $lending_component $component $lend_nft $borrow_nft $lnd | awk '/Component: |Resource: / {print $NF}'`
+output=`resim call-function $tradingapp_package Portfolio new $xrd $btc $eth $leo $lending_component $component $lend_nft $borrow_nft $lnd | awk '/Component: |Resource: / {print $NF}'`
 export portfolio_component=`echo $output | cut -d " " -f1`
 export ADMIN_BADGE=`echo $output | cut -d " " -f2`
 export user_account_history_nft=`echo $output | cut -d " " -f3`
@@ -96,7 +96,7 @@ resim call-method $portfolio_component register_for_borrowing
 echo '====== BUY GENERIC DIRECTLY WITH TRADING APP ======'
 resim call-method $component buy_generic 500,$xrd  $eth
 echo '====== SELL GENERIC DIRECTLY WITH TRADING APP ======'
-#resim call-method $component sell_generic 500,$xrd  $eth
+resim call-method $component sell_generic 40,$eth
 
 echo '====== BUY DIRECTLY WITH TRADING APP ======'
 resim call-method $component buy 500,$xrd 
@@ -110,7 +110,7 @@ resim call-method $portfolio_component fund_portfolio 10000,$xrd 1,$user_account
 echo '====== WITHDRAW PORTFOLIO APP ======'
 resim call-method $portfolio_component withdraw_portfolio 1,$user_account_funding_nft
 echo '====== FUND AGAIN PORTFOLIO APP ======'
-resim call-method $portfolio_component fund_portfolio 1000,$xrd 1,$user_account_funding_nft
+resim call-method $portfolio_component fund_portfolio 2000,$xrd 1,$user_account_funding_nft
 
 
 
@@ -122,10 +122,20 @@ echo '====== ACCOUNT ======'
 resim show $account
 
 
-echo '====== BUY by USING PORTFOLIO ======'
+echo '====== BUY BTC by USING PORTFOLIO ======'
 resim call-method $portfolio_component buy 500 $account $btc 1,$user_account_funding_nft
-echo '====== SELL by USING PORTFOLIO ======'
-resim call-method $portfolio_component sell 12.5 
+echo '====== SELL BTC by USING PORTFOLIO ======'
+resim call-method $portfolio_component sell 12.5 $btc
+
+echo '====== BUY ETH by USING PORTFOLIO ======'
+resim call-method $portfolio_component buy 500 $account $eth 1,$user_account_funding_nft
+echo '====== SELL ETH by USING PORTFOLIO ======'
+resim call-method $portfolio_component sell 50 $eth
+
+echo '====== BUY LEO by USING PORTFOLIO ======'
+resim call-method $portfolio_component buy 500 $account $leo 1,$user_account_funding_nft
+echo '====== SELL LEO by USING PORTFOLIO ======'
+resim call-method $portfolio_component sell 100 $leo
 
 
 echo '===================================='

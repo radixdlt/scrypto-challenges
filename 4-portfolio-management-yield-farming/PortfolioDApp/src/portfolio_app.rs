@@ -84,9 +84,9 @@ blueprint!{
         /// The reserve for trading token1 main pool
         token1_pool: Vault,
         /// The reserve for trading token2 main pool
-        // token2_pool: Vault,
+        token2_pool: Vault,
         /// The reserve for trading token2 main pool
-        // token2_pool: Vault,                
+        token3_pool: Vault,                
 
         //address of the lendingapp blueprint 
         lending_app: ComponentAddress,
@@ -122,6 +122,8 @@ blueprint!{
         pub fn new(
             xrd_address: ResourceAddress, 
             token_1_address: ResourceAddress,
+            token_2_address: ResourceAddress,
+            token_3_address: ResourceAddress,
             lending_app: ComponentAddress,
             trading_app: ComponentAddress,
             lending_nft_resource_def: ResourceAddress,
@@ -140,7 +142,7 @@ blueprint!{
 
             let user_mint_badge = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
-                .metadata("name", "User Mint Badge")
+                .metadata("name", "Admin Badge")
                 .initial_supply(1);
 
             // let rules = AccessRules::new()
@@ -166,6 +168,8 @@ blueprint!{
             return Self {
                 main_pool: Vault::new(xrd_address),
                 token1_pool: Vault::new(token_1_address),
+                token2_pool: Vault::new(token_2_address),
+                token3_pool: Vault::new(token_3_address),
                 lending_app: lending_app,
                 trading_app: trading_app,
                 user_account_trading_nft_resource_def: user_account_trading_history_nft,
@@ -306,7 +310,7 @@ blueprint!{
             );   
             // Get the data associated with the User Account Funding History NFT and update the variable values
             let non_fungible: NonFungible<UserAccountFundingData> = user_account_funding_nft.non_fungible();
-            let mut portfolio_nft_data = non_fungible.data();       
+            let portfolio_nft_data = non_fungible.data();       
             assert!(portfolio_nft_data.in_progress, "You first need to fund the portfolio then you can operate on behalf of it!!");      
             assert!(
                 portfolio_nft_data.xrd_tokens*10 >= xrd_tokens,
@@ -314,7 +318,18 @@ blueprint!{
             );   
 
             let trading_app: TradingApp = self.trading_app.into();
-            self.token1_pool.put(trading_app.buy(self.main_pool.take(xrd_tokens)));
+            //buy by using the trading app
+            if token_to_buy==self.token1_pool.resource_address() {
+                info!("Buy tokens1 {}", token_to_buy);
+                //Take the xrd tokens from the main vault for buying by using the trading app, getting back tokens and put in the pool1 vault
+                self.token1_pool.put(trading_app.buy_generic(self.main_pool.take(xrd_tokens), token_to_buy));
+            } else if token_to_buy==self.token2_pool.resource_address() {
+                info!("Buy tokens2 {}", token_to_buy);
+                self.token2_pool.put(trading_app.buy_generic(self.main_pool.take(xrd_tokens), token_to_buy));
+            } else if token_to_buy==self.token3_pool.resource_address() {
+                info!("Buy tokens3 {}", token_to_buy);
+                self.token3_pool.put(trading_app.buy_generic(self.main_pool.take(xrd_tokens), token_to_buy));
+            } 
             
             let current_price = trading_app.current_price(RADIX_TOKEN,token_to_buy);
             let how_many = xrd_tokens / current_price;
@@ -339,10 +354,18 @@ blueprint!{
         }
 
         // Execute a sell operation by means of the portfolio.
-        pub fn sell(&mut self,tokens: Decimal
+        pub fn sell(&mut self,tokens: Decimal, token_to_sell: ResourceAddress
         )   {
             let trading_app: TradingApp = self.trading_app.into();
-            self.main_pool.put(trading_app.sell(self.token1_pool.take(tokens)));
+
+            if token_to_sell==self.token1_pool.resource_address() {
+                //get the token from token1_pool and sell by using the trading app, getting back xrd tokens in the main vault
+                self.main_pool.put(trading_app.sell_generic(self.token1_pool.take(tokens)));
+            } else if token_to_sell==self.token2_pool.resource_address() {
+                self.main_pool.put(trading_app.sell_generic(self.token2_pool.take(tokens)));
+            } else if token_to_sell==self.token3_pool.resource_address() {
+                self.main_pool.put(trading_app.sell_generic(self.token3_pool.take(tokens)));
+            } 
         }
 
         // Calculate the value of the other vault (getting the token current price from the tradingapp component)
@@ -358,8 +381,6 @@ blueprint!{
 
         // Calculate the total value of the portfolio (main vault + other vault + lnd vault)
         pub fn portfolio_total_value(&self) -> Decimal {
-            let trading_app: TradingApp = self.trading_app.into();
-            
             let mut total: Decimal = self.portfolio_value();
             let totalxrd: Decimal = self.main_pool.amount();
             info!("Value in main vault {:?}", totalxrd);
@@ -377,7 +398,6 @@ blueprint!{
             let trading_app: TradingApp = self.trading_app.into();
 
             let mut losing_positions: Vec<u128> = Vec::new();
-            let mut result: Decimal = Decimal::zero();
             for inner_position in &self.positions {
                 info!("Inner Position {}", inner_position.to_string());    
                 info!("Position Id {}", inner_position.operation_id);          
@@ -404,12 +424,14 @@ blueprint!{
         pub fn close_position(&mut self, operation_id: u128)  {
             info!("Position size {}", self.positions.len());
             let mut amount_to_sell: Decimal = Decimal::zero();
+            let mut token_to_sell: ResourceAddress = RADIX_TOKEN;
             let mut remaining_positions: Vec<OperationDetail> = Vec::new();
             for inner_position in &self.positions {     
                 info!("Position Id {}", inner_position.operation_id);    
 
                 if inner_position.operation_id==operation_id {
                     amount_to_sell = inner_position.num_token_b_received.clone();
+                    token_to_sell = inner_position.token_b_address.clone();
                 } else {
                     remaining_positions.push(inner_position.clone());
                 }
@@ -420,7 +442,7 @@ blueprint!{
 
             info!("Position size after removing the closed position {}", self.positions.len());
 
-            self.sell(amount_to_sell);    
+            self.sell(amount_to_sell, token_to_sell);    
         }
 
         //Method using the LendingApp component

@@ -26,32 +26,35 @@ Operations history will be registered on each user so anyone can evaluate each o
 Simulated deFi applications used in this portfolio management solution are the following:
 - Lending application (we'll use LendingdApp developed for the previous challenge)
 - Trading application [Price changes is simulated and changes randomly when epoch advances]
-- Swap application [Not implemented]
 
 # Design
 
 Blueprint can create new components with only a single vault and a map containing all the info about the operation opened/in place/closed.
 
-Component has some very simple method for depositing/taking from the main vault:
-- deposit(bucket) -> tokens are put in the main vault -> account receives an nft (transferable) who states the amount of tokens deposited
-- take(proof, amount) -> a bucket gets created with tokens from the main vault and sent back if the account has presented a valid proof 
+Each user account has to register itself getting back wo nft, one containing the amount of tokens funded in the portfolio and the other one for containing its operations summarized history (let's call it user_history_nft and user_funding_nft)
 
-And some others for executing orders/operations:
-- buy(proof, amount, resource_address) -> a buy order is issued using the 'trading blueprint' for the amount specified and the resource address
-- sell(proof, amount, resource_address) -> a sell order is issued using the 'trading blueprint' for the amount specified and the resource address
-- register() -> a register is asked to the LendingdApp component
-- lend(proof, bucket) -> a bucket has lent to the LendingdApp component 
-- take_back(proof, amount) -> a bucket is created and sent back to the account
+Component has some very simple method for depositing/taking from the main vault:
+- fund_portfolio(bucket, user_funding_nft) -> tokens are put in the main vault -> user_funding_nft (not transferable) get the data updated with the  amount of tokens deposited
+- withdraw_portfolio(proof, amount) -> a bucket gets created with tokens from the main vault and sent back if the account has presented a valid proof.
+The amount of tokens is increased or decreased respecting the ratio of increment/decrease of the main vault. The user account gets rewarded for the result that all the partecipants to the portfolio had reached. 
+
+And some others for executing orders/operations toward the TradingApp component:
+- buy(amount, user_account_address, resource_address, user_funding_nft) -> a buy order is issued using the 'TradingApp' for the amount specified and the resource address is the token that will be bought, while the user_account_address and the user_funding_nft will be used to calculate the max leverage allowed (10x of the personal fundings in the portfolio)
+- sell(proof, amount, resource_address) -> a sell order is issued using the 'TradingApp' for the amount specified and the resource address
+
+And some others for executing orders/operations toward the LendingApp component:
+- register_for_lending() -> a register to lend the LendingdApp component (anyone can also lend some tokens when the main vault has liquidity)
+- register_for_borrowing() -> a register to borrow to the LendingdApp component (anyone can also borrow some tokens to add liquidity to the main vault)
+- lend(decimal) -> To ask for a lending you only need to specify the amount (lending_nft is inside the portfolio component) 
+- take_back(decimal) -> To get back the lending you only need to specify the amount (borrowing_nft is inside the portfolio component)
 
 And also some for closing orders/operations:
-- close_operation(proof) -> account that has opened the operation can close it anytime
-- list_open_operation() -> list of open operation and its account creator 
-- close_someone_else_operation(operation_id) -> close an operation opened by someone else, available only if the operation is losing
+- close_position(positionId) -> any account can close a position if it is a losing one, it only need its positionId
+- position() -> calculates and outputs the list of open position (positionId can be used for closing)
+- portfolio_value() -> Calculate the value of the other vaults (getting the token current price from the tradingapp component)
+- portfolio_total_value() -> Calculate the total value of the portfolio (main vault + other vaults + lnd vault)
 
-The following methods should update the soulbound token of the account that has created the operation:
-- sell      -> should update in the sbt the number of positive operation if the result has been positive, otherwise no
-- take_back -> should update in the sbt the number of positive operation if the result has been positive, otherwise no
-
+//TODO
 The following methods should update the main map containing the info about all the operations:
 - buy       -> should insert in the map the new operation with operation_id, amount, date_opened
 - sell      -> should update in the map the closed operation with date_closed
@@ -60,6 +63,7 @@ The following methods should update the main map containing the info about all t
 - close_operation -> should find all the opening and close everything
 - close_someone_else_operation -> 
 
+//TODO
 The data about the operation contains the following:
 - operation_id: id created random
 - amount: size of the operation
@@ -196,7 +200,7 @@ Logs: 5
 Now we have created the two components we need for the main component, the PortfolioApp
 
 ```
-resim call-function $package Portfolio new $xrd $btc $lending $trading $lend_nft
+resim call-function $package Portfolio new $xrd $btc $eth $leo $lending $trading $lend_nft
 ```
 
 The call-function outputs the address of the component/resources created
@@ -335,7 +339,7 @@ Now let's instead what could happen if Bob uses the PortfolioDapp
 In this example Bob, as all the other users, has to fund directly inside the PortfolioApp component before starting to operate
 
 ```
-resim call-method $portfolio fund_portfolio 10000,$xrd 1,$user_account_history_nft (resim call-method $portfolio fund_portfolio 10000,$xrd 1,$user_account_history_nft --manifest transactions/fund_portfolio_by_Bob.rtm)
+resim call-method $portfolio fund_portfolio 10000,$xrd 1,$1,$user_account_funding_nft (resim call-method $portfolio fund_portfolio 10000,$xrd 1,$1,$user_account_funding_nft --manifest transactions/fund_portfolio_by_Bob.rtm)
 ```
 
 The user account of Bob show the NFT of its 10000 xrd funded, he obsiously will need this to get back its xrd tokens
@@ -363,14 +367,14 @@ Also John gets its NFT
 ├─ { amount: 1, resource address: 03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9, name: "User Account Trading History" }
 │  └─ NonFungible { id: 63d6d06bb0ba110877aff6def72a699ae852f4f7f14c546ef11f8c69638f47d7, immutable_data: Struct(), mutable_data: Struct(ComponentAddress("02d0da3fc806e20c508841efdcd412a53e50d1b80fb35ff1263214"), 0u32, 0u32, false) }
 
-export user_account_history2=03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9
+export 1,$user_account_funding_nft2=03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9
 ```
 
 
 And then he can fund the Portfolio
 
 ```
-resim call-method $portfolio fund_portfolio 10000,$xrd 1,$user_account_history2
+resim call-method $portfolio fund_portfolio 10000,$xrd 1,$1,$user_account_funding_nf2
 ```
 
 The same has been done with Max's account
@@ -378,7 +382,7 @@ The same has been done with Max's account
 ```
 resim call-method $portfolio register $account3 (resim call-method $portfolio register $account3 --manifest transactions/register_with_portfolio_by_Max.rtm)
 
-resim call-method $portfolio fund_portfolio 10000,$xrd 1,$user_account_history3
+resim call-method $portfolio fund_portfolio 10000,$xrd 1,$1,$user_account_funding_nft3
 ```
 
 At this point the Portfolio has been funded all the user account registered
