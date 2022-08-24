@@ -106,9 +106,8 @@ blueprint! {
             loan_amount: Decimal,
             collateral_address: ResourceAddress,
             collateral_percent: Decimal,
-            term_length: u64,
+            term_length: TermLength,
             annualized_interest_rate: Decimal,
-            payment_frequency: PaymentFrequency
         ) -> Bucket
         {
             let borrower_proof: Proof = borrower_badge.create_proof();
@@ -131,7 +130,6 @@ blueprint! {
                         collateral_percent: collateral_percent,
                         term_length: term_length,
                         annualized_interest_rate: annualized_interest_rate,
-                        payment_frequency: payment_frequency,
                         borrower: borrower_id.clone(),
                         status: RequestStatus::Pending,
                         loan_nft_id: None,
@@ -224,7 +222,6 @@ blueprint! {
                     info!("[Borrower Dashboard - Loan Request Info]: Collateral Percent: {:?}", loan_request_nft_data.collateral_percent);
                     info!("[Borrower Dashboard - Loan Request Info]: Term Length: {:?}", loan_request_nft_data.term_length);
                     info!("[Borrower Dashboard - Loan Request Info]: Annualized Interest Rate: {:?}", loan_request_nft_data.annualized_interest_rate);
-                    info!("[Borrower Dashboard - Loan Request Info]: Payment Frequency: {:?}", loan_request_nft_data.payment_frequency);
                     info!("[Borrower Dashboard - Loan Request Info]: Borrower: {:?}", loan_request_nft_data.borrower);
                     info!("[Borrower Dashboard - Loan Request Info]: Status: {:?}", loan_request_nft_data.status);
                     info!("[Borrower Dashboard - Loan Request Info]: Loan NFT ID: {:?}", loan_request_nft_data.loan_nft_id);
@@ -355,7 +352,6 @@ blueprint! {
             // }
         }
 
-        
         pub fn draw_request(
             &self,
             loan_nft_badge: Bucket,
@@ -387,7 +383,7 @@ blueprint! {
             (loan_nft_badge, draw_bucket)
         }
 
-        pub fn make_interest_payment(
+        pub fn make_payment(
             &self,
             loan_nft_badge: Bucket,
             repay_amount: Bucket,
@@ -398,7 +394,7 @@ blueprint! {
             let funding_locker_address: ComponentAddress = maple_finance.retrieve_funding_locker_address(loan_nft_id);
             let funding_locker: FundingLocker = funding_locker_address.into();
             let loan_nft_proof: Proof = loan_nft_badge.create_proof();
-            funding_locker.make_interest_payment(loan_nft_proof, repay_amount);
+            funding_locker.make_payment(loan_nft_proof, repay_amount);
 
             loan_nft_badge
         }

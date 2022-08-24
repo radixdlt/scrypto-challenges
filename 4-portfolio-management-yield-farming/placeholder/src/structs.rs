@@ -32,12 +32,12 @@ pub struct Loan {
     pub collateral_percent: Decimal,
     #[scrypto(mutable)]
     pub annualized_interest_rate: Decimal,
-    pub term_length: u64,
-    pub payment_frequency: PaymentFrequency,
+    pub term_length: TermLength,
+    pub payments_remaining: u64,
     pub origination_fee: Decimal,
     pub origination_fee_charged: Decimal,
     #[scrypto(mutable)]
-    pub annualized_interest_expense: Decimal,
+    pub accrued_interest_expense: Decimal,
     #[scrypto(mutable)]
     pub remaining_balance: Decimal,
     pub draw_limit: Decimal,
@@ -90,11 +90,12 @@ pub struct AuctionAuth {
     pub collateral_address: ResourceAddress,
 }
 
+
 #[derive(TypeId, Encode, Decode, Describe, Debug, PartialEq)]
-pub enum PaymentFrequency {
-    Monthly,
-    Quarterly,
-    Yearly,
+pub enum TermLength {
+    OneMonth,
+    ThreeMonth,
+    SixMonth,
 }
 
 #[derive(TypeId, Encode, Decode, Describe, Debug, PartialEq)]
@@ -180,11 +181,9 @@ pub struct LoanRequest {
     #[scrypto(mutable)]
     pub collateral_percent: Decimal,
     #[scrypto(mutable)]
-    pub term_length: u64,
+    pub term_length: TermLength,
     #[scrypto(mutable)]
     pub annualized_interest_rate: Decimal,
-    #[scrypto(mutable)]
-    pub payment_frequency: PaymentFrequency,
     #[scrypto(mutable)]
     pub borrower: NonFungibleId,
     #[scrypto(mutable)]

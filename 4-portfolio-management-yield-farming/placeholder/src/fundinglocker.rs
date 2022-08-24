@@ -1,11 +1,12 @@
 use scrypto::prelude::*;
 use crate::structs::*;
 use crate::debt_fund::*;
+use crate::price_oracle::*;
 
 blueprint! {
     struct FundingLocker {
         /// The ResourceAddress of the Fund Manager that has authority over this Funding Locker. 
-        access_badge_address: ResourceAddress,
+        funding_locker_admin_address: ResourceAddress,
         /// The Vault the contains the loan proceeds.
         loan_proceeds_vault: Vault,
         draw_limit: Decimal,
@@ -32,6 +33,7 @@ blueprint! {
         fee_vault: Vault,
         debt_fund_address: Option<ComponentAddress>,
         access_badge_address: ResourceAddress,
+        price_oracle_address: ComponentAddress,
     } 
 
     impl FundingLocker {
@@ -39,27 +41,25 @@ blueprint! {
         pub fn new(
             // The lender will receive a resource to manage this locker vs. inputting the lender nft and id.
             // This way the lender can transfer ownership.
+            price_oracle_address: ComponentAddress,
             loan_request_nft_id: NonFungibleId,
             loan_request_nft_address: ResourceAddress,
             loan_nft: Bucket,
             loan_nft_admin: Bucket,
         ) -> (ComponentAddress, Bucket) 
         {
-            let access_badge = ResourceBuilder::new_non_fungible()
-                .metadata("name", "Funding Locker Admin Badge")
-                .initial_supply([(
-                        NonFungibleId::from_u64(1u64),
-                        FundingLockerAdmin { }
-                    )]
-                );
+            let funding_locker_admin: Bucket = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_NONE)
+                .metadata("name", "Admin Badge")
+                .metadata("symbol", "AB")
+                .metadata("description", "Admin authorithing over the Funding Locker.")
+                .initial_supply(1);
 
             let access_badge_address: ResourceAddress = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
-                .metadata("name", "Lending Pool Access Badge")
-                .metadata("symbol", "LPAB")
+                .metadata("name", "Access Badge")
+                .metadata("symbol", "AB")
                 .metadata("description", "Provides access to authorized method calls be the lending pool.")
-                .mintable(rule!(require(access_badge.resource_address())), LOCKED)
-                .burnable(rule!(require(access_badge.resource_address())), LOCKED)
                 .no_initial_supply();
 
             // NFT description for Pool Delegates
@@ -67,7 +67,7 @@ blueprint! {
                 .metadata("name", "Draw Request NFT")
                 .metadata("symbol", "DR_NFT")
                 .metadata("description", "Draw requests from the Borrower")
-                .burnable(rule!(require(access_badge.resource_address())), LOCKED)
+                .burnable(rule!(require(funding_locker_admin.resource_address())), LOCKED)
                 .no_initial_supply();
             
             let loan_nft_data = loan_nft.non_fungible::<Loan>().data();
@@ -79,7 +79,7 @@ blueprint! {
             let loan_nft_address = loan_nft.resource_address();
 
             let funding_locker: ComponentAddress = Self {
-                access_badge_address: access_badge.resource_address(),
+                funding_locker_admin_address: funding_locker_admin.resource_address(),
                 loan_repay_vault: Vault::new(loan_asset_address),
                 loan_proceeds_vault: Vault::new(loan_asset_address),
                 draw_limit: draw_limit,
@@ -98,12 +98,13 @@ blueprint! {
                 fee_vault: Vault::new(loan_asset_address),
                 debt_fund_address: None,
                 access_badge_address: access_badge_address,
+                price_oracle_address: price_oracle_address,
             }
 
             .instantiate()
             .globalize();
 
-            return (funding_locker, access_badge);
+            return (funding_locker, funding_locker_admin);
         }
 
         fn get_resource_manager(
@@ -193,16 +194,22 @@ blueprint! {
 
         pub fn fund_loan(
             &mut self,
+            funding_locker_admin: Proof,
             debt_fund_address: ComponentAddress,
             amount: Bucket,
         ) -> Bucket
         {
             assert_eq!(
+                funding_locker_admin.resource_address(), self.funding_locker_admin_address,
+                "[Funding Locker - Funding Loan]: Incorrect Proof passed."
+            );
+
+            assert_eq!(
                 amount.resource_address(), self.loan_proceeds_vault.resource_address(),
                 "[Funding Locker - Funding Loan]: Must fund with the correct tokens."
             );
 
-            // Logic to assert the the right amount has been funded.
+            // ** LOGIC TO CHECK IF THE LOAN HAS BEEN FULLY FUNDED ** //
             let loan_nft_data: Loan = self.get_resource_manager();
             let principal_loan_amount: Decimal = loan_nft_data.principal_loan_amount;
 
@@ -210,6 +217,7 @@ blueprint! {
 
             self.loan_proceeds_vault.put(amount);
 
+            // If loan is under funded -> Provide info on how much left needs to be funded.
             if self.loan_proceeds_vault.amount() < principal_loan_amount {
                 info!(
                     "[Funding Locker - Loan Funding]: The full loan proceeds has not yet been met."
@@ -221,6 +229,7 @@ blueprint! {
                     self.loan_proceeds_vault.amount() 
                 );
 
+            // If loan is over funded -> Return overfunded amount.
             } else if self.loan_proceeds_vault.amount() > principal_loan_amount {
 
                 let over_funded_amount: Decimal = self.loan_proceeds_vault.amount() - principal_loan_amount;
@@ -232,6 +241,7 @@ blueprint! {
 
                 return_over_funded.put(self.loan_proceeds_vault.take(over_funded_amount));
 
+            // If loan is fully funded -> Loan can now be drawn.
             } else {
                 info!(
                     "[Funding Locker - Loan Funding]: The Funding Locker vault is fully funded.
@@ -295,14 +305,18 @@ blueprint! {
                 self.draw_request_vault.amount() <= Decimal::one(),
                 "[Funding Locker - Draw Request]: Can only request draw one at a time."
             );
-
         }
 
-        // Impose Access Rule
         pub fn approve_draw_request(
             &mut self,
+            funding_locker_admin: Proof,
         )
         {
+            assert_eq!(
+                funding_locker_admin.resource_address(), self.funding_locker_admin_address,
+                "[Funding Locker - Funding Loan]: Incorrect Proof passed."
+            );
+
             let draw_request: Bucket = self.draw_request_vault.take_all();
 
             let draw_request_nft_data = draw_request.non_fungible::<DrawRequest>().data();
@@ -341,19 +355,31 @@ blueprint! {
 
         pub fn update_loan(
             &mut self,
-            
+            funding_locker_admin: Proof,
         )
         {
-            let mut loan_nft_data = self.get_resource_manager();
-            let interest_rate = loan_nft_data.annualized_interest_rate;
+            assert_eq!(
+                funding_locker_admin.resource_address(), self.funding_locker_admin_address,
+                "[Funding Locker - Funding Loan]: Incorrect Proof passed."
+            );
 
+            let mut loan_nft_data: Loan = self.get_resource_manager();
+            let interest_rate: Decimal = loan_nft_data.annualized_interest_rate;
+            let remaining_balance: Decimal = loan_nft_data.remaining_balance;
+            let last_draw: u64 = loan_nft_data.last_draw;
+            let current_epoch = Runtime::current_epoch();
+            let time_lapse: u64 = current_epoch - last_draw; 
+            let interest_expense: Decimal = remaining_balance * interest_rate * time_lapse;
+            loan_nft_data.accrued_interest_expense += interest_expense;
+
+            self.authorize_update(loan_nft_data);
         }
 
-        pub fn make_interest_payment(
+        pub fn make_payment(
             &mut self,
             loan_nft_badge: Proof,
-            repay_amount: Bucket
-        ) 
+            mut repay_amount: Bucket
+        ) -> Option<Bucket>
         {
             assert_eq!(
                 loan_nft_badge.resource_address(), self.loan_nft_vault.resource_address(),
@@ -362,14 +388,100 @@ blueprint! {
 
             assert_eq!(
                 repay_amount.resource_address(), self.loan_repay_vault.resource_address(),
-                "[Funding Locker - Loan Payment]: Incorrect payment token."
+                "[Funding Locker - Loan Payment]: Incorrect payment provided."
             );
 
-            // Loan interest rate calculation logic.
+            // Loan interest rate calculation logic. 
+            let mut loan_nft_data: Loan = loan_nft_badge.non_fungible().data();
+            let payments_remaining = loan_nft_data.payments_remaining;
+            let total_balance = loan_nft_data.accrued_interest_expense + loan_nft_data.remaining_balance;
+
+            assert!(
+                payments_remaining > 0,
+                "[Funding Locker - Payment]: You have no payments remaining." 
+            );
+
+            let mut overpaid_bucket: Bucket = Bucket::new(repay_amount.resource_address());
+
+            if payments_remaining == 1 {
+
+                assert!(
+                    repay_amount.amount() >= total_balance,
+                    "[Funding Locker - Payment]: Must pay off the entire remaining balance and interest expense owed." 
+                );
+
+                // Overpaid logic
+                if repay_amount.amount() > total_balance {
+
+                    let overpaid: Decimal = repay_amount.amount() - total_balance;
+
+                    info!(
+                        "[Funding Locker - Payment]: You have overpaid your total balance owed by: {:?}. Returning amount...", 
+                        overpaid
+                    );
+    
+                    overpaid_bucket.put(repay_amount.take(overpaid));
+
+                    // Updating Loan NFT Data
+                    loan_nft_data.remaining_balance = Decimal::zero();
+                    loan_nft_data.accrued_interest_expense = Decimal::zero();
+                    loan_nft_data.payments_remaining = 0;
+                    loan_nft_data.loan_status = Status::PaidOff;
+
+                    self.authorize_update(loan_nft_data);
+
+                    self.fee_vault.put(repay_amount);
+
+                    return Some(overpaid_bucket)
+
+                } else {
+
+                    return None
+                }
+                
+            } else {
+
+
+                if loan_nft_data.accrued_interest_expense > Decimal::zero() {
+                    info!(
+                        "[Funding Locker - Payment]: You have an accrued interest expense balance of {:?} remaining.",
+                        loan_nft_data.accrued_interest_expense
+                    );
+                } else {
+                    info!(
+                        "[Funding Locker - Payment]: Thank you for paying off this month's interest expense balance."
+                    );
+                }
+
+                // Overpaid logic.
+                if repay_amount.amount() > loan_nft_data.accrued_interest_expense {
+
+                    let overpaid: Decimal = repay_amount.amount() - loan_nft_data.accrued_interest_expense;
+                    info!(
+                        "[Funding Locker - Payment]: You have overpaid your interest expense owed by : {:?}. Returning amount...", 
+                        overpaid
+                    );
+    
+                    overpaid_bucket.put(repay_amount.take(overpaid));
+
+                    loan_nft_data.accrued_interest_expense -= repay_amount.amount();
+                    loan_nft_data.payments_remaining -= 1;
+
+                    self.authorize_update(loan_nft_data);
+
+                    self.fee_vault.put(repay_amount);
+
+                    return Some(overpaid_bucket)
+
+                } else {
+                    
+                    return None
+
+                }
+            }
 
             // Loan stats logic.
             
-            self.fee_vault.put(repay_amount);
         }
 
         /// Think about Access Rules.
@@ -384,12 +496,61 @@ blueprint! {
                 access_badge.resource_address(), self.access_badge_address,
                 "[Funding Locker - Claim Fees]: Unauthorized Access."
             );
-            
+
             let amount: Decimal = self.fee_vault.amount() * percentage;
             
             let fee_bucket: Bucket = self.fee_vault.take(amount);
 
             fee_bucket
+        }
+
+        pub fn transfer_liquidity(
+            &mut self,
+            access_badge: Proof,
+        ) -> Bucket
+        {
+            assert_eq!(
+                access_badge.resource_address(), self.access_badge_address,
+                "[Funding Locker - Claim Fees]: Unauthorized Access."
+            );
+
+            let loan_nft_data: Loan = self.get_resource_manager();
+            
+            let loan_status = loan_nft_data.loan_status;
+
+            assert_eq!(
+                loan_status, Status::PaidOff,
+                "[Funding Locker - Redeem Liquidity]: Unauthorized liquidity redemption. The loan is still active."
+            );
+
+            let liquidity_bucket: Bucket = self.loan_repay_vault.take_all();
+
+            liquidity_bucket
+        }
+
+        pub fn redeem_collateral(
+            &mut self,
+            loan_nft_badge: Proof,
+        ) -> Bucket
+        {
+            assert_eq!(
+                loan_nft_badge.resource_address(), self.loan_nft_vault.resource_address(),
+                "[Funding Locker - Loan Payment]: Incorrect Loan NFT badge provided."
+            );
+
+            let loan_nft_data: Loan = loan_nft_badge.non_fungible().data();
+
+            let loan_status = loan_nft_data.loan_status;
+
+
+            assert_eq!(
+                loan_status, Status::PaidOff,
+                "[Funding Locker - Redeem Collateral]: Unauthorized collateral redemption. The loan is still active."
+            );
+
+            let collateral_bucket: Bucket = self.collateral_vault.take_all();
+
+            collateral_bucket
         }
 
         // pub fn close_loan(
@@ -399,6 +560,54 @@ blueprint! {
         //     let funds = self.loan_repay_vault.take_all();
         //     funds
         // }
-    
+            
+        fn check_collateralization(
+            &self
+        ) -> bool
+        {
+            let price_oracle: PriceOracle = self.price_oracle_address.into();
+            let loan_nft_data: Loan = self.get_resource_manager();
+
+            let loan_asset: ResourceAddress = loan_nft_data.asset;
+            let loan_balance: Decimal = loan_nft_data.remaining_balance;
+            let asset_price: Decimal = price_oracle.get_price(loan_asset);
+            let loan_balance_value: Decimal = loan_balance * asset_price;
+
+            let collateral_asset: ResourceAddress = self.collateral_vault.resource_address();
+            let collateral_balance: Decimal = self.collateral_vault.amount();
+            let collateral_price: Decimal = price_oracle.get_price(collateral_asset);
+            let collateral_balance_value: Decimal = collateral_balance * collateral_price;
+
+            let current_loan_collateralization: Decimal = loan_balance_value / collateral_balance_value;
+            let loan_collateralization_requirement: Decimal = loan_nft_data.collateral_percent;
+
+            if current_loan_collateralization < loan_collateralization_requirement {
+                return true
+            } else {
+                return false
+            }
+        }
+
+        pub fn liquidate(
+            &mut self,
+            funding_locker_admin: Proof,
+        )
+        {
+            assert_eq!(
+                funding_locker_admin.resource_address(), self.funding_locker_admin_address,
+                "[Funding Locker - Liquidation]: Incorrect Proof passed."
+            );
+
+            let collateralization_met: bool = self.check_collateralization();
+
+            assert_eq!(
+                collateralization_met, true,
+                "[Funding Locker - Liquidation]: This loan's collateralization is sufficient and cannot be liquidated."
+            );
+
+            let liquidate_amount: Bucket = self.collateral_vault.take_all();
+
+            self.loan_repay_vault.put(liquidate_amount);
+        }
     }
 }

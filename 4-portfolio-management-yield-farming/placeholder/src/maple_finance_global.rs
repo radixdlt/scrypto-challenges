@@ -12,9 +12,15 @@ blueprint! {
         loan_request_nft_admin_address: ResourceAddress,
         loan_request_nft_address: ResourceAddress,
         pool_delegates: HashSet<NonFungibleId>,
+        /// The ResourceAddress of the Fund Manager Badge provided to Fund Managers used to provide authorized access 
+        /// Fund Manager Dashboard.
         fund_manager_address: ResourceAddress,
-        fund_manager_admin_address: ResourceAddress,
+        /// The ResourceAddress of the FundManagerDashboard Admin token. This is held by the component to make authorized
+        /// cross blueprint method calls.
+        fund_manager_dashboard_admin_address: ResourceAddress,
         fund_manager_dashbaords: HashMap<NonFungibleId, ComponentAddress>,
+        /// The vault that contains the Fund Manager Badge for approved Fund Managers to claim their Fund Managers.
+        /// Fund Managers must deposit their temporary badge to claim their Fund Manager Badge.
         fund_manager_badge_vault: Vault,
         borrowers: HashSet<NonFungibleId>,
         borrower_address: ResourceAddress,
@@ -25,8 +31,11 @@ blueprint! {
         pending_approvals: HashMap<String, NonFungibleId>,
         approvals: HashMap<NonFungibleId, NonFungibleId>,
         global_loan_requests_vault: HashMap<NonFungibleId, Vault>,
-        global_debt_funds: HashMap<NonFungibleId, HashSet<ComponentAddress>>,
+        /// Record of all the debt funds in this protocol. HashMap<Fund Name, ComponentAddress>.
+        global_debt_funds: HashMap<String, ComponentAddress>,
+        global_tracking_tokens_address_mapping: HashMap<ResourceAddress, String>,
         global_funding_lockers: HashMap<NonFungibleId, ComponentAddress>,
+        /// Record of all the index funds in this protocol. HashMap<(Fund Name, Fund Ticker), ComponentAddress>.
         global_index_funds: HashMap<(String, String), ComponentAddress>,
         global_index_funds_name: HashMap<String, String>,
         price_oracle_address: ComponentAddress,
@@ -77,7 +86,7 @@ blueprint! {
                 .updateable_non_fungible_data(rule!(require_any_of(allowed_badge)), LOCKED)
                 .no_initial_supply();
 
-            let fund_manager_admin_address = ResourceBuilder::new_fungible()
+            let fund_manager_dashboard_admin_address = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Fund Manager Admin Badge")
                 .metadata("symbol", "FM_AB")
@@ -97,7 +106,7 @@ blueprint! {
 
             let allowed_badge: Vec<ResourceAddress> = vec!(
                 admin.resource_address(), 
-                fund_manager_admin_address,
+                fund_manager_dashboard_admin_address,
             );
 
             // NFT description for Fund Managers
@@ -142,12 +151,14 @@ blueprint! {
                 .updateable_non_fungible_data(rule!(require(admin.resource_address())), LOCKED)
                 .no_initial_supply();
 
-            // let access_rules: AccessRules = AccessRules::new()
-            //     .method("create_temporary_badge", rule!(allow_all))
-            //     .method("claim_badge", rule!(allow_all))
-            //     .method("retrieve_loan_requests", rule!(allow_all))
-            //     .method("broadcast_loan_requests", rule!(allow_all))
-            //     .default(rule!(require(maple_finance_admin.resource_address())));
+            let access_rules: AccessRules = AccessRules::new()
+                .method("insert_debt_fund", rule!(require(fund_manager_dashboard_admin_address)))
+                .method("insert_index_fund", rule!(require(fund_manager_dashboard_admin_address)))
+                .method("insert_tracking_tokens", rule!(require(fund_manager_dashboard_admin_address)))
+                .method("insert_index_fund_name", rule!(require(fund_manager_dashboard_admin_address)))
+                .method("insert_funding_locker", rule!(require(fund_manager_dashboard_admin_address)))
+                .method("set_address", rule!(require(maple_finance_admin.resource_address())))
+                .default(rule!(allow_all));
             
             let maple_finance = Self {
                 maple_finance_admin_address: maple_finance_admin.resource_address(),
@@ -156,7 +167,7 @@ blueprint! {
                 loan_request_nft_address: loan_request_nft_address,
                 pool_delegates: HashSet::new(),
                 fund_manager_address: fund_manager_address,
-                fund_manager_admin_address: fund_manager_admin_address,
+                fund_manager_dashboard_admin_address: fund_manager_dashboard_admin_address,
                 fund_manager_dashbaords: HashMap::new(),
                 fund_manager_badge_vault: Vault::new(fund_manager_address),
                 borrowers: HashSet::new(),
@@ -169,6 +180,7 @@ blueprint! {
                 approvals: HashMap::new(),
                 global_loan_requests_vault: HashMap::new(),
                 global_debt_funds: HashMap::new(),
+                global_tracking_tokens_address_mapping: HashMap::new(),
                 global_funding_lockers: HashMap::new(),
                 global_index_funds: HashMap::new(),
                 global_index_funds_name: HashMap::new(),
@@ -176,7 +188,7 @@ blueprint! {
                 maple_finance_global_address: None,
             }
             .instantiate()
-            // .add_access_check(access_rules)
+            .add_access_check(access_rules)
             .globalize();
 
             (maple_finance, maple_finance_admin)
@@ -431,7 +443,7 @@ blueprint! {
             );
 
             let fund_manager_admin: Bucket = self.admin_vault.authorize(|| {
-                    let resource_manager: &ResourceManager = borrow_resource_manager!(self.fund_manager_admin_address);
+                    let resource_manager: &ResourceManager = borrow_resource_manager!(self.fund_manager_dashboard_admin_address);
                     resource_manager.mint(1)
                 }
             );
@@ -653,7 +665,7 @@ blueprint! {
         }
 
         /// Implement Access Control. Only Debt Fund component can call this method.
-        pub fn insert_funding_lockers(
+        pub fn insert_funding_locker(
             &mut self,
             loan_id: NonFungibleId,
             funding_locker_address: ComponentAddress,
@@ -684,18 +696,15 @@ blueprint! {
         /// Have Fund Manager Proof?
         pub fn insert_debt_fund(
             &mut self,
-            fund_manager_id: NonFungibleId,
+            fund_name: String,
             debt_fund_address: ComponentAddress,
         )
         {
-            assert_ne!(self.global_debt_funds.contains_key(&fund_manager_id), true, 
+            assert_ne!(self.global_debt_funds.contains_key(&fund_name), true, 
                 "Pool name already exist, please use a different name"
             );
 
-            let mut hashset: HashSet<ComponentAddress> = HashSet::new();
-            hashset.insert(debt_fund_address);
-
-            self.global_debt_funds.insert(fund_manager_id, hashset);
+            self.global_debt_funds.insert(fund_name, debt_fund_address);
         }
 
         pub fn assert_index_fund(
@@ -760,20 +769,78 @@ blueprint! {
         ) -> ComponentAddress
         {
             let fund_id: (String, String) = self.get_index_name_pair(fund_name);
-            return *self.global_index_funds.get_mut(&fund_id).unwrap();
+            return *self.global_index_funds.get(&fund_id).unwrap();
         }
 
         pub fn index_fund_list(
             &self,
         ) -> HashMap<(String, String), ComponentAddress>
         {
-            let mut index_fund_lists: HashMap<(String, String), ComponentAddress> = HashMap::new();
+            let mut index_fund_list: HashMap<(String, String), ComponentAddress> = HashMap::new();
             let global_index_funds = self.global_index_funds.iter();
             for ((fund_name, fund_ticker), index_fund) in global_index_funds {
-                index_fund_lists.insert((fund_name.to_string(), fund_ticker.to_string()), index_fund.clone());
+                index_fund_list.insert((fund_name.to_string(), fund_ticker.to_string()), index_fund.clone());
             }
 
-            index_fund_lists
+            index_fund_list
+        }
+
+        pub fn insert_tracking_tokens(
+            &mut self,
+            tracking_token_address: ResourceAddress,
+            fund_name: String,
+        )
+        {
+            assert_ne!(
+                self.global_tracking_tokens_address_mapping.contains_key(&tracking_token_address), true, 
+                "Tracking token already exist"
+            );
+
+            self.global_tracking_tokens_address_mapping.insert(tracking_token_address, fund_name);
+        }
+
+        pub fn get_tracking_tokens_mapping(
+            &mut self,
+            tracking_token_address: ResourceAddress
+        ) -> String
+        {
+            assert_eq!(
+                self.global_tracking_tokens_address_mapping.contains_key(&tracking_token_address), true,
+                "This Fund does not exist."
+            );
+
+            let fund_name: String = self.global_tracking_tokens_address_mapping
+            .get_mut(&tracking_token_address)
+            .unwrap()
+            .to_string();
+
+            fund_name
+        }
+
+        pub fn debt_fund_list(
+            &self,
+        ) -> HashMap<String, ComponentAddress>
+        {
+            // let mut debt_fund_list: HashMap<NonFungibleId, HashSet<ComponentAddress>> = HashMap::new();
+            // let global_debt_funds = self.global_debt_funds.iter();
+            // for (fund_manager, debt_funds) in global_debt_funds {
+            //     debt_fund_list.insert(fund_manager.clone(), debt_funds.clone());
+            // }
+
+            return self.global_debt_funds.clone();
+        }
+
+        pub fn get_debt_fund(
+            &self,
+            fund_name: String,
+        ) -> ComponentAddress
+        {
+            assert_eq!(
+                self.global_debt_funds.contains_key(&fund_name), true,
+                "This Fund does not exist."
+            );
+
+            return *self.global_debt_funds.get(&fund_name).unwrap();
         }
     }
 }

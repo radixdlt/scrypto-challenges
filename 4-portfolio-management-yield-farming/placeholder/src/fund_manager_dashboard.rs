@@ -11,22 +11,25 @@ blueprint! {
     /// This is a struct used to define the FundManagerDashboard. This blueprint is used to allow Fund Managers to create new Index Fund and Debt Fund strategies.
     /// Unfortunately, this blueprint is not designed to have Fund Managers to interface with their Debt Fund and Index Fund. 
     struct FundManagerDashboard {
+        /// The ResourceAddress of the Fund Manager Badge provided to Fund Managers used to provide authorized access 
+        /// Fund Manager Dashboard.
         fund_manager_address: ResourceAddress,
-        fund_manager_admin_vault: Vault,
+        /// The Vault that contains the FundManagerDashboard Admin token. This is held by the component to make authorized
+        /// cross blueprint method calls.
+        fund_manager_dashboard_admin_vault: Vault,
         loan_request_nft_admin: Vault,
         loan_request_nft_address: ResourceAddress,
         loan_nft_admin_address: ResourceAddress,
-        fund_master_admin_vault: Vault,
         price_oracle_address: ComponentAddress,
         maple_finance_global_address: ComponentAddress,
-        // Probably delete
-        funding_locker_admin_vault: Option<Vault>,
+
+        access_badge_vault: Option<Vault>,
     }
 
     impl FundManagerDashboard {
 
         pub fn new(
-            fund_manager_admin: Bucket,
+            fund_manager_dashboard_admin: Bucket,
             maple_finance_global_address: ComponentAddress,
             fund_manager_address: ResourceAddress,
             loan_request_nft_admin: Bucket,
@@ -34,40 +37,41 @@ blueprint! {
             price_oracle_address: ComponentAddress,
         ) -> ComponentAddress
         {
-            let fund_master_admin = ResourceBuilder::new_fungible()
-                .divisibility(DIVISIBILITY_NONE)
-                .metadata("name", "Fund Manager Master Admin Badge")
-                .metadata("symbol", "PDMAB")
-                .metadata("description", "Allows Fund Managers to mint/burn loan NFTs.")
-                .initial_supply(1);
-
             let loan_nft_admin_address = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Loan NFT Admin Badge")
                 .metadata("symbol", "LNFTAB")
                 .metadata("description", "Allows Fund Managers to mint/burn loan NFTs.")
-                .mintable(rule!(require(fund_master_admin.resource_address())), LOCKED)
-                .burnable(rule!(require(fund_master_admin.resource_address())), LOCKED)
+                .mintable(rule!(require(fund_manager_dashboard_admin.resource_address())), LOCKED)
+                .burnable(rule!(require(fund_manager_dashboard_admin.resource_address())), LOCKED)
                 .no_initial_supply();
 
             return Self {
-                fund_manager_admin_vault: Vault::with_bucket(fund_manager_admin),
+                fund_manager_dashboard_admin_vault: Vault::with_bucket(fund_manager_dashboard_admin),
                 fund_manager_address: fund_manager_address,
                 loan_request_nft_admin: Vault::with_bucket(loan_request_nft_admin),
                 loan_request_nft_address: loan_request_nft_address,
                 loan_nft_admin_address: loan_nft_admin_address,
-                fund_master_admin_vault: Vault::with_bucket(fund_master_admin),
                 price_oracle_address: price_oracle_address,
                 maple_finance_global_address: maple_finance_global_address,
-                funding_locker_admin_vault: None, 
+                access_badge_vault: None, 
             }
             .instantiate()
             .globalize();
         }
 
+        pub fn view_component_address(
+            &self,
+        ) -> Option<ComponentAddress>
+        {
+            let component_address = Runtime::actor().component_address();
+            component_address
+        }
+
         pub fn new_debt_fund(
             &mut self,
             fund_manager_badge: Proof,
+            fund_name: String,
             initial_funds: Bucket
         ) -> (ComponentAddress, Bucket, Bucket)
         {
@@ -82,15 +86,19 @@ blueprint! {
             let fund_manager_data: FundManager = self.get_resource_manager(&fund_manager_id);
             let fund_manager_name: String = fund_manager_data.name;
 
-            let loan_nft_admin: Bucket = self.fund_master_admin_vault.authorize(|| {
+            let loan_nft_admin: Bucket = self.fund_manager_dashboard_admin_vault.authorize(|| {
                     let resource_manager: &ResourceManager = borrow_resource_manager!(self.loan_nft_admin_address);
                     resource_manager.mint(1)
                 }
             );
 
+            let optional_fund_manager_dashboard_address: Option<ComponentAddress> = self.view_component_address();
+
             // Instantiates the lending pool.
             let (debt_fund, tracking_tokens, debt_fund_manager_badge): (ComponentAddress, Bucket, Bucket) = DebtFund::new(
                 self.maple_finance_global_address,
+                optional_fund_manager_dashboard_address,
+                self.price_oracle_address,
                 fund_manager_name,
                 fund_manager_badge.resource_address(),
                 fund_manager_id.clone(),
@@ -111,7 +119,8 @@ blueprint! {
 
             // * INSERTS LENDING POOL DATA TO THE GLOBAL INDEX * //
             let maple_finance: MapleFinance = self.maple_finance_global_address.into();
-            maple_finance.insert_debt_fund(fund_manager_id, debt_fund);
+            maple_finance.insert_debt_fund(fund_name.clone(), debt_fund);
+            maple_finance.insert_tracking_tokens(tracking_tokens.resource_address(), fund_name);
 
             (debt_fund, tracking_tokens, debt_fund_manager_badge)
         }
@@ -204,9 +213,26 @@ blueprint! {
         {
             let fund_manager_id: NonFungibleId = fund_manager_badge.non_fungible::<FundManager>().id();
             let resource_manager = borrow_resource_manager!(self.fund_manager_address);
-            self.fund_manager_admin_vault.authorize(|| 
+            self.fund_manager_dashboard_admin_vault.authorize(|| 
                 resource_manager.update_non_fungible_data(&fund_manager_id, fund_manager_data)
             );
+        }
+        
+        pub fn insert_funding_locker(
+            &mut self,
+            loan_nft_admin: Proof,
+            loan_id: NonFungibleId,
+            funding_locker_address: ComponentAddress,
+        )
+        {
+            assert_eq!(
+                loan_nft_admin.resource_address(), self.loan_nft_admin_address,
+                "[Fund Manager Dashboard - Insert Funding Locker]: Incorrect Loan NFT Badge."
+            );
+
+            let maple_finance: MapleFinance = self.maple_finance_global_address.into();
+            self.fund_manager_dashboard_admin_vault.create_proof();
+            maple_finance.insert_funding_locker(loan_id, funding_locker_address);
         }
     }
 }

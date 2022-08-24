@@ -2,6 +2,7 @@ use scrypto::prelude::*;
 use crate::structs::*;
 use crate::fundinglocker::*;
 use crate::maple_finance_global::*;
+use crate::fund_manager_dashboard::*;
 
 // Pool Management
 
@@ -10,6 +11,9 @@ blueprint! {
         fund_manager_address: ResourceAddress,
         fund_manager_id: NonFungibleId,
         vault: Vault,
+        /// The ResourceAddress of the Debt Fund Badge that represents Admin Authority over the fund. The reason we have
+        /// a separate badge for Fund Manager Badge and Debt Fund Badge is because Fund Managers (while not currently supported)
+        /// may wish to transfer ownership of the fund. 
         debt_fund_admin_address: ResourceAddress,
         /// When liquidity providers provide liquidity to the liquidity pool, they are given a number of tokens that is
         /// equivalent to the percentage ownership that they have in the liquidity pool. The tracking token is the token
@@ -21,19 +25,23 @@ blueprint! {
         /// when need be.
         tracking_token_admin_badge: Vault,
         funding_locker_address: Option<ComponentAddress>,
-        access_badge_vault: Option<Vault>,
+        funding_locker_admin_vault: Option<Vault>,
         loan_request_nft_address: ResourceAddress,
         loan_nft_address: ResourceAddress,
         loan_nft_admin_vault: Vault,
         maple_finance_global_address: ComponentAddress,
+        optional_fund_manager_dashboard_address: Option<ComponentAddress>,
+        price_oracle_address: ComponentAddress,
         funding_lockers: HashMap<ResourceAddress, ComponentAddress>,
-        funding_locker_admin_vault: Option<Vault>,
+        access_badge_vault: Option<Vault>,
     }
 
     impl DebtFund {
 
         pub fn new(
             maple_finance_global_address: ComponentAddress,
+            optional_fund_manager_dashboard_address: Option<ComponentAddress>,
+            price_oracle_address: ComponentAddress,
             fund_manager_name: String,
             fund_manager_address: ResourceAddress,
             fund_manager_id: NonFungibleId,
@@ -91,6 +99,8 @@ blueprint! {
 
             let debt_fund = Self {
                 maple_finance_global_address: maple_finance_global_address,
+                optional_fund_manager_dashboard_address: optional_fund_manager_dashboard_address,
+                price_oracle_address: price_oracle_address,
                 fund_manager_address: fund_manager_address,
                 fund_manager_id: fund_manager_id,
                 debt_fund_admin_address: debt_fund_badge.resource_address(),
@@ -98,12 +108,12 @@ blueprint! {
                 tracking_token_address: tracking_tokens.resource_address(),
                 tracking_token_admin_badge: Vault::with_bucket(tracking_token_admin_badge),
                 funding_locker_address: None,
-                access_badge_vault: None,
+                funding_locker_admin_vault: None,
                 loan_request_nft_address: loan_request_nft_address,
                 loan_nft_address: loan_nft_address,
                 loan_nft_admin_vault: Vault::with_bucket(loan_nft_admin),
                 funding_lockers: HashMap::new(),
-                funding_locker_admin_vault: None,
+                access_badge_vault: None,
             }
             .instantiate()
             .globalize();
@@ -146,7 +156,45 @@ blueprint! {
             });
             info!("[Add Liquidity]: Owed amount of tracking tokens: {}", tracking_amount);
 
+            self.vault.put(liquidity_amount);
+
             tracking_tokens
+        }
+
+        pub fn transfer_liquidity(
+            &mut self,
+            debt_fund_badge: Proof,
+        )
+        {
+            self.assert_admin(&debt_fund_badge);
+
+            let optional_funding_locker: Option<ComponentAddress> = self.funding_locker_address;
+            match optional_funding_locker {
+                Some(funding_locker) => {
+                    let access_badge_proof: Proof = self.access_badge_vault.as_mut().unwrap().create_proof();
+                    let funding_locker: FundingLocker = funding_locker.into();
+                    let liquidity_bucket: Bucket = funding_locker.transfer_liquidity(access_badge_proof);
+
+                    // Checking if the token belong to this liquidity pool.
+                    assert_eq!(
+                        liquidity_bucket.resource_address(), self.vault.resource_address(),
+                        "[Debt Fund - Transfer Liquidity]: The bucket contains the wrong tokens."
+                    );
+
+                    // Checking that the bucket passed is not empty
+                    assert!(
+                        !liquidity_bucket.is_empty(), 
+                        "[Debt Fund - Transfer Liquidity]: Can not add liquidity from an empty bucket"
+                    );
+
+                    self.vault.put(liquidity_bucket);
+                }
+                None => {
+                    info!(
+                        "[Debt Fund - Transfer Liquidity]: This Debt Fund has not funded any loan opportunities yet."
+                    );
+                }
+            }
         }
 
         fn withdraw(
@@ -223,8 +271,7 @@ blueprint! {
             annualized_interest_rate: Decimal,
             draw_limit: Decimal,
             draw_minimum: Decimal,
-            term_length: u64,
-            payment_frequency: PaymentFrequency,
+            term_length: TermLength,
             origination_fee: Decimal,
         ) 
         {
@@ -235,8 +282,13 @@ blueprint! {
             let fund_manager_id: NonFungibleId = fund_manager_badge.non_fungible::<FundManager>().id();
 
             let origination_fee_charged = loan_amount * origination_fee;
-            let annualized_interest_expense = loan_amount * annualized_interest_rate;
             let remaining_balance = loan_amount + origination_fee;
+
+            let payments_remaining: u64 = match term_length {
+                TermLength::OneMonth => 1,
+                TermLength::ThreeMonth => 3,
+                TermLength::SixMonth => 6,
+            };
 
             let loan_nft = self.loan_nft_admin_vault.authorize(|| {
                 let resource_manager: &ResourceManager = borrow_resource_manager!(self.loan_nft_address);
@@ -253,10 +305,10 @@ blueprint! {
                         collateral_percent: collateral_percent,
                         annualized_interest_rate: annualized_interest_rate,
                         term_length: term_length,
-                        payment_frequency: payment_frequency,
+                        payments_remaining: payments_remaining,
                         origination_fee: origination_fee,
                         origination_fee_charged: origination_fee_charged,
-                        annualized_interest_expense: annualized_interest_expense,
+                        accrued_interest_expense: Decimal::zero(),
                         draw_limit: draw_limit,
                         draw_minimum: draw_minimum,
                         remaining_balance: remaining_balance,
@@ -276,6 +328,7 @@ blueprint! {
             );
 
             let (funding_locker, funding_locker_admin): (ComponentAddress, Bucket) = FundingLocker::new(
+                self.price_oracle_address,
                 loan_request_nft_id.clone(), 
                 self.loan_request_nft_address, 
                 loan_nft, 
@@ -285,12 +338,16 @@ blueprint! {
             // * INSERTS FUNDING LOCKER DATA INTO COMPONENT STATE * //
             self.funding_lockers.insert(funding_locker_admin.resource_address(), funding_locker);
 
+            self.access_badge_vault = Some(Vault::with_bucket(funding_locker_admin));
+
             // * INSERTS FUNDING LOCKER DATA TO THE GLOBAL INDEX * //
             // The Loan NFT Id is used as the HashMap key to allow easier quering from outsider perspective.
+            let fund_manager_dashboard: FundManagerDashboard = self.optional_fund_manager_dashboard_address.unwrap().into();
+            let loan_nft_admin_proof: Proof = self.loan_nft_admin_vault.create_proof();
+            fund_manager_dashboard.insert_funding_locker(loan_nft_admin_proof, loan_nft_id.clone(), funding_locker);
             let maple_finance: MapleFinance = self.maple_finance_global_address.into();
-            maple_finance.insert_funding_lockers(loan_nft_id.clone(), funding_locker);
 
-            // * MODIFIES LOAN REQUEST NFT * //
+            // * MODIFIES LOAN REQUEST NFT * // - IMPLEMENTED ACCESS CONTROL?
             let resource_manager = borrow_resource_manager!(self.loan_request_nft_address);
             let mut loan_request_nft_data: LoanRequest = resource_manager.get_non_fungible_data(&loan_request_nft_id);
 
@@ -300,7 +357,7 @@ blueprint! {
             
             maple_finance.authorize_loan_request_update(loan_request_nft_id, loan_request_nft_data);
 
-            self.funding_locker_admin_vault = Some(Vault::with_bucket(funding_locker_admin));
+
         }
 
         pub fn fund_loan(
@@ -313,11 +370,53 @@ blueprint! {
         {
             self.assert_admin(&debt_fund_badge);
 
-            let bucket: Bucket = self.withdraw(amount);
+            let fund_bucket: Bucket = self.withdraw(amount);
 
             self.funding_locker_address = Some(funding_locker_address);
             let funding_locker: FundingLocker = funding_locker_address.into();
-            funding_locker.fund_loan(debt_fund_address, bucket);
+            let funding_locker_admin_proof: Proof = self.funding_locker_admin_vault
+            .as_mut()
+            .unwrap()
+            .create_proof();
+            funding_locker.fund_loan(
+                funding_locker_admin_proof, 
+                debt_fund_address, 
+                fund_bucket
+            );
+        }
+
+        pub fn approve_draw_request(
+            &mut self,
+            debt_fund_badge: Proof,
+        )
+        {
+            self.assert_admin(&debt_fund_badge);
+
+            let funding_locker: FundingLocker = self.funding_locker_address.unwrap().into();
+
+            let funding_locker_admin_proof: Proof = self.funding_locker_admin_vault
+            .as_mut()
+            .unwrap()
+            .create_proof();
+            funding_locker.approve_draw_request(funding_locker_admin_proof);
+        }
+
+        pub fn update_loan(
+            &mut self,
+            debt_fund_badge: Proof,
+        )
+        {
+            self.assert_admin(&debt_fund_badge);
+
+            let funding_locker: FundingLocker = self.funding_locker_address.unwrap().into();
+
+            let funding_locker_admin_proof: Proof = self.funding_locker_admin_vault
+            .as_mut()
+            .unwrap()
+            .create_proof();
+
+            funding_locker.update_loan(funding_locker_admin_proof);
+
         }
 
         /// Think about Access Rule
@@ -349,9 +448,10 @@ blueprint! {
             let optional_funding_locker: Option<ComponentAddress> = self.funding_locker_address;
             match optional_funding_locker {
                 Some(funding_locker) => {
-                    let funding_locker_admin_proof: Proof = self.funding_locker_admin_vault.as_mut().unwrap().create_proof();
+                    let access_badge_proof: Proof = self.access_badge_vault.as_mut().unwrap().create_proof();
                     let funding_locker: FundingLocker = funding_locker.into();
-                    let fee_bucket: Bucket = funding_locker.claim_fees(funding_locker_admin_proof, percentage);
+                    let fee_bucket: Bucket = funding_locker.claim_fees(access_badge_proof, percentage);
+
                     return Some(fee_bucket)
                 }
                 None => {
