@@ -122,6 +122,9 @@ resim new-token-fixed --name bitcoin --symbol btc 10000
 resim new-token-fixed --name ethereum --symbol eth 1000
 resim new-token-fixed --name leonets --symbol leo 100
 export xrd=030000000000000000000000000000000000000000000000000004
+export leo=
+export eth=
+export btc=
 ```
 
 Then create the TradingApp component, it needs the resource address of 4 tokens and later on it needs to have its vaults funded

@@ -10,10 +10,10 @@ blueprint! {
         /// The reserve for trading token1 main pool
         token1_pool: Vault,
 
-        /// The reserve for trading token1 main pool
+        /// The reserve for trading token2 main pool
         token2_pool: Vault,
 
-        /// The reserve for trading token1 main pool
+        /// The reserve for trading token3 main pool
         token3_pool: Vault,
 
         // Starting epoch of trading app
@@ -26,14 +26,14 @@ blueprint! {
         token3_starting_value: u64,        
 
         //vault for trading fees
-        trading_fees: Vault,
+        // trading_fees: Vault,
     }
 
 
     impl TradingApp {
         /// Creates a TradingApp component and returns the component address
         pub fn create_market(token_a_address: ResourceAddress, token_b_address: ResourceAddress, 
-                            token_c_address: ResourceAddress, token_d_address: ResourceAddress) -> (ComponentAddress, Bucket) {
+                            token_c_address: ResourceAddress, token_d_address: ResourceAddress) -> ComponentAddress {
 
             // Get the starting epoch .
             let last_epoch = Runtime::current_epoch();
@@ -43,19 +43,19 @@ blueprint! {
             let token3_starting_value: u64 = "4".parse().expect("Not a number!");
 
             // Create the admin badges
-            let admin_badge: Bucket = ResourceBuilder::new_fungible() 
-            .divisibility(DIVISIBILITY_NONE)
-            .metadata("name", "Admin Badge")
-            .initial_supply(1);
+            // let admin_badge: Bucket = ResourceBuilder::new_fungible() 
+            // .divisibility(DIVISIBILITY_NONE)
+            // .metadata("name", "Admin Badge")
+            // .initial_supply(1);
 
             // Define the access rules for this blueprint.
-            let access_rules = AccessRules::new()
-            .method("fund_market", rule!(require(admin_badge.resource_address()))) 
-            .method("fund_token1", rule!(require(admin_badge.resource_address()))) 
-            .method("fund_token2", rule!(require(admin_badge.resource_address()))) 
-            .method("fund_token3", rule!(require(admin_badge.resource_address()))) 
-            .method("fund_token4", rule!(require(admin_badge.resource_address()))) 
-            .default(rule!(allow_all));
+            // let access_rules = AccessRules::new()
+            // .method("fund_market", rule!(require(admin_badge.resource_address()))) 
+            // .method("fund_token1", rule!(require(admin_badge.resource_address()))) 
+            // .method("fund_token2", rule!(require(admin_badge.resource_address()))) 
+            // .method("fund_token3", rule!(require(admin_badge.resource_address()))) 
+            // .method("fund_token4", rule!(require(admin_badge.resource_address()))) 
+            // .default(rule!(allow_all));
 
 
             // Instantiate our tradingapp component
@@ -68,12 +68,13 @@ blueprint! {
                 token1_starting_value: token1_starting_value,
                 token2_starting_value: token2_starting_value,
                 token3_starting_value: token3_starting_value,
-                trading_fees: Vault::new(RADIX_TOKEN),
+                // trading_fees: Vault::new(RADIX_TOKEN),
             }
             .instantiate();
             //.add_access_check(access_rules);
             // Return the new Tradingapp component
-            (tradingapp.globalize(),admin_badge)
+            //(tradingapp.globalize(),admin_badge)
+            tradingapp.globalize()
         }
 
         pub fn fund(&mut self) {
@@ -231,14 +232,14 @@ blueprint! {
         }
 
         //withdraw all the fees collected 
-        pub fn withdraw(&mut self) -> Bucket {
-            info!("=== WITHDRAW FEES === ");
+        // pub fn withdraw(&mut self) -> Bucket {
+        //     info!("=== WITHDRAW FEES === ");
 
-            let xrd_tokens_from_fees = self.trading_fees.take_all();
+        //     let xrd_tokens_from_fees = self.trading_fees.take_all();
 
-            // Return the tokens 
-            xrd_tokens_from_fees
-        }
+        //     // Return the tokens 
+        //     xrd_tokens_from_fees
+        // }
 
 
         // This is a pseudorandom function and not a true random number function.
