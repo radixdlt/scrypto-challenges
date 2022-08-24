@@ -1,6 +1,6 @@
-# Collaborative dApp
+# Portfolio dApp
 
-The Collaborative dApp is a decentralized application where users can collaborate to a portfolio management solution where no users profiling exist and it is completely permissionless, any user can deposit asset and any user can put asset at work towards the simulated available deFi applications.
+The Portfolio dApp is a decentralized application where users can collaborate to a portfolio management solution where no users profiling exist and it is completely permissionless, any user can deposit asset and any user can put asset at work towards the simulated available deFi applications.
 
 It is a kind of a social trading application but it differs from it because we think that financial knowledge is spread and also the final retail user has a great understanding and could operate in such a broad market for opportunities.
 
@@ -9,7 +9,7 @@ It is different because I think that also the experts get things wrong so there 
 
 This is a social collaborative portfolio management solution where anyone can put its tokens and execute operation on behalf of the whole community, at the time of withdraw the user account gets back its tokens with a reward or penalty based on the performance of the portfolio. There is not a personal user account on the platform, the positive or negative portfolio result is redistributed among all participants,
 
-Collaborative dApp has only some simple rules:
+Portfolio dApp has only some simple rules:
 * users can deposit asset
 * users can reedem asset at any moment
 * users can put asset at work until 10X of its asset value
@@ -356,12 +356,12 @@ resim call-method $portfolio register $account2 (resim call-method $portfolio re
 
 Also John gets its NFT
 
-'''
+```
 ├─ { amount: 1, resource address: 03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9, name: "User Account Trading History" }
 │  └─ NonFungible { id: 63d6d06bb0ba110877aff6def72a699ae852f4f7f14c546ef11f8c69638f47d7, immutable_data: Struct(), mutable_data: Struct(ComponentAddress("02d0da3fc806e20c508841efdcd412a53e50d1b80fb35ff1263214"), 0u32, 0u32, false) }
 
 export user_account_history2=03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9
-'''
+```
 
 
 And then he can fund the Portfolio
