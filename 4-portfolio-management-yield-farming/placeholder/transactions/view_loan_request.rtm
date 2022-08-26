@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${BDASHBOARD}") "view_loan_request" NonFungibleId("${LR}");
+

@@ -114,7 +114,7 @@ blueprint! {
             let borrower_id: NonFungibleId = borrower_badge.non_fungible::<Borrower>().id();
 
             assert_eq!(borrower_badge.resource_address(), self.borrower_admin_address, 
-                "[Borrower Dashboard: Incorrect Proof passed."
+                "[Borrower Dashboard]: Incorrect Proof passed."
             );
 
             let loan_request_nft = self.loan_request_nft_admin.authorize(|| {
@@ -252,6 +252,10 @@ blueprint! {
                     BorrowerBadgeContainer::LoanRequestNFTContainer(loan_request_nft_data) => {
                         if loan_request_nft_data.loan_nft_id.is_some() == true {
                             approved_loans.insert(loan_id.clone());
+                        } else {
+                            info!(
+                                "[Borrower Dashboard - Approved Loan Requests]: No loan requests have been approved."
+                            );
                         }
                     }
                     _ => {}
@@ -287,20 +291,21 @@ blueprint! {
         /// collateral ratio was not met. 
         pub fn deposit_collateral(
             &mut self,
-            borrower_badge: Bucket,
+            borrower_badge: Proof,
             loan_request_nft_id: NonFungibleId,
             collateral: Bucket
-        ) -> (Bucket, Option<Bucket>)
+        ) -> Option<Bucket>
         {
             assert_eq!(borrower_badge.resource_address(), self.borrower_admin_address,
                 "[Borrower Dashboard]: Incorrect borrower."
             );
 
-            // Creates Borrower Badge Proof so can call method from Global Index and retrieve loan request NFT.
-            let borrower_proof: Proof = borrower_badge.create_proof();
             let maple_finance: MapleFinance = self.maple_finance_global_address.into();
             // Retrieves loan request NFT and creates Proof so can deposit collateral to Funding Locker
-            let loan_request_nft: Bucket = maple_finance.retrieve_loan_request_nft(borrower_proof, loan_request_nft_id.clone());
+            let loan_request_nft: Bucket = self.borrower_admin_vault.authorize(|| 
+                maple_finance.retrieve_loan_request_nft(loan_request_nft_id.clone())
+            );
+
             let loan_request_nft_proof: Proof = loan_request_nft.create_proof();
 
             let badge_container: BorrowerBadgeContainer = self.get_resource_manager(&loan_request_nft_id, BorrowerBadges::LoanRequestNFT);
@@ -311,21 +316,36 @@ blueprint! {
                     if funding_locker_address.is_some() {
                         let funding_locker: FundingLocker = funding_locker_address.unwrap().into();
                         let option_bucket: Option<Bucket> = funding_locker.deposit_collateral(loan_request_nft_proof, collateral);
+
                         match option_bucket {
                             Some(bucket) => {
                                 let return_bucket: Option<Bucket> = Some(bucket);
 
                                 self.loan_request_nft_admin.authorize(|| loan_request_nft.burn());
 
-                                (borrower_badge, return_bucket)
+                                return_bucket
                             }
-                            None => (borrower_badge, None)
+
+                            None => {
+
+                                self.borrower_admin_vault.authorize(|| 
+                                    maple_finance.return_loan_request_nft(loan_request_nft)
+                                );
+
+                                return None 
+                            }
                         }
                     } else {
-                        (borrower_badge, None)
+
+                        info!(
+                            "[Borrower Dashboard - Deposit Collateral]: This loan has not yet been approved."
+                        );
+
+                        return None
                     }
                 }
-                BorrowerBadgeContainer::BorrowerContainer(_borrower_nft_data) => { (borrower_badge, None) }
+                
+                BorrowerBadgeContainer::BorrowerContainer(_borrower_nft_data) => { return None }
             }
 
             // let loan_nft_id: NonFungibleId = loan_request_nft_data.loan_nft_id.unwrap();

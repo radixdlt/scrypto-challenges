@@ -1,9 +1,8 @@
-CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${FA}");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${FM_BADGE}");
 POP_FROM_AUTH_ZONE Proof("proof1");
-
 CALL_METHOD
-    ComponentAddress("${FUND}")
-    "create_fund"
+    ComponentAddress("${FMDASHBOARD}")
+    "new_index_fund"
     Proof("proof1")
     "Scrooples Index"
     Decimal("1.00")

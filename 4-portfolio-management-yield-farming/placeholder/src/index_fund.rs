@@ -1,7 +1,6 @@
 use scrypto::prelude::*;
 use radex::radex::*;
 use degenfi::degenfi::*;
-use num_rational;
 use crate::price_oracle::*;
 
 blueprint! {
@@ -148,9 +147,15 @@ blueprint! {
         /// This method does not take any arguments.
         pub fn integrate_dex(
             &mut self, 
+            fund_admin: Proof,
             radex_address: ComponentAddress
         )
         {
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
+                "[{:?} Fund]: You do not have permission to integrate a DEX.",
+                self.fund_name
+            );
+
             self.radex_address = Some(radex_address);
         }
 
@@ -161,17 +166,28 @@ blueprint! {
         /// This method does not take any arguments. 
         pub fn integrate_lending(
             &mut self, 
+            fund_admin: Proof,
             degenfi_address: ComponentAddress
         )
         {
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
+                "[{:?} Fund]: You do not have permission to integrate a lending protocol.",
+                self.fund_name
+            );
 
             self.degenfi_address = Some(degenfi_address);
         }
 
         pub fn create_trader_badge(
             &mut self,
+            fund_admin: Proof,
         ) -> Bucket
         {
+            assert_eq!(fund_admin.resource_address(), self.fund_admin_address, 
+                "[{:?} Fund]: Badge not authorized.",
+                self.fund_name
+            );
+            
             let fund_trader_badge: Bucket = self.fund_admin_vault.authorize(|| 
                 borrow_resource_manager!(self.fund_trader_address).mint(1)
             );

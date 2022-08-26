@@ -20,10 +20,9 @@ blueprint! {
         loan_request_nft_admin: Vault,
         loan_request_nft_address: ResourceAddress,
         loan_nft_admin_address: ResourceAddress,
+        debt_fund_admin_address: ResourceAddress,
         price_oracle_address: ComponentAddress,
         maple_finance_global_address: ComponentAddress,
-
-        access_badge_vault: Option<Vault>,
     }
 
     impl FundManagerDashboard {
@@ -37,14 +36,33 @@ blueprint! {
             price_oracle_address: ComponentAddress,
         ) -> ComponentAddress
         {
+            let debt_fund_admin_address = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_NONE)
+                .metadata("name", "Debt Fund Admin Badge")
+                .metadata("symbol", "DF_AB")
+                .metadata("description", "Debt Fund Admin Badge for components.")
+                .mintable(rule!(require(fund_manager_dashboard_admin.resource_address())), LOCKED)
+                .burnable(rule!(require(fund_manager_dashboard_admin.resource_address())), LOCKED)
+                .no_initial_supply();
+            
+            let allowed_badge: Vec<ResourceAddress> = vec!(
+                fund_manager_dashboard_admin.resource_address(), 
+                debt_fund_admin_address,
+            );                
+
             let loan_nft_admin_address = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Loan NFT Admin Badge")
                 .metadata("symbol", "LNFTAB")
                 .metadata("description", "Allows Fund Managers to mint/burn loan NFTs.")
-                .mintable(rule!(require(fund_manager_dashboard_admin.resource_address())), LOCKED)
+                .mintable(rule!(require_any_of(allowed_badge)), LOCKED)
                 .burnable(rule!(require(fund_manager_dashboard_admin.resource_address())), LOCKED)
                 .no_initial_supply();
+
+            let access_rules: AccessRules = AccessRules::new()
+                .method("insert_funding_locker", rule!(require(debt_fund_admin_address)))
+                .default(rule!(allow_all)
+            );
 
             return Self {
                 fund_manager_dashboard_admin_vault: Vault::with_bucket(fund_manager_dashboard_admin),
@@ -52,11 +70,12 @@ blueprint! {
                 loan_request_nft_admin: Vault::with_bucket(loan_request_nft_admin),
                 loan_request_nft_address: loan_request_nft_address,
                 loan_nft_admin_address: loan_nft_admin_address,
+                debt_fund_admin_address: debt_fund_admin_address,
                 price_oracle_address: price_oracle_address,
                 maple_finance_global_address: maple_finance_global_address,
-                access_badge_vault: None, 
             }
             .instantiate()
+            .add_access_check(access_rules)
             .globalize();
         }
 
@@ -86,6 +105,12 @@ blueprint! {
             let fund_manager_data: FundManager = self.get_resource_manager(&fund_manager_id);
             let fund_manager_name: String = fund_manager_data.name;
 
+            let debt_fund_admin: Bucket = self.fund_manager_dashboard_admin_vault.authorize(|| {
+                    let resource_manager: &ResourceManager = borrow_resource_manager!(self.debt_fund_admin_address);
+                    resource_manager.mint(1)
+                }
+            );
+
             let loan_nft_admin: Bucket = self.fund_manager_dashboard_admin_vault.authorize(|| {
                     let resource_manager: &ResourceManager = borrow_resource_manager!(self.loan_nft_admin_address);
                     resource_manager.mint(1)
@@ -103,6 +128,7 @@ blueprint! {
                 fund_manager_badge.resource_address(),
                 fund_manager_id.clone(),
                 self.loan_request_nft_address,
+                debt_fund_admin,
                 loan_nft_admin,
                 initial_funds
             );
@@ -119,8 +145,14 @@ blueprint! {
 
             // * INSERTS LENDING POOL DATA TO THE GLOBAL INDEX * //
             let maple_finance: MapleFinance = self.maple_finance_global_address.into();
-            maple_finance.insert_debt_fund(fund_name.clone(), debt_fund);
-            maple_finance.insert_tracking_tokens(tracking_tokens.resource_address(), fund_name);
+
+            self.fund_manager_dashboard_admin_vault.authorize(||
+                maple_finance.insert_debt_fund(fund_name.clone(), debt_fund)
+            );
+
+            self.fund_manager_dashboard_admin_vault.authorize(||
+                maple_finance.insert_tracking_tokens(tracking_tokens.resource_address(), fund_name)
+            );
 
             (debt_fund, tracking_tokens, debt_fund_manager_badge)
         }
@@ -177,8 +209,14 @@ blueprint! {
             
             self.authorize_update(&fund_manager_badge, fund_manager_data);
 
-            maple_finance.insert_index_fund_name(fund_name.clone(), fund_ticker.clone());
-            maple_finance.insert_index_fund(fund_id, index_fund);
+            
+            self.fund_manager_dashboard_admin_vault.authorize(||
+                maple_finance.insert_index_fund_name(fund_name.clone(), fund_ticker.clone())
+            );
+
+            self.fund_manager_dashboard_admin_vault.authorize(||
+                maple_finance.insert_index_fund(fund_id, index_fund)
+            );
 
             fund_admin
         }
@@ -218,21 +256,18 @@ blueprint! {
             );
         }
         
+        /// Access Rule Imposed
         pub fn insert_funding_locker(
             &mut self,
-            loan_nft_admin: Proof,
             loan_id: NonFungibleId,
             funding_locker_address: ComponentAddress,
         )
         {
-            assert_eq!(
-                loan_nft_admin.resource_address(), self.loan_nft_admin_address,
-                "[Fund Manager Dashboard - Insert Funding Locker]: Incorrect Loan NFT Badge."
-            );
-
             let maple_finance: MapleFinance = self.maple_finance_global_address.into();
-            self.fund_manager_dashboard_admin_vault.create_proof();
-            maple_finance.insert_funding_locker(loan_id, funding_locker_address);
+
+            self.fund_manager_dashboard_admin_vault.authorize(||
+                maple_finance.insert_funding_locker(loan_id, funding_locker_address)
+            );
         }
     }
 }

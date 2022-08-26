@@ -9,7 +9,6 @@ use crate::debt_fund::*;
 // via global. 
 blueprint! {
     struct InvestorDashboard {
-        investor_address: ResourceAddress,
         maple_finance_global_address: ComponentAddress,
     }
 
@@ -17,12 +16,9 @@ blueprint! {
 
         pub fn new(
             maple_finance_global_address: ComponentAddress,
-
-            investor_address: ResourceAddress
         ) -> ComponentAddress
         {
             return Self {
-                investor_address: investor_address,
                 maple_finance_global_address: maple_finance_global_address,
             }
             .instantiate()
@@ -39,14 +35,10 @@ blueprint! {
 
         pub fn buy_fund_tokens(
             &mut self,
-            investor_badge: Proof,
             fund_name: String,
             xrd: Bucket,
         ) -> Bucket
         {
-            assert_eq!(investor_badge.resource_address(), self.investor_address,
-                "[Investor Dashboard]: This badge does not belong to this protocol."
-            );
 
             let maple_finance_global: MapleFinance = self.maple_finance_global_address.into();
             let index_fund_address: ComponentAddress = maple_finance_global.get_index_fund(fund_name);
@@ -58,15 +50,10 @@ blueprint! {
 
         pub fn sell_fund_tokens(
             &mut self,
-            investor_badge: Proof,
             fund_name: String,
             fund_token: Bucket,
         ) -> Bucket
         {
-            assert_eq!(investor_badge.resource_address(), self.investor_address,
-                "[Investor Dashboard]: This badge does not belong to this protocol."
-            );
-
             let maple_finance_global: MapleFinance = self.maple_finance_global_address.into();
             let index_fund_address: ComponentAddress = maple_finance_global.get_index_fund(fund_name);
             let index_fund: IndexFund = index_fund_address.into();
@@ -77,14 +64,10 @@ blueprint! {
 
         pub fn issue_tokens(
             &mut self,
-            investor_badge: Proof,
             fund_name: String,
             tokens: Vec<Bucket>,
         )
         {
-            assert_eq!(investor_badge.resource_address(), self.investor_address,
-                "[Investor Dashboard]: This badge does not belong to this protocol."
-            );
             let maple_finance_global: MapleFinance = self.maple_finance_global_address.into();
             let index_fund_address: ComponentAddress = maple_finance_global.get_index_fund(fund_name);
             let index_fund: IndexFund = index_fund_address.into();
@@ -93,14 +76,10 @@ blueprint! {
 
         pub fn redeem_fund_tokens(
             &mut self,
-            investor_badge: Proof,
             fund_name: String,
             fund_tokens: Bucket,
         ) -> Vec<Bucket>
         {
-            assert_eq!(investor_badge.resource_address(), self.investor_address,
-                "[Investor Dashboard]: This badge does not belong to this protocol."
-            );
             
             let maple_finance_global: MapleFinance = self.maple_finance_global_address.into();
             let index_fund_address: ComponentAddress = maple_finance_global.get_index_fund(fund_name);
@@ -147,13 +126,13 @@ blueprint! {
         pub fn claim_fees(
             &mut self,
             tracking_tokens: Bucket
-        ) -> (Option<Bucket>, Bucket)
+        ) -> (Vec<Bucket>, Bucket)
         {
             let maple_finance_global: MapleFinance = self.maple_finance_global_address.into();
             let fund_name: String = maple_finance_global.get_tracking_tokens_mapping(tracking_tokens.resource_address());
             let debt_fund: DebtFund = maple_finance_global.get_debt_fund(fund_name).into();
             let tracking_tokens_proof: Proof = tracking_tokens.create_proof();
-            let fees: Option<Bucket> = debt_fund.claim_fees(tracking_tokens_proof);
+            let fees: Vec<Bucket> = debt_fund.claim_fees(tracking_tokens_proof);
 
             return (fees, tracking_tokens);
         }

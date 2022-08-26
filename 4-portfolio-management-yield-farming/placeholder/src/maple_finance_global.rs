@@ -4,6 +4,7 @@ use crate::borrower_dashboard::*;
 use crate::structs::*;
 use crate::price_oracle::*;
 use crate::utils::*;
+use crate::investor_dashboard::*;
 
 blueprint! {
     struct MapleFinance {
@@ -24,9 +25,9 @@ blueprint! {
         fund_manager_badge_vault: Vault,
         borrowers: HashSet<NonFungibleId>,
         borrower_address: ResourceAddress,
+        borrower_dashboard_admin_address: ResourceAddress,
         borrower_dashboards: HashMap<NonFungibleId, ComponentAddress>,
-        borrower_admin_badge_vault: Vault,
-        investor_admin_address: ResourceAddress,
+        borrower_badge_vault: Vault,
         temporary_badge_address: ResourceAddress,
         pending_approvals: HashMap<String, NonFungibleId>,
         approvals: HashMap<NonFungibleId, NonFungibleId>,
@@ -40,6 +41,7 @@ blueprint! {
         global_index_funds_name: HashMap<String, String>,
         price_oracle_address: ComponentAddress,
         maple_finance_global_address: Option<ComponentAddress>,
+        investor_dashboard_address: Option<ComponentAddress>,
     }
 
     impl MapleFinance {
@@ -64,9 +66,9 @@ blueprint! {
             // Badge that will be stored in the component's vault to update loan NFT.
             let loan_request_nft_admin_address: ResourceAddress = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
-                .metadata("name", "Admin Badge")
-                .metadata("symbol", "AB")
-                .metadata("description", "Admin authority")
+                .metadata("name", "Loan Request Admin Badge")
+                .metadata("symbol", "LR_AB")
+                .metadata("description", "Admin authority for minting/burning/updating loan request NFTs.")
                 .mintable(rule!(require(admin.resource_address())), LOCKED)
                 .burnable(rule!(require(admin.resource_address())), LOCKED)
                 .no_initial_supply();
@@ -88,18 +90,18 @@ blueprint! {
 
             let fund_manager_dashboard_admin_address = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
-                .metadata("name", "Fund Manager Admin Badge")
-                .metadata("symbol", "FM_AB")
-                .metadata("description", "Admin Badge to control Fund Manager Badge")
+                .metadata("name", "Fund Manager Dashboard Admin Badge")
+                .metadata("symbol", "FMD_AB")
+                .metadata("description", "Admin Badge to control Fund Manager Dashboard Component")
                 .mintable(rule!(require(admin.resource_address())), LOCKED)
                 .burnable(rule!(require(admin.resource_address())), LOCKED)
                 .no_initial_supply();
 
-            let borrower_admin_address = ResourceBuilder::new_fungible()
+            let borrower_dashboard_admin_address = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Borrower Admin Badge")
                 .metadata("symbol", "B_AB")
-                .metadata("description", "Admin Badge to control Fund Manager Badge")
+                .metadata("description", "Admin Badge to control Fund Manager Dashboard Component")
                 .mintable(rule!(require(admin.resource_address())), LOCKED)
                 .burnable(rule!(require(admin.resource_address())), LOCKED)
                 .no_initial_supply();
@@ -119,18 +121,9 @@ blueprint! {
                 .updateable_non_fungible_data(rule!(require_any_of(allowed_badge)), LOCKED)
                 .no_initial_supply();
             
-            let investor_admin_address: ResourceAddress = ResourceBuilder::new_non_fungible()
-                .metadata("name", "Investor NFT")
-                .metadata("symbol", "INFT")
-                .metadata("description", "Investor Admin Badge")
-                .mintable(rule!(require(admin.resource_address())), LOCKED)
-                .burnable(rule!(require(admin.resource_address())), LOCKED)
-                .updateable_non_fungible_data(rule!(require(admin.resource_address())), LOCKED)
-                .no_initial_supply();
-            
             let allowed_badge: Vec<ResourceAddress> = vec!(
                 admin.resource_address(), 
-                borrower_admin_address,
+                borrower_dashboard_admin_address,
             );
 
             let borrower_address: ResourceAddress = ResourceBuilder::new_non_fungible()
@@ -157,8 +150,10 @@ blueprint! {
                 .method("insert_tracking_tokens", rule!(require(fund_manager_dashboard_admin_address)))
                 .method("insert_index_fund_name", rule!(require(fund_manager_dashboard_admin_address)))
                 .method("insert_funding_locker", rule!(require(fund_manager_dashboard_admin_address)))
-                .method("set_address", rule!(require(maple_finance_admin.resource_address())))
-                .default(rule!(allow_all));
+                .method("retrieve_loan_request_nft", rule!(require(borrower_dashboard_admin_address)))
+                .method("return_loan_request_nft", rule!(require(borrower_dashboard_admin_address)))
+                .default(rule!(allow_all)
+            );
             
             let maple_finance = Self {
                 maple_finance_admin_address: maple_finance_admin.resource_address(),
@@ -172,9 +167,9 @@ blueprint! {
                 fund_manager_badge_vault: Vault::new(fund_manager_address),
                 borrowers: HashSet::new(),
                 borrower_address: borrower_address,
+                borrower_dashboard_admin_address: borrower_dashboard_admin_address,
                 borrower_dashboards: HashMap::new(),
-                borrower_admin_badge_vault: Vault::new(borrower_address),
-                investor_admin_address: investor_admin_address,
+                borrower_badge_vault: Vault::new(borrower_address),
                 temporary_badge_address: temporary_badge_address,
                 pending_approvals: HashMap::new(),
                 approvals: HashMap::new(),
@@ -186,6 +181,7 @@ blueprint! {
                 global_index_funds_name: HashMap::new(),
                 price_oracle_address: PriceOracle::new(),
                 maple_finance_global_address: None,
+                investor_dashboard_address: None,
             }
             .instantiate()
             .add_access_check(access_rules)
@@ -196,9 +192,14 @@ blueprint! {
 
         pub fn set_address(
             &mut self,
+            maple_finance_admin: Proof,
             maple_finance_global_address: ComponentAddress
         )
         {
+            assert_eq!(maple_finance_admin.resource_address(), self.maple_finance_admin_address,
+                "[Maple Finance]: Unauthorized Access."
+            );
+
             self.maple_finance_global_address = Some(maple_finance_global_address);
         }
 
@@ -209,7 +210,6 @@ blueprint! {
         {
             let badge_address = match badge_name {
                 Badges::FundManager => self.fund_manager_address,
-                Badges::Investor => self.borrower_address,
                 Badges::Borrower => self.borrower_address,
                 Badges::TemporaryBadge => self.temporary_badge_address,
                 Badges::LoanRequestNFT => self.loan_request_nft_address,
@@ -221,10 +221,6 @@ blueprint! {
                 Badges::FundManager => {
                     let nft_data: FundManager = resource_manager.get_non_fungible_data(&nft_id);
                     return BadgeContainer::FundManagerContainer(nft_data)
-                }
-                Badges::Investor => {
-                    let nft_data: Investor = resource_manager.get_non_fungible_data(&nft_id);
-                    return BadgeContainer::InvestorContainer(nft_data)
                 }
                 Badges::Borrower => {
                     let nft_data: Borrower = resource_manager.get_non_fungible_data(&nft_id);
@@ -245,11 +241,11 @@ blueprint! {
             &self,
             nft_id: &NonFungibleId,
             badge_name: Badges,
-            nft_data: BadgeContainer)
+            nft_data: BadgeContainer
+        )
         {
             let badge_address = match badge_name {
                 Badges::FundManager => self.fund_manager_address,
-                Badges::Investor => self.investor_admin_address,
                 Badges::Borrower => self.borrower_address,
                 Badges::TemporaryBadge => self.temporary_badge_address,
                 Badges::LoanRequestNFT => self.loan_request_nft_address,
@@ -261,11 +257,6 @@ blueprint! {
                 BadgeContainer::FundManagerContainer(pool_delegate) => {
                     self.admin_vault.authorize(|| 
                         resource_manager.update_non_fungible_data(nft_id, pool_delegate)
-                    );
-                }
-                BadgeContainer::InvestorContainer(investor) => {
-                    self.admin_vault.authorize(|| 
-                        resource_manager.update_non_fungible_data(nft_id, investor)
                     );
                 }
                 BadgeContainer::BorrowerContainer(borrower) => {
@@ -359,6 +350,24 @@ blueprint! {
             temporary_badge
         }
 
+        pub fn new_investor_dashboard(
+            &mut self,
+            maple_finance_admin: Proof,
+        ) -> ComponentAddress
+        {
+            assert_eq!(maple_finance_admin.resource_address(), self.maple_finance_admin_address,
+                "[Maple Finance]: Unauthorized Access."
+            );
+
+            let investor_dashboard_address: ComponentAddress = InvestorDashboard::new(
+                self.maple_finance_global_address.unwrap().into(),
+            );
+
+            self.investor_dashboard_address = Some(investor_dashboard_address);
+
+            investor_dashboard_address
+        }
+
         /// Creates an admin badge for each Fund Managers and instantiates a Fund Manager Dashboard.
         /// 
         /// This method is used to allow authorized Maple Finance team to onboard approved Fund Managers.
@@ -404,7 +413,6 @@ blueprint! {
             // Change NFT data of the Temporary Badge to indicate the prospective Fund Manager has been approved.
             match nft_data {
                 BadgeContainer::FundManagerContainer(_pool_delegate) => {}
-                BadgeContainer::InvestorContainer(_investor) => {}
                 BadgeContainer::BorrowerContainer(_borrower) => {}
                 BadgeContainer::TemporaryBadgeContainer(mut temporary_badge) => {
 
@@ -506,7 +514,6 @@ blueprint! {
             // Change NFT data of the Temporary Badge to indicate the prospective Fund Manager has been approved.
             match nft_data {
                 BadgeContainer::FundManagerContainer(_fundmanager) => {}
-                BadgeContainer::InvestorContainer(_investor) => {}
                 BadgeContainer::BorrowerContainer(_borrower) => {}
                 BadgeContainer::TemporaryBadgeContainer(mut temporary_badge) => {
 
@@ -543,7 +550,7 @@ blueprint! {
             );
 
             let borrower_admin: Bucket = self.admin_vault.authorize(|| {
-                    let resource_manager: &ResourceManager = borrow_resource_manager!(self.borrower_address);
+                    let resource_manager: &ResourceManager = borrow_resource_manager!(self.borrower_dashboard_admin_address);
                     resource_manager.mint(1)
                 }
             );
@@ -563,7 +570,7 @@ blueprint! {
                 borrower_dashboard
             );
 
-            self.borrower_admin_badge_vault.put(borrower_admin_badge);
+            self.borrower_badge_vault.put(borrower_admin_badge);
 
             borrower_dashboard
         }
@@ -615,7 +622,7 @@ blueprint! {
                     let claim_badge: &NonFungibleId = self.approvals.get(&temporary_badge_id).unwrap();
 
                     // Returns the Fund Manager admin badge.
-                    let return_borrower_admin_badge: Bucket = self.borrower_admin_badge_vault.take_non_fungible(claim_badge);
+                    let return_borrower_admin_badge: Bucket = self.borrower_badge_vault.take_non_fungible(claim_badge);
 
                     // Removes the entry from the approved list.
                     self.approvals.remove_entry(&temporary_badge_id);
@@ -633,23 +640,40 @@ blueprint! {
 
         pub fn retrieve_loan_request_nft(
             &mut self,
-            borrower_badge: Proof,
             loan_request_nft_id: NonFungibleId,
         ) -> Bucket
         {
+            let badge_container: BadgeContainer = self.get_resource_manager(&loan_request_nft_id, Badges::LoanRequestNFT);
+
+            match badge_container {
+                BadgeContainer::LoanRequestNFTContainer(loan_request_nft_data) => {
+                    let borrower_id: NonFungibleId = loan_request_nft_data.borrower;
+
+                    let loan_request_nft: Bucket = self.global_loan_requests_vault
+                    .get_mut(&borrower_id)
+                    .unwrap()
+                    .take_non_fungible(&loan_request_nft_id);
+        
+                    loan_request_nft
+                }
+                _ => { self.admin_vault.take(0) }
+            }
+        }
+
+        pub fn return_loan_request_nft(
+            &mut self,
+            loan_request_nft: Bucket,
+        )
+        {
             assert_eq!(
-                borrower_badge.resource_address(), self.borrower_address,
-                "[Maple Finance]: Badge does not belong to this protocol."
+                loan_request_nft.resource_address(), self.loan_request_nft_address,
+                "The resource passed is not the Loan Request NFT."
             );
 
-            let borrower_id: NonFungibleId = borrower_badge.non_fungible::<Borrower>().id();
+            let loan_request_nft_data: LoanRequest = loan_request_nft.non_fungible().data();
+            let borrower_id: NonFungibleId = loan_request_nft_data.borrower;
 
-            let loan_request_nft: Bucket = self.global_loan_requests_vault
-            .get_mut(&borrower_id)
-            .unwrap()
-            .take_non_fungible(&loan_request_nft_id);
-
-            loan_request_nft
+            self.global_loan_requests_vault.get_mut(&borrower_id).unwrap().put(loan_request_nft);
         }
 
         pub fn view_loan_requests(
@@ -662,6 +686,19 @@ blueprint! {
             .unwrap()
             .non_fungible_ids()
             .clone();
+        }
+
+        pub fn loan_request_list(
+            &self,
+        ) -> HashMap<NonFungibleId, BTreeSet<NonFungibleId>>
+        {
+            let mut loan_request_list: HashMap<NonFungibleId, BTreeSet<NonFungibleId>> = HashMap::new();
+            let global_loan_requests_vault = self.global_loan_requests_vault.iter();
+            for (borrowers, loan_request_vault) in global_loan_requests_vault {
+                loan_request_list.insert(borrowers.clone(), loan_request_vault.non_fungible_ids());
+            };
+
+            loan_request_list
         }
 
         /// Implement Access Control. Only Debt Fund component can call this method.

@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${ACC_ADDRESS4}") "withdraw_by_amount" Decimal("1") ResourceAddress("${B_TB}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1") ResourceAddress("${B_TB}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${MAPLE}") "claim_badge" Bucket("bucket1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS4}") "deposit_batch";

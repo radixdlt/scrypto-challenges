@@ -33,6 +33,7 @@ pub struct Loan {
     #[scrypto(mutable)]
     pub annualized_interest_rate: Decimal,
     pub term_length: TermLength,
+    #[scrypto(mutable)]
     pub payments_remaining: u64,
     pub origination_fee: Decimal,
     pub origination_fee_charged: Decimal,
@@ -120,7 +121,6 @@ pub enum BorrowerBadgeContainer {
 #[derive(TypeId, Encode, Decode, Describe, Debug, PartialEq)]
 pub enum Badges {
     FundManager,
-    Investor,
     Borrower,
     TemporaryBadge,
     LoanRequestNFT,
@@ -128,7 +128,6 @@ pub enum Badges {
 
 pub enum BadgeContainer {
     FundManagerContainer(FundManager),
-    InvestorContainer(Investor),
     BorrowerContainer(Borrower),
     TemporaryBadgeContainer(TemporaryBadge),
     LoanRequestNFTContainer(LoanRequest),
@@ -142,15 +141,11 @@ pub struct FundManager {
 }
 
 #[derive(NonFungibleData, Debug, Describe, Encode, Decode, TypeId, PartialEq)]
-pub struct Investor {
-    pub funds_invested: HashMap<ComponentAddress, Decimal>,
-    pub liquidity_pools: HashMap<ComponentAddress, Decimal>,
-}
-
-#[derive(NonFungibleData, Debug, Describe, Encode, Decode, TypeId, PartialEq)]
 pub struct Borrower {
     pub name: String,
+    #[scrypto(mutable)]
     pub loan_requests: BTreeSet<NonFungibleId>,
+    #[scrypto(mutable)]
     pub loans: BTreeSet<NonFungibleId>,
 }
 
