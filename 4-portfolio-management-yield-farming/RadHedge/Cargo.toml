@@ -6,6 +6,8 @@ edition = "2021"
 [dependencies]
 sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.4.1" }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.4.1" }
+RaDEX =  { path = "C:/Users/Frederik S/DltDemos/tryRust/scrypto-challenges_official/1-exchanges/RaDEX"}
+price-oracle = { git = "https://github.com/radixdlt/scrypto-examples", rev = "6fc0c01e" }
 
 [dev-dependencies]
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.4.1" }

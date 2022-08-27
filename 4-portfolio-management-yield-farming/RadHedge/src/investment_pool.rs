@@ -1,4 +1,7 @@
+use price_oracle::*;
 use scrypto::prelude::*;
+
+const TOKEN_START_PRICE: Decimal = Decimal(10); // [USD Stablecoin]
 
 blueprint! {
     struct InvestmentPool {
@@ -10,10 +13,15 @@ blueprint! {
         pool_token_mint_badge: Vault,
         /// Badge that represents the rights of the fund manager
         pool_manager_badge_address: ResourceAddress, // TODO: Think about MultiAdmin/MultiManager scheme
+        /// Integer
         /// Decimal value, that holds the performance fee.
         performance_fee: Decimal,
         /// Vault for minted tokens due to performance fees. Can only be emptied by the fond manager.
         performance_fee_vault: Vault,
+        /// Stores the address of the price-oracle used for this InvestmentPool
+        oracle: PriceOracle, // TODO: Option: Implement this via harcode --> In real life this would already exist.
+        /// Address of the base currency used in this pool.
+        base_currency: ResourceAddress,
     }
 
     /// # This is an implementation of a Investment Pool.
@@ -21,6 +29,8 @@ blueprint! {
     impl InvestmentPool {
         pub fn instantiate_pool(
             performance_fee: Decimal,
+            oracle_address: ComponentAddress,
+            base_currency: ResourceAddress,
             fund_name: String,
             fund_symbol: String,
         ) -> (ComponentAddress, Bucket) {
@@ -33,6 +43,7 @@ blueprint! {
 
             // TODO Implement all necessary assertions.
             // Assert length of "symbol"
+            // Assert that the given oracle address is really the oracle we'd expect.
 
             // At this point, we know that the pool creation can indeed go through.
 
@@ -87,6 +98,8 @@ blueprint! {
                 pool_manager_badge_address: pool_manager_badge.resource_address(),
                 performance_fee,
                 performance_fee_vault: Vault::new(pool_token_address),
+                oracle: oracle_address.into(),
+                base_currency,
             }
             .instantiate()
             .add_access_check(access_rules)
@@ -96,17 +109,56 @@ blueprint! {
             (investment_pool, pool_manager_badge)
         }
 
-        // pub fn fund_pool(&self, funds: Bucket) -> Bucket{
-        //     // Only for fund manager
-        // }
+        /// This method can be used to fund the pool with an arbitray asset without rebalancing.
+        ///
+        /// This method is only callable by the pool manager.
+        /// The intention of this method is mainly to initially fund the pool with arbitrary asset without triggering
+        /// an automatic rebalancing via a DEX.
+        ///
+        /// This method fulfills three main tasks:
+        /// 1. Determine the value added by the provided funds and mint the corresponding amount of pool tokens
+        /// 2. Add the provided assets to the investment pool
+        /// 3. Return the newly minted pool token
+        pub fn fund_pool(&mut self, funds: Bucket) -> Bucket {
 
+            assert!(!funds.is_empty(), "Can not fund this pool from an empty bucket");
+
+            // TODO: Think about how to optimize this code.
+            // Determine present marketcap of the pool.
+            let pool_market_cap = self.get_market_cap();
+            // Determine marketcap of the provided asset.
+            let provided_value = self.get_asset_price(funds.resource_address()) * funds.amount();
+
+            // Determine the tokens to be minted. TODO Check first if the pool was empty or marketcap == 0 before! Aktuell: Division by zero!
+            let tokens_to_mint: Decimal = if self.pool_token_amount() == Decimal::ZERO{
+            // This is the first time this pool is funded with anything! Mint first tokens with a base NAV (net asset value) of TOKEN_START_PRICE
+                provided_value / TOKEN_START_PRICE
+            } else {
+                (provided_value / pool_market_cap) * self.pool_token_amount()
+            };
+
+            // Add funds to the pool.
+            self.deposit_to_pool(funds);
+
+            // Add this value as a datapoint to the amount of tokens that the pool manager holds (too compute stake of the pool manager)
+            // TODO
+
+            // Return a bucket with the newly minted pool tokens.
+            self.mint_pool_tokens(tokens_to_mint)
+        }
+
+        /// This method is used to collect all accrued performance fees and only callable by the pool manager.
+        ///
+        /// Performance fees are determined based on the principle of a high water mark.
+        /// In this method it is checked whether any performance fees have accrued.
+        /// If there are some they are withdrawn.
         // pub fn collect_fee(&self) -> Bucket {
         //     // Only for fund manager
         // }
 
-        /// Perform asset swap - this is the man access point for trading assets of the pool
-        // pub fn swap_x_y(&self) -> Bucket {
-        //     // Only for fund manager
+        // /// Perform asset swap - this is the main access point for trading assets of the pool
+        // pub fn swap_x_y(&self) {
+        //     // Only for fund manager or the pool TODO Add authorization for mint_badge TODO Rename mint Badge to admin badge
         //     // Use another abstraction function for swapping funds --> better portability.
         // }
 
@@ -114,9 +166,98 @@ blueprint! {
         //     // Only for fund manager
         // }
 
-        pub fn get_market_cap(&self) -> Decimal{
-            Decimal::ONE
+        /// Returns the total supply of pool tokens.
+        pub fn pool_token_amount(&self) -> Decimal{
+            let pool_tokens_manager: &ResourceManager = borrow_resource_manager!(self.pool_token_address);
+            pool_tokens_manager.total_supply()
         }
 
+        /// Determine the price in USD of the given token via the Oracle provided during instantiation.
+        /// This only works if the token price is actually known by the oracle and otherwise aborts.
+        pub fn get_asset_price(&self, token: ResourceAddress) -> Decimal{
+            match self.oracle.get_price(self.base_currency, token) {
+                Some(token_price) => token_price,
+                None              => std::process::abort(),
+            }
+        }
+
+        /// Determines the present price of the pool token based on its net asset value (NAV) using the underlying price oracle.
+        ///
+        /// This method needs to do quite a lot of computing. Don't call this method unnecessarily often!
+        ///
+        /// # Returns
+        ///
+        /// `Decimal` - The price of the pool tracking token based on its NAV.
+        /// `Decimal` - Total value of all assets in the investment pool.
+        pub fn pool_token_price_marketcap(&self) -> (Decimal,Decimal){
+
+            // Assert that there are existing pool tokens.
+            assert!(
+                (self.pool_token_amount() > Decimal::ZERO),
+                "This pool hasn't been funded yet. There are no pool tokens representing any value."
+            );
+
+            let mut total_value: Decimal = Decimal::ZERO;
+
+            // Determine NAV --> Iterate through all assets, add up each total value TODO: We could also determine the value percentages of each asset in here.
+            //  Iterate through all vaults of the investment_pool.
+            for (asset_address, asset_vault) in self.pool_vaults.iter(){
+                // Determine price and token-amount for each asset in the investment pool and add it up.
+                total_value += self.get_asset_price(*asset_address) * asset_vault.amount();
+            }
+
+            assert!(
+                total_value > Decimal::ZERO,
+                "This pool hasn't been funded yet. Total asset value is ZERO."
+            );
+
+            // 3. Finally, determine token (NAV) price via dividing the total market_cap by the amount of existing tokens.
+            ((total_value / self.pool_token_amount()), total_value)
+        }
+
+        /// Determines and returns the present market cap of the investment_pool based on its NAV.
+        pub fn get_market_cap(&self) -> Decimal{
+            let (_, marketcap) = self.pool_token_price_marketcap();
+            marketcap
+        }
+
+        /// Method that mints the given amount of pool tokens.
+        fn mint_pool_tokens(&self, amnt_tokens_to_mint: Decimal) -> Bucket{
+            assert!(amnt_tokens_to_mint > Decimal::ZERO, "The given amount of tokens to mint is <= ZERO.");
+
+            let pool_tokens_manager: &ResourceManager = borrow_resource_manager!(self.pool_token_address);
+            self.pool_token_mint_badge
+                .authorize(|| pool_tokens_manager.mint(amnt_tokens_to_mint)) // Returns bucket with new pool tokens.
+        }
+
+        /// Method that deposits assets to the pool.
+        fn deposit_to_pool(&mut self, bucket: Bucket){
+
+            // Assert whether bucket is empty.
+            assert!(!bucket.is_empty(), "Bucket is empty.");
+
+            // // 1. Check whether the asset is already in the pool.
+            // if self.pool_vaults.contains_key(&bucket.resource_address()){
+            //  // 2. If yes, add to the vault
+            // self.pool_vaults.get_mut(&bucket.resource_address()).unwrap().put(bucket);
+            // }else {
+            //     // 3. If no, add new vault with the provided asset.
+            //     self.pool_vaults.insert(bucket.resource_address(), Vault::with_bucket(bucket));
+            // }
+
+             // 1. Check whether the asset is already in the pool.
+            match self.pool_vaults.get_mut(&bucket.resource_address()){
+                    // 2. If yes, add to the vault
+                    Some(asset_vault) => {
+                        asset_vault.put(bucket);
+                        info!("Added the given asset to the existing vault in the investment pool.");
+                    },
+                    // 3. If no, add new vault with the provided asset.
+                    None => {
+                        self.pool_vaults.insert(bucket.resource_address(), Vault::with_bucket(bucket));
+                        info!("Opened a new vault in the investment pool for the given asset.");
+                    }
+                }
+        }
     }
 }
