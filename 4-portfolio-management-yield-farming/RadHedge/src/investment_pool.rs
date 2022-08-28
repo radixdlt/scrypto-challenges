@@ -3,6 +3,7 @@ use radex::radex::*;
 use scrypto::prelude::*;
 
 const TOKEN_START_PRICE: Decimal = Decimal(10); // [USD Stablecoin]
+const MAX_PERFORMANCE_FEE: Decimal = Decimal(20); // [%]
 
 blueprint! {
     struct InvestmentPool {
@@ -13,14 +14,15 @@ blueprint! {
         /// Badge that provides authorization to the investment_pool component to mint pool tokens
         pool_token_mint_badge: Vault,
         /// Badge that represents the rights of the fund manager
-        pool_manager_badge_address: ResourceAddress, // TODO: Think about MultiAdmin/MultiManager scheme
-        /// Integer
+        pool_manager_badge_address: ResourceAddress,
         /// Decimal value, that holds the performance fee.
         performance_fee: Decimal,
         /// Vault for minted tokens due to performance fees. Can only be emptied by the fond manager.
         performance_fee_vault: Vault,
+        // Holds the value of the previous high water mark of the pool token token price.
+        high_water_mark: Decimal,
         /// Stores the address of the price-oracle used for this InvestmentPool
-        oracle: PriceOracle, // TODO: Option: Implement this via harcode --> In real life this would already exist.
+        oracle: PriceOracle,
         /// Stores the address of the decentralized exchange (DEX) thats being used for this pool.
         dex: RaDEX,
         /// Address of the base currency used in this pool.
@@ -98,7 +100,7 @@ blueprint! {
                     rule!(require(pool_manager_badge.resource_address())),
                 )
                 .method(
-                    "swap_x_y",
+                    "trade_assets",
                     rule!(require(pool_manager_badge.resource_address())),
                 )
                 .method(
@@ -115,6 +117,7 @@ blueprint! {
                 pool_manager_badge_address: pool_manager_badge.resource_address(),
                 performance_fee,
                 performance_fee_vault: Vault::new(pool_token_address),
+                high_water_mark: Decimal::ZERO,
                 oracle: oracle_address.into(),
                 dex: dex_address.into(),
                 base_currency,
@@ -123,7 +126,6 @@ blueprint! {
             .add_access_check(access_rules)
             .globalize();
 
-            // TODO After finishing Access rights and some other Todos in this compnent: Make initial commit to repo.
             (investment_pool, pool_manager_badge)
         }
 
@@ -156,14 +158,20 @@ blueprint! {
             self.mint_pool_tokens(tokens_to_mint)
         }
 
-        /// This method is used to collect all accrued performance fees and only callable by the pool manager.
+        /// Collect all accrued performance fees. Only callable by the pool manager.
         ///
         /// Performance fees are determined based on the principle of a high water mark.
         /// In this method it is checked whether any performance fees have accrued.
         /// If there are some they are withdrawn.
-        // pub fn collect_fee(&self) -> Bucket {
-        //     // Only for fund manager
-        // }
+        pub fn collect_fee(&mut self) -> Bucket {
+
+            // This is an event to mint all newly accrued performance fees.
+            let (present_token_price, _) = self.pool_token_price();
+            self.eval_accrued_fees(present_token_price);
+
+            // Take all accrued performance fees and give them to pool_manager.
+            self.performance_fee_vault.take_all()
+        }
 
         /// Perform asset swap - this is the main access point for the pool manager for trading pool assets
         ///
@@ -197,9 +205,27 @@ blueprint! {
             self.deposit_to_pool(bucket_to_deposit);
         }
 
-        // pub fn change_fee(&self) -> Bucket {
-        //     // Only for fund manager
-        // }
+        //// Changes the performance fee.
+        ///
+        /// At this version of the investment_pool the performance fee is changed instantly.
+        /// In the future this should only be done with an approximate period of 42 days.
+        ///
+        /// # Arguments:
+        ///
+        /// * `performance_fee` (Decimal) - \[%] New performance fee in percent.
+        pub fn change_fee(&mut self, performance_fee: Decimal) {
+
+            assert!(performance_fee >= Decimal::ZERO, "The given fee is < 0");
+            assert!(performance_fee <= MAX_PERFORMANCE_FEE, "The given fee is higher than the maximum allowed percentage.");
+
+            // This is an event to mint all newly accrued performance fees.
+            let (present_token_price, _) = self.pool_token_price();
+            self.eval_accrued_fees(present_token_price);
+
+            // Take all accrued performance fees and give them to pool_manager.
+            self.performance_fee = performance_fee;
+
+        }
 
         /// Main interface method to invest into this investment_pool.
         ///
@@ -214,7 +240,7 @@ blueprint! {
             assert_eq!(asset_to_invest.resource_address(), self.base_currency, "Only investments in the base currency are allowed."); // TODO Add Symbol of base currency in error message.
             assert!((asset_to_invest.amount() > Decimal::ZERO), "Bucket is empty.");
 
-            let market_cap: Decimal = self.market_cap();
+            let (present_token_price, market_cap) = self.pool_token_price();
 
             // Save the capital that shall be invested during this method call.
             let amount_asset_to_invest: Decimal = asset_to_invest.amount();
@@ -258,6 +284,9 @@ blueprint! {
                 self.deposit_to_pool(swapped_asset);
             }
 
+            // As this is a new investment this is an event to mint previously accrued performance fees.
+            self.eval_accrued_fees(present_token_price);
+
             // Return the original bucket in case there is anything left (e.g. due to rounding errors).
             pool_token_bucket
         }
@@ -272,7 +301,11 @@ blueprint! {
 
             // Determine percentage of tokens compared to total supply.
             let total_returned_pool_tokes: Decimal = pool_tokens.amount();
-            let share_of_supply: Decimal = total_returned_pool_tokes / self.amount_pool_token();
+            let share_of_supply: Decimal = total_returned_pool_tokes / self.pool_token_supply();
+
+            // As funds are withdrawn this is an event to mint previously accrued performance fees.
+            let (present_token_price, _) = self.pool_token_price();
+            self.eval_accrued_fees(present_token_price);
 
             // Vec that will hold the amount of tokens for each asset in the pool that need to be swapped.
             let mut amounts_to_swap_vec: Vec<(ResourceAddress, Decimal)> = Vec::new();
@@ -312,13 +345,6 @@ blueprint! {
             investment_to_return
            }
 
-        /// Returns the total supply of pool tokens.
-        pub fn amount_pool_token(&self) -> Decimal {
-            let pool_tokens_manager: &ResourceManager =
-                borrow_resource_manager!(self.pool_token_address);
-            pool_tokens_manager.total_supply()
-        }
-
         /// Determine the price in USD of the given token via the Oracle provided during instantiation.
         /// This only works if the token price is actually known by the oracle and otherwise aborts.
         pub fn get_asset_price(&self, asset: ResourceAddress) -> Decimal {
@@ -326,6 +352,13 @@ blueprint! {
                 Some(token_price) => token_price,
                 None => std::process::abort(),
             }
+        }
+
+        /// Returns the total supply of pool tokens.
+        pub fn pool_token_supply(&self) -> Decimal {
+            let pool_tokens_manager: &ResourceManager =
+                borrow_resource_manager!(self.pool_token_address);
+            pool_tokens_manager.total_supply()
         }
 
         /// Determines the present price of the pool token based on its net asset value (NAV) using the underlying price oracle.
@@ -336,10 +369,11 @@ blueprint! {
         ///
         /// `Decimal` - The price of the pool tracking token based on its NAV.
         /// `Decimal` - Total value of all assets in the investment pool.
+        ///
         pub fn pool_token_price(&self) -> (Decimal, Decimal) {
             // Assert that there are existing pool tokens.
             assert!(
-                (self.amount_pool_token() > Decimal::ZERO),
+                (self.pool_token_supply() > Decimal::ZERO),
                 "This pool hasn't been funded yet.´There are no pool tokens representing any value."
             );
 
@@ -358,7 +392,7 @@ blueprint! {
             );
 
             // 3. Finally, determine token (NAV) price via dividing the total market_cap by the amount of existing tokens.
-            ((total_value / self.amount_pool_token()), total_value)
+            ((total_value / self.pool_token_supply()), total_value)
         }
 
         /// Determines and returns the present market cap of the investment_pool based on its NAV.
@@ -381,12 +415,42 @@ blueprint! {
             let provided_value = self.get_asset_price(bucket.resource_address()) * bucket.amount();
 
             // Determine the tokens to be minted.
-            if self.amount_pool_token() == Decimal::ZERO {
+            if self.pool_token_supply() == Decimal::ZERO {
                 // This is the first time this pool is funded with anything! Mint first tokens with a base NAV (net asset value) of TOKEN_START_PRICE
                 provided_value / TOKEN_START_PRICE
             } else {
                 // The pool already has some funds. Determine tokens_to_mint.
-                (provided_value / market_cap) * self.amount_pool_token()
+                (provided_value / market_cap) * self.pool_token_supply()
+            }
+        }
+
+        /// Evaluates whether there are newly accrued performance fees and puts them in their vault.
+        ///
+        /// The accrued performance fees are determined based on the principle of the "high-water-mark".
+        /// According to this concept new performance fees only accrue if the previous all-time-high is surpassed on the upside.
+        fn eval_accrued_fees(&mut self, present_token_price: Decimal) {
+
+            // Only perform this algorithm if there is an actual token supply.
+            if self.pool_token_supply().is_positive(){
+
+                // Check if this the first time a high_water_mark is saved.
+                if self.high_water_mark.is_zero() { self.high_water_mark = present_token_price }
+
+                // Determine whether there are newly accrued fees.
+                // New fees only accrue if the previous high-water-mark is topped by present price.
+                if present_token_price > self.high_water_mark {
+
+                    let diff_to_ath = present_token_price - self.high_water_mark;
+                    let accrued_fees = (diff_to_ath / present_token_price) * (self.performance_fee/dec!(100)) * self.pool_token_supply();
+
+                    // Mint the pool tokens to cover the accrued fees and put them into their vault.
+                    self.performance_fee_vault.put(self.mint_pool_tokens(accrued_fees));
+
+                    // Update the high-water-mark: Save the present token price (but accounted for the token inflation due to minting).
+                    self.high_water_mark = present_token_price * (Decimal::ONE - (self.performance_fee/dec!(100)));
+                }
+            } else { // This investment_pool is empty --> Reset the high_water_mark.
+                self.high_water_mark = Decimal::ZERO;
             }
         }
 
