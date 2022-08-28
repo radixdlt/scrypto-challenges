@@ -1,0 +1,18 @@
+#
+# runs the lottery and pays out the winnings
+#
+
+# Run the lottery and select a winner
+CALL_METHOD ComponentAddress("${juice_comp}") "run_lottery";
+
+# get the XRD out of the lottery pot with the user ID as proof
+CALL_METHOD ComponentAddress("${juice_comp}") "withdraw_lottery" ResourceAddress("${user_id}");
+
+# take the xrd bucket from the worktop 
+TAKE_FROM_WORKTOP ResourceAddress("${xrd}") Bucket("xrd_bucket");
+
+# and give it to the winner
+CALL_METHOD ComponentAddress("${yields_comp}") "set_deposit" Bucket("xrd_bucket");
+
+# clean up the worktop
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";
