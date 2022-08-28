@@ -143,19 +143,8 @@ blueprint! {
                 "Can not fund this pool from an empty bucket"
             );
 
-            // TODO: Think about how to optimize this code.
-            // Determine present marketcap of the pool.
-            let pool_market_cap = self.get_market_cap();
-            // Determine marketcap of the provided asset.
-            let provided_value = self.get_asset_price(funds.resource_address()) * funds.amount();
-
-            // Determine the tokens to be minted. TODO Check first if the pool was empty or marketcap == 0 before! Aktuell: Division by zero!
-            let tokens_to_mint: Decimal = if self.amount_pool_token() == Decimal::ZERO {
-                // This is the first time this pool is funded with anything! Mint first tokens with a base NAV (net asset value) of TOKEN_START_PRICE
-                provided_value / TOKEN_START_PRICE
-            } else {
-                (provided_value / pool_market_cap) * self.amount_pool_token()
-            };
+            // Determine the tokens to be minted.
+            let tokens_to_mint: Decimal = self.calculate_pool_tokens_to_mint(&funds, self.market_cap());
 
             // Add funds to the pool.
             self.deposit_to_pool(funds);
@@ -187,13 +176,141 @@ blueprint! {
             asset_to_buy: ResourceAddress
         ) {
             // All necessary assertions are made within the swap method.
+
+            // Check whether the asset_to_sell exists in the pool and whether the quantity is sufficient.
+            // TODO assert whether the asset_to_sell and assets_to_buy actually exist.
+            assert!((amount_to_sell > Decimal::ZERO), "The given amount_to_sell is <= zero. This transaction can't be processed.");
+            assert!(self.pool_vaults.contains_key(&asset_to_sell), "The asset_to_sell doesn't exist in this pool.");
+            assert!((self.pool_vaults[&asset_to_sell].amount() >= amount_to_sell), "The asset_to_sell doesn't exist in a sufficient quantity.");
+            // Check whether there is a liquidity pool on the dex for our token pair.
+            assert!(self.dex.pool_exists(asset_to_sell, asset_to_buy), "No liquidity pool exists for the given address pair.");
+
+            // Take the asset_to_sell out of its vault and swap it on the DEX against the asset_to_buy
+            // unwrap() can be used here, because it was already checked whether the key exists in the hashmap.
+            let vault: &mut Vault = self.pool_vaults.get_mut(&asset_to_sell).unwrap();
+            let bucket_to_sell: Bucket = vault.take(amount_to_sell);
+
             // Swap all assets.
-            self.swap_assets(asset_to_sell, amount_to_sell, asset_to_buy);
+            let bucket_to_deposit: Bucket = self.swap_assets(bucket_to_sell, asset_to_buy);
+
+            // Deposit the swapped asset to the pool.
+            self.deposit_to_pool(bucket_to_deposit);
         }
 
         // pub fn change_fee(&self) -> Bucket {
         //     // Only for fund manager
         // }
+
+        /// Main interface method to invest into this investment_pool.
+        ///
+        /// Investments can only be done in the initially specified base currency (for now).
+        /// Indirect costs of slippage are accounted to the investor, not the pool.
+        /// This means that the amount of pool_tracking tokens that get returned is computed
+        /// AFTER the swap on the DEX was done.
+        pub fn invest(&mut self, mut asset_to_invest: Bucket)  -> Bucket {
+            // TODO Implement a value checker and a general "minimum investment" --> Reduce inefficiencies compared to gas costs.
+            // TODO Or directly implement a certain "value percentage" that needs to be crossed before the assets actually get traded e.g. 1%
+
+            assert_eq!(asset_to_invest.resource_address(), self.base_currency, "Only investments in the base currency are allowed."); // TODO Add Symbol of base currency in error message.
+            assert!((asset_to_invest.amount() > Decimal::ZERO), "Bucket is empty.");
+
+            let market_cap: Decimal = self.market_cap();
+
+            // Save the capital that shall be invested during this method call.
+            let amount_asset_to_invest: Decimal = asset_to_invest.amount();
+
+            // Bucket that will get filled with pool tracking tokens during this method call.
+            let mut pool_token_bucket: Bucket = Bucket::new(self.pool_token_address);
+
+            // Vec that will hold the percentage value of each asset in the pool based on total value.
+            let mut percentages_vec: Vec<(ResourceAddress, Decimal)> = Vec::new();
+
+            // Perform the whole investment process via swapping the provided base currency to the target assets in the right percentage.
+            // TODO also handle the case that there are no investments yet --> Just deposit funds.
+            for (asset_address, asset_vault) in self.pool_vaults.iter() {
+
+                // Determine the percentage of total value that each asset in the pool holds.
+                let value_percentage: Decimal = (asset_vault.amount() * self.get_asset_price(*asset_address)) / market_cap;
+                percentages_vec.push((*asset_address, value_percentage));
+            }
+
+            // The two for loops needed to be separated as otherwise rusts ownership concept couldn't be satisfied
+            // in a straight forward way (cause the iterator over self.pool_vaults would either be mutable or not
+            // --> method calls using (im)mutable self would'nt work.
+            for (asset_address, value_percentage) in percentages_vec.iter(){
+                let partial_assets: Decimal = *value_percentage * amount_asset_to_invest;
+
+                // Make sure that no swaps happen for assets that are the base currency (no swaps necessary).
+                let swapped_asset: Bucket = if *asset_address == self.base_currency {
+                    asset_to_invest.take(partial_assets)
+                } else {
+                    // Take the partial investment and swap it.
+                    self.swap_assets(asset_to_invest.take(partial_assets), *asset_address)
+                };
+
+                // Determine amount of pool tokens to be minted.
+                let tokens_to_mint: Decimal = self.calculate_pool_tokens_to_mint(&swapped_asset, market_cap);
+
+                // Mint pool tokens and add to pool token bucket.
+                pool_token_bucket.put(self.mint_pool_tokens(tokens_to_mint));
+
+                // Add all assets to their vault in the investment_pool.
+                self.deposit_to_pool(swapped_asset);
+            }
+
+            // Return the original bucket in case there is anything left (e.g. due to rounding errors).
+            pool_token_bucket
+        }
+
+        /// Main interface method to withdraw investments
+        ///
+        /// Withdrawing is always done in the initially specified base currency (for now).
+        pub fn divest(&mut self, pool_tokens: Bucket) -> Bucket {
+
+            assert_eq!(pool_tokens.resource_address(), self.pool_token_address, "Please provide tracking tokens of this pool for divestments.");
+            assert!((pool_tokens.amount() > Decimal::ZERO), "Bucket is empty.");
+
+            // Determine percentage of tokens compared to total supply.
+            let total_returned_pool_tokes: Decimal = pool_tokens.amount();
+            let share_of_supply: Decimal = total_returned_pool_tokes / self.amount_pool_token();
+
+            // Vec that will hold the amount of tokens for each asset in the pool that need to be swapped.
+            let mut amounts_to_swap_vec: Vec<(ResourceAddress, Decimal)> = Vec::new();
+
+            // Bucket that will hold the returned investment in the base currency.
+            let mut investment_to_return: Bucket = Bucket::new(self.base_currency);
+
+            for (asset_address, asset_vault) in self.pool_vaults.iter() {
+                // Save percentage of each asset and swap it back into the base currency.
+                let amount_to_swap = asset_vault.amount() * share_of_supply;
+                amounts_to_swap_vec.push((*asset_address, amount_to_swap));
+
+            }
+
+            // The two for loops needed to be separated as otherwise rusts ownership concept couldn't be satisfied
+            // in a straight forward way (cause the iterator over self.pool_vaults would either be mutable or not
+            // --> method calls using (im)mutable self would'nt work.
+            for (asset_address, amount_to_swap) in amounts_to_swap_vec.iter(){
+
+                // Withdraw from the vault in the investment_pool.
+                let assets_to_swap: Bucket = self.withdraw_from_pool(asset_address, *amount_to_swap);
+
+                // Swap the given amount to the base currency. Check before whether it is already the base currency.
+                let swapped_asset: Bucket = if *asset_address == self.base_currency {
+                    assets_to_swap
+                } else {
+                    self.swap_assets(assets_to_swap, self.base_currency)
+                };
+
+                // Add to return_bucket.
+                investment_to_return.put(swapped_asset);
+            }
+
+            // Burn all given pool tokens.
+            self.burn_pool_tokens(pool_tokens);
+
+            investment_to_return
+           }
 
         /// Returns the total supply of pool tokens.
         pub fn amount_pool_token(&self) -> Decimal {
@@ -204,8 +321,8 @@ blueprint! {
 
         /// Determine the price in USD of the given token via the Oracle provided during instantiation.
         /// This only works if the token price is actually known by the oracle and otherwise aborts.
-        pub fn get_asset_price(&self, token: ResourceAddress) -> Decimal {
-            match self.oracle.get_price(self.base_currency, token) {
+        pub fn get_asset_price(&self, asset: ResourceAddress) -> Decimal {
+            match self.oracle.get_price(self.base_currency, asset) {
                 Some(token_price) => token_price,
                 None => std::process::abort(),
             }
@@ -219,11 +336,11 @@ blueprint! {
         ///
         /// `Decimal` - The price of the pool tracking token based on its NAV.
         /// `Decimal` - Total value of all assets in the investment pool.
-        pub fn pool_token_price_marketcap(&self) -> (Decimal, Decimal) {
+        pub fn pool_token_price(&self) -> (Decimal, Decimal) {
             // Assert that there are existing pool tokens.
             assert!(
                 (self.amount_pool_token() > Decimal::ZERO),
-                "This pool hasn't been funded yet. There are no pool tokens representing any value."
+                "This pool hasn't been funded yet.´There are no pool tokens representing any value."
             );
 
             let mut total_value: Decimal = Decimal::ZERO;
@@ -245,9 +362,32 @@ blueprint! {
         }
 
         /// Determines and returns the present market cap of the investment_pool based on its NAV.
-        pub fn get_market_cap(&self) -> Decimal {
-            let (_, marketcap) = self.pool_token_price_marketcap();
+        pub fn market_cap(&self) -> Decimal {
+            let (_, marketcap) = self.pool_token_price();
             marketcap
+        }
+
+        /// Calculate the amount of pool tracking tokens that should be minted based on the provided value.
+        /// # Arguments:
+        ///
+        /// * `bucket` (&Bucket) - Bucket that holds the assets for which an equal amount of pool tokens shall be minted.
+        /// * `market_cap` (Decimal) - Total market cap of all invested assets of this investment_pool. This is provided as input to reduce overall computational footprint.
+        ///
+        /// # Returns:
+        ///
+        /// * `Decimal` - Amount of pool tokens that should be minted based on the provided value.
+        fn calculate_pool_tokens_to_mint(&self, bucket: &Bucket, market_cap: Decimal) -> Decimal {
+            // Determine marketcap of the provided asset.
+            let provided_value = self.get_asset_price(bucket.resource_address()) * bucket.amount();
+
+            // Determine the tokens to be minted.
+            if self.amount_pool_token() == Decimal::ZERO {
+                // This is the first time this pool is funded with anything! Mint first tokens with a base NAV (net asset value) of TOKEN_START_PRICE
+                provided_value / TOKEN_START_PRICE
+            } else {
+                // The pool already has some funds. Determine tokens_to_mint.
+                (provided_value / market_cap) * self.amount_pool_token()
+            }
         }
 
         /// Method that mints the given amount of pool tokens.
@@ -263,19 +403,23 @@ blueprint! {
                 .authorize(|| pool_tokens_manager.mint(amnt_tokens_to_mint)) // Returns bucket with new pool tokens.
         }
 
+        /// Method that burns the given amount of pool tokens.
+        fn burn_pool_tokens(&self, tokens_to_burn: Bucket) {
+            assert!(
+                tokens_to_burn.amount() > Decimal::ZERO,
+                "The amount of given tokens to burn is <= ZERO."
+            );
+
+            let pool_tokens_manager: &ResourceManager =
+                borrow_resource_manager!(self.pool_token_address);
+            self.pool_token_mint_badge
+                .authorize(|| pool_tokens_manager.burn(tokens_to_burn)) // Returns bucket with new pool tokens.
+        }
+
         /// Method that deposits assets to the pool.
         fn deposit_to_pool(&mut self, bucket: Bucket) {
             // Assert whether bucket is empty.
             assert!(!bucket.is_empty(), "Bucket is empty.");
-
-            // // 1. Check whether the asset is already in the pool.
-            // if self.pool_vaults.contains_key(&bucket.resource_address()){
-            //  // 2. If yes, add to the vault
-            // self.pool_vaults.get_mut(&bucket.resource_address()).unwrap().put(bucket);
-            // }else {
-            //     // 3. If no, add new vault with the provided asset.
-            //     self.pool_vaults.insert(bucket.resource_address(), Vault::with_bucket(bucket));
-            // }
 
             // 1. Check whether the asset is already in the pool.
             match self.pool_vaults.get_mut(&bucket.resource_address()) {
@@ -293,33 +437,37 @@ blueprint! {
             }
         }
 
+        /// Method that withdraws assets from the pool.
+        fn withdraw_from_pool(&mut self, address: &ResourceAddress, amount: Decimal) -> Bucket{
+
+            assert!(self.pool_vaults.contains_key(address), "The asset_to_sell doesn't exist in this pool.");
+            assert!(amount.is_positive(), "Given amount is <= ZERO.");
+            assert!(self.pool_vaults[address].amount() > amount, "The balance of this vault is too low for the given amount.");
+
+            // Withdraw asset from vault and put it into the bucket.
+            let vault: &mut Vault = self.pool_vaults.get_mut(address).unwrap();
+            let bucket: Bucket = vault.take(amount);
+
+            info!("Withdraw the given asset from the invest_pool.");
+
+            if vault.is_empty() {
+                self.pool_vaults.remove(address);
+                info!("The vault was empty after withdrawal --> It was removed from the investment_pool.")
+            }
+
+            bucket
+        }
+
         /// This method handles all asset swaps that are performed within the investment_pool component.
         ///
-        /// This method only completes successfully if the asset_to_sell exists in its amount_to_sell in this pool.
         /// Note: at the present version, there is no optimization for slippage. Assets are just swapped "blindly" on the DEX.
         fn swap_assets(
-            &mut self,
-            asset_to_sell: ResourceAddress,
-            amount_to_sell: Decimal,
+            &self,
+            bucket_to_sell: Bucket,
             asset_to_buy: ResourceAddress,
-        ){
-            // Check whether the asset_to_sell exists in the pool and whether the quantity is sufficient.
-            // TODO assert whether the asset_to_sell and assets_to_buy actually exist.
-            assert!((amount_to_sell > Decimal::ZERO), "The given amount_to_sell is <= zero. This transaction can't be processed.");
-            assert!(self.pool_vaults.contains_key(&asset_to_sell), "The asset_to_sell doesn't exist in this pool.");
-            assert!((self.pool_vaults[&asset_to_sell].amount() >= amount_to_sell), "The asset_to_sell doesn't exist in a sufficient quantity.");
-            // Check whether there is a liquidity pool on the dex for our token pair.
-            assert!(self.dex.pool_exists(asset_to_sell, asset_to_buy), "No liquidity pool exists for the given address pair.");
-
-            // Take the asset_to_sell out of its vault and swap it on the DEX against the asset_to_buy
-            // unwrap() can be used here, because it was already checked whether the key exists in the hashmap.
-            let vault_to_sell: &mut Vault = self.pool_vaults.get_mut(&asset_to_sell).unwrap();
-            let bucket_to_deposit: Bucket = self.dex.swap(vault_to_sell.take(amount_to_sell), asset_to_buy);
-
-            // Deposit the swapped asset to the pool.
-            self.deposit_to_pool(bucket_to_deposit);
-
-            // TODO Add an "info!"" here which resources where swapped successfully.
+        ) -> Bucket {
+            assert!(bucket_to_sell.amount() > Decimal::ZERO, "Bucket is empty. Nothing to swap.");
+            self.dex.swap(bucket_to_sell, asset_to_buy)
         }
     }
 }
