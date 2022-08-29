@@ -130,39 +130,31 @@ blueprint!{
             borrowing_nft_resource_def: ResourceAddress,
             loan_tokens_resource_def: ResourceAddress) -> ComponentAddress {
 
-            // let rules = AccessRules::new()
-            // .method("issue_new_credit_sbt", rule!(require(admin_badge)))
-            // .method("review_installment_credit_request", rule!(require(admin_badge)))
-            // .method("list_protocol", rule!(require(admin_badge)))
-            // .method("delist_protocol", rule!(require(admin_badge)))
-            // .method("blacklist", rule!(require(admin_badge)))
-            // .method("whitelist", rule!(require(admin_badge)))
-            // .method("change_credit_scoring_rate", rule!(require(admin_badge)))
-            // .default(rule!(allow_all));
-
-            let user_mint_badge = ResourceBuilder::new_fungible()
+            let admin_badge = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Admin Badge")
                 .initial_supply(1);
 
             // let rules = AccessRules::new()
-            //     .method("sell", rule!(require(user_mint_badge.resource_address())))
+            //     .method("sell", rule!(require(admin_badge.resource_address())))
+            //     .method("close_all_positions", rule!(require(admin_badge.resource_address())))        
+            //     .method("reset_positions", rule!(require(admin_badge.resource_address())))          
             //     .default(rule!(allow_all));                          
 
             let user_account_trading_history_nft = ResourceBuilder::new_non_fungible()
                 .metadata("name", "User Account Trading History")
-                .mintable(rule!(require(user_mint_badge.resource_address())), LOCKED)
-                .burnable(rule!(require(user_mint_badge.resource_address())), LOCKED)
-                .updateable_non_fungible_data(rule!(require(user_mint_badge.resource_address())), LOCKED)
+                .mintable(rule!(require(admin_badge.resource_address())), LOCKED)
+                .burnable(rule!(require(admin_badge.resource_address())), LOCKED)
+                .updateable_non_fungible_data(rule!(require(admin_badge.resource_address())), LOCKED)
                 .no_initial_supply();
 
             // Create the non fungible resource that will represent the lendings
             let user_account_funding_nft: ResourceAddress = ResourceBuilder::new_non_fungible()
                 .metadata("name", "User Account Funding Data NFTs")
-                .mintable(rule!(require(user_mint_badge.resource_address())), LOCKED)
-                .burnable(rule!(require(user_mint_badge.resource_address())), LOCKED)
-                .updateable_non_fungible_data(rule!(require(user_mint_badge.resource_address())), LOCKED)
-                .restrict_withdraw(rule!(deny_all), MUTABLE(rule!(require(user_mint_badge.resource_address()))))
+                .mintable(rule!(require(admin_badge.resource_address())), LOCKED)
+                .burnable(rule!(require(admin_badge.resource_address())), LOCKED)
+                .updateable_non_fungible_data(rule!(require(admin_badge.resource_address())), LOCKED)
+                .restrict_withdraw(rule!(deny_all), MUTABLE(rule!(require(admin_badge.resource_address()))))
                 .no_initial_supply();                 
 
             return Self {
@@ -173,7 +165,7 @@ blueprint!{
                 lending_app: lending_app,
                 trading_app: trading_app,
                 user_account_trading_nft_resource_def: user_account_trading_history_nft,
-                user_account_nft_admin_badge: Vault::with_bucket(user_mint_badge),
+                user_account_nft_admin_badge: Vault::with_bucket(admin_badge),
                 positions: Vec::new(),
                 lending_nft_vault: Vault::new(lending_nft_resource_def),
                 user_account_funding_nft_resource_def: user_account_funding_nft,
@@ -222,6 +214,14 @@ blueprint!{
         pub fn fund_portfolio(&mut self, starting_tokens: Bucket, user_account_funding_nft: Proof)  {
             info!("=== FUND PORTFOLIO OPERATION START === ");
             let how_many: Decimal = starting_tokens.amount();
+
+            // Get the data associated with the User Account Trading History NFT and update the variable values
+            let non_fungible: NonFungible<UserAccountFundingData> = user_account_funding_nft.non_fungible();
+            let mut portfolio_nft_data = non_fungible.data();  
+            assert!(portfolio_nft_data.in_progress==false, "You have already funded the portfolio! If you want fund more please withdraw first and then fund again!");      
+            // let diff = dec!("100000")-self.main_pool.amount();
+            // assert!(self.main_pool.amount()+how_many<=dec!("100000"), "Maximum amount fundable in the portfolio is 100.000! Max you can fund is {}" , diff);      
+
             //put in the main vault
             self.main_pool.put(starting_tokens);
             let total_amount: Decimal = self.main_pool.amount();
@@ -229,13 +229,7 @@ blueprint!{
             let funded_ratio = how_many * dec!("100") / total_amount;
             let epoch_funded: u64 = Runtime::current_epoch();
             //update the total funded in the portfolio
-            self.amount_funded = self.amount_funded  + how_many;
-
-
-            // Get the data associated with the User Account Trading History NFT and update the variable values
-            let non_fungible: NonFungible<UserAccountFundingData> = user_account_funding_nft.non_fungible();
-            let mut portfolio_nft_data = non_fungible.data();  
-            assert!(portfolio_nft_data.in_progress==false, "You have already funded the portfolio! If you want fund more please withdraw first and then fund again!");      
+            self.amount_funded += how_many;
 
             //update the nft data 
             portfolio_nft_data.in_progress = true;
@@ -254,27 +248,28 @@ blueprint!{
         pub fn withdraw_portfolio(&mut self, user_account_funding_nft: Proof) -> Bucket {
             info!("=== WITHDRAW PORTFOLIO OPERATION START === ");
 
-            //TODO asser that a funding is in progress, otherwise stop the withdraw
-
             // Get the data associated with the User Account Funding History NFT and update the variable values
             let non_fungible: NonFungible<UserAccountFundingData> = user_account_funding_nft.non_fungible();
-            let mut portfolio_nft_data = non_fungible.data();                
+            let mut portfolio_nft_data = non_fungible.data();
+            //assert that a funding is in progress, otherwise stop the withdraw                
+            assert!(portfolio_nft_data.in_progress==true, "You have nothing to withdraw!!");      
             
             let starting_epoch: u64 = portfolio_nft_data.epoch_funded;
             let actual_epoch: u64 = Runtime::current_epoch();
-            //get total to calculate if the portfolio value has risen in value or not
+            //get the total to calculate if the portfolio value has risen in value or not
+            //total amount at the time of funding
             let total_amount_at_the_time_of_funding: Decimal = portfolio_nft_data.total_amount;
+            //current total amount
             let total_amount_at_the_time_of_withdraw: Decimal = self.main_pool.amount();
 
             //update the total funded in the portfolio
             info!(" Amount of funded tokens in the portfolio {} " , self.amount_funded);  
             info!(" Amount of yours funded tokens in the portfolio {} " , portfolio_nft_data.xrd_tokens);  
-            //total current portfolio value at now 
-            let portfolio_tokens_value: Decimal = self.portfolio_value();
-            let total = portfolio_tokens_value+total_amount_at_the_time_of_withdraw;
+            //total portfolio value at now 
+            let total = self.portfolio_total_value();
             info!(" Portfolio amount at time of funding {} and actual {} " , total_amount_at_the_time_of_funding, total);  
             // The ratio of increment/decrease of the main pool.
-            let diff_ratio: Decimal = ((total / self.amount_funded) * dec!("100") )-dec!(100);
+            let diff_ratio: Decimal = ((total / total_amount_at_the_time_of_funding) * dec!("100") )-dec!(100);
             info!(" Portfolio increase/decrease ratio  {} " , diff_ratio);  
 
             //the amount of tokens to be returned to the user account with increase or decrease
@@ -285,7 +280,7 @@ blueprint!{
             let to_be_returned: Bucket = self.main_pool.take(diff_tokens);
 
             //update the total funded in the portfolio
-            self.amount_funded = self.amount_funded - total_amount_at_the_time_of_funding;
+            self.amount_funded -= total_amount_at_the_time_of_funding;
             info!(" Updated Amount of funded tokens  {} " , self.amount_funded);  
 
             // // Update the data on that NFT globally
@@ -348,7 +343,7 @@ blueprint!{
                 current_standing: None,
                 number_of_request_for_autoclosing: None,
             };     
-
+            //add a position to the list
             self.positions.push(trade1);
                 
         }
@@ -368,22 +363,37 @@ blueprint!{
             } 
         }
 
+        // Reset the a position, needs a badge 
+        pub fn reset_positions(&mut self)  {
+            info!("Position size {}", self.positions.len());
+            //replace the Vec with the new one 
+            self.positions = Vec::new();
+            // info!("No open positions now {}", self.positions.len());
+        }
+
         // Calculate the value of the other vault (getting the token current price from the tradingapp component)
         pub fn portfolio_value(&self) -> Decimal {
             info!("Position size inside portfolio {}", self.positions.len());
             let trading_app: TradingApp = self.trading_app.into();
             
-            let total: Decimal = self.token1_pool.amount()*(trading_app.current_price(RADIX_TOKEN,self.token1_pool.resource_address()));
-            info!("Added value from token1 vault {:?}", total);
+            let total1: Decimal = self.token1_pool.amount()*(trading_app.current_price(RADIX_TOKEN,self.token1_pool.resource_address()));
+            let total2: Decimal = self.token2_pool.amount()*(trading_app.current_price(RADIX_TOKEN,self.token2_pool.resource_address()));
+            let total3: Decimal = self.token3_pool.amount()*(trading_app.current_price(RADIX_TOKEN,self.token3_pool.resource_address()));                        
+            info!("{:?} tokens are valued xrd {:?}", self.token1_pool.amount(), total1);
+            info!("{:?} tokens are valued xrd {:?}", self.token2_pool.amount(), total2);
+            info!("{:?} tokens are valued xrd {:?}", self.token3_pool.amount(), total3);
 
-            total
+            total1+total2+total3
         }
 
         // Calculate the total value of the portfolio (main vault + other vault + lnd vault)
         pub fn portfolio_total_value(&self) -> Decimal {
+            //trading vault are calculated at current price
             let mut total: Decimal = self.portfolio_value();
+            //total liquidity
             let totalxrd: Decimal = self.main_pool.amount();
             info!("Value in main vault {:?}", totalxrd);
+            //total xrd in lending pool
             let totallnd: Decimal = self.lnd_vault.amount();
             info!("Value in lnd vault {:?}", totallnd);            
             total = total + totalxrd + totallnd;
@@ -426,12 +436,24 @@ blueprint!{
             let mut amount_to_sell: Decimal = Decimal::zero();
             let mut token_to_sell: ResourceAddress = RADIX_TOKEN;
             let mut remaining_positions: Vec<OperationDetail> = Vec::new();
+            let trading_app: TradingApp = self.trading_app.into();
+
             for inner_position in &self.positions {     
                 info!("Position Id {}", inner_position.operation_id);    
 
                 if inner_position.operation_id==operation_id {
                     amount_to_sell = inner_position.num_token_b_received.clone();
                     token_to_sell = inner_position.token_b_address.clone();
+
+                    //let's check if the position is losing yet, otherwise we can close it
+                    let updated_value = trading_app.current_price(inner_position.token_a_address,inner_position.token_b_address);
+                    let net_result: Decimal = inner_position.xrd_tokens*Decimal::from(updated_value)/Decimal::from(inner_position.current_price)-inner_position.xrd_tokens;
+                    info!("Updated position net result {:?}", net_result);
+                    if net_result >= Decimal::ZERO {
+                        info!("The position is not anymore losing  , ID = {}", inner_position.operation_id);
+                        remaining_positions.push(inner_position.clone());
+                    };
+
                 } else {
                     remaining_positions.push(inner_position.clone());
                 }
@@ -441,9 +463,36 @@ blueprint!{
             self.positions = remaining_positions;
 
             info!("Position size after removing the closed position {}", self.positions.len());
-
+            //execute the sell operation using the trading component
             self.sell(amount_to_sell, token_to_sell);    
         }
+
+        // Close a position, method can be executed by anyone register with the portfolio by using the positionId 
+        pub fn close_all_positions(&mut self)  {
+            info!("Position size {}", self.positions.len());
+            let mut amount_to_sell: Decimal = Decimal::zero();
+            let mut token_to_sell: ResourceAddress = RADIX_TOKEN;
+            let mut remaining_positions: Vec<OperationDetail> = Vec::new();
+            for inner_position in &self.positions {     
+                info!("Position Id {} Amount {} Component address that started the operation {} "
+                    ,inner_position.operation_id
+                    ,inner_position.xrd_tokens
+                    ,inner_position.username);    
+                amount_to_sell = inner_position.num_token_b_received.clone();
+                token_to_sell = inner_position.token_b_address.clone()
+                // self.sell(amount_to_sell,token_to_sell);   
+            }    
+            //replace the Vec with the new one with the closed position is missing
+            // self.positions = Vec::new();
+            // info!("No open positions now {}", self.positions.len());
+        }
+
+        //not implemented
+        // pub fn refund_all(&mut self)  {
+        //     let address: ComponentAddress;
+        //     let component = borrow_component!(address);
+        //     component.call::<()>("deposit", args![refund])
+        // }   
 
         //Method using the LendingApp component
         //Here, the platform register itself to be able to lend tokens to the LendingApp component

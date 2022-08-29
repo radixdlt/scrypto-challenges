@@ -1,2 +1,2 @@
-CALL_METHOD ComponentAddress("02e66d3340f5e9c272ff2592e8e8e8b05376af3e35fd2e3f3ce30d") "register" ComponentAddress("02bf3aa95784d95a63dd6f8e3f0d06de6127e114cc275a13ae47b5");
-CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02bf3aa95784d95a63dd6f8e3f0d06de6127e114cc275a13ae47b5") "deposit_batch";
+CALL_METHOD ComponentAddress("025d180a419b7d526eba63c0b971b875885c0618fc219843685549") "register" ComponentAddress("0200098f161a7691fa7ae380e41aed27ab5c4f969e8e563ce4275a");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("0200098f161a7691fa7ae380e41aed27ab5c4f969e8e563ce4275a") "deposit_batch";

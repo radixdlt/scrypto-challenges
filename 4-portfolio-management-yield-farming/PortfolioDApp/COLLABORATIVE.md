@@ -54,25 +54,11 @@ And also some for closing orders/operations:
 - portfolio_value() -> Calculate the value of the other vaults (getting the token current price from the tradingapp component)
 - portfolio_total_value() -> Calculate the total value of the portfolio (main vault + other vaults + lnd vault)
 
-//TODO
-The following methods should update the main map containing the info about all the operations:
-- buy       -> should insert in the map the new operation with operation_id, amount, date_opened
-- sell      -> should update in the map the closed operation with date_closed
-- lend      -> should insert in the map the new operation with operation_id, amount, date_opened
-- take_back -> should update in the map the closed operation with date_closed
-- close_operation -> should find all the opening and close everything
-- close_someone_else_operation -> 
+The following methods are for the portfolio admin manager and are protected by access rules:
+- sell                  -> The admin can close any opened position 
+- close_all_positions   -> The admin can close all the opened position with a single request
+- reset_positions       -> The admin can reset the list of positions 
 
-//TODO
-The data about the operation contains the following:
-- operation_id: id created random
-- amount: size of the operation
-- date_opened: epoch when it has been opened
-- date_closed: epoch when it has been closed
-- current_standing: actual result (profitable/losing position)
-- number_of_request_for_autoclosing: number or request needed for the operation to be closed even if creator does not agree
-- [current_requestor_for_closing]: account requesting its closing
- 
 
 # Portfolio dApp 
 
@@ -80,7 +66,7 @@ Let's proceed with a demo of the blueprints, start publishing the package
 
 ```
 resim publish .
-export package=
+export package=017045972dc31c4425bde71adf087ddedbf7b10adf56ec71a6ce1b
 ```
 
 Then create the first account, name it Bob (the Admin)
@@ -91,8 +77,8 @@ A new account has been created!
 Account component address: 021025cfda90adea21506170be47c67ec169e41dbbdd063d54d409
 Public key: 0426599006343468593571484e418be9c40db4ffaf60ff9d98e6ccb13aec950ce2b70cd20e293909a6f1c380ab2cbad6c527c552c6aa7b7a664722df08fda26b8f
 Private key: d86e8112f3c4c4442126f8e9f44f16867da487f29052bf91b810457db34209a4
-export account=
-export priv1=
+export account=02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3
+export priv1=35be322d094f9d154a8aba4733b8497f180353bd7ae7b0a15f90b586b549f28b
 ```
 
 Then create the second account, name it John
@@ -103,8 +89,8 @@ A new account has been created!
 Account component address: 02d0da3fc806e20c508841efdcd412a53e50d1b80fb35ff1263214
 Public key: 042f3ce83809c2c67057ff9aba2a95127e729b5439993051cc168a2939f655c904e976cf6db5cc51106dcd83b4b24d75c5e4e6f07c948b2cbca6eaef82bdc81832
 Private key: f0a0278e4372459cca6159cd5e71cfee638302a7b9ca9b05c34181ac0a65ac5d
-export account2=
-export priv2=
+export priv2=f13ee6ed54ea2aae9fc49a9faeb5da6e8ddef0e12ed5d30d35a624ae813e0485
+export account2=02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364
 ```
 
 Then create the third account, name it Max
@@ -115,33 +101,36 @@ A new account has been created!
 Account component address: 02bf3aa95784d95a63dd6f8e3f0d06de6127e114cc275a13ae47b5
 Public key: 04c1b4e1a0f1290b46b1836c4c4a9e6c7c963eb9b71e91bc0c3b32a99f79081634aa9719b7f8e5019bb918ace34f29d2ed66449eaf1c43deb9993642add0417b5a
 Private key: 205df2fd636e9a2b6e81c3987fa3dcdd09d64c5c710dd61aaa50a97d222a3f74
-export account3=02bf3aa95784d95a63dd6f8e3f0d06de6127e114cc275a13ae47b5
-export priv3=205df2fd636e9a2b6e81c3987fa3dcdd09d64c5c710dd61aaa50a97d222a3f74
+export account3=0200098f161a7691fa7ae380e41aed27ab5c4f969e8e563ce4275a
+export priv3=aae89fc0f03e2959ae4d701a80cc3915918c950b159f6abb6c92c1433b1a8534
 ```
 
-Then create the tokens to be used in the trading dapp
+Set to the first account and then create the tokens to be used in the trading dapp
 
 ```
+resim set-default-account $account $priv1
 resim new-token-fixed --name bitcoin --symbol btc 10000
 resim new-token-fixed --name ethereum --symbol eth 1000
 resim new-token-fixed --name leonets --symbol leo 100
 export xrd=030000000000000000000000000000000000000000000000000004
-export leo=
-export eth=
-export btc=
+export leo=03b5c2df770cac9a330c3a535a7da82054d1ef1dba6f29302e2dee
+export eth=030d4d068757932f986bb98fb65166cd7e3c20b43e71cc775e687b
+export btc=039179c95de06571b3cec262e71854f9296f025f30d1688a3cae56
 ```
 
 Then create the TradingApp component, it needs the resource address of 4 tokens and later on it needs to have its vaults funded
 
 ```
 resim call-function $package TradingApp create_market $xrd $btc $eth $leo
-export trading=
+resim run transactions/create_market.rtm 
+export trading=0210e82c05fd5ea2c5413f8571a1f43df537a47b2d26613f36095e
 ```
 
 The TradingApp component has been created so now Bob needs to fund its vaults
 
 ```
-resim call-method $component fund_market 1000,$xrd 1000,$btc 1000,$eth 100,$leo
+resim call-method $trading fund_market 1000,$xrd 1000,$btc 1000,$eth 100,$leo
+resim run transactions/fund_market.rtm 
 ```
 
 This is the Bob's account after he has funded the TradingApp component
@@ -168,9 +157,12 @@ Then we can create another component to be used in the Portfolio App
 
 ```
 resim call-function $package LendingApp instantiate_pool 1000,$xrd 1000 10 7
-export lending='component address'
-export lend_nft='second resource address'
-export lnd='fourth resource address'
+resim run transactions/create_lending.rtm 
+export lending=02c887fe5316b2b9fcecfed965b308a67e207a5df67bbf17282f98
+export admin_badge=03d987113ce50a6077a4b4b5b9ef29e6798c20c79a1b1370d56893
+export lend_nft=0345a475f23e171428540acd6dfc2628229480614ddbb069cde5b0
+export borrow_nft=0393dfaf83eff4942e65ac1b587ed989bfe6ea2adc432e6b99f972
+export lnd=03629e07a727c9b17ed3b5984701ec846872bd09e6ba7d6aa3de85
 ```
 
 The LendingApp component output its address plus some resource address we will not use here, except for the lending_nft and the lnd token
@@ -200,31 +192,33 @@ Logs: 5
 Now we have created the two components we need for the main component, the PortfolioApp
 
 ```
-resim call-function $package Portfolio new $xrd $btc $eth $leo $lending $trading $lend_nft
+resim call-function $package Portfolio new $xrd $btc $eth $leo $lending $trading $lend_nft $borrow_nft $lnd
+resim run transactions/create_portfolio.rtm 
 ```
 
 The call-function outputs the address of the component/resources created
 ```
 New Entities: 4
-└─ Component: 02e66d3340f5e9c272ff2592e8e8e8b05376af3e35fd2e3f3ce30d
-├─ Resource: 03786df5a8851edaf8bf0ef318104b9c41f895c946fb080ca7c9dd
-├─ Resource: 03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9
-└─ Resource: 03cacd11c325cd75f7693ed8d99187f65ec303bdc1a0622cca283f
+└─ Component: 025d180a419b7d526eba63c0b971b875885c0618fc219843685549
+├─ Resource: 03cb755aaf8f17311a8fb00fafe507f7f27a87eff48e40aa1f3d9e
+├─ Resource: 03a3c7111213486713c0d5ad6ac43fc7cdbe5f6353df8247b8d94b
+└─ Resource: 032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b
 ```
 
 Let's export the variables we'll need later
 
 ```
-$ export portfolio=02e66d3340f5e9c272ff2592e8e8e8b05376af3e35fd2e3f3ce30d
-$ export ADMIN_BADGE=03786df5a8851edaf8bf0ef318104b9c41f895c946fb080ca7c9dd
-$ export user_account_history_nft=03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9
-$ export user_account_funding_nft=03cacd11c325cd75f7693ed8d99187f65ec303bdc1a0622cca283f
+$ export portfolio=025d180a419b7d526eba63c0b971b875885c0618fc219843685549
+$ export ADMIN_BADGE=03cb755aaf8f17311a8fb00fafe507f7f27a87eff48e40aa1f3d9e
+$ export user_account_history_nft=03a3c7111213486713c0d5ad6ac43fc7cdbe5f6353df8247b8d94b
+$ export user_account_funding_nft=032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b
 ```
 
 The following operation we need to execute is the register, we have two different types of registering, one for the user account to operate on the PortfolioApp and the others for the PortfolioApp itself with the LendingApp component
 
 ```
 resim call-method $portfolio register $account
+resim run transactions/register_with_portfolio.rtm
 ```
 
 After the user account has been registered itself with the PortfolioApp component we can see the NFT that has been added to its resource's list 
@@ -236,7 +230,8 @@ After the user account has been registered itself with the PortfolioApp componen
 Let's register with the component
 
 ```
-resim call-method $portfolio register_for_lending (resim run transactions/register_for_lending.rtm)
+resim call-method $portfolio register_for_lending 
+resim run transactions/register_for_lending.rtm
 ```
 
 Here we get the output log from the LendingApp component 
@@ -278,7 +273,8 @@ If we look at the resources in the PortfolioApp component we can see the new NFT
 Bob could operate directly with the TradingApp...
 
 ```
-resim call-method $trading buy 500,$xrd (resim call-method $trading buy 500,$xrd  --manifest transactions/buy_with_trading.rtm)
+resim call-method $trading buy_generic 500,$xrd $btc 
+resim run transactions/buy_with_trading_btc.rtm
 ```
 
 The current pair value of this operation for this demo is fixed and is xrd/btc = 40 so Bob gets 12.5 btc for its 500 xrd
@@ -325,7 +321,8 @@ Now Bob decides to sell
 
 
 ```
-resim call-method $trading sell 12.5,$btc  (resim call-method $trading sell 12.5,$btc   --manifest transactions/sell_with_trading.rtm)
+resim call-method $trading sell_generic 12.5,$btc  
+resim run transactions/sell_with_trading.rtm
 
 ├─ [INFO ] Current epoch 2 vs last epoch 2
 ├─ [INFO ] Current price of 030000000000000000000000000000000000000000000000000004/0396c203d001f1fa99fdf081dc2f30e7f3b921eb1b5c9cc9487630 is 36 
@@ -339,7 +336,8 @@ Now let's instead what could happen if Bob uses the PortfolioDapp
 In this example Bob, as all the other users, has to fund directly inside the PortfolioApp component before starting to operate
 
 ```
-resim call-method $portfolio fund_portfolio 10000,$xrd 1,$1,$user_account_funding_nft (resim call-method $portfolio fund_portfolio 10000,$xrd 1,$1,$user_account_funding_nft --manifest transactions/fund_portfolio_by_Bob.rtm)
+resim call-method $portfolio fund_portfolio 10000,$xrd 1,$user_account_funding_nft 
+resim run transactions/fund_portfolio_by_Bob.rtm
 ```
 
 The user account of Bob show the NFT of its 10000 xrd funded, he obsiously will need this to get back its xrd tokens
@@ -358,7 +356,8 @@ $resim set-default-account $account2 $priv2
 
 Default account updated!
 
-resim call-method $portfolio register $account2 (resim call-method $portfolio register $account2 --manifest transactions/register_with_portfolio_by_John.rtm)
+resim call-method $portfolio register $account2 
+resim run transactions/register_with_portfolio_by_John.rtm
 ```
 
 Also John gets its NFT
@@ -367,22 +366,29 @@ Also John gets its NFT
 ├─ { amount: 1, resource address: 03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9, name: "User Account Trading History" }
 │  └─ NonFungible { id: 63d6d06bb0ba110877aff6def72a699ae852f4f7f14c546ef11f8c69638f47d7, immutable_data: Struct(), mutable_data: Struct(ComponentAddress("02d0da3fc806e20c508841efdcd412a53e50d1b80fb35ff1263214"), 0u32, 0u32, false) }
 
-export 1,$user_account_funding_nft2=03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9
+export user_account_funding_nft2=032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b
 ```
 
 
 And then he can fund the Portfolio
 
 ```
-resim call-method $portfolio fund_portfolio 10000,$xrd 1,$1,$user_account_funding_nf2
+resim call-method $portfolio fund_portfolio 10000,$xrd $user_account_funding_nft2
+resim run transactions/fund_portfolio_by_John.rtm 
 ```
 
 The same has been done with Max's account
 
 ```
-resim call-method $portfolio register $account3 (resim call-method $portfolio register $account3 --manifest transactions/register_with_portfolio_by_Max.rtm)
+$resim set-default-account $account3 $priv3
 
-resim call-method $portfolio fund_portfolio 10000,$xrd 1,$1,$user_account_funding_nft3
+resim call-method $portfolio register $account3 
+resim run transactions/register_with_portfolio_by_Max.rtm
+
+export user_account_funding_nft3=032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b
+
+resim call-method $portfolio fund_portfolio 10000,$xrd $user_account_funding_nft3
+resim run transactions/fund_portfolio_by_Max.rtm
 ```
 
 At this point the Portfolio has been funded all the user account registered
@@ -495,26 +501,119 @@ resim call-method $portfolio close_position 267625258182426733516147742632270442
 └─ [INFO ] N. xrd to receive: 1249.999999999999999965
 ```
 
+
+No trading operation are open now, so for example Max decides to lend some of the current liquidity the get some reward
+
+```
+resim run transactions/lend.rtm
+resim run transactions/takeback.rtm
+```
+
 The portfolio now contains again only xrd tokens and Bob and Max are obviously allowed to withdraw.
 
 ```
 ├─ { amount: 20666.666666666666669915, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
 ```
 
-No trading operation are open now, so for example Max decides to lend some of the current liquidity the get some reward
+Bob withdraws and unfortunately he gets less than that he funded in but this is a situation can happen.
 
-resim call-method $portfolio lend 100,$xrd 
+```
+resim run transactions/withdraw_by_Bob.rtm
+
+├─ [INFO ]  Amount of funded tokens in the portfolio 20000 
+├─ [INFO ]  Amount of yours funded tokens in the portfolio 10000 
+
+├─ [INFO ]  Portfolio amount at time of funding 20000 and actual 19950 
+├─ [INFO ]  Portfolio increase/decrease ratio  -0.25 
+├─ [INFO ]  you got 9975 from 10000 in 3 epoch 
+└─ [INFO ]  Updated Amount of funded tokens  0 
+```
+
+At the final time the portfolio contains some xrd in the main vault, some lnd from the LendingApp and some tokens bought with the TradingApp
+
+```
+resim run transactions/portfolio_total_value.rtm
+─ [INFO ] Position size inside portfolio 2
+├─ [INFO ] Added value from token1 vault 550
+├─ [INFO ] Added value from token2 vault 500
+├─ [INFO ] Added value from token3 vault 0
+├─ [INFO ] Value in main vault 8925
+├─ [INFO ] Value in lnd vault 107
+└─ [INFO ] Grandtotal 10082
+```
+
+# Integration Test
+
+The portfolio_dapp.sh is a bash script that contains all the functions and methods tested, from the token creation to the component creation, from the fund to the withdraw methods, from the buy/sell methods to the lend/take back methods and it uses some user account to simulate some different events that could happen with these blueprints.
+
 
 # Test unitari
 
-Eseguire 'scrypto test' 
+Execute 'scrypto test' 
 
 # TODO
 
-Su ogni account vengono registrati erroneamente 2 User Account Trading History NFT
-
-test di tutti i token
-
-//aggiorno il package
+//to update the package without resetting resim 
 resim publish . --package-address $package
 
+find ./ -exec sed -i 's/apple/orange/g' {} \;
+
+echo $account
+02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3
+
+echo $account2
+02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364
+
+echo $account3
+0200098f161a7691fa7ae380e41aed27ab5c4f969e8e563ce4275a
+
+echo $priv1
+35be322d094f9d154a8aba4733b8497f180353bd7ae7b0a15f90b586b549f28b
+
+echo $priv2
+f13ee6ed54ea2aae9fc49a9faeb5da6e8ddef0e12ed5d30d35a624ae813e0485
+
+echo $priv3
+aae89fc0f03e2959ae4d701a80cc3915918c950b159f6abb6c92c1433b1a8534
+
+echo $portfolio
+025d180a419b7d526eba63c0b971b875885c0618fc219843685549
+
+echo $trading
+0210e82c05fd5ea2c5413f8571a1f43df537a47b2d26613f36095e
+
+echo $lending
+02c887fe5316b2b9fcecfed965b308a67e207a5df67bbf17282f98
+
+echo $lend_nft
+0345a475f23e171428540acd6dfc2628229480614ddbb069cde5b0
+
+echo $borrow_nft
+0393dfaf83eff4942e65ac1b587ed989bfe6ea2adc432e6b99f972
+
+echo $lnd
+03629e07a727c9b17ed3b5984701ec846872bd09e6ba7d6aa3de85
+
+echo $user_account_history_nft
+03a3c7111213486713c0d5ad6ac43fc7cdbe5f6353df8247b8d94b
+
+echo $user_account_funding_nft
+032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b
+
+echo $user_account_funding_nft2
+032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b
+
+echo $user_account_funding_nft3
+032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b
+
+echo $admin_badge
+03d987113ce50a6077a4b4b5b9ef29e6798c20c79a1b1370d56893
+
+echo $btc
+039179c95de06571b3cec262e71854f9296f025f30d1688a3cae56
+
+echo $eth
+030d4d068757932f986bb98fb65166cd7e3c20b43e71cc775e687b
+
+echo $leo
+03b5c2df770cac9a330c3a535a7da82054d1ef1dba6f29302e2dee

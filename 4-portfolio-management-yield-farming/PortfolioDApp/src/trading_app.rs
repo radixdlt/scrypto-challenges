@@ -191,7 +191,7 @@ blueprint! {
         //TODO For the scope of this demo this method instead return the price respect of token_a/token1:resource address
         pub fn current_price(&mut self, _token_a_address: ResourceAddress, _token_b_address: ResourceAddress) -> u64 {
             let current = Runtime::current_epoch();
-            info!("Current epoch {} vs last epoch {}", current, self.last_epoch);
+            //info!("Current epoch {} vs last epoch {}", current, self.last_epoch);
             let mut value: u64 = 0;
 
             //if epoch has changed then I change also the price of the asset
