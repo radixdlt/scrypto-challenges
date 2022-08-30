@@ -1,6 +1,4 @@
-# Portfolio dApp
-
-![](./images/logo3b.jpg)
+![](./images/logo-cubi4_scritta1.jpg)
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -56,11 +54,11 @@ Component has some very simple method for depositing/taking from the main vault:
 - withdraw_portfolio(proof, amount) -> a bucket gets created with tokens from the main vault and sent back if the account has presented a valid proof.
 The amount of tokens is increased or decreased respecting the ratio of increment/decrease of the main vault. The user account gets rewarded for the result that all the partecipants to the portfolio had reached. 
 
-And some others for executing orders/operations toward the TradingApp component:
+And some others for executing orders/operations toward the [TradingApp component](TRADING.md):
 - buy(amount, user_account_address, resource_address, user_funding_nft) -> a buy order is issued using the 'TradingApp' for the amount specified and the resource address is the token that will be bought, while the user_account_address and the user_funding_nft will be used to calculate the max leverage allowed (10x of the personal fundings in the portfolio)
 - sell(proof, amount, resource_address) -> a sell order is issued using the 'TradingApp' for the amount specified and the resource address
 
-And some others for executing orders/operations toward the LendingApp component:
+And some others for executing orders/operations toward the [LendingApp component](https://github.com/radixdlt/scrypto-challenges/tree/main/3-lending/LendingDApp#readme):
 - register_for_lending() -> a register to lend the LendingdApp component (anyone can also lend some tokens when the main vault has liquidity)
 - register_for_borrowing() -> a register to borrow to the LendingdApp component (anyone can also borrow some tokens to add liquidity to the main vault)
 - lend(decimal) -> To ask for a lending you only need to specify the amount (lending_nft is inside the portfolio component) 

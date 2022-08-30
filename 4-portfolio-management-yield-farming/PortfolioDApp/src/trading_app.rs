@@ -155,37 +155,6 @@ blueprint! {
             returned_tokens
         }
 
-        //buy from the token1_pool (should be replace by buy_generic method)
-        pub fn buy(&mut self, xrd_tokens: Bucket) -> Bucket {
-            info!("=== BUY OPERATION START === ");
-
-            let how_many = (xrd_tokens.amount() / self.token1_starting_value).round(2,RoundingMode::TowardsPositiveInfinity);
-            info!("N. to buy: {}", how_many);
-
-            self.main_pool.put(xrd_tokens);
-
-            // Return the tokens 
-            let return_toked = self.token1_pool.take(how_many);
-
-            info!("=== BUY OPERATION END === ");
-            return_toked
-        }
-
-        //sell from the token1_pool (should be replace by sell_generic method)
-        pub fn sell(&mut self, tokens: Bucket) -> Bucket {
-            info!("=== SELL OPERATION START === ");
-            let price = self.current_price(RADIX_TOKEN, tokens.resource_address());
-            let current_value = price;
-
-            let how_many = (tokens.amount() * current_value).round(2,RoundingMode::TowardsPositiveInfinity);
-            info!("N. xrd to receive: {}", how_many);
-            let xrd_tokens = self.main_pool.take(how_many);
-            self.token1_pool.put(tokens);
-            
-            // Return the tokens 
-            xrd_tokens
-        }
-
         //here we simulate the change in price each time the epoch changes
         //this should return the price respect of token_a/token_b pair
         //TODO For the scope of this demo this method instead return the price respect of token_a/token1:resource address
@@ -248,7 +217,7 @@ blueprint! {
             Runtime::generate_uuid() 
         }
        
-
+        //utility method to be refactored
         //returns the pool size/address
         pub fn token1_pool_size(&self) -> Decimal {
             return self.token1_pool.amount();
@@ -272,6 +241,40 @@ blueprint! {
         pub fn main_pool_size(&self) -> Decimal {
             return self.main_pool.amount();
         }
+
+                //deprecated
+        //buy from the token1_pool (should be replace by buy_generic method)
+        pub fn buy(&mut self, xrd_tokens: Bucket) -> Bucket {
+            info!("=== BUY OPERATION START === ");
+
+            let how_many = (xrd_tokens.amount() / self.token1_starting_value).round(2,RoundingMode::TowardsPositiveInfinity);
+            info!("N. to buy: {}", how_many);
+
+            self.main_pool.put(xrd_tokens);
+
+            // Return the tokens 
+            let return_toked = self.token1_pool.take(how_many);
+
+            info!("=== BUY OPERATION END === ");
+            return_toked
+        }
+
+        //deprecated
+        //sell from the token1_pool (should be replace by sell_generic method)
+        pub fn sell(&mut self, tokens: Bucket) -> Bucket {
+            info!("=== SELL OPERATION START === ");
+            let price = self.current_price(RADIX_TOKEN, tokens.resource_address());
+            let current_value = price;
+
+            let how_many = (tokens.amount() * current_value).round(2,RoundingMode::TowardsPositiveInfinity);
+            info!("N. xrd to receive: {}", how_many);
+            let xrd_tokens = self.main_pool.take(how_many);
+            self.token1_pool.put(tokens);
+            
+            // Return the tokens 
+            xrd_tokens
+        }
+
     
     }
 }

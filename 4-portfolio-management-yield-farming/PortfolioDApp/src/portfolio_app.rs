@@ -4,7 +4,7 @@ use crate::trading_app::TradingApp;
 use crate::utils::*;
 
 //fee for each operation executed by the portfolio
-const FIXED_FEE: i32 = 10;
+const FIXED_FEE: i32 = 100;
 
 // Here, we define the data that will contain the number of positive/negative operation of the user 
 #[derive(NonFungibleData)]
@@ -257,18 +257,12 @@ blueprint!{
             
             let starting_epoch: u64 = portfolio_nft_data.epoch_funded;
             let actual_epoch: u64 = Runtime::current_epoch();
-            //get the total to calculate if the portfolio value has risen in value or not
-            //total amount at the time of funding
-            let total_amount_at_the_time_of_funding: Decimal = portfolio_nft_data.total_amount;
-            //current total amount
-            let total_amount_at_the_time_of_withdraw: Decimal = self.main_pool.amount();
 
             //update the total funded in the portfolio
             info!(" Amount of funded tokens in the portfolio {} " , self.amount_funded);  
             info!(" Amount of yours funded tokens in the portfolio {} " , portfolio_nft_data.xrd_tokens);  
             //total portfolio value at now 
             let total = self.portfolio_total_value();
-            info!(" Portfolio amount at time of funding {} and actual {} " , total_amount_at_the_time_of_funding, total);  
             // The ratio of increment/decrease of the main pool.
             let diff_ratio: Decimal = ((total / self.amount_funded) * dec!("100") )-dec!(100);
             info!(" Portfolio increase/decrease ratio  {} " , diff_ratio);  
@@ -350,6 +344,7 @@ blueprint!{
         }
 
         // Execute a sell operation by means of the portfolio.
+        // Method can be executed only using an admin badge 
         pub fn sell(&mut self,tokens: Decimal, token_to_sell: ResourceAddress
         )   {
             let trading_app: TradingApp = self.trading_app.into();
@@ -469,7 +464,7 @@ blueprint!{
             self.sell(amount_to_sell, token_to_sell);    
         }
 
-        // Close a position, method can be executed by anyone register with the portfolio by using the positionId 
+        // Close all the position, method can be executed only using an admin badge 
         pub fn close_all_positions(&mut self)  {
             info!("Position size {}", self.positions.len());
             let mut _amount_to_sell: Decimal = Decimal::zero();
@@ -490,6 +485,7 @@ blueprint!{
         }
 
         //not implemented
+        //method can be executed only using an admin badge 
         // pub fn refund_all(&mut self)  {
         //     let address: ComponentAddress;
         //     let component = borrow_component!(address);
