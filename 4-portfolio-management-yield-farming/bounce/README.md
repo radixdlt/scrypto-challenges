@@ -31,7 +31,7 @@ IL-risk on a standard AMM can be mitigated by careful monitoring of positions or
 
 With a SMPL-AMM, the user experience is relatively predictable. An LP can ‘deposit-and-forget’ their stake. In the worst-case, their stake is returned in a short space of time with losses within acceptable parameters. In the best-case, the funds are retained in the component for longer and accrued fees accumulate so that the LP is in profit when the stake is eventually returned. Notably, the experience of ‘swap’ users need not change. Although it is their transactions that trigger return of LPs’ stakes, the SMPL-AMM component could be designed in such a way that this would not necessitate payment of additional network fees. Thus, a SMPL-AMM could attract LPs who would not otherwise invest in an AMM without reducing utilisation by retail swappers. On the other hand, the SMPL-AMM may reduce profits for arbitrage traders by facilitating more dynamic price discovery.
 
-###Dynamic price discovery
+### Dynamic price discovery
 A key advantage of a SMPL-AMM as compared to a conventional AMM can be seen when IL is considered from the perspective of the entire AMM component as well as from the perspective of individual LPs. Essentially, when IL is limited for individual LPs, IL is limited for the component also.
 
 When liquidity is automatically removed from a SMPL-AMM as the result of a sudden price change, the $x*y=k$ (or similar) curve means that a new target price is reached on lower swap-volume. Therefore, less value can be captured by arbitrageurs capitalising on mispriced assets. To illustrate the problem with mispriced assets, the following model shows simple arbitrage between two similar AMMs:
@@ -56,14 +56,14 @@ An interesting possibility is that the SMPL-AMM might also get from a mispriced 
 
 Obviously, what actually happens would depend on the individual and collective behaviour of all market participants, but it would be fun to find out, no?
 
-###Mechanics
+### Mechanics
 A prototype SMPL-AMM component would accept stable-nonstable token pairs since the calculations of threshold-prices causing particular ILs can then be calculated within individual components. Calculations for IL affecting nonstable-nonstable pairs are possible with reference prices from appropriate stable-nonstable pair-pairs provided via [TWAP oracles](https://medium.com/blockchain-development-notes/a-guide-on-uniswap-v3-twap-oracle-2aa74a4a97c5), but that’s beyond the scope of this outline.
 
 This outline describes the instantiation function and methods for the LP deposits, swaps (incorporating automatic LP withdrawals), and manual LP withdrawals. 
 
 I’ve used @0xOmarA’s excellent and very well annotated [RaDEX](https://github.com/radixdlt/scrypto-challenges/tree/main/1-exchanges/RaDEX) project for reference.
 
-#####Blueprint
+##### Blueprint
 
 The blueprint struct would require:
 
@@ -74,7 +74,7 @@ The blueprint struct would require:
 * %-maximum-acceptable-permanent-loss decimal (or upper-nonstable-price-threshold and lower-nonstable-price-thresholds; see below).
 * Fee-to-pool decimal
 
-#####Instantiation:
+##### Instantiation:
 The SMPL-AMM component instantiates upon asserting caller's bounce==false, receiving the caller’s account-address, a quantity of stabletokens, a quantity of nonstable tokens, a %-maximum-acceptable-permanent-loss number, and a fee-to-pool number. 
 
 * Checks include checks bounce==false, checks that one token is a stabletoken and the other is a nonstable token (admin-controlled hashmap-list of acceptable stabletokens could be used), checks that token quantities >0, and checks that %-maximum-acceptable-permanent-loss fee-to-pool numbers are 0>100.
@@ -99,7 +99,7 @@ The SMPL-AMM component instantiates upon asserting caller's bounce==false, recei
 
 * Returns NFT
 
-#####Add-liquidity method
+##### Add-liquidity method
 Adds liquidity to the pool upon asserting caller's bounce==false, receiving the caller’s account-address, a quantity of stabletokens, a quantity of nonstable tokens, and a %-maximum-acceptable-permanent-loss number.
 
 * Checks as above.
@@ -116,7 +116,7 @@ Adds liquidity to the pool upon asserting caller's bounce==false, receiving the 
 
 * Returns any excess stabletokens or nonstable tokens. Returns NFT.
 
-#####Swap method
+##### Swap method
 Where a caller initiates an exchange of stabletoken for nonstable token, swap first calculates the potential price-impact of the exchange and then compares this to the upper-nonstable-price-threshold at the 0 position in the ascending vector.
 
 Where a caller initiates an exchange of nonstable for stable token, swap calculates the potential price-impact of the exchange and then compares this to the lower-nonstable-price-threshold at the 0 position in the descending vector.
@@ -136,7 +136,7 @@ If the potential-price < upper-nonstable-price-threshold at the 0 position in th
 
 * Returns swapped tokens to caller. Direct-sends any removed liquidity to appropriate LP(s), if applicable.
 
-#####Manual remove-liquidity method
+##### Manual remove-liquidity method
 * The caller sends their NFT to the method to remove their liquidity.
 
 * The NFT-ID is checked against the entries in one of the ascending or descending vector.
