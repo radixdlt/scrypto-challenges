@@ -1,9 +1,9 @@
-mod maple_finance_global;
+mod farmers_market;
 mod index_fund;
 mod structs;
 mod price_oracle;
 mod fundinglocker;
-mod fund_manager_dashboard;
+mod farmer_dashboard;
 mod borrower_dashboard;
 mod debt_fund;
 mod utils;

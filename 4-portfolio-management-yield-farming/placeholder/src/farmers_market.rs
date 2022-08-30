@@ -1,5 +1,5 @@
 use scrypto::prelude::*;
-use crate::fund_manager_dashboard::*;
+use crate::farmer_dashboard::*;
 use crate::borrower_dashboard::*;
 use crate::structs::*;
 use crate::price_oracle::*;
@@ -7,30 +7,48 @@ use crate::utils::*;
 use crate::investor_dashboard::*;
 
 blueprint! {
-    struct MapleFinance {
-        maple_finance_admin_address: ResourceAddress,
+    /// This struct is used to define the _____. The ______ is used for protocol admins to approve users. It is also where other components
+    /// can index and retrieve all the funds that exist within this protocol. 
+    struct FarmersMarket {
+        /// The ResourceAddress of the protocol admin.
+        protocol_admin_address: ResourceAddress,
         admin_vault: Vault,
+        /// The Resourceaddress of the Loan Request NFT Admin used to mint/burn/update Loan Request NFTs.
         loan_request_nft_admin_address: ResourceAddress,
+        /// The Resource Address of the Loan Request NFT.
         loan_request_nft_address: ResourceAddress,
-        pool_delegates: HashSet<NonFungibleId>,
-        /// The ResourceAddress of the Fund Manager Badge provided to Fund Managers used to provide authorized access 
-        /// Fund Manager Dashboard.
-        fund_manager_address: ResourceAddress,
-        /// The ResourceAddress of the FundManagerDashboard Admin token. This is held by the component to make authorized
+        /// The sets of all the Farmers in the protocol.
+        farmers: HashSet<NonFungibleId>,
+        /// The ResourceAddress of the Farmers Badge.
+        farmer_address: ResourceAddress,
+        /// The ResourceAddress of the FarmerDashboard Admin token. This is held by the component to make authorized
         /// cross blueprint method calls.
-        fund_manager_dashboard_admin_address: ResourceAddress,
-        fund_manager_dashbaords: HashMap<NonFungibleId, ComponentAddress>,
-        /// The vault that contains the Fund Manager Badge for approved Fund Managers to claim their Fund Managers.
-        /// Fund Managers must deposit their temporary badge to claim their Fund Manager Badge.
-        fund_manager_badge_vault: Vault,
+        farmer_dashboard_admin_address: ResourceAddress,
+        /// Delete?
+        farmer_dashboards: HashMap<NonFungibleId, ComponentAddress>,
+        /// The vault that contains the Farmers Badge for approved Farmers to claim their Farmers.
+        /// Farmers must deposit their temporary badge to claim their Farmers Badge.
+        farmer_badge_vault: Vault,
+        /// The sets of all the Borrowers in the protocol.
         borrowers: HashSet<NonFungibleId>,
+        /// The ResourceAddress of the Borrwer Badge.
         borrower_address: ResourceAddress,
+        /// The ResourceAddress of the BorrowerDashboard Admin token. This is held by the component to make authorized
+        /// cross blueprint method calls.
         borrower_dashboard_admin_address: ResourceAddress,
+        /// Delete?
         borrower_dashboards: HashMap<NonFungibleId, ComponentAddress>,
+        /// The vault that contains the Borrower Badge for approved Borrower to claim their Borrower Badge.
+        /// Borrowers must deposit their temporary badge to claim their Borrower Badge.
         borrower_badge_vault: Vault,
+        /// The ResourceAddress of the Temporary Badge.
         temporary_badge_address: ResourceAddress,
+        /// The HashMap of the Temporary Badge that are pending approval.
         pending_approvals: HashMap<String, NonFungibleId>,
+        /// HashMap<Temporary Badge, Borrower/Farmers Badge>. This contains the HashMap of the Temporary Badge
+        /// and its associated approved Borrower/Farmers Badge.
         approvals: HashMap<NonFungibleId, NonFungibleId>,
+        /// HashMap<Borrower Badge, Vault>. This contains the HashMap of the Borrower and their associated Loan Request NFT.
         global_loan_requests_vault: HashMap<NonFungibleId, Vault>,
         /// Record of all the debt funds in this protocol. HashMap<Fund Name, ComponentAddress>.
         global_debt_funds: HashMap<String, ComponentAddress>,
@@ -40,11 +58,10 @@ blueprint! {
         global_index_funds: HashMap<(String, String), ComponentAddress>,
         global_index_funds_name: HashMap<String, String>,
         price_oracle_address: ComponentAddress,
-        maple_finance_global_address: Option<ComponentAddress>,
         investor_dashboard_address: Option<ComponentAddress>,
     }
 
-    impl MapleFinance {
+    impl FarmersMarket {
 
         pub fn new() -> (ComponentAddress, Bucket)
         {   
@@ -56,11 +73,11 @@ blueprint! {
                 .metadata("description", "Component Admin authority")
                 .initial_supply(1);
 
-            let maple_finance_admin = ResourceBuilder::new_fungible()
+            let protocol_admin = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
-                .metadata("name", "Maple Finance Admin Badge")
-                .metadata("symbol", "MFAB")
-                .metadata("description", "Maple Finance")
+                .metadata("name", "Farmers Market Admin Badge")
+                .metadata("symbol", "FM_AB")
+                .metadata("description", "Protocol Admin for Farmers Market")
                 .initial_supply(1);
                 
             // Badge that will be stored in the component's vault to update loan NFT.
@@ -88,11 +105,11 @@ blueprint! {
                 .updateable_non_fungible_data(rule!(require_any_of(allowed_badge)), LOCKED)
                 .no_initial_supply();
 
-            let fund_manager_dashboard_admin_address = ResourceBuilder::new_fungible()
+            let farmer_dashboard_admin_address = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
-                .metadata("name", "Fund Manager Dashboard Admin Badge")
-                .metadata("symbol", "FMD_AB")
-                .metadata("description", "Admin Badge to control Fund Manager Dashboard Component")
+                .metadata("name", "Farmer Dashboard Admin Badge")
+                .metadata("symbol", "F_AB")
+                .metadata("description", "Admin Badge to control Farmers Dashboard Component")
                 .mintable(rule!(require(admin.resource_address())), LOCKED)
                 .burnable(rule!(require(admin.resource_address())), LOCKED)
                 .no_initial_supply();
@@ -101,21 +118,21 @@ blueprint! {
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Borrower Admin Badge")
                 .metadata("symbol", "B_AB")
-                .metadata("description", "Admin Badge to control Fund Manager Dashboard Component")
+                .metadata("description", "Admin Badge to control Borrower Dashboard Component")
                 .mintable(rule!(require(admin.resource_address())), LOCKED)
                 .burnable(rule!(require(admin.resource_address())), LOCKED)
                 .no_initial_supply();
 
             let allowed_badge: Vec<ResourceAddress> = vec!(
                 admin.resource_address(), 
-                fund_manager_dashboard_admin_address,
+                farmer_dashboard_admin_address,
             );
 
-            // NFT description for Fund Managers
-            let fund_manager_address: ResourceAddress = ResourceBuilder::new_non_fungible()
-                .metadata("name", "Fund Manager NFT")
-                .metadata("symbol", "PDNFT")
-                .metadata("description", "Fund Manager Admin Badge")
+            // NFT description for Farmers
+            let farmer_address: ResourceAddress = ResourceBuilder::new_non_fungible()
+                .metadata("name", "Farmer NFT")
+                .metadata("symbol", "F_NFT")
+                .metadata("description", "Farmers Admin Badge")
                 .mintable(rule!(require(admin.resource_address())), LOCKED)
                 .burnable(rule!(require(admin.resource_address())), LOCKED)
                 .updateable_non_fungible_data(rule!(require_any_of(allowed_badge)), LOCKED)
@@ -128,7 +145,7 @@ blueprint! {
 
             let borrower_address: ResourceAddress = ResourceBuilder::new_non_fungible()
                 .metadata("name", "Borrower NFT")
-                .metadata("symbol", "BNFT")
+                .metadata("symbol", "B_NFT")
                 .metadata("description", "Borrower Admin Badge")
                 .mintable(rule!(require(admin.resource_address())), LOCKED)
                 .burnable(rule!(require(admin.resource_address())), LOCKED)
@@ -137,34 +154,34 @@ blueprint! {
       
             let temporary_badge_address: ResourceAddress = ResourceBuilder::new_non_fungible()
                 .metadata("name", "Temporary Badge NFT")
-                .metadata("symbol", "TBNFT")
-                .metadata("description", "Temporary Badge NFT for Fund Managers/Borrowers")
+                .metadata("symbol", "TB_NFT")
+                .metadata("description", "Temporary Badge NFT for Farmers/Borrowers")
                 .mintable(rule!(require(admin.resource_address())), LOCKED)
                 .burnable(rule!(require(admin.resource_address())), LOCKED)
                 .updateable_non_fungible_data(rule!(require(admin.resource_address())), LOCKED)
                 .no_initial_supply();
 
             let access_rules: AccessRules = AccessRules::new()
-                .method("insert_debt_fund", rule!(require(fund_manager_dashboard_admin_address)))
-                .method("insert_index_fund", rule!(require(fund_manager_dashboard_admin_address)))
-                .method("insert_tracking_tokens", rule!(require(fund_manager_dashboard_admin_address)))
-                .method("insert_index_fund_name", rule!(require(fund_manager_dashboard_admin_address)))
-                .method("insert_funding_locker", rule!(require(fund_manager_dashboard_admin_address)))
+                .method("insert_debt_fund", rule!(require(farmer_dashboard_admin_address)))
+                .method("insert_index_fund", rule!(require(farmer_dashboard_admin_address)))
+                .method("insert_tracking_tokens", rule!(require(farmer_dashboard_admin_address)))
+                .method("insert_index_fund_name", rule!(require(farmer_dashboard_admin_address)))
+                .method("insert_funding_locker", rule!(require(farmer_dashboard_admin_address)))
                 .method("retrieve_loan_request_nft", rule!(require(borrower_dashboard_admin_address)))
                 .method("return_loan_request_nft", rule!(require(borrower_dashboard_admin_address)))
                 .default(rule!(allow_all)
             );
             
-            let maple_finance = Self {
-                maple_finance_admin_address: maple_finance_admin.resource_address(),
+            let farmers_market = Self {
+                protocol_admin_address: protocol_admin.resource_address(),
                 admin_vault: Vault::with_bucket(admin),
                 loan_request_nft_admin_address: loan_request_nft_admin_address,
                 loan_request_nft_address: loan_request_nft_address,
-                pool_delegates: HashSet::new(),
-                fund_manager_address: fund_manager_address,
-                fund_manager_dashboard_admin_address: fund_manager_dashboard_admin_address,
-                fund_manager_dashbaords: HashMap::new(),
-                fund_manager_badge_vault: Vault::new(fund_manager_address),
+                farmers: HashSet::new(),
+                farmer_address: farmer_address,
+                farmer_dashboard_admin_address: farmer_dashboard_admin_address,
+                farmer_dashboards: HashMap::new(),
+                farmer_badge_vault: Vault::new(farmer_address),
                 borrowers: HashSet::new(),
                 borrower_address: borrower_address,
                 borrower_dashboard_admin_address: borrower_dashboard_admin_address,
@@ -180,36 +197,51 @@ blueprint! {
                 global_index_funds: HashMap::new(),
                 global_index_funds_name: HashMap::new(),
                 price_oracle_address: PriceOracle::new(),
-                maple_finance_global_address: None,
                 investor_dashboard_address: None,
             }
             .instantiate()
             .add_access_check(access_rules)
             .globalize();
 
-            (maple_finance, maple_finance_admin)
+            (farmers_market, protocol_admin)
         }
 
-        pub fn set_address(
-            &mut self,
-            maple_finance_admin: Proof,
-            maple_finance_global_address: ComponentAddress
-        )
+        /// This method retrieves the ComponentAddress of this component.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// This method does not accept any arguments.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Option<ComponentAddress>` - If the ComponentAddress exist, it will return it.
+        pub fn view_component_address(
+            &self,
+        ) -> Option<ComponentAddress>
         {
-            assert_eq!(maple_finance_admin.resource_address(), self.maple_finance_admin_address,
-                "[Maple Finance]: Unauthorized Access."
-            );
-
-            self.maple_finance_global_address = Some(maple_finance_global_address);
+            let component_address = Runtime::actor().component_address();
+            component_address
         }
 
+        /// This method is used to retrieve the NFT data of a selected NFT. 
+        /// 
+        /// This method does not have any checks.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `nft_id` (&NonFungibleId) - The NonFungibleId of the NFT data to retrieve.
+        /// * `badge_name` (Badges) - The Enum that matches and retrieves the ResourceAddress of the NFT.
+        /// 
+        /// # Returns: 
+        /// 
+        /// * `BadgeContainer` - The NFT data of the chosen NFT.
         fn get_resource_manager(
             &self,
             nft_id: &NonFungibleId,
             badge_name: Badges) -> BadgeContainer
         {
             let badge_address = match badge_name {
-                Badges::FundManager => self.fund_manager_address,
+                Badges::Farmer => self.farmer_address,
                 Badges::Borrower => self.borrower_address,
                 Badges::TemporaryBadge => self.temporary_badge_address,
                 Badges::LoanRequestNFT => self.loan_request_nft_address,
@@ -218,9 +250,9 @@ blueprint! {
             let resource_manager = borrow_resource_manager!(badge_address);
 
             match badge_name {
-                Badges::FundManager => {
-                    let nft_data: FundManager = resource_manager.get_non_fungible_data(&nft_id);
-                    return BadgeContainer::FundManagerContainer(nft_data)
+                Badges::Farmer => {
+                    let nft_data: Farmer = resource_manager.get_non_fungible_data(&nft_id);
+                    return BadgeContainer::FarmerContainer(nft_data)
                 }
                 Badges::Borrower => {
                     let nft_data: Borrower = resource_manager.get_non_fungible_data(&nft_id);
@@ -237,6 +269,19 @@ blueprint! {
             }
         }
 
+        /// This method is used to authorize update/mutate of the NFT data.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `nft_id` (&NonFungibleId) - The NFT ID of the NFT data to update.
+        /// * `badge_name` (Badges) - The Enum of the badge that matches and retrieves the ResourceAddress of the NFT. 
+        /// * `nft_data` (BadgeContainer) - The Enum that matches and retrieves the NFT data of the NFT.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         fn authorize_update(
             &self,
             nft_id: &NonFungibleId,
@@ -245,7 +290,7 @@ blueprint! {
         )
         {
             let badge_address = match badge_name {
-                Badges::FundManager => self.fund_manager_address,
+                Badges::Farmer => self.farmer_address,
                 Badges::Borrower => self.borrower_address,
                 Badges::TemporaryBadge => self.temporary_badge_address,
                 Badges::LoanRequestNFT => self.loan_request_nft_address,
@@ -254,7 +299,7 @@ blueprint! {
             let resource_manager = borrow_resource_manager!(badge_address);
             
             match nft_data {
-                BadgeContainer::FundManagerContainer(pool_delegate) => {
+                BadgeContainer::FarmerContainer(pool_delegate) => {
                     self.admin_vault.authorize(|| 
                         resource_manager.update_non_fungible_data(nft_id, pool_delegate)
                     );
@@ -278,7 +323,7 @@ blueprint! {
         }
 
         // Implement Access Rule
-        // Provide Fund Manager Proof? No.
+        // Provide Farmers Proof? No.
         pub fn authorize_loan_request_update(
             &mut self,
             loan_request_nft_id: NonFungibleId,
@@ -292,6 +337,24 @@ blueprint! {
             );
         }
 
+        /// This method is used by the BorrowerDashboard component to deposit Loan Request NFTs.
+        /// The Loan Request NFTs are used to propose loans for Farmers to underwrite and provide funding.
+        /// The Loan Request NFTs are contained in thhis component as it allows other components to have visibility
+        /// of the loan requests produced by all borrowers.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof provided is a borrower.
+        /// * **Check 2:** - Checks that the Bucket passed is a Loan Request NFT that belongs to this protocol.
+        /// 
+        /// # Arguments: 
+        /// 
+        /// * `borrower_badge` (Proof) - The Proof of the Borrower Badge.
+        /// * `loan_request_nft` (Bucket) - The Bucket that contains the Loan Request NFT.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn deposit_loan_requests(
             &mut self,
             borrower_badge: Proof,
@@ -300,7 +363,7 @@ blueprint! {
         {
             assert_eq!(
                 borrower_badge.resource_address(), self.borrower_address,
-                "[Maple Finance]: The badge does not belong to this protocol."
+                "[Vault Protocol]: The badge does not belong to this protocol."
             );
 
             assert_eq!(
@@ -317,13 +380,30 @@ blueprint! {
             }
         }
 
+        /// This method is used to allow users to essentially apply to be a Farmers or a Borrower.
+        /// A Temporary Badge is created with the name of their entity. The user (either Farmers or Borrower)
+        /// turns this Temporary Badge in to claim their actual badges once approved by the protocol owner.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks whether the name provided already exist or not.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `name` (String) - The name of the entity of the user.
+        /// * `user_type` (UserType) - The Enum of the type of user (Farmers or Borrower).
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - The Bucket that contains the Temporary Badge.
         pub fn create_temporary_badge(
             &mut self,
             name: String,
-            user_type: UserType) -> Bucket
+            user_type: UserType
+        ) -> Bucket
         {
             assert!(self.pending_approvals.contains_key(&name) != true,
-                "[Maple Finance]: The name you provided already exists."
+                "[Vault Protocol]: The name you provided already exists."
             );
 
             let temporary_badge = self.admin_vault.authorize(|| {
@@ -345,22 +425,24 @@ blueprint! {
                 temporary_badge.non_fungible::<TemporaryBadge>().id()
             );
 
-            info!("[Maple Finance]: The resource address of your temporary badge is: {:?}", temporary_badge.resource_address());
+            info!("[Vault Protocol]: The resource address of your temporary badge is: {:?}", temporary_badge.resource_address());
 
             temporary_badge
         }
 
         pub fn new_investor_dashboard(
             &mut self,
-            maple_finance_admin: Proof,
+            protocol_admin: Proof,
         ) -> ComponentAddress
         {
-            assert_eq!(maple_finance_admin.resource_address(), self.maple_finance_admin_address,
-                "[Maple Finance]: Unauthorized Access."
+            assert_eq!(protocol_admin.resource_address(), self.protocol_admin_address,
+                "[Vault Protocol]: Unauthorized Access."
             );
 
+            let farmers_market_address: ComponentAddress = self.view_component_address().unwrap().into();
+
             let investor_dashboard_address: ComponentAddress = InvestorDashboard::new(
-                self.maple_finance_global_address.unwrap().into(),
+                farmers_market_address,
             );
 
             self.investor_dashboard_address = Some(investor_dashboard_address);
@@ -368,35 +450,46 @@ blueprint! {
             investor_dashboard_address
         }
 
-        /// Creates an admin badge for each Fund Managers and instantiates a Fund Manager Dashboard.
+        /// Creates an admin badge for each Farmers and instantiates a Farmers Dashboard.
         /// 
-        /// This method is used to allow authorized Maple Finance team to onboard approved Fund Managers.
-        /// Prospective Fund Managers must first request approval to become a Fund Manager by filing out the request form
-        /// via create_temporary_badge method. Maple Finance team will view the approval request via pending_approvals 
-        /// data field and approve selected Fund Managers. A Fund Manager admin badge will be minted where approved
-        /// Fund Managers can claim via their TemporaryBadge. A Fund Manager Dashboard will be created where approved
-        /// Fund Managers can access their controls.
+        /// This method is used to allow authorized protocol owner(s) to onboard approved Farmers.
+        /// Prospective Farmers must first request approval to become a Farmers by filing out the request form
+        /// via create_temporary_badge method. The protocol owner(s) will view the approval request via pending_approvals 
+        /// data field and approve selected Farmers. A Farmers admin badge will be minted where approved
+        /// Farmers can claim via their TemporaryBadge. A Farmers Dashboard will be created where approved
+        /// Farmers can access their controls.
         /// 
-        ///  
-        pub fn create_fund_manager(
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof provided is the protocol owner.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `protocol_admin` (Proof) - The Proof of the protocol admin badge.
+        /// * `name` (String) - The name of the entity the protocol admin wishes to approve.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `ComponentAddress` - Returns the ComponentAddress of the FarmerDashboard
+        pub fn create_farmer(
             &mut self,
-            maple_finance_admin: Proof,
+            protocol_admin: Proof,
             name: String
         ) -> ComponentAddress
         {
 
-            assert_eq!(maple_finance_admin.resource_address(), self.maple_finance_admin_address,
-                "[Maple Finance]: Unauthorized Access."
+            assert_eq!(protocol_admin.resource_address(), self.protocol_admin_address,
+                "[Vault Protocol]: Unauthorized Access."
             );
 
-            // Mint Fund Manager admin badge.
-            let fund_manager_badge = self.admin_vault.authorize(|| {
-                let resource_manager: &ResourceManager = borrow_resource_manager!(self.fund_manager_address);
+            // Mint Farmers admin badge.
+            let farmer_badge = self.admin_vault.authorize(|| {
+                let resource_manager: &ResourceManager = borrow_resource_manager!(self.farmer_address);
                 resource_manager.mint_non_fungible(
                     // The User id
                     &NonFungibleId::random(),
                     // The User data
-                    FundManager {
+                    Farmer {
                         name: name.clone(),
                         managed_index_funds: HashMap::new(),
                         managed_debt_funds: HashMap::new(),
@@ -404,20 +497,20 @@ blueprint! {
                 )
             });
 
-            // Retrieve the prospective Fund Manager via pending_approvals data field.
+            // Retrieve the prospective Farmers via pending_approvals data field.
             let pending_user: &NonFungibleId = self.pending_approvals.get(&name).unwrap();
 
-            // Retrieve the NFT data of the Temporary Badge of the prospective Fund Manager.
+            // Retrieve the NFT data of the Temporary Badge of the prospective Farmers.
             let nft_data = self.get_resource_manager(pending_user, Badges::TemporaryBadge);
 
-            // Change NFT data of the Temporary Badge to indicate the prospective Fund Manager has been approved.
+            // Change NFT data of the Temporary Badge to indicate the prospective Farmers has been approved.
             match nft_data {
-                BadgeContainer::FundManagerContainer(_pool_delegate) => {}
+                BadgeContainer::FarmerContainer(_pool_delegate) => {}
                 BadgeContainer::BorrowerContainer(_borrower) => {}
                 BadgeContainer::TemporaryBadgeContainer(mut temporary_badge) => {
 
-                    assert_eq!(temporary_badge.user_type, UserType::FundManager,
-                        "[Maple Finance - Fund Manager badge creation]: Incorrect user type."
+                    assert_eq!(temporary_badge.user_type, UserType::Farmer,
+                        "[Vault Protocol - Farmers badge creation]: Incorrect user type."
                     );
 
                     temporary_badge.status = RequestStatus::Approved;
@@ -432,17 +525,17 @@ blueprint! {
                 BadgeContainer::LoanRequestNFTContainer(_loan_request_nft) => {}
             };
 
-            // Retrieve NFT ID of the Fund Manager admin badge.
-            let fund_manager_id: NonFungibleId = fund_manager_badge.non_fungible::<FundManager>().id();
+            // Retrieve NFT ID of the Farmers admin badge.
+            let farmer_id: NonFungibleId = farmer_badge.non_fungible::<Farmer>().id();
 
             // Insert in the approvals data field. 
-            self.approvals.insert(pending_user.clone(), fund_manager_id.clone());
+            self.approvals.insert(pending_user.clone(), farmer_id.clone());
 
-            // Remove prospective Fund Manager from the pending_approvals data field.
+            // Remove prospective Farmers from the pending_approvals data field.
             self.pending_approvals.remove_entry(&name);
 
-            // Record the NFT ID of the new approved Fund Manager.
-            self.borrowers.insert(fund_manager_id.clone());
+            // Record the NFT ID of the new approved Farmers.
+            self.borrowers.insert(farmer_id.clone());
 
             let loan_request_nft_admin = self.admin_vault.authorize(|| {
                     let resource_manager: &ResourceManager = borrow_resource_manager!(self.loan_request_nft_admin_address);
@@ -450,45 +543,66 @@ blueprint! {
                 }
             );
 
-            let fund_manager_admin: Bucket = self.admin_vault.authorize(|| {
-                    let resource_manager: &ResourceManager = borrow_resource_manager!(self.fund_manager_dashboard_admin_address);
+            let farmer_admin: Bucket = self.admin_vault.authorize(|| {
+                    let resource_manager: &ResourceManager = borrow_resource_manager!(self.farmer_dashboard_admin_address);
                     resource_manager.mint(1)
                 }
             );
 
             let price_oracle_address: ComponentAddress = self.price_oracle_address.into();
-            let maple_finance_global_address: ComponentAddress = self.maple_finance_global_address.unwrap().into();
+            let farmers_market_address: ComponentAddress = self.view_component_address().unwrap().into();
 
-            // Instantiates the Fund Manager Dashboard for the recently approved Fund Manager.
-            let pool_delegate_dashboard: ComponentAddress = FundManagerDashboard::new(
-                fund_manager_admin,
-                maple_finance_global_address,
-                self.fund_manager_address, 
+            // Instantiates the Farmers Dashboard for the recently approved Farmers.
+            let pool_delegate_dashboard: ComponentAddress = FarmerDashboard::new(
+                farmer_admin,
+                farmers_market_address,
+                self.farmer_address, 
                 loan_request_nft_admin,
                 self.loan_request_nft_address,
                 price_oracle_address,
             );
 
-            // Insert the ComponentAddress of the Fund Manager Dashboard for this particular Fund Manager.
-            self.fund_manager_dashbaords.insert(
-                fund_manager_id, 
+            // Insert the ComponentAddress of the Farmers Dashboard for this particular Farmers.
+            self.farmer_dashboards.insert(
+                farmer_id, 
                 pool_delegate_dashboard
             );
 
-            // Put the Fund Manager admin badge for the recently approved Fund Manager to claim.
-            self.fund_manager_badge_vault.put(fund_manager_badge);
+            // Put the Farmers admin badge for the recently approved Farmers to claim.
+            self.farmer_badge_vault.put(farmer_badge);
 
            pool_delegate_dashboard
         }
 
+        /// Creates an admin badge for each Borrower and instantiates a Borrower Dashboard.
+        /// 
+        /// This method is used to allow authorized protocol owner(s) to onboard approved Borrowers.
+        /// Prospective Borrowers must first request approval to become a Borrower by filing out the request form
+        /// via create_temporary_badge method. The protocol owner(s) will view the approval request via pending_approvals 
+        /// data field and approve selected Borrowers. A Borrower admin badge will be minted where approved
+        /// Borrowers can claim via their TemporaryBadge. A Borrower Dashboard will be created where approved
+        /// Borrowers can access their controls.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof provided is the protocol owner.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `protocol_admin` (Proof) - The Proof of the protocol admin badge.
+        /// * `name` (String) - The name of the entity the protocol admin wishes to approve.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `ComponentAddress` - Returns the ComponentAddress of the BorrowerDashboard
         pub fn create_borrower(
             &mut self,
-            maple_finance_admin: Proof,
+            protocol_admin: Proof,
             name: String
         ) -> ComponentAddress
         {
-            assert_eq!(maple_finance_admin.resource_address(), self.maple_finance_admin_address,
-                "[Maple Finance]: Unauthorized Access."
+            assert_eq!(protocol_admin.resource_address(), self.protocol_admin_address,
+                "[Vault Protocol]: Unauthorized Access."
             );
 
             let borrower_admin_badge = self.admin_vault.authorize(|| {
@@ -511,14 +625,14 @@ blueprint! {
             // Retrieve the NFT data of the Temporary Badge of the prospective Borrower.
             let nft_data = self.get_resource_manager(pending_user, Badges::TemporaryBadge);
 
-            // Change NFT data of the Temporary Badge to indicate the prospective Fund Manager has been approved.
+            // Change NFT data of the Temporary Badge to indicate the prospective Farmers has been approved.
             match nft_data {
-                BadgeContainer::FundManagerContainer(_fundmanager) => {}
+                BadgeContainer::FarmerContainer(_farmer) => {}
                 BadgeContainer::BorrowerContainer(_borrower) => {}
                 BadgeContainer::TemporaryBadgeContainer(mut temporary_badge) => {
 
                     assert_eq!(temporary_badge.user_type, UserType::Borrower,
-                        "[Maple Finance - Fund Manager badge creation]: Incorrect user type."
+                        "[Vault Protocol - Farmers badge creation]: Incorrect user type."
                     );
 
                     temporary_badge.status = RequestStatus::Approved;
@@ -533,7 +647,7 @@ blueprint! {
                 BadgeContainer::LoanRequestNFTContainer(_loan_request_nft) => {}
             };
 
-            let borrower_id = borrower_admin_badge.non_fungible::<FundManager>().id();
+            let borrower_id = borrower_admin_badge.non_fungible::<Farmer>().id();
 
             // Insert in the approvals data field. 
             self.approvals.insert(pending_user.clone(), borrower_id.clone());
@@ -555,10 +669,10 @@ blueprint! {
                 }
             );
 
-            let maple_finance_global_address: ComponentAddress = self.maple_finance_global_address.unwrap().into();
+            let farmers_market_address: ComponentAddress = self.view_component_address().unwrap().into();
 
             let borrower_dashboard: ComponentAddress = BorrowerDashboard::new(
-                maple_finance_global_address,
+                farmers_market_address,
                 borrower_admin,
                 self.borrower_address, 
                 loan_request_nft_admin,
@@ -575,18 +689,27 @@ blueprint! {
             borrower_dashboard
         }
 
-        /// Allows recently approved Fund Managers to claim their admin badge to access their Fund Manager Dashboard.
+        /// Allows recently approved Farmers and Borrowers to claim their admin badge to access their respective dashboard.
         /// 
-        /// This method performs
+        /// 
+        /// # Checks:
         /// 
         /// * **Check 1:** - Checks that the Temporary Badge belongs to this protocol.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `temporary_badge` (Bucket) - The Bucket that contains the Temporary Badge.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - The Bucket that contains the Borrower/Farmers badge.
         pub fn claim_badge(
             &mut self,
             temporary_badge: Bucket
         ) -> Bucket
         {
             assert_eq!(temporary_badge.resource_address(), self.temporary_badge_address,
-                "[Maple Finance]: This badge does not belong to this protocol."
+                "[Vault Protocol]: This badge does not belong to this protocol."
             );
             
             // Retrieves the Temporary Badge NFT ID.
@@ -598,12 +721,12 @@ blueprint! {
             let user_type = temporary_badge_data.user_type;
 
             match user_type {
-                UserType::FundManager => {
-                    // Matches the Temporary Badge NFT ID with the approved Fund Manager admin badge.
+                UserType::Farmer => {
+                    // Matches the Temporary Badge NFT ID with the approved Farmers admin badge.
                     let claim_badge: &NonFungibleId = self.approvals.get(&temporary_badge_id).unwrap();
 
-                    // Returns the Fund Manager admin badge.
-                    let return_fund_manager_badge: Bucket = self.fund_manager_badge_vault.take_non_fungible(claim_badge);
+                    // Returns the Farmers admin badge.
+                    let return_farmer_badge: Bucket = self.farmer_badge_vault.take_non_fungible(claim_badge);
 
                     // Removes the entry from the approved list.
                     self.approvals.remove_entry(&temporary_badge_id);
@@ -612,16 +735,16 @@ blueprint! {
                         temporary_badge.burn()
                     );
 
-                    info!("[Maple Finance]: The resource address of your NFT is: {:?}", return_fund_manager_badge.resource_address());
+                    info!("[Vault Protocol]: The resource address of your NFT is: {:?}", return_farmer_badge.resource_address());
 
-                    return_fund_manager_badge
+                    return_farmer_badge
                 }
                 UserType::Borrower => {
 
-                    // Matches the Temporary Badge NFT ID with the approved Fund Manager admin badge.
+                    // Matches the Temporary Badge NFT ID with the approved Farmers admin badge.
                     let claim_badge: &NonFungibleId = self.approvals.get(&temporary_badge_id).unwrap();
 
-                    // Returns the Fund Manager admin badge.
+                    // Returns the Farmers admin badge.
                     let return_borrower_admin_badge: Bucket = self.borrower_badge_vault.take_non_fungible(claim_badge);
 
                     // Removes the entry from the approved list.
@@ -631,13 +754,28 @@ blueprint! {
                         temporary_badge.burn()
                     );
 
-                    info!("[Maple Finance]: The resource address of your NFT is: {:?}", return_borrower_admin_badge.resource_address());
+                    info!("[Vault Protocol]: The resource address of your NFT is: {:?}", return_borrower_admin_badge.resource_address());
 
                     return_borrower_admin_badge
                 }
             }
         }
 
+        /// This method is used by the BorrowerDashboard component to retrieve the Loan Request NFT in order to allow the
+        /// BorrowerDashboard to create a Proof of the Loan Request NFT and access the Funding Locker (where loans are funded
+        /// and drawn). The Borrower must first deposit collateral before they can receive the Loan NFT (which will be used to access 
+        /// the Funding Locker).
+        /// 
+        /// This method does not perform any checks but is imposed by an Access Rule that requires the proof of Borrower Badge
+        /// to be present.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `loan_request_nft_id` (NonFungibleId) - The NFT ID of the Loan Request NFT.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - The Bucket that contains the Loan Request NFT.
         pub fn retrieve_loan_request_nft(
             &mut self,
             loan_request_nft_id: NonFungibleId,
@@ -660,6 +798,21 @@ blueprint! {
             }
         }
 
+        /// This method is used by the BorrowerDashboard to return the Loan Request NFT. If the Borrower meets their
+        /// collateralizaiton requirement, the Loan Request NFT is burnt. If not, the Loan Request NFT is returned
+        /// to this component's vault.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Bucket passed contains the Loan Reuqest NFT in this protocol.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `loan_request_nft` (Bucket) - The Bucket that contains the Loan Request NFT
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn return_loan_request_nft(
             &mut self,
             loan_request_nft: Bucket,
@@ -676,6 +829,17 @@ blueprint! {
             self.global_loan_requests_vault.get_mut(&borrower_id).unwrap().put(loan_request_nft);
         }
 
+        /// This method is used to view the loan request of a particular borrower.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `borrower_id` (NonFungibleId) - The NFT ID of the Borrower.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `BTreeSet<NonFungibleId>` - The list of all the Borrower's loan requests.
         pub fn view_loan_requests(
             &mut self,
             borrower_id: NonFungibleId,
@@ -688,6 +852,16 @@ blueprint! {
             .clone();
         }
 
+        /// This method is used to view all the loan request of all the Borrowers.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// This method does not accept any arguments.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `HashMap<NonFungibleId, BTreeSet<NonFungibleId>>` - The HashMap of the Borrower NFT ID and NFT ID of all 
+        /// Loan Request NFT from this Borrower.
         pub fn loan_request_list(
             &self,
         ) -> HashMap<NonFungibleId, BTreeSet<NonFungibleId>>
@@ -701,7 +875,20 @@ blueprint! {
             loan_request_list
         }
 
-        /// Implement Access Control. Only Debt Fund component can call this method.
+        /// This method is used by the DebtFund component to enter a record of the Funding Lockers created. 
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks whether the Funding Locker for the particular Loan NFT ID already exist.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `loan_id` (NonFungibleId) - The the NFT ID of the Loan NFT.
+        /// * `funding_locker_address` (ComponentAddress) - The ComponentAddress of the Funding Locker.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything. 
         pub fn insert_funding_locker(
             &mut self,
             loan_id: NonFungibleId,
@@ -709,13 +896,25 @@ blueprint! {
         )
         {
             assert_ne!(self.global_funding_lockers.contains_key(&loan_id), true, 
-                "Pool name already exist, please use a different name"
+                "Funding Locker for this loan already exist."
             );
 
             self.global_funding_lockers.insert(loan_id, funding_locker_address);
         }
 
-        /// No access control needed since Funding Locker requires proof to access.
+        /// This method is used to the retrieve the ComponentAddress of the Funding Locker.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Loan NFT exist.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `loan_nft_id` (NonFungibleId) - The NFT ID of the Loan NFT.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `ComponentAddress` - The ComponentAddress of the Funding Locker.
         pub fn retrieve_funding_locker_address(
             &self,
             loan_nft_id: NonFungibleId,
@@ -723,14 +922,29 @@ blueprint! {
         {
             assert_eq!(
                 self.global_funding_lockers.contains_key(&loan_nft_id), true,
-                "[Maple Finance]: This loan does not exist."
+                "[Vault Protocol]: This loan does not exist."
             );
 
             return *self.global_funding_lockers.get(&loan_nft_id).unwrap();
         }
 
-        /// Implement Access Control. Only Fund Manager Dashboard can call this method.
-        /// Have Fund Manager Proof?
+        /// This method is used by the FarmerDashboard to insert record of DebtFunds created.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks whether the Fund Name already exist.
+        /// 
+        /// This method has Access Rule imposed to require Farmers Dashboard Admin Badge present before
+        /// the method can be called.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_name` (String) - The name of the fund.
+        /// * `debt_fund_address` (ComponentAddress) - The ComponentAddress of the Debt Fund.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn insert_debt_fund(
             &mut self,
             fund_name: String,
@@ -738,12 +952,23 @@ blueprint! {
         )
         {
             assert_ne!(self.global_debt_funds.contains_key(&fund_name), true, 
-                "Pool name already exist, please use a different name"
+                "Fund name already exist, please use a different name"
             );
 
             self.global_debt_funds.insert(fund_name, debt_fund_address);
         }
 
+        /// Asserts that the Index Fund exist.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_name` (String) - The name of the fund.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `bool` - The bool of whether the fund exist or not.
         pub fn assert_index_fund(
             &self,
             fund_name: String,
@@ -753,6 +978,18 @@ blueprint! {
             return self.global_index_funds.contains_key(&fund_id);
         }
 
+        /// This method is used to retrieve the Index Fund name pair which is the name of the fund and the symbol
+        /// of the fund.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_name` (String) - The name of the fund.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `(String, String)` - The Fund Name and the Fund Symbol.
         fn get_index_name_pair(
             &self,
             fund_name: String,
@@ -764,7 +1001,22 @@ blueprint! {
             fund_id
         }
 
-        /// Implement Access Control. Only Fund Manager Dashboard can call this method.
+        /// This method is used by the FarmerDashboard to record Index Funds created in this protocol.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks whether the fund name exists.
+        /// 
+        /// This method imposes and Access Rule that requires the Farmers Dashboard Admin Badge present.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_id` (String, String) - The Fund Name and the Fund Symbol.
+        /// * `index_fund_address` (ComponentAddress) - The ComponentAddress of the Index Fund.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn insert_index_fund(
             &mut self,
             fund_id: (String, String),
@@ -778,7 +1030,22 @@ blueprint! {
             self.global_index_funds.insert(fund_id, index_fund_address);
         }
 
-        /// Implement Access Control. Only Fund Manager Dashboard can call this method.
+        /// This method is used by the FarmerDashboard to record the fund name and fund ticker.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks whether the fund name exist.
+        /// 
+        /// This method has an Access Rule imposed that requires the Farmers Dashboard Admin Badge present.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_name` (String) - The fund name.
+        /// * `fund_ticker` (String) - The fund symbol.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.  
         pub fn insert_index_fund_name(
             &mut self,
             fund_name: String,
@@ -792,6 +1059,17 @@ blueprint! {
             self.global_index_funds_name.insert(fund_name, fund_ticker);
         }
 
+        /// Asserts whether the Index Fund name exist or not.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_name` (String) - The fund name.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `bool` - The bool whether the fund name exist or not.
         pub fn assert_index_fund_name(
             &self,
             fund_name: String,
@@ -800,6 +1078,17 @@ blueprint! {
             return self.global_index_funds_name.contains_key(&fund_name);
         }
 
+        /// This method is used to retrieve the Index Fund ComponentAddress.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// # Arugments:
+        /// 
+        /// * `fund_name` (String) - The fund name.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `ComponentAddress` - The ComponentAddress of the Index Fund.
         pub fn get_index_fund(
             &mut self,
             fund_name: String,
@@ -809,6 +1098,16 @@ blueprint! {
             return *self.global_index_funds.get(&fund_id).unwrap();
         }
 
+        /// This method is used to retrieve a list of all the Index Fund created in this protocol.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// This method does not accept any arguments.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `HashMap<(String, String), ComponentAddress>` - The HashMap of the fund_id (fund name, fund ticker) and the
+        /// associated ComponentAddress.
         pub fn index_fund_list(
             &self,
         ) -> HashMap<(String, String), ComponentAddress>
@@ -822,6 +1121,22 @@ blueprint! {
             index_fund_list
         }
 
+        /// This method is used by the FarmerDashboard to enter the record of LP tracking tokens of the Debt Funds.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks whether the tracking tokens already exist or not.
+        /// 
+        /// This method imposes an Access Rule that requires the Farmers Dashboard Admin Badge present.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tracking_token_address` (ResourceAddress) - The ResourceAddress of the tracking tokens.
+        /// * `fund_name` (String) - The fund name.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn insert_tracking_tokens(
             &mut self,
             tracking_token_address: ResourceAddress,
@@ -836,6 +1151,19 @@ blueprint! {
             self.global_tracking_tokens_address_mapping.insert(tracking_token_address, fund_name);
         }
 
+        /// This method retrieves the tracking token pairs to identify which debt fund it belongs to.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that tracking token has an associated debt fund.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tracking_token_address` (ResourceAddress) - The ResourceAddress of the tracking tokens.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `String` - The name of the Debt Fund this tracking token belongs to.
         pub fn get_tracking_tokens_mapping(
             &mut self,
             tracking_token_address: ResourceAddress
@@ -854,19 +1182,42 @@ blueprint! {
             fund_name
         }
 
+        /// Retrieves all the debt funds created in this protocol.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// This method does not accept any arguments.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `HashMap<String, ComponentAddress>` - The HashMap of the debt fund name and its associated
+        /// ComponentAddress.
         pub fn debt_fund_list(
             &self,
         ) -> HashMap<String, ComponentAddress>
         {
             // let mut debt_fund_list: HashMap<NonFungibleId, HashSet<ComponentAddress>> = HashMap::new();
             // let global_debt_funds = self.global_debt_funds.iter();
-            // for (fund_manager, debt_funds) in global_debt_funds {
-            //     debt_fund_list.insert(fund_manager.clone(), debt_funds.clone());
+            // for (farmer, debt_funds) in global_debt_funds {
+            //     debt_fund_list.insert(farmer.clone(), debt_funds.clone());
             // }
 
             return self.global_debt_funds.clone();
         }
 
+        /// This method is used to retrieve the ComponentAddress of the associated Debt Fund.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the debt fund exist.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_name` (String) - The name of the fund.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `ComponentAddress` - The ComponentAddress of the Debt Fund.
         pub fn get_debt_fund(
             &self,
             fund_name: String,

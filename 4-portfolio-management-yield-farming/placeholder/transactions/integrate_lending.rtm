@@ -1,5 +1,5 @@
 CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${INDEX_BADGE}");
 POP_FROM_AUTH_ZONE Proof("proof1");
 
-CALL_METHOD ComponentAddress("${INDEX}") "integrate_dex" Proof("proof1") ComponentAddress("${RADEX}");
+CALL_METHOD ComponentAddress("${INDEX}") "integrate_lending" Proof("proof1") ComponentAddress("${DEGENFI}");
 

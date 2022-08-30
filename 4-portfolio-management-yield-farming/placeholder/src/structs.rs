@@ -48,10 +48,6 @@ pub struct Loan {
     #[scrypto(mutable)]
     pub collateral_amount: Decimal,
     #[scrypto(mutable)]
-    pub collateral_amount_usd: Decimal,
-    #[scrypto(mutable)]
-    pub health_factor: Decimal,
-    #[scrypto(mutable)]
     pub loan_status: Status,
 }
 
@@ -120,21 +116,21 @@ pub enum BorrowerBadgeContainer {
 
 #[derive(TypeId, Encode, Decode, Describe, Debug, PartialEq)]
 pub enum Badges {
-    FundManager,
+    Farmer,
     Borrower,
     TemporaryBadge,
     LoanRequestNFT,
 }
 
 pub enum BadgeContainer {
-    FundManagerContainer(FundManager),
+    FarmerContainer(Farmer),
     BorrowerContainer(Borrower),
     TemporaryBadgeContainer(TemporaryBadge),
     LoanRequestNFTContainer(LoanRequest),
 }
 
 #[derive(NonFungibleData, Debug, Describe, Encode, Decode, TypeId, PartialEq)]
-pub struct FundManager {
+pub struct Farmer {
     pub name: String,
     pub managed_index_funds: HashMap<(String, String), ComponentAddress>,
     pub managed_debt_funds: HashMap<ResourceAddress, ComponentAddress>,
@@ -160,7 +156,7 @@ pub struct TemporaryBadge {
 
 #[derive(Debug, Describe, Encode, Decode, TypeId, PartialEq)]
 pub enum UserType {
-    FundManager,
+    Farmer,
     Borrower,
 }
 

@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("025afcba7e0b3425b2764dc3d46fd5f06a1eab7e978c6962ffc415") "retrieve_index_funds_lists";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3") "deposit_batch";

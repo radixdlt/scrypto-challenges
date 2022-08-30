@@ -19,10 +19,10 @@ resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
 
 PK_OP=$(resim publish ".")
 export PACKAGE=$(echo "$PK_OP" | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
-M_OP=$(resim run "./transactions/maplefinance.rtm")
+M_OP=$(resim run "./transactions/farmersmarket.rtm")
 export ORACLE=$(echo "$M_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
-export MAPLE=$(echo "$M_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
-export MADMIN=$(echo "$M_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
+export FARMER_COMPONENT=$(echo "$M_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
+export PROTOCOL_ADMIN=$(echo "$M_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
 R_OP=$(resim run "./transactions/radex.rtm")
 export RADEX=$(echo "$R_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
 D_OP=$(resim run "./transactions/degenfi.rtm")
@@ -30,15 +30,8 @@ export DEGENFI=$(echo "$D_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" |
 export FLASH=$(echo "$D_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
 
 
-
-PO_OP=$(resim run "./transactions/price_oracle.rtm")
-export ORACLE=$(echo "$PO_OP" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
-
-
-resim run ./transactions/set_maple.rtm
-
 ID=$(resim run "./transactions/investor_dashboard.rtm")
-export I_DB=$(echo "$ID" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+export IDASHBOARD=$(echo "$ID" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
 
 ---------  CREATE TB FOR FUND MANAGER & BORROWER---------
 resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
@@ -48,8 +41,15 @@ export USD=$(echo "$M_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed 
 export BTC=$(echo "$M_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
 export DOGE=$(echo "$M_OP" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '3q;d')
 export XRD=030000000000000000000000000000000000000000000000000004
+
+resim run ./transactions/set_price.rtm
+
+resim run ./transactions/transfer_liquidity.rtm
+
 C_FMTB=$(resim run "./transactions/create_fm_tb.rtm")
-export FM_TB=$(echo "$C_FMTB" | sed -nr "s/.* The resource address of your temporary badge is: ([[:alnum:]_]+)/\1/p")
+export F_TB=$(echo "$C_FMTB" | sed -nr "s/.* The resource address of your temporary badge is: ([[:alnum:]_]+)/\1/p")
+
+// Have FM transfer liquidity to Investor.
 
 resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
 C_BTB=$(resim run "./transactions/create_b_tb.rtm")
@@ -59,8 +59,8 @@ export B_TB=$(echo "$C_BTB" | sed -nr "s/.* The resource address of your tempora
 --------- MAPLE ADMIN CREATES BADGES FOR FUND MANAGER & BORROWER ----------
 resim set-default-account $ACC_ADDRESS1 $PRIV_KEY1
 
-C_FM=$(resim run "./transactions/create_fm.rtm")
-export FMDASHBOARD=$(echo "$C_FM" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+C_F=$(resim run "./transactions/create_f.rtm")
+export FDASHBOARD=$(echo "$C_F" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
 
 C_B=$(resim run "./transactions/create_b.rtm")
 export BDASHBOARD=$(echo "$C_B" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
@@ -68,15 +68,14 @@ export BDASHBOARD=$(echo "$C_B" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p"
 ---------- FUND MANAGER CREATES INDEX FUND ---------
 resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
 
-C_CB=$(resim run "./transactions/claim_fm_badge.rtm")
-export FM_BADGE=$(echo "$C_CB" | sed -nr "s/.* The resource address of your NFT is: ([[:alnum:]_]+)/\1/p")
+C_CB=$(resim run "./transactions/claim_f_badge.rtm")
+export F_BADGE=$(echo "$C_CB" | sed -nr "s/.* The resource address of your NFT is: ([[:alnum:]_]+)/\1/p")
 C_IF=$(resim run "./transactions/new_index_fund.rtm")
 export INDEX=$(echo "$C_IF" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
 export INDEX_BADGE=$(echo "$C_IF" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
 
-resim run ./transactions/set_price.rtm
-
-resim run ./transactions/issue_tokens.rtm
+I_T=$(resim run "./transactions/issue_tokens.rtm")
+export RADSH=$(echo "$I_T" | sed -nr "s/.* The resource address of $RADSH token is: ([[:alnum:]_]+)/\1/p")
 
 resim run ./transactions/new_liquidity_pool.rtm
 
@@ -85,6 +84,25 @@ resim run ./transactions/integrate_dex.rtm
 ----------- INVESTOR PURCHASES INDEX FUND ---------
 resim set-default-account $ACC_ADDRESS3 $PRIV_KEY3
 
+resim call-method $IDASHBOARD retrieve_index_funds_lists
+
+resim run ./transactions/buy_fund_tokens.rtm
+
+resim set_price
+
+Scenario 1: Fund tokens increase in price sell fund tokens
+
+Scenario 2: Fund tokens increase in price and redeem underlying asset.
+
+
+----- FUND MANAGER REBALANCES FUND -----
+
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+
+Scenario 1: XRD increases in price. Rebalance XRD.
+
+
+----- FUND MANAGER INTEGRATES LENDING -----
 
 
 
@@ -101,7 +119,9 @@ export TT=$(echo "$C_DF" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '
 --------- INVESTOR SUPPLIES LIQUIDITY? -----------
 resim set-default-account $ACC_ADDRESS3 $PRIV_KEY3
 
+resim call-method $IDASHBOARD retrieve_debt_funds_list
 
+resim call-method $IDASHBOARD supply_liquidity "4 Arrows Capital" 10000,$USD
 
 
 --------- BORROWER REQUEST LOAN ---------------
@@ -114,6 +134,66 @@ export LR=$(echo "$LR" | sed -nr "s/.* The NFT ID of this loan request is: ([[:a
 
 --------- FUND MANAGER VIEWS LOAN REQUEST --------
 resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+
+resim run ./transactions/loan_request_list.rtm
+
+C_FL=$(resim run "./transactions/instantiate_funding_locker.rtm")
+export FUND_LOCKER=$(echo "$C_FL" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+export LNFTID=$(echo "$C_FL" | sed -nr "s/.* The loan id is: ([[:alnum:]_]+)/\1/p")
+
+resim call-method $DEBT_FUND view_loan $LNFTID
+
+
+----- BORROWER VIEWS APPROVED LOANS ---------
+resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
+
+resim run ./transactions/view_approved_loan_requests.rtm
+
+resim run ./transactions/deposit_collateral.rtm
+
+export LNFT=03c3a5b97fe33b9b055339fd8febef791723f63102d4d3b1fe62cb
+
+view loan to see if it's ready to fund.
+
+----- FUND MANAGER FUNDS LOAN --------
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+
+resim call-method $DEBT_FUND fund_loan 1,$DF_BADGE 500 $LNFTID
+
+view loan to see if it's ready to fund.
+
+
+---- BORROWER REQUESTS DRAW -------
+resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
+
+resim call-method $BDASHBOARD draw_request 1,$LNFT 250
+
+------ FUND MANAGER APPROVES DRAW ------
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+resim call-method $DEBT_FUND view_draw_request $LNFTID
+resim call-method $DEBT_FUND approve_draw_request 1,$DF_BADGE $LNFTID
+
+---- BORROWER DRAWS FUNDS -----
+resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
+
+Receive the draw
+
+---- FUND MANAGER SETS INTEREST EXPENSE -----
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+
+resim set-current-epoch 10
+
+---- BORROWER PAYS INTEREST ------
+resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
+
+
+---- FUND MANAGER TRANSFER FEES ----
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+
+
+---- INVESTOR CLAIMS FEES -----
+resim set-default-account $ACC_ADDRESS3 $PRIV_KEY3
+
 
 
 // ** INDEX FUND TO DO LIST **
@@ -138,22 +218,15 @@ resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
 // Fund managers access the debt fund by supplying the proof of *their* debt fund badge. Checks are made to make sure that they are the manager.
 // via their NFT. The dashboard then can make authorized calls.
 // * Removing liquidity logic (need lock-up?)
+// Have a approve loan request method?
+// * Debt fund admin vs loan nft admin
 
 // ** Borrower Dashboard ** 
 // * Clean up fn get_resource_manager and fn _authorize_update
-// 
+// * Update data for borrower
 
-// ** MISC. ***
-// * Clean code for asserting proof by creating fn.
 
 Why does Fund Manager Dashboard component need access badge to Funding Locker?
 * To update the loan.
 
 // I think debt_fund and funding_locker should be highly integrated.
-
-// What's the advantage of instantiating funding locker in the debt fund?
-// * Funding Locker Address easily accessible in the debt fund 
-// * Directly send proof to componet
-
-// What's the advantage of instantiating funding locker in fund manager dashboard?
-// * Lending Pool address and Funding Locker easily accessible 

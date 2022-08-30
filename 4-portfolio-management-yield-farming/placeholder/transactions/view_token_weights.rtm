@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("027197e7aee4f93de8d2ef1ccea23754eeeccdc0605fe066177605") "view_token_weights";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3") "deposit_batch";

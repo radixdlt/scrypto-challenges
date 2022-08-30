@@ -1,5 +1,5 @@
 CALL_METHOD
-    ComponentAddress("${MAPLE}")
+    ComponentAddress("${FARMER_COMPONENT}")
     "create_temporary_badge"
     "Borrower"
     Enum("Borrower");

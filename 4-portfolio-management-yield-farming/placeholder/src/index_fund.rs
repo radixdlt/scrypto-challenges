@@ -80,6 +80,10 @@ blueprint! {
                 .burnable(rule!(require(fund_token_admin.resource_address())), LOCKED)
                 .no_initial_supply();
             
+            // Sets the starting price of the fund tokens.
+            let price_oracle: PriceOracle = price_oracle_address.into();
+            price_oracle.set_price(fund_token_address, starting_share_price);
+
             let vault_amount = tokens.iter();
             let mut fund_vaults: HashMap<ResourceAddress, Vault> = HashMap::new();
             let mut token_weights: HashMap<ResourceAddress, Decimal> = HashMap::new();
@@ -157,6 +161,11 @@ blueprint! {
             );
 
             self.radex_address = Some(radex_address);
+
+            info!(
+                "[{:?} Fund]: RaDEx has been integrated! You may now use its controls.",
+                self.fund_name
+            );
         }
 
         /// Allows Fund Manager to use DegenFi in order to take out loans and leverage the fund.
@@ -176,6 +185,11 @@ blueprint! {
             );
 
             self.degenfi_address = Some(degenfi_address);
+
+            info!(
+                "[{:?} Fund]: DegenFi has been integrated! You may now use its controls.",
+                self.fund_name
+            );
         }
 
         pub fn create_trader_badge(
@@ -187,7 +201,7 @@ blueprint! {
                 "[{:?} Fund]: Badge not authorized.",
                 self.fund_name
             );
-            
+
             let fund_trader_badge: Bucket = self.fund_admin_vault.authorize(|| 
                 borrow_resource_manager!(self.fund_trader_address).mint(1)
             );
@@ -207,29 +221,64 @@ blueprint! {
             }
         }
 
+        /// This method is used to allow investors to buy a stake of the Index Fund.
+        /// 
+        /// # Checks: 
+        /// 
+        /// * **Check 1:** - Checks that the Bucket passed contains XRD.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `xrd` (Bucket) - The Bucket that contains the XRD to purchase fund tokens.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - The Bucket that contains the fund tokens.
         pub fn buy(
             &mut self,
             xrd: Bucket
         )  -> Bucket
         {
             assert_eq!(xrd.resource_address(), RADIX_TOKEN,
-                "[Fund Locker]: You can only purchase Fund Tokens with XRD."
+                "[{:?} Fund]: You can only purchase Fund Tokens with XRD.",
+                self.fund_name
             );
 
             let output_token: ResourceAddress = self.fund_token_address; 
             let radex: RaDEX = self.radex_address.unwrap().into();
             let return_bucket: Bucket = radex.swap(xrd, output_token);
 
+            info!(
+                "[{:?} Fund]: You have purchased {:?} amount of {:?}.",
+                self.fund_name,
+                return_bucket.amount(),
+                self.fund_ticker
+            );
+
             return_bucket
         }
 
+        /// This method allows investors to sell their fund tokens in exchange for equivalent value in XRD.
+        /// 
+        /// # Checks: 
+        /// 
+        /// * **Check 1:** - Checks that the Bucket passed contains the fund tokens that belongs to this protocol.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_token` (Bucket) - The Bucket that contains the fund tokens.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - The Bucket that contains the XRD.
         pub fn sell(
             &mut self,
             fund_token: Bucket
         ) -> Bucket
         {
             assert_eq!(fund_token.resource_address(), self.fund_token_address,
-                "[Fund Locker]: You can only sell Fund Tokens."
+                "[{:?} Fund]: You can only sell Fund Tokens.",
+                self.fund_name
             );
 
             let output_token = RADIX_TOKEN;
@@ -239,11 +288,36 @@ blueprint! {
             return_bucket   
         }
 
+        /// This method allows investors who already have the underlying asset of the Index Fund and convert them to equivalent
+        /// value in fund tokens.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the vector of Buckets passed contains the tokens that are supported by the Index Fund.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tokens` (Vec<Bucket>) - The vector of Buckets that contains the underlying assets.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - The Bucket that contains the fund tokens.
         pub fn issue_tokens(
             &mut self,
             mut tokens: Vec<Bucket>,
         ) -> Bucket
         {
+            let bucket_of_tokens = tokens.iter();
+
+            for tokens in bucket_of_tokens {
+                let token_address: ResourceAddress = tokens.resource_address();
+                assert_eq!(
+                    self.fund_vaults.contains_key(&token_address), true,
+                    "[{:?} Fund]: This token is not part of the fund's basket of supported asset",
+                    self.fund_name
+                );
+            };
+
             // Retrieves how many bucket of tokens are being passed.
             let number_of_tokens = tokens.len();
             
@@ -255,15 +329,23 @@ blueprint! {
                 amount_to_mint
             };
 
-            info!("[Fund Locker]: Amount of Fund Tokens issued: {:?}", amount_to_mint);
+            info!("[{:?} Fund]: Amount of {:?} tokens issued: {:?}", 
+                self.fund_name,
+                self.fund_ticker,
+                amount_to_mint
+            );
 
             // * MINTS FUND TOKENS * //
             let fund_token = self.fund_token_admin_vault.authorize(|| 
                 borrow_resource_manager!(self.fund_token_address).mint(amount_to_mint)
             );
 
-            let price_oracle: PriceOracle = self.price_oracle_address.into();
-            price_oracle.set_price(self.fund_token_address, Decimal::one());
+            info!(
+                "[{:?} Fund]: The resource address of {:?} token is: {:?}",
+                self.fund_name,
+                self.fund_ticker,
+                fund_token.resource_address()
+            );
 
             let mut counter = 0;
             while counter < number_of_tokens {
@@ -275,7 +357,8 @@ blueprint! {
 
                         assert_ne!(
                             borrow_resource_manager!(token.resource_address()).resource_type(), ResourceType::NonFungible,
-                            "[Fund Locker]: Assets must be fungible."
+                            "[{:?} Fund]: Assets must be fungible.",
+                            self.fund_name
                         );
 
                         let token_address: ResourceAddress = token.resource_address();
@@ -285,7 +368,8 @@ blueprint! {
                         // deposited. The total weight of each collateral should equal to 100%.
 
                         assert_eq!(self.fund_vaults.contains_key(&token_address), true,
-                            "[Fund Locker]: This token does not belong to this fund."
+                            "[{:?} Fund]: This token does not belong to this fund.",
+                            self.fund_name
                         );
 
                         self.fund_vaults.get_mut(&token_address).unwrap().put(token);
@@ -293,7 +377,8 @@ blueprint! {
                     }
                     None => {
                         
-                        info!("[Fund Locker]: All tokens deposited!");
+                        info!("[{:?} Fund]: All tokens deposited!",
+                        self.fund_name);
 
                     }
                 }
@@ -305,13 +390,27 @@ blueprint! {
             fund_token
         }
 
+        /// This method allows investors to redeem the fund tokens for the underlying asset of the given Index Fund.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Bucket passed contains the fund tokens that belongs to this Index Fund.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_tokens` (Bucket) - The Bucket that contains the fund tokens.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Vec<Bucket>` - The vector of Buckets that contains the underlying assets.
         pub fn redeem(
             &mut self,
             fund_token: Bucket,
         ) -> Vec<Bucket>
         {
             assert_eq!(fund_token.resource_address(), self.fund_token_address,
-                "[Fund Locker]: You may only redeem fund tokens that belongs to this index."
+                "[{:?} Fund]: You may only redeem fund tokens that belongs to this index.",
+                self.fund_name
             );
 
             // * VALUES THE TOTAL AMOUNT OF FUND TOKENS PASSED. * //
@@ -320,8 +419,14 @@ blueprint! {
             let token_price: Decimal = price_oracle.get_price(fund_token.resource_address());
             let token_value: Decimal = token_price * token_amount;
 
+            info!(
+                "[{:?} Fund]: Fund token value: {:?}.",
+                self.fund_name,
+                token_value
+            );
+
             // * TAKES THE NUMBER OF COLLATERAL IN THE FUND TO BE LOOPED OVER * //
-            let number_of_tokens: usize = self.token_weights.len();
+            let number_of_tokens: usize = self.fund_vaults.len();
             let mut token_addresses = self.fund_vaults.keys().cloned().collect::<Vec<ResourceAddress>>();
             let mut counter = 0;
 
@@ -336,26 +441,30 @@ blueprint! {
                     Some(token) => { 
 
                         // * RETRIEVES EACH COLLATERAL WEIGHT AND MULTIPLY AGAINST THE TOTAL VALUE OF THE TOKEN FUND * //
-                        let collateral_weight: Decimal = *self.token_weights.get(&token).unwrap();
-                        let collateral_price = price_oracle.get_price(token);
-                        let collateral_value = collateral_price * collateral_weight;
-                        let collateral_amount = token_value * collateral_value;
+                        let cumulative_value: Decimal = self.get_vault_cumulative_value();
+                        let price_oracle: PriceOracle = self.price_oracle_address.into();
+                        let collateral_price: Decimal = price_oracle.get_price(token);
+                        let collateral_amount: Decimal = self.fund_vaults.get(&token).unwrap().amount();
+                        let collateral_value: Decimal = collateral_price * collateral_amount;
+                        let collateral_weight: Decimal = collateral_value / cumulative_value;
+                        let amount_to_return: Decimal = token_value * collateral_weight; 
+
+                        // let collateral_weight: Decimal = *self.token_weights.get(&token).unwrap();
+                        // let collateral_price = price_oracle.get_price(token);
+                        // let collateral_value = collateral_price * collateral_weight;
+                        // let collateral_amount = token_value * collateral_value;
 
                         // * PUSHES THE BUCKET OF EACH COLLATERAL TO BE RETURNED TO THE INVESTOR * //
-                        let collateral_bucket: Bucket = self.fund_vaults.get_mut(&token).unwrap().take(collateral_amount);
+                        let collateral_bucket: Bucket = self.fund_vaults.get_mut(&token).unwrap().take(amount_to_return);
                         return_collateral.push(collateral_bucket);
 
-
-                        info!("[Redeem]: {:?} of {:?}", token, collateral_amount);
+                        info!("[Redeem]: {:?} of {:?}", token, amount_to_return);
 
                     }
                     None => {}
                 }
                 counter += 1;
-                info!("[Redeem]: Counter: {:?}", counter);
             }
-            let bucket_amount = return_collateral.len();
-            info!("[Redeem]: Bucket: {:?}", bucket_amount);
 
             self.fund_token_admin_vault.authorize(|| fund_token.burn());
 
@@ -386,6 +495,10 @@ blueprint! {
         /// * `token2_address` (ResourceAddress) - The ResourceAddress of the second requested token
         /// to be used to supply liquidity.
         /// * `token2_amount` (Decimal) - The amount of Token 2 requested to supply liquidity.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn add_liquidity(
             &mut self,
             fund_admin: Proof,
@@ -501,6 +614,28 @@ blueprint! {
             return fund_vault.take(amount);
         }
 
+        /// Swaps the input tokens for tokens of the desired type.
+        /// 
+        /// This method is used to swap tokens for other tokens. This method first checks that there does exist a 
+        /// liquidity pool between the input and the output tokens. If a liquidity pool is found, then the swap goes
+        /// through.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund admin badge that belongs to this Index Fund.
+        /// * **Check 2:** - Checks that RaDEX has been integrated to the component.
+        /// * **Check 3:** - Checks that the component vault has the token the Fund admin wishes to swap.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
+        /// * `token_address` (ResourceAddress) - The ResourceAddress the Fund admin wishes to swap.
+        /// * `amount` (Decimal) - The amount of the selected token the Fund admin wishes to swap.
+        /// * `output_token` (ResourceAddress) - The resource address of the token to receive from the swap.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn swap(
             &mut self,
             fund_admin: Proof,
@@ -535,6 +670,27 @@ blueprint! {
             self.view_token_weights();
         }
 
+        /// Creates a new user for the lending protocol.
+        /// 
+        /// This method is used to create a new user for DegenFi. A "Soul Bound Token" (SBT) is
+        /// created and sent to the user's wallet which cannot be transferred or burnt. The SBT tracks
+        /// user interactions within the protocol. Its major use case is to attempt to create a borrowing
+        /// track record to underwrite the user's credit worthines. The user has to submit their
+        /// wallet's component address to prevent the creation of multiple SBTs. Most of the protocol's
+        /// method will require users to submit a proof of their SBT in order to use the protocol. 
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund admin badge that belongs to this Index Fund.
+        /// * **Check 2:** - Checks that DegenFi is integrated in this component.
+        /// 
+        /// # Arguments: 
+        /// 
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn register_degenfi_user(
             &mut self,
             fund_admin: Proof,
@@ -556,6 +712,27 @@ blueprint! {
             self.degenfi_vaults.insert(degen_tokens.resource_address(), Vault::with_bucket(degen_tokens));
         }
 
+        /// Creates a new lending pool with the deposited asset.
+        /// 
+        /// This method is used to create a new lending pool of the deposited asset.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund admin badge that belongs to this Index Fund.
+        /// * **Check 2:** - Checks that DegenFi is integrated in this component.
+        /// * **Check 3:** - Checks that the fund vault contains the token that the fund admin wishes to create a lending
+        /// pool with.
+        /// 
+        /// # Arguments: 
+        /// 
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
+        /// * `token_address` (ResourceAddress) - The ResourceAddress of the token the Fund admin wishes to create a lending pool
+        /// with.
+        /// * `deposit_amount` (Decimal) - The amount of the tokens the Fund admin wishes to supply liquidity to the lending pool.
+        /// 
+        /// # Returns:
+        /// 
+        /// * This method does not return anything.
         pub fn new_lending_pool(
             &mut self,
             fund_admin: Proof,
@@ -588,6 +765,27 @@ blueprint! {
             self.degenfi_vaults.get_mut(&addresses[1]).unwrap().put(degen_token);
         }
 
+        /// Deposits supply of a given asset.
+        /// 
+        /// This method is used to add aditional liquidity to the lending pool. The user
+        /// must first identify which
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund admin badge that belongs to this Index Fund.
+        /// * **Check 2:** - Checks that DegenFi is integrated in this component.
+        /// * **Check 3:** - Checks that the fund vault contains the token that the fund admin wishes to create a lending
+        /// pool with.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
+        /// * `token_address` (ResourceAddress) - The ResourceAddress of the token the Fund admin wishes to deposit supply with.
+        /// * `deposit_amount` (Decimal) - The amount of the tokens the Fund admin wishes to supply liquidity to the lending pool.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn deposit_supply(
             &mut self,
             fund_admin: Proof,
@@ -620,6 +818,29 @@ blueprint! {
             self.degenfi_vaults.get_mut(&addresses[1]).unwrap().put(degen_token);
         }
 
+        /// Deposits collateral of a given asset.
+        /// 
+        /// This method is used to add collateral of the given asset. Currently the collateral
+        /// design locks up the asset. Future iterations may provide ability to redeploy collateral
+        /// as supply to provide more liquidity and allows borrowers (who use their collateral)
+        /// earn APY.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund admin badge that belongs to this Index Fund.
+        /// * **Check 2:** - Checks that DegenFi is integrated in this component.
+        /// * **Check 3:** - Checks that the fund vault contains the token that the fund admin wishes to create a lending
+        /// pool with.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
+        /// * `collateral_address` (ResourceAddress) - The ResourceAddress of the token the Fund admin wishes to deposit collateral.
+        /// * `collateral_amount` (Decimal) - The amount of the tokens the Fund admin wishes to supply collateral to the lending pool.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn deposit_collateral(
             &mut self,
             fund_admin: Proof,
@@ -652,6 +873,27 @@ blueprint! {
             self.degenfi_vaults.get_mut(&addresses[1]).unwrap().put(degen_token);
         }
 
+        /// Tops off additional collateral for a given loan.
+        /// 
+        /// This method is used to add additionall collateral of a given loan.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund admin badge that belongs to this Index Fund.
+        /// * **Check 2:** - Checks that DegenFi is integrated in this component.
+        /// * **Check 3:** - Checks that the fund vault contains the token that the fund admin wishes to create a lending
+        /// pool with.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
+        /// * `loan_id` (NonFungibleId) - The NFT ID of the Loan NFT.
+        /// * `collateral_address` (ResourceAddress) - The ResourceAddress of the token the Fund admin wishes to deposit collateral.
+        /// * `collateral_amount` (Decimal) - The amount of the tokens the Fund admin wishes to supply collateral to the lending pool.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn deposit_additional_collateral(
             &mut self,
             fund_admin: Proof,
@@ -687,6 +929,27 @@ blueprint! {
             self.degenfi_vaults.get_mut(&addresses[1]).unwrap().put(degen_token);
         }
 
+        /// Allows user to borrow funds from the pool.
+        ///
+        /// This method is used to allow users to borrow funds from the pool.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund admin badge that belongs to this Index Fund.
+        /// * **Check 2:** - Checks that DegenFi is integrated in this component.
+        /// * **Check 3:** - Checks that the fund vault contains the token that the fund admin wishes to create a lending
+        /// pool with.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
+        /// * `token_requested` (ResourceAddress) - The asset the Fund admin wishes to borrow from the lending pool.
+        /// * `collateral_address` (ResourceAddress) - The ResourceAddress of the token the Fund admin wishes to deposit collateral.
+        /// * `collateral_amount` (Decimal) - The amount of the tokens the Fund admin wishes to supply collateral to the lending pool.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn borrow(
             &mut self,
             fund_admin: Proof,
@@ -724,6 +987,27 @@ blueprint! {
             self.degenfi_vaults.get_mut(&addresses[1]).unwrap().put(degen_token);
         }
 
+        /// Allows user to top off additional funds from the pool.
+        ///
+        /// This method is used to allow users to borrow additional funds from the pool.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund admin badge that belongs to this Index Fund.
+        /// * **Check 2:** - Checks that DegenFi is integrated in this component.
+        /// * **Check 3:** - Checks that the fund vault contains the token that the fund admin wishes to create a lending
+        /// pool with.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
+        /// * `loan_id` (NonFungibleId) - The NFT ID of the Loan NFT.
+        /// * `token_requested` (ResourceAddress) - The asset the Fund admin wishes to borrow from the lending pool.
+        /// * `amount` (Decimal) - The amount of the tokens the Fund admin wishes to borrow more of.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn borrow_additional(
             &mut self,
             fund_admin: Proof,
@@ -759,6 +1043,27 @@ blueprint! {
             self.degenfi_vaults.get_mut(&addresses[1]).unwrap().put(degen_token);
         }
 
+        /// Repays the loan in partial or in full.
+        /// 
+        /// This method is used to pay down or pay off the loan.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund admin badge that belongs to this Index Fund.
+        /// * **Check 2:** - Checks that DegenFi is integrated in this component.
+        /// * **Check 3:** - Checks that the fund vault contains the token that the fund admin wishes to create a lending
+        /// pool with.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
+        /// * `loan_id` (NonFungibleId) - The NFT ID of the Loan NFT.
+        /// * `token_requested` (ResourceAddress) - The asset the Fund admin wishes to borrow from the lending pool.
+        /// * `amount` (Decimal) - The amount of the tokens the Fund admin wishes to borrow more of.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn repay(
             &mut self,
             fund_admin: Proof,
@@ -814,6 +1119,24 @@ blueprint! {
             self.degenfi_vaults.get_mut(&addresses[1]).unwrap().put(degen_token);
         }
 
+        /// Removes the collateral owed to the user.
+        /// 
+        /// This method is used to redeem the collateral the user deposited.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund admin badge that belongs to this Index Fund.
+        /// * **Check 2:** - Checks that DegenFi is integrated in this component.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
+        /// * `collateral_address` (ResourceAddress) - The ResourceAddress of the token the Fund admin wishes to redeem.
+        /// * `collateral_amount` (Decimal) - The amount of the tokens the Fund admin wishes to redeem.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn redeem_collateral(
             &mut self,
             fund_admin: Proof,
@@ -841,6 +1164,26 @@ blueprint! {
             self.fund_vaults.get_mut(&return_bucket.resource_address()).unwrap().put(return_bucket);
         }
 
+        /// Allows user to perform a flash loan.
+        ///
+        /// This method is used to allow users to perform a flash loan. A transient token is created to record the amount
+        /// that was borrowed. The transient token must be burnt for the transaction to complete. Currently, there is no
+        /// fee for performing flash loans. 
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund admin badge that belongs to this Index Fund.
+        /// * **Check 2:** - Checks that DegenFi is integrated in this component.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
+        /// * `token_requested` (ResourceAddress) - The asset the Fund admin wishes to borrow from the lending pool.
+        /// * `amount` (Decimal) - The amount of the tokens the Fund admin wishes to borrow.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn flash_borrow(
             &mut self,
             fund_admin: Proof,
@@ -866,6 +1209,25 @@ blueprint! {
             self.degenfi_vaults.get_mut(&addresses[1]).unwrap().put(degen_token);
         }
 
+        /// Allows user to repay the flash loan borrow.
+        ///
+        /// This method is used to allow users to repay their flash loan. The amount repaid must
+        /// equal what was recorded in the flash loan token data structure.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund admin badge that belongs to this Index Fund.
+        /// * **Check 2:** - Checks that DegenFi is integrated in this component.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_admin` (Proof) - The Proof of the fund master badge.
+        /// * `repay_amount` (Bucket) - The bucket that contains the asset to be repaid.
+        /// * `flash_loan` (Bucket) - The bucket that contains the flash loan.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn flash_repay(
             &mut self,
             fund_admin: Proof,
@@ -892,22 +1254,37 @@ blueprint! {
             self.degenfi_vaults.get_mut(&addresses[1]).unwrap().put(degen_token);
         }
 
-        pub fn view_fund_tokens(
-            &self,
-        )
-        {
-            let fund_vaults = self.fund_vaults.iter();
-            for (token_address, vaults) in fund_vaults {
-            let price_oracle: PriceOracle = self.price_oracle_address.into();
-            let token_price: Decimal = price_oracle.get_price(*token_address);
-            let token_value: Decimal = token_price * vaults.amount();
-            info!("[{:?} Fund]: Token: {:?} | Amount: {:?} | Value: {:?}",
-                self.fund_name, token_address, vaults.amount(), token_value
-            );
+        /// This method is used to return the tokens held in this Index Fund along with the amount
+        /// and value of each token.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// This method does not accept any arguments.
+        /// 
+        /// This method does not return anything.
+        // pub fn view_fund_tokens(
+        //     &self,
+        // )
+        // {
+        //     let fund_vaults = self.fund_vaults.iter();
+        //     for (token_address, vaults) in fund_vaults {
+        //     let price_oracle: PriceOracle = self.price_oracle_address.into();
+        //     let token_price: Decimal = price_oracle.get_price(*token_address);
+        //     let token_value: Decimal = token_price * vaults.amount();
+        //     info!("[{:?} Fund]: Token: {:?} | Amount: {:?} | Value: {:?}",
+        //         self.fund_name, token_address, vaults.amount(), token_value
+        //     );
 
-            }
-        }
+        //     }
+        // }
 
+        /// This method is used to view the current weightings of the tokens in this Index Fund.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// This method does not accept any arguments.
+        /// 
+        /// This method does not return anything (other than info! messages of the token weights).
         pub fn view_token_weights(
             &self,
         ) 
@@ -916,6 +1293,7 @@ blueprint! {
             info!("[{:?} Fund]: The token weights are:", self.fund_name);
             let fund_vaults = self.fund_vaults.iter();
             for (token_address, vaults) in fund_vaults {
+
                 let token_price: Decimal = price_oracle.get_price(*token_address);
 
                 let vault_amount = vaults.amount();
@@ -926,12 +1304,26 @@ blueprint! {
 
                 let token_weight: Decimal = token_value / cumulative_value;
 
-                info!("Token Address: {:?} | Token Weight: {:?}", 
-                    token_address, token_weight
+                info!(
+                    "Token Address: {:?} | Token Amount: {:?} | Token Value: {:?} | Token Weight: {:?}", 
+                    token_address, 
+                    vault_amount,
+                    token_value,
+                    token_weight
                 );
             }
         }
 
+        /// This method is used to calculate the total value of the vector of Buckets that contains
+        /// the tokens passed into the Index Fund. It is used to determine the weights of the tokens passed.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// This method does not accept any arguments.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Decimal` - The cumulative value of the tokens in this Index Fund.
         fn get_vault_cumulative_value(
             &self,
         ) -> Decimal
@@ -956,6 +1348,20 @@ blueprint! {
             cumulative_value
         }
 
+        /// This method is used to calculate the amount of fund tokens that needs to be issued based on the value
+        /// of the tokens passed.
+        /// 
+        /// 
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tokens` (&Vec<Bucket>) - The vector of Buckets that contains the tokens passed.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Decimal` - The amount of fund tokens to be minted.
         fn get_amount_to_mint(
             &self,
             tokens: &Vec<Bucket>
@@ -963,7 +1369,7 @@ blueprint! {
         {
             let cumulative_value: Decimal = self.get_total_bucket_value(&tokens);
 
-            info!("1cumulative value: {:?}", cumulative_value);
+            info!("Cumulative value of the tokens passed: {:?}", cumulative_value);
 
             let mut cumulative_amount: Decimal = Decimal::zero();
 
@@ -979,21 +1385,33 @@ blueprint! {
                 let token_weight: Decimal = token_value / cumulative_value;
                 let mint: Decimal = cumulative_value * token_weight;
 
-                info!("1Token Address: {:?}", token.resource_address());
-                info!("1Token weight: {:?}", token_weight);
-                info!("1Mint: {:?}", mint);
-                info!("1Amount: {:?}", token_amount);
+                info!("Token Address: {:?}", token.resource_address());
+                info!("Token weight: {:?}", token_weight);
+                info!("Amount of tokens passed: {:?}", token_amount);
+                info!("Amount to mint: {:?}", mint);
 
                 cumulative_amount += token_amount;
 
                 amount_to_mint += mint;
             }
 
-            info!("1cumulative amount: {:?}", cumulative_amount);
-
             amount_to_mint
         }
 
+        /// This method is used to calculate the amount of fund tokens that needs to be issued based on the value
+        /// of the tokens passed.
+        /// 
+        /// 
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tokens` (&Vec<Bucket>) - The vector of Buckets that contains the tokens passed.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Decimal` - The amount of fund tokens to be minted.
         fn get_amount_to_mint2(
             &self,
             tokens: &Vec<Bucket>
@@ -1002,7 +1420,7 @@ blueprint! {
 
             let mut cumulative_value: Decimal = self.get_vault_cumulative_value();
 
-            info!("2cumulative value: {:?}", cumulative_value);
+            info!("Cumulative value of the tokens passed: {:?}", cumulative_value);
 
             let mut cumulative_amount: Decimal = Decimal::zero();
 
@@ -1023,18 +1441,16 @@ blueprint! {
 
                 cumulative_value += token_value;
 
-                info!("2Token Address: {:?}", token_address);
-                info!("2Amount: {:?}", token_amount);
+                info!("Token Address: {:?}", token_address);
+                info!("Amount of tokens passed: {:?}", token_amount);
 
                 cumulative_amount += token_amount;
                 // multiply current cumulative token weight with total bucket value
             }
 
-            info!("3new cumulative value: {:?}", cumulative_value);
-
             let total_bucket_value: Decimal = self.get_total_bucket_value(&tokens);
 
-            info!("3total bucket value: {:?}", total_bucket_value);
+            info!("Total value of tokens passed: {:?}", total_bucket_value);
 
             let mut amount_to_mint: Decimal = Decimal::zero();
             let buckets = tokens.iter();
@@ -1063,19 +1479,30 @@ blueprint! {
                 // passed multiplied by the updated weights.
                 let mint: Decimal = total_bucket_value * token_weight;
 
-                info!("3Token Address: {:?}", token_address);
-                info!("3Token weight: {:?}", token_weight);
-                info!("3Amount: {:?}", cumulative_token_amount);
-                info!("3Vault value: {:?}", token_value);
-                info!("3Mint: {:?}", mint);
+                info!("Token Address: {:?}", token_address);
+                info!("Token weight: {:?}", token_weight);
+                info!("Cumulative amount of tokens passed: {:?}", cumulative_token_amount);
+                info!("Fund vault value: {:?}", token_value);
+                info!("Amount to mint: {:?}", mint);
 
                 amount_to_mint += mint;
             }
 
-            info!("1cumulative amount: {:?}", cumulative_amount);
             amount_to_mint
         }
 
+        /// This method is used to calculate the total value of the vector of Buckets that contains
+        /// the tokens passed into the Index Fund. It is used to determine the weights of the tokens passed.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tokens` (&Vec<Bucket>) - The vector of Buckets that contains the tokens passed.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Decimal` - The cumulative value of the tokens passed.
         fn get_total_bucket_value(
             &self,
             tokens: &Vec<Bucket>
@@ -1096,6 +1523,15 @@ blueprint! {
             cumulative_value
         }
 
+        /// This method is used to view the loans the component has taken out.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// This method does not accept any arguments.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `BTreeSet<NonFungibleId> - The sets of all the Loan NFT IDs.
         pub fn view_loans(
             &self,
         ) -> BTreeSet<NonFungibleId>

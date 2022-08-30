@@ -1,4 +1,4 @@
 CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "create_proof_by_amount" Decimal("1") ResourceAddress("${PROTOCOL_ADMIN}");
 POP_FROM_AUTH_ZONE Proof("proof1");
-CALL_METHOD ComponentAddress("${FARMER_COMPONENT}") "create_borrower" Proof("proof1") "Borrower";
+CALL_METHOD ComponentAddress("${FARMER_COMPONENT}") "create_farmer" Proof("proof1") "Farmer";
 

@@ -1,8 +1,8 @@
 use scrypto::prelude::*;
 use crate::structs::*;
 use crate::fundinglocker::*;
-use crate::maple_finance_global::*;
-use crate::fund_manager_dashboard::*;
+use crate::farmers_market::*;
+use crate::farmer_dashboard::*;
 
 // Pool Management
 
@@ -29,18 +29,17 @@ blueprint! {
         loan_request_nft_address: ResourceAddress,
         loan_nft_address: ResourceAddress,
         loan_nft_admin_vault: Vault,
-        maple_finance_global_address: ComponentAddress,
+        farmers_market_global_address: ComponentAddress,
         optional_fund_manager_dashboard_address: Option<ComponentAddress>,
         price_oracle_address: ComponentAddress,
         funding_lockers: HashMap<NonFungibleId, ComponentAddress>,
-        access_badge_vault: Option<Vault>,
         fee_vault: HashMap<ResourceAddress, Vault>,
     }
 
     impl DebtFund {
 
         pub fn new(
-            maple_finance_global_address: ComponentAddress,
+            farmers_market_global_address: ComponentAddress,
             optional_fund_manager_dashboard_address: Option<ComponentAddress>,
             price_oracle_address: ComponentAddress,
             fund_manager_name: String,
@@ -99,13 +98,8 @@ blueprint! {
                 .updateable_non_fungible_data(rule!(require(loan_nft_admin.resource_address())), LOCKED)
                 .no_initial_supply();
 
-            let access_rules: AccessRules = AccessRules::new()
-                .method("deposit_access_badge", rule!(require(loan_nft_admin.resource_address())))
-                .default(rule!(allow_all)
-            );
-
             let debt_fund = Self {
-                maple_finance_global_address: maple_finance_global_address,
+                farmers_market_global_address: farmers_market_global_address,
                 optional_fund_manager_dashboard_address: optional_fund_manager_dashboard_address,
                 price_oracle_address: price_oracle_address,
                 fund_manager_address: fund_manager_address,
@@ -120,16 +114,29 @@ blueprint! {
                 loan_nft_address: loan_nft_address,
                 loan_nft_admin_vault: Vault::with_bucket(loan_nft_admin),
                 funding_lockers: HashMap::new(),
-                access_badge_vault: None,
                 fee_vault: HashMap::new(),
             }
             .instantiate()
-            .add_access_check(access_rules)
             .globalize();
 
             (debt_fund, tracking_tokens, debt_fund_badge)
         }
 
+        /// This method allows Investors to supply liquidity to the Debt Fund to allow Fund Managers
+        /// to originate loans.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Bucket passed contains the right tokens.
+        /// * **Check 2:** - Checks that the Bucket passed is not empty.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `liquidity_amount` (Bucket) - The Bucket contains the supply liquidity.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - The Bucket that contains the tracking tokens.
         pub fn supply_liquidity(
             &mut self,
             liquidity_amount: Bucket
@@ -170,6 +177,24 @@ blueprint! {
             tracking_tokens
         }
 
+        
+        /// This method allows the Debt Fund admin to transfer the loan proceeds from the Funding Locker(s) to the
+        /// Debt Fund.
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund Manager that belongs to this protocol.
+        /// * **Check 2:** - Checks that the Bucket contains the right tokens.
+        /// * **Check 3:** - Checks that the Bucket is not empty.
+        /// 
+        /// Most of the checks in this method is done in the FundingLocker component.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `debt_fund_badge` (Proof) - The Proof of the Debt Fund admin badge.
+        /// * `loan_nft_id` (NonFungibleId) - The NFT ID of the Loan NFT.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn transfer_liquidity(
             &mut self,
             debt_fund_badge: Proof,
@@ -181,7 +206,6 @@ blueprint! {
             let optional_funding_locker_address: Option<&ComponentAddress> = self.funding_lockers.get(&loan_nft_id);
             match optional_funding_locker_address {
                 Some(funding_locker_address) => {
-                    let access_badge_proof: Proof = self.access_badge_vault.as_mut().unwrap().create_proof();
                     let funding_locker_address: ComponentAddress = *funding_locker_address;
                     let funding_locker: FundingLocker = funding_locker_address.into();
 
@@ -277,10 +301,43 @@ blueprint! {
             &mut self,
         ) -> HashMap<NonFungibleId, BTreeSet<NonFungibleId>>
         {
-            let maple_finance: MapleFinance = self.maple_finance_global_address.into();
-            maple_finance.loan_request_list()
+            let farmers_market: FarmersMarket = self.farmers_market_global_address.into();
+            farmers_market.loan_request_list()
         }
 
+        /// This method allows the Debt Fund admin to instantiate a Funding Locker.
+        /// The Funding Locker is where the loan will be facilitated through. The idea is that the Borrower will request
+        /// a loan through a Loan Request NFT. That way, the Borrower may change their request if they wish to (but currently
+        /// this feature is unsupported) by changing the metadata of the NFT. Negotiation and underwriting of the loan,
+        /// will be done off-chain. Once the Debt Fund admin/Fund Manager and the Borrower has agreed on the Loan, the 
+        /// Debt Fund admin/Fund Manager will create the finalized loan through this method where the Funding Locker component
+        /// will be instantiated and the Loan NFT created.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund Manager that belongs to this protocol.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `fund_manager_badge` (Proof) - The Proof of the Fund Manager Badge.
+        /// * `loan_request_nft_id` (NonFungibleId) - The NFT ID of the Loan Request NFT.
+        /// The Loan Request NFT is used here so that the Borrower can see whether their loan has been approved.
+        /// It also allows them to access the Funding Locker component as the ComponentAddress will be inserted
+        /// into the Loan Request NFT is approved.
+        /// * `borrower_id` (NonFungibleId) - The NFT ID of the Borrower.
+        /// * `loan_amount` (Decimal) - The amount of the loan.
+        /// * `asset_address` (ResourceAddress) - The ResourceAddress of the asset to be borrowed.
+        /// * `collateral_address` (ResourceAddress) - The ResourceAddress of the collateral.
+        /// * `collateral_percent` (Decimal) - The collateral ratio for the loan.
+        /// * `annualized_interest_rate` (Decimal) - The interest rate of the loan.
+        /// * `draw_limit` (Decimal) - The maximum amount the Borrower can draw from the loan.
+        /// * `draw_minimum` (Decimal) - The minimum amount the Borrower must draw from the loan.
+        /// * `term_length` (TermLength) - The Enum of choices the Borrower may pick in the length of the loan.
+        /// * `origination_fee` (Decimal) - The origination fee of the loan.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn instantiate_funding_locker(
             &mut self,
             fund_manager_badge: Proof,
@@ -302,10 +359,9 @@ blueprint! {
                 "[Fund Manager Dashboard]: This badge does not belong to this protocol."
             );
             
-            let fund_manager_id: NonFungibleId = fund_manager_badge.non_fungible::<FundManager>().id();
+            let fund_manager_id: NonFungibleId = fund_manager_badge.non_fungible::<Farmer>().id();
 
             let origination_fee_charged = loan_amount * origination_fee;
-            let remaining_balance = loan_amount + origination_fee;
 
             let payments_remaining: u64 = match term_length {
                 TermLength::OneMonth => 1,
@@ -334,17 +390,17 @@ blueprint! {
                         accrued_interest_expense: Decimal::zero(),
                         draw_limit: draw_limit,
                         draw_minimum: draw_minimum,
-                        remaining_balance: remaining_balance,
+                        remaining_balance: Decimal::zero(),
                         last_draw: 0,
                         collateral_amount: Decimal::zero(),
-                        collateral_amount_usd: Decimal::zero(),
-                        health_factor: Decimal::zero(),
                         loan_status: Status::Current,
                     },
                 )
             });
 
             let loan_nft_id = loan_nft.non_fungible::<Loan>().id();
+
+            info!("[Debt Fund - Instantiate Funding Locker]: The loan id is: {:?}", loan_nft_id.clone());
 
             let loan_nft_admin = self.debt_fund_admin_vault.authorize(|| 
                 borrow_resource_manager!(self.loan_nft_admin_vault.resource_address()).mint(1)
@@ -366,14 +422,14 @@ blueprint! {
 
             // * INSERTS FUNDING LOCKER DATA TO THE GLOBAL INDEX * //
             // The Loan NFT Id is used as the HashMap key to allow easier quering from outsider perspective.
-            let fund_manager_dashboard: FundManagerDashboard = self.optional_fund_manager_dashboard_address.unwrap().into();
+            let fund_manager_dashboard: FarmerDashboard = self.optional_fund_manager_dashboard_address.unwrap().into();
 
             self.debt_fund_admin_vault.authorize(||
                 fund_manager_dashboard.insert_funding_locker(loan_nft_id.clone(), funding_locker)
             );
         
             // * MODIFIES LOAN REQUEST NFT * // - IMPLEMENTED ACCESS CONTROL?
-            let maple_finance: MapleFinance = self.maple_finance_global_address.into();
+            let farmers_market: FarmersMarket = self.farmers_market_global_address.into();
             let resource_manager = borrow_resource_manager!(self.loan_request_nft_address);
             let mut loan_request_nft_data: LoanRequest = resource_manager.get_non_fungible_data(&loan_request_nft_id);
 
@@ -381,15 +437,32 @@ blueprint! {
             loan_request_nft_data.loan_nft_id = Some(loan_nft_id); 
             loan_request_nft_data.funding_locker_address = Some(funding_locker);
             
-            maple_finance.authorize_loan_request_update(loan_request_nft_id, loan_request_nft_data);
+            farmers_market.authorize_loan_request_update(loan_request_nft_id, loan_request_nft_data);
         }
 
+        /// This amount allows the Debt Fund admin to fund the loan once the loan collateralization has been met.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund Manager that belongs to this protocol.
+        /// 
+        /// Most of the checks in this method is done in the FundingLocker component.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `debt_fund_badge` (Proof) - The Proof of the Debt Fund admin badge.
+        /// * `amount` (Decimal) - The amount to be funded to the loan.
+        /// * `loan_nft_id` (NonFungibleId) - The NFT ID of the Loan NFT.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn fund_loan(
             &mut self,
             debt_fund_badge: Proof,
             amount: Decimal,
             loan_nft_id: NonFungibleId,
-        )
+        ) -> Bucket
         {
             self.assert_admin(&debt_fund_badge);
 
@@ -399,13 +472,95 @@ blueprint! {
             let funding_locker: FundingLocker = funding_locker_address.into();
 
             // Maybe have an error handling for the option.
-            self.funding_locker_badge_vault.as_mut().unwrap().authorize(||
+            let return_over_funded: Bucket = self.funding_locker_badge_vault.get_mut(&loan_nft_id).unwrap().authorize(||
                     funding_locker.fund_loan(
                     fund_bucket
                 )
             );
+
+            return_over_funded
         }
 
+        pub fn loan_list(
+            &self,
+        ) -> HashMap<NonFungibleId, ComponentAddress>
+        {
+            return self.funding_lockers.clone();
+        }
+
+
+        pub fn view_loan(
+            &self,
+            loan_nft_id: NonFungibleId,
+        )
+        {
+            let resource_manager: &ResourceManager = borrow_resource_manager!(self.loan_nft_address);
+            let loan_nft_data: Loan = resource_manager.get_non_fungible_data(&loan_nft_id);
+
+            let borrower_id: NonFungibleId = loan_nft_data.borrower_id;
+            let lender_id: NonFungibleId = loan_nft_data.lender_id;
+            let principal_loan_amount: Decimal = loan_nft_data.principal_loan_amount;
+            let asset_address: ResourceAddress = loan_nft_data.asset;
+            let collateral_address: ResourceAddress = loan_nft_data.collateral;
+            let collateral_percent: Decimal = loan_nft_data.collateral_percent;
+            let annualized_interest_rate: Decimal = loan_nft_data.annualized_interest_rate;
+            let term_length: TermLength = loan_nft_data.term_length;
+            let payments_remaining: u64 = loan_nft_data.payments_remaining;
+            let origination_fee: Decimal = loan_nft_data.origination_fee;
+            let origination_fee_charged: Decimal = loan_nft_data.origination_fee_charged;
+            let accrued_interest_expense: Decimal = loan_nft_data.accrued_interest_expense;
+            let remaining_balance: Decimal = loan_nft_data.remaining_balance;
+            let draw_limit: Decimal = loan_nft_data.draw_limit;
+            let draw_minimum: Decimal = loan_nft_data.draw_minimum;
+            let last_draw: u64 = loan_nft_data.last_draw;
+            let collateral_amount: Decimal = loan_nft_data.collateral_amount;
+            let loan_status: Status = loan_nft_data.loan_status;
+
+            info!("[Debt Fund Dashboard - View Loan] - The Borrower ID is: {:?}", borrower_id);
+            info!("[Debt Fund Dashboard - View Loan] - The Lender ID is: {:?}", lender_id);
+            info!("[Debt Fund Dashboard - View Loan] - The principal loan amount is: {:?}", principal_loan_amount);
+            info!("[Debt Fund Dashboard - View Loan] - Asset borrowed: {:?}", asset_address);
+            info!("[Debt Fund Dashboard - View Loan] - Collateral borrowed: {:?}", collateral_address);
+            info!("[Debt Fund Dashboard - View Loan] - The collateral percent: {:?}", collateral_percent);
+            info!("[Debt Fund Dashboard - View Loan] - Annualized Interest Rate: {:?}", annualized_interest_rate);
+            info!("[Debt Fund Dashboard - View Loan] - Term Length: {:?}", term_length);
+            info!("[Debt Fund Dashboard - View Loan] - Payments Remaining: {:?}", payments_remaining);
+            info!("[Debt Fund Dashboard - View Loan] - Origination Fee: {:?}", origination_fee);
+            info!("[Debt Fund Dashboard - View Loan] - Origination Fee Charged: {:?}", origination_fee_charged);
+            info!("[Debt Fund Dashboard - View Loan] - Accrued Interest Expense: {:?}", accrued_interest_expense);
+            info!("[Debt Fund Dashboard - View Loan] - Remaining Balance: {:?}", remaining_balance);
+            info!("[Debt Fund Dashboard - View Loan] - Draw Limit: {:?}", draw_limit);
+            info!("[Debt Fund Dashboard - View Loan] - Draw Minimum: {:?}", draw_minimum);
+            info!("[Debt Fund Dashboard - View Loan] - Last Draw: {:?}", last_draw);
+            info!("[Debt Fund Dashboard - View Loan] - Collateral Amount: {:?}", collateral_amount);
+            info!("[Debt Fund Dashboard - View Loan] - Loan Status: {:?}", loan_status);
+        }
+
+        pub fn view_draw_request(
+            &mut self,
+            loan_nft_id: NonFungibleId
+        )
+        {
+            let funding_locker_address: ComponentAddress = *self.funding_lockers.get_mut(&loan_nft_id).unwrap();
+            let funding_locker: FundingLocker = funding_locker_address.into();
+
+            funding_locker.view_draw_request();
+        }
+
+        /// This method allows the Debt Fund admin to approve draw request made by the Borrower.
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund Manager that belongs to this protocol.
+        /// 
+        /// Most of the checks in this method is done in the FundingLocker component.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `debt_fund_badge` (Proof) - The Proof of the Debt Fund admin badge.
+        /// * `loan_nft_id` (NonFungibleId) - The NFT ID of the Loan NFT.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn approve_draw_request(
             &mut self,
             debt_fund_badge: Proof,
@@ -417,11 +572,25 @@ blueprint! {
             let funding_locker_address: ComponentAddress = *self.funding_lockers.get_mut(&loan_nft_id).unwrap();
             let funding_locker: FundingLocker = funding_locker_address.into();
 
-            self.funding_locker_badge_vault.as_mut().unwrap().authorize(|| 
+            self.funding_locker_badge_vault.get_mut(&loan_nft_id).unwrap().authorize(|| 
                 funding_locker.approve_draw_request()
             );
         }
 
+        /// This method allows the Debt Fund admin to reject the draw request made by the Borrower.
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund Manager that belongs to this protocol.
+        /// 
+        /// Most of the checks in this method is done in the FundingLocker component.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `debt_fund_badge` (Proof) - The Proof of the Debt Fund admin badge.
+        /// * `loan_nft_id` (NonFungibleId) - The NFT ID of the Loan NFT.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn reject_draw_request(
             &mut self,
             debt_fund_badge: Proof,
@@ -433,11 +602,25 @@ blueprint! {
             let funding_locker_address: ComponentAddress = *self.funding_lockers.get_mut(&loan_nft_id).unwrap();
             let funding_locker: FundingLocker = funding_locker_address.into();
 
-            self.funding_locker_badge_vault.as_mut().unwrap().authorize(||
+            self.funding_locker_badge_vault.get_mut(&loan_nft_id).unwrap().authorize(||
                 funding_locker.reject_draw_request()
             );
         }
 
+        /// This method allows the Debt Fund admin to update the Loan NFT with the interest rate accrued.
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund Manager that belongs to this protocol.
+        /// 
+        /// Most of the checks in this method is done in the FundingLocker component.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `debt_fund_badge` (Proof) - The Proof of the Debt Fund admin badge.
+        /// * `loan_nft_id` (NonFungibleId) - The NFT ID of the Loan NFT.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn update_loan(
             &mut self,
             debt_fund_badge: Proof,
@@ -446,34 +629,29 @@ blueprint! {
         {
             self.assert_admin(&debt_fund_badge);
 
-            let optional_funding_locker_address: Option<&ComponentAddress> = self.funding_lockers.get(&loan_nft_id);
+            let funding_locker_address: ComponentAddress = *self.funding_lockers.get_mut(&loan_nft_id).unwrap();
+            let funding_locker: FundingLocker = funding_locker_address.into();
 
-
-            match optional_funding_locker_address {
-                Some(funding_locker_address) => {
-                    let funding_locker: FundingLocker = *funding_locker_address.into();
-
-                    funding_locker_badge_vault.authorize(||
-                        funding_locker.update_loan()
-                    );
-                }
-                None => {
-                    info!(
-                        "[Debt Fund - Update Loan]: Funding Locker"
-                    )
-                }
-            }
-
+            self.funding_locker_badge_vault.get_mut(&loan_nft_id).unwrap().authorize(||
+                funding_locker.update_loan()
+            );
         }
 
-        pub fn deposit_access_badge(
-            &mut self,
-            access_badge: Bucket
-        )
-        {
-            self.access_badge_vault = Some(Vault::with_bucket(access_badge));
-        }
-
+        /// This method allows the Debt Fund admin to transfer the fees collected from the Funding Locker(s) to the
+        /// Debt Fund.
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Fund Manager that belongs to this protocol.
+        /// 
+        /// Most of the checks in this method is done in the FundingLocker component.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `debt_fund_badge` (Proof) - The Proof of the Debt Fund admin badge.
+        /// * `loan_nft_id` (NonFungibleId) - The NFT ID of the Loan NFT.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         pub fn transfer_fees(
             &mut self,
             debt_fund_badge: Proof,
@@ -485,7 +663,7 @@ blueprint! {
             let funding_locker_address: ComponentAddress = *self.funding_lockers.get_mut(&loan_nft_id).unwrap();
             let funding_locker: FundingLocker = funding_locker_address.into();
 
-            let fee_bucket: Bucket = self.funding_locker_badge_vault.as_mut().unwrap().authorize(|| 
+            let fee_bucket: Bucket = self.funding_locker_badge_vault.get_mut(&loan_nft_id).unwrap().authorize(|| 
                 funding_locker.transfer_fees()
             );
 
@@ -497,6 +675,17 @@ blueprint! {
             
         }
 
+        /// This method allows the Investors to claim fees collected from the Debt Fund.
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the tracking token that belongs to this protocol.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `tracking_tokens` (Proof) - The Proof of the tracking tokens.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Vec<Bucket>` - The vector of Buckets that contains the fees owed to the Investor.
         pub fn claim_fees(
             &mut self,
             tracking_tokens: Proof,
@@ -522,12 +711,32 @@ blueprint! {
 
                 let fee_bucket: Bucket = fee_vault.take(amount);
 
+                info!(
+                    "[Debt Fund - Claim Fees]: Returning {:?} of {:?} in fees.",
+                    fee_bucket.amount(),
+                    fee_bucket.resource_address()
+                );
+
                 vec_bucket.push(fee_bucket);
             }
 
             vec_bucket
         }
 
+        /// This method validates the Debt Fund admin badge.
+        /// 
+        /// # Checks: 
+        /// 
+        /// * **Check 1:** - Checks that the Proof passed is the Debt Fund admin badge that belongs to this
+        /// protocol.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `debt_fund_badge` (Proof) - The Proof of the Debt Fund Admin badge.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         fn assert_admin(
             &self,
             debt_fund_badge: &Proof,

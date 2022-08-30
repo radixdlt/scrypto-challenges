@@ -1,5 +1,5 @@
 use scrypto::prelude::*;
-use crate::maple_finance_global::*;
+use crate::farmers_market::*;
 use crate::fundinglocker::*;
 use crate::structs::*;
 
@@ -20,13 +20,13 @@ blueprint! {
         /// The ResourceAddress of the Loan Request NFT so that the data can be viewed.
         loan_request_nft_address: ResourceAddress,
         /// The ComponentAddress of the Global Index to make method calls.
-        maple_finance_global_address: ComponentAddress,
+        farmers_market_global_address: ComponentAddress,
     }
 
     impl BorrowerDashboard {
 
         pub fn new(
-            maple_finance_global_address: ComponentAddress,
+            farmers_market_global_address: ComponentAddress,
             borrower_admin: Bucket,
             borrower_admin_address: ResourceAddress,
             loan_request_nft_admin: Bucket,
@@ -39,12 +39,24 @@ blueprint! {
                 borrower_admin_vault: Vault::with_bucket(borrower_admin),
                 loan_request_nft_admin: Vault::with_bucket(loan_request_nft_admin),
                 loan_request_nft_address: loan_request_nft_address,
-                maple_finance_global_address: maple_finance_global_address,
+                farmers_market_global_address: farmers_market_global_address,
             }
             .instantiate()
             .globalize();
         }
 
+        /// This method is used to retrieve the NFT data of a selected NFT. 
+        /// 
+        /// This method does not have any checks.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `nft_id` (&NonFungibleId) - The NonFungibleId of the NFT data to retrieve.
+        /// * `borrower_badge` (BorrowerBadges) - The Enum that matches and retrieves the ResourceAddress of the NFT.
+        /// 
+        /// # Returns: 
+        /// 
+        /// * `BorrowerBadgeContainer` - The NFT data of the chosen NFT.
         fn get_resource_manager(
             &self,
             nft_id: &NonFungibleId,
@@ -70,6 +82,19 @@ blueprint! {
             }
         }
 
+        /// This method is used to authorize update/mutate of the NFT data.
+        /// 
+        /// This method does not perform any checks.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `nft_id` (&NonFungibleId) - The NFT ID of the NFT data to update.
+        /// * `badge` (BorrowerBadges) - The Enum of the badge that matches and retrieves the ResourceAddress of the NFT. 
+        /// * `nft_data` (BorrowerBadgeContainer) - The Enum that matches and retrieves the NFT data of the NFT.
+        /// 
+        /// # Returns:
+        /// 
+        /// This method does not return anything.
         fn authorize_update(
             &self,
             nft_id: &NonFungibleId,
@@ -159,52 +184,11 @@ blueprint! {
                 loan_request_nft_id
             );
 
-            let maple_finance: MapleFinance = self.maple_finance_global_address.into();
-            maple_finance.deposit_loan_requests(borrower_proof, loan_request_nft);
+            let farmers_market: FarmersMarket = self.farmers_market_global_address.into();
+            farmers_market.deposit_loan_requests(borrower_proof, loan_request_nft);
 
             borrower_badge
         }
-
-        /// Broadcast loan requests from this borrower.
-        /// 
-        /// This method is used to broadcast loan request from the borrower. It takes the NFT IDs of the loan
-        /// request NFTs inside the loan_requests vault and returns the HashMap of the ResourceAddress of the loan
-        /// request NFT and the BTreeSet of the NonFungibleIds of each loan request. This method gets picked up
-        /// by the MapleFinance blueprint where other blueprints can view that data. This method is the start to
-        /// allow the borrower logic and lender logic to marry up.
-        // pub fn broadcast_loan_requests(
-        //     &mut self) -> HashMap<ResourceAddress, BTreeSet<NonFungibleId>>
-        // {
-        //     let mut loan_requests: HashMap<ResourceAddress, BTreeSet<NonFungibleId>> = HashMap::new();
-        //     loan_requests.insert(
-        //         self.loan_request_nft_address, 
-        //         self.loan_requests.non_fungible_ids().clone()
-        //     );
-        //     return loan_requests 
-        // }
-
-        /// Iterates over the loan request vault to find loans that have been approved and inserts approved loans
-        /// to the funding_lockers HashMap.
-        /// 
-        /// This method is used to find loans that have been approved by a Pool Delegate. The Pool Delegate modifies the
-        /// loan request NFT to fill in the ComponentAddress of the Funding Locker (where loans are funded and can be borrowed from)
-        /// to which this method iterates and find any loan request NFTs that have been filled. If they are filled, then it will be
-        /// inserted to the funding_lockers HashMap so that the Borrower has access to the blueprint where the loans are funded.
-        // fn seek_approved_loans(
-        //     &mut self, 
-        // )
-        // {
-        //     let loan_request_vault: BTreeSet<NonFungibleId> = self.loan_requests.non_fungible_ids();
-        //     let loan_requests = loan_request_vault.iter();
-        //     for loan_id in loan_requests {
-        //         let loan_request_nft_data = self.get_resource_manager(loan_id);
-        //         if loan_request_nft_data.loan_nft_id.is_some() == true {
-        //             let loan_nft_id = loan_request_nft_data.loan_nft_id.unwrap();
-        //             let funding_locker_address = loan_request_nft_data.funding_locker_address.unwrap();
-        //             self.funding_lockers.insert(loan_nft_id, funding_locker_address);
-        //         }
-        //     }
-        // }
 
         pub fn view_loan_request(
             &self,
@@ -238,8 +222,8 @@ blueprint! {
         ) -> BTreeSet<NonFungibleId>
         {
             let borrower_id: NonFungibleId = borrower_badge.non_fungible::<Borrower>().id();
-            let maple_finance: MapleFinance = self.maple_finance_global_address.into();
-            let loan_request_vault: BTreeSet<NonFungibleId> = maple_finance.view_loan_requests(borrower_id);
+            let farmers_market: FarmersMarket = self.farmers_market_global_address.into();
+            let loan_request_vault: BTreeSet<NonFungibleId> = farmers_market.view_loan_requests(borrower_id);
             let loan_requests = loan_request_vault.iter();
             let mut approved_loans: BTreeSet<NonFungibleId> = BTreeSet::new();
             for loan_id in loan_requests {
@@ -300,10 +284,10 @@ blueprint! {
                 "[Borrower Dashboard]: Incorrect borrower."
             );
 
-            let maple_finance: MapleFinance = self.maple_finance_global_address.into();
+            let farmers_market: FarmersMarket = self.farmers_market_global_address.into();
             // Retrieves loan request NFT and creates Proof so can deposit collateral to Funding Locker
             let loan_request_nft: Bucket = self.borrower_admin_vault.authorize(|| 
-                maple_finance.retrieve_loan_request_nft(loan_request_nft_id.clone())
+                farmers_market.retrieve_loan_request_nft(loan_request_nft_id.clone())
             );
 
             let loan_request_nft_proof: Proof = loan_request_nft.create_proof();
@@ -319,17 +303,41 @@ blueprint! {
 
                         match option_bucket {
                             Some(bucket) => {
-                                let return_bucket: Option<Bucket> = Some(bucket);
+                                let optional_loan_nft_bucket: Option<Bucket> = Some(bucket);
+
+                                let borrower_id: NonFungibleId = borrower_badge.non_fungible::<Borrower>().id();
+
+                                let borrower_badge_container = self.get_resource_manager(&borrower_id, BorrowerBadges::Borrower);
+
+                                match borrower_badge_container {
+                                    BorrowerBadgeContainer::BorrowerContainer(mut borrower_nft_data) => {
+                                        borrower_nft_data.loan_requests.remove(&loan_request_nft_id);
+                                        borrower_nft_data.loans.insert(
+                                            optional_loan_nft_bucket
+                                            .as_ref()
+                                            .unwrap()
+                                            .non_fungible::<Loan>()
+                                            .id()
+                                        );
+                                    
+                                        self.authorize_update(
+                                            &borrower_id, 
+                                            BorrowerBadges::Borrower, 
+                                            BorrowerBadgeContainer::BorrowerContainer(borrower_nft_data)
+                                        );
+                                    }
+                                    _ => {}
+                                }
 
                                 self.loan_request_nft_admin.authorize(|| loan_request_nft.burn());
 
-                                return_bucket
+                                optional_loan_nft_bucket
                             }
 
                             None => {
 
                                 self.borrower_admin_vault.authorize(|| 
-                                    maple_finance.return_loan_request_nft(loan_request_nft)
+                                    farmers_market.return_loan_request_nft(loan_request_nft)
                                 );
 
                                 return None 
@@ -344,34 +352,24 @@ blueprint! {
                         return None
                     }
                 }
-                
+
                 BorrowerBadgeContainer::BorrowerContainer(_borrower_nft_data) => { return None }
             }
-
-            // let loan_nft_id: NonFungibleId = loan_request_nft_data.loan_nft_id.unwrap();
-            // let optional_funding_locker: Option<&ComponentAddress> = self.funding_lockers.get(&loan_nft_id);
-            // match optional_funding_locker {
-            //     Some (_funding_locker) => {
-            //         let funding_locker_address: ComponentAddress = *optional_funding_locker.unwrap();
-            //         let funding_locker: FundingLocker = funding_locker_address.into();
-            //         let loan_request_nft: Bucket = self.loan_requests.take_non_fungible(&loan_request_nft_id);
-            //         let loan_request_nft_proof: Proof = loan_request_nft.create_proof();
-            //         let option_bucket: Option<Bucket> = funding_locker.deposit_collateral(loan_request_nft_proof, collateral);
-            //         match option_bucket {
-            //             Some (bucket) => {
-            //                 let return_bucket = Some(bucket);
-
-            //                 self.loan_request_nft_admin.authorize(|| loan_request_nft.burn());
-
-            //                 return_bucket
-            //             }
-            //             None => None
-            //         }
-            //     }
-            //     None => None
-            // }
         }
 
+        /// This method allows Borrowers to request loan draws from the Fund Manager.
+        /// 
+        /// This method does not perform any checks. The checks are performed in the in the FundingLocker
+        /// component.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `loan_nft_badge` (Bucket) - The Bucket that contains the Loan NFT.
+        /// * `amount` (Decimal) - Amount of the loan requested to draw.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - The Bucket that contains the Loan NFT.
         pub fn draw_request(
             &self,
             loan_nft_badge: Bucket,
@@ -379,8 +377,8 @@ blueprint! {
         ) -> Bucket
         {
             let loan_nft_id: NonFungibleId = loan_nft_badge.non_fungible::<Loan>().id();
-            let maple_finance: MapleFinance = self.maple_finance_global_address.into();
-            let funding_locker_address: ComponentAddress = maple_finance.retrieve_funding_locker_address(loan_nft_id);
+            let farmers_market: FarmersMarket = self.farmers_market_global_address.into();
+            let funding_locker_address: ComponentAddress = farmers_market.retrieve_funding_locker_address(loan_nft_id);
             let funding_locker: FundingLocker = funding_locker_address.into();
             let loan_nft_proof: Proof = loan_nft_badge.create_proof();
             funding_locker.draw_request(loan_nft_proof, amount);
@@ -388,14 +386,27 @@ blueprint! {
             loan_nft_badge
         }
 
+        /// This method allows Borrowers to retrieve their loan draw.
+        /// 
+        /// This method does not perform any checks. The checks are performed in the in the FundingLocker
+        /// component.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `loan_nft_badge` (Bucket) - The Bucket that contains the Loan NFT.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `Bucket` - The Bucket that contains the Loan NFT.
+        /// * `Bucket` - The Bucket that contains the loan draw.
         pub fn receive_draw(
             &self,
             loan_nft_badge: Bucket,
         ) -> (Bucket, Bucket)
         {
             let loan_nft_id: NonFungibleId = loan_nft_badge.non_fungible::<Loan>().id();
-            let maple_finance: MapleFinance = self.maple_finance_global_address.into();
-            let funding_locker_address: ComponentAddress = maple_finance.retrieve_funding_locker_address(loan_nft_id);
+            let farmers_market: FarmersMarket = self.farmers_market_global_address.into();
+            let funding_locker_address: ComponentAddress = farmers_market.retrieve_funding_locker_address(loan_nft_id);
             let funding_locker: FundingLocker = funding_locker_address.into();
             let loan_nft_proof: Proof = loan_nft_badge.create_proof();
             let draw_bucket: Bucket = funding_locker.receive_draw(loan_nft_proof);
@@ -403,20 +414,107 @@ blueprint! {
             (loan_nft_badge, draw_bucket)
         }
 
+        /// This method allows Borrowers to make payments on their loan.
+        /// 
+        /// This method does not perform any checks. The checks are performed in the in the FundingLocker
+        /// component.
+        /// 
+        /// # Arguments: 
+        /// 
+        /// * `loan_nft_badge` (Bucket) - The Bucket that contains the Loan NFT.
+        /// * `repay_amount` (Bucket) - The Bucket of the repayments.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `(Option<Bucket>, Bucket)` - The Option Bucket that contains the overpayment if the Borrower overpaid on the loan.
+        /// and the Bucket that contains the Loan NFT.
         pub fn make_payment(
             &self,
             loan_nft_badge: Bucket,
             repay_amount: Bucket,
-        ) -> Bucket
+        ) -> (Option<Bucket>, Bucket)
         {
             let loan_nft_id: NonFungibleId = loan_nft_badge.non_fungible::<Loan>().id();
-            let maple_finance: MapleFinance = self.maple_finance_global_address.into();
-            let funding_locker_address: ComponentAddress = maple_finance.retrieve_funding_locker_address(loan_nft_id);
+            let farmers_market: FarmersMarket = self.farmers_market_global_address.into();
+            let funding_locker_address: ComponentAddress = farmers_market.retrieve_funding_locker_address(loan_nft_id);
             let funding_locker: FundingLocker = funding_locker_address.into();
             let loan_nft_proof: Proof = loan_nft_badge.create_proof();
-            funding_locker.make_payment(loan_nft_proof, repay_amount);
+            let option_over_repayment: Option<Bucket> = funding_locker.make_payment(loan_nft_proof, repay_amount);
 
-            loan_nft_badge
+            (option_over_repayment, loan_nft_badge)
+        }
+
+        /// This method allows the Borrower view all the loan request they have made.
+        /// 
+        /// # Checks:
+        /// 
+        /// * **Check 1:** - Checks that the Proof provided is the Borrower.
+        /// 
+        /// # Arguments:
+        /// 
+        /// * `borrower_badge` (Proof) - The Proof of the Borrower Badge.
+        /// 
+        /// # Returns:
+        /// 
+        /// * `BTreeSet<NonFungibleId>` - The BTreeSet of the NFT ID of the loan requests.
+        pub fn view_loans(
+            &mut self,
+            borrower_badge: Proof,
+        ) -> BTreeSet<NonFungibleId>
+        {
+            assert_eq!(borrower_badge.resource_address(), self.borrower_admin_address,
+                "[Borrower Dashboard]: Incorrect borrower."
+            );
+
+            let borrower_nft_data: Borrower = borrower_badge.non_fungible().data();
+
+            return borrower_nft_data.loans
+        }
+
+        pub fn view_loan(
+            &self,
+            loan_nft_badge: Proof,
+        )
+        {
+            let loan_nft_data: Loan = loan_nft_badge.non_fungible().data();
+            let borrower_id: NonFungibleId = loan_nft_data.borrower_id;
+            let lender_id: NonFungibleId = loan_nft_data.lender_id;
+            let principal_loan_amount: Decimal = loan_nft_data.principal_loan_amount;
+            let asset_address: ResourceAddress = loan_nft_data.asset;
+            let collateral_address: ResourceAddress = loan_nft_data.collateral;
+            let collateral_percent: Decimal = loan_nft_data.collateral_percent;
+            let annualized_interest_rate: Decimal = loan_nft_data.annualized_interest_rate;
+            let term_length: TermLength = loan_nft_data.term_length;
+            let payments_remaining: u64 = loan_nft_data.payments_remaining;
+            let origination_fee: Decimal = loan_nft_data.origination_fee;
+            let origination_fee_charged: Decimal = loan_nft_data.origination_fee_charged;
+            let accrued_interest_expense: Decimal = loan_nft_data.accrued_interest_expense;
+            let remaining_balance: Decimal = loan_nft_data.remaining_balance;
+            let draw_limit: Decimal = loan_nft_data.draw_limit;
+            let draw_minimum: Decimal = loan_nft_data.draw_minimum;
+            let last_draw: u64 = loan_nft_data.last_draw;
+            let collateral_amount: Decimal = loan_nft_data.collateral_amount;
+            let loan_status: Status = loan_nft_data.loan_status;
+
+            info!("[Borrower Dashboard - View Loan] - The Borrower ID is: {:?}", borrower_id);
+            info!("[Borrower Dashboard - View Loan] - The Lender ID is: {:?}", lender_id);
+            info!("[Borrower Dashboard - View Loan] - The principal loan amount is: {:?}", principal_loan_amount);
+            info!("[Borrower Dashboard - View Loan] - Asset borrowed: {:?}", asset_address);
+            info!("[Borrower Dashboard - View Loan] - Collateral borrowed: {:?}", collateral_address);
+            info!("[Borrower Dashboard - View Loan] - The collateral percent: {:?}", collateral_percent);
+            info!("[Borrower Dashboard - View Loan] - Annualized Interest Rate: {:?}", annualized_interest_rate);
+            info!("[Borrower Dashboard - View Loan] - Term Length: {:?}", term_length);
+            info!("[Borrower Dashboard - View Loan] - Payments Remaining: {:?}", payments_remaining);
+            info!("[Borrower Dashboard - View Loan] - Origination Fee: {:?}", origination_fee);
+            info!("[Borrower Dashboard - View Loan] - Origination Fee Charged: {:?}", origination_fee_charged);
+            info!("[Borrower Dashboard - View Loan] - Accrued Interest Expense: {:?}", accrued_interest_expense);
+            info!("[Borrower Dashboard - View Loan] - Remaining Balance: {:?}", remaining_balance);
+            info!("[Borrower Dashboard - View Loan] - Draw Limit: {:?}", draw_limit);
+            info!("[Borrower Dashboard - View Loan] - Draw Minimum: {:?}", draw_minimum);
+            info!("[Borrower Dashboard - View Loan] - Last Draw: {:?}", last_draw);
+            info!("[Borrower Dashboard - View Loan] - Collateral Amount: {:?}", collateral_amount);
+            info!("[Borrower Dashboard - View Loan] - Loan Status: {:?}", loan_status);
+
         }
     }
 }
