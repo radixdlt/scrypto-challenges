@@ -244,6 +244,7 @@ blueprint!{
         }
 
         //anyone can withdraw its fundings even with opened position
+        //at the time of withdraw a reward/penalty is calculated based on the total portfolio management results
         //any open position can be closed by anyone else later
         pub fn withdraw_portfolio(&mut self, user_account_funding_nft: Proof) -> Bucket {
             info!("=== WITHDRAW PORTFOLIO OPERATION START === ");
@@ -269,7 +270,7 @@ blueprint!{
             let total = self.portfolio_total_value();
             info!(" Portfolio amount at time of funding {} and actual {} " , total_amount_at_the_time_of_funding, total);  
             // The ratio of increment/decrease of the main pool.
-            let diff_ratio: Decimal = ((total / total_amount_at_the_time_of_funding) * dec!("100") )-dec!(100);
+            let diff_ratio: Decimal = ((total / self.amount_funded) * dec!("100") )-dec!(100);
             info!(" Portfolio increase/decrease ratio  {} " , diff_ratio);  
 
             //the amount of tokens to be returned to the user account with increase or decrease
@@ -280,7 +281,7 @@ blueprint!{
             let to_be_returned: Bucket = self.main_pool.take(diff_tokens);
 
             //update the total funded in the portfolio
-            self.amount_funded -= total_amount_at_the_time_of_funding;
+            self.amount_funded = self.amount_funded - diff_tokens;
             info!(" Updated Amount of funded tokens  {} " , self.amount_funded);  
 
             // // Update the data on that NFT globally
@@ -388,6 +389,7 @@ blueprint!{
 
         // Calculate the total value of the portfolio (main vault + other vault + lnd vault)
         pub fn portfolio_total_value(&self) -> Decimal {
+
             //trading vault are calculated at current price
             let mut total: Decimal = self.portfolio_value();
             //total liquidity
@@ -470,16 +472,16 @@ blueprint!{
         // Close a position, method can be executed by anyone register with the portfolio by using the positionId 
         pub fn close_all_positions(&mut self)  {
             info!("Position size {}", self.positions.len());
-            let mut amount_to_sell: Decimal = Decimal::zero();
-            let mut token_to_sell: ResourceAddress = RADIX_TOKEN;
-            let mut remaining_positions: Vec<OperationDetail> = Vec::new();
+            let mut _amount_to_sell: Decimal = Decimal::zero();
+            let mut _token_to_sell: ResourceAddress = RADIX_TOKEN;
+            let mut _remaining_positions: Vec<OperationDetail> = Vec::new();
             for inner_position in &self.positions {     
                 info!("Position Id {} Amount {} Component address that started the operation {} "
                     ,inner_position.operation_id
                     ,inner_position.xrd_tokens
                     ,inner_position.username);    
-                amount_to_sell = inner_position.num_token_b_received.clone();
-                token_to_sell = inner_position.token_b_address.clone()
+                _amount_to_sell = inner_position.num_token_b_received.clone();
+                _token_to_sell = inner_position.token_b_address.clone()
                 // self.sell(amount_to_sell,token_to_sell);   
             }    
             //replace the Vec with the new one with the closed position is missing

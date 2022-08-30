@@ -1,2 +1,2 @@
-CALL_METHOD ComponentAddress("025d180a419b7d526eba63c0b971b875885c0618fc219843685549") "close_all_positions";
-CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3") "deposit_batch";
+CALL_METHOD ComponentAddress("${portfolio}") "close_all_positions";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

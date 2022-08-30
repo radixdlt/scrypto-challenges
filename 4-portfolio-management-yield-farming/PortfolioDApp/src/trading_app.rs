@@ -39,8 +39,8 @@ blueprint! {
             let last_epoch = Runtime::current_epoch();
 
             let token1_starting_value: u64 = "40".parse().expect("Not a number!");
-            let token2_starting_value: u64 = "10".parse().expect("Not a number!");
-            let token3_starting_value: u64 = "5".parse().expect("Not a number!");
+            let token2_starting_value: u64 = "20".parse().expect("Not a number!");
+            let token3_starting_value: u64 = "80".parse().expect("Not a number!");
 
             // Create the admin badges
             // let admin_badge: Bucket = ResourceBuilder::new_fungible() 
@@ -191,7 +191,7 @@ blueprint! {
         //TODO For the scope of this demo this method instead return the price respect of token_a/token1:resource address
         pub fn current_price(&mut self, _token_a_address: ResourceAddress, _token_b_address: ResourceAddress) -> u64 {
             let current = Runtime::current_epoch();
-            //info!("Current epoch {} vs last epoch {}", current, self.last_epoch);
+            info!("Current epoch {} vs last epoch {}", current, self.last_epoch);
             let mut value: u64 = 0;
 
             //if epoch has changed then I change also the price of the asset
@@ -202,7 +202,8 @@ blueprint! {
                 info!("The random movement is: {} and direction is {} ", random_number, random_direction);
                 if random_direction==0 { 
                     self.token1_starting_value = self.token1_starting_value - (self.token1_starting_value*(random_number as u64)/100);
-                    self.token2_starting_value = self.token2_starting_value - (self.token2_starting_value*(random_number as u64)/100);
+                    let absolute = self.token2_starting_value*(random_number as u64)/100;
+                    self.token2_starting_value = self.token2_starting_value - absolute; 
                     self.token3_starting_value = self.token3_starting_value - (self.token3_starting_value*(random_number as u64)/100);
                 } 
                 else { 

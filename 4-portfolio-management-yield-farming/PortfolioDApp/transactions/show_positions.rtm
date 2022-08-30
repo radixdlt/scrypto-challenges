@@ -1,2 +1,0 @@
-CALL_METHOD ComponentAddress("02e66d3340f5e9c272ff2592e8e8e8b05376af3e35fd2e3f3ce30d") "position";
-CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02bf3aa95784d95a63dd6f8e3f0d06de6127e114cc275a13ae47b5") "deposit_batch";

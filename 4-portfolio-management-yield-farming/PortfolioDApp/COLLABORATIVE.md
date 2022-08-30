@@ -542,6 +542,354 @@ resim run transactions/portfolio_total_value.rtm
 └─ [INFO ] Grandtotal 10082
 ```
 
+# Portfolio dApp (Test with only Transaction Manifest)
+
+Let's proceed with a demo of the blueprints, start publishing the package
+
+```
+resim publish .
+export package=017045972dc31c4425bde71adf087ddedbf7b10adf56ec71a6ce1b
+
+resim new-account
+
+
+export account=
+
+export priv1=
+
+
+
+resim new-account
+
+
+export priv2=
+export account2=
+
+resim new-account
+
+export account3=
+
+export priv3=
+
+
+resim set-default-account $account $priv1
+
+resim new-token-fixed --name bitcoin --symbol btc 10000
+
+resim new-token-fixed --name ethereum --symbol eth 1000
+
+resim new-token-fixed --name leonets --symbol leo 1000
+
+export xrd=030000000000000000000000000000000000000000000000000004
+export leo=
+export eth=
+export btc=
+
+resim call-function $package TradingApp create_market $xrd $btc $eth $leo
+resim run transactions/create_market.rtm 
+
+export trading=
+
+
+resim call-method $trading fund_market 1000,$xrd 1000,$btc 1000,$eth 100,$leo
+resim run transactions/fund_market.rtm 
+
+
+resim call-function $package LendingApp instantiate_pool 1000,$xrd 1000 10 7
+resim run transactions/create_lending.rtm 
+
+
+export lending=
+
+export admin_badge=
+
+export lend_nft=
+
+export borrow_nft=
+
+export lnd=
+
+
+resim call-function $package Portfolio new $xrd $btc $eth $leo $lending $trading $lend_nft $borrow_nft $lnd
+resim run transactions/create_portfolio.rtm 
+
+
+export portfolio=
+
+export admin_badge=
+
+export user_account_history_nft_address=
+
+export user_account_funding_nft_address=
+
+
+resim call-method $portfolio register $account
+resim run transactions/register_with_portfolio.rtm
+```
+
+After the user account has been registered itself with the PortfolioApp component we can see the NFT that has been added to its resource's list 
+
+```
+├─ { amount: 1, resource address: 03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9, name: "User Account Trading History" }
+│  └─ NonFungible { id: 0bfa93aa9159a62422fd0868d0ae4a16e32eff89f39d206bb5eb8267f265c424, immutable_data: Struct(), mutable_data: Struct(ComponentAddress("021025cfda90adea21506170be47c67ec169e41dbbdd063d54d409"), 0u32, 0u32, false) }
+
+export user_account_history_nft=03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9
+
+```
+
+
+resim call-method $portfolio register_for_lending 
+resim run transactions/register_for_lending.rtm
+
+resim run transactions/register_for_borrowing.rtm
+```
+
+Bob could operate directly with the TradingApp...
+
+```
+resim call-method $trading buy_generic 500,$xrd $btc 
+resim run transactions/buy_with_trading.rtm
+```
+
+Let's advance some epoch so to let the price changes...
+
+```
+epoch=$(($epoch + 1))
+resim set-current-epoch $epoch
+```
+
+Then let's look at the price...
+
+```
+└─ [INFO ] New price is : 39
+```
+
+Now Bob decides to sell 
+
+
+```
+resim run transactions/sell_with_trading.rtm
+
+├─ [INFO ] Current epoch 2 vs last epoch 2
+├─ [INFO ] Current price of 030000000000000000000000000000000000000000000000000004/0396c203d001f1fa99fdf081dc2f30e7f3b921eb1b5c9cc9487630 is 36 
+└─ [INFO ] N. xrd to receive: 487.5
+```
+
+So Bob got less from its trade operation.
+
+Now let's instead what could happen if Bob uses the PortfolioDapp
+
+In this example Bob, as all the other users, has to fund directly inside the PortfolioApp component before starting to operate
+
+```
+resim call-method $portfolio fund_portfolio 10000,$xrd 1,$user_account_funding_nft 
+resim run transactions/fund_portfolio_by_Bob.rtm
+```
+
+The user account of Bob show the NFT of its 10000 xrd funded, he obsiously will need this to get back its xrd tokens
+
+```
+├─ { amount: 1, resource address: 03cacd11c325cd75f7693ed8d99187f65ec303bdc1a0622cca283f, name: "User Account Funding Data NFTs" }
+│  └─ NonFungible { id: 2da0d5453fe732fbf26d621497e2cee62d8f12459995e240604c9fe5acf65f11, immutable_data: Struct(), mutable_data: Struct(Decimal("10000"), true, Decimal("10000"), Decimal("100"), 2u64) }
+```
+
+The same should be done by John and Max.
+
+At the end of their funding we can look at the portfolio component.
+
+```
+resim set-default-account $account2 $priv2
+
+Default account updated!
+
+resim run transactions/register_with_portfolio_by_John.rtm
+```
+
+Also John gets its NFT
+
+```
+resim show $account2
+
+export user_account_funding_nft2=
+```
+
+
+And then he can fund the Portfolio
+
+```
+resim call-method $portfolio fund_portfolio 10000,$xrd $user_account_funding_nft2
+resim run transactions/fund_portfolio_by_John.rtm 
+```
+
+The same has been done with Max's account
+
+```
+$resim set-default-account $account3 $priv3
+
+resim call-method $portfolio register $account3 
+resim run transactions/register_with_portfolio_by_Max.rtm
+
+export user_account_funding_nft3=
+
+resim call-method $portfolio fund_portfolio 10000,$xrd $user_account_funding_nft3
+resim run transactions/fund_portfolio_by_Max.rtm
+```
+
+At this point the Portfolio has been funded all the user account registered
+
+```
+├─ { amount: 30000, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+```
+
+So let's start trading on behalf of the PortfolioApp !!
+
+At the beginning it does not exist no open position as we can check with the followings
+
+```
+resim run transactions/show_positions.rtm 
+```
+
+So let's execute some operation, Max ,  John and Bob are buying 
+
+
+```
+resim run transactions/buy_by_Max.rtm
+
+resim run transactions/buy_by_John.rtm
+
+resim run transactions/buy_by_Bob.rtm
+```
+
+At this point the portfolio is filled with some different tokens!!
+ 
+``` 
+Resources:
+├─ { amount: 12.820512820512820512, resource address: 03fd755fa368cb0b27571d485ab4f5aef45b395e53116a68b378b4, name: "bitcoin", symbol: "btc" }
+├─ { amount: 1, resource address: 03db0e91c949aaa724d3c3c881de727c856d342a409a9e3908ef34, name: "Lending NFTs" }
+│  └─ NonFungible { id: 826cf39e6dbc27111f5d3ff63ec112c144e0e57f193ff051d8a6b8797727b71b, immutable_data: Struct(), mutable_data: Struct(0i32, false, false, false) }
+├─ { amount: 28500, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+├─ { amount: 50, resource address: 0345e6a8b141c210e7421387da83a62ca0fcb388b45f61448f3484, name: "ethereum", symbol: "eth" }
+├─ { amount: 0, resource address: 030d9e30c06cd711af6f76bd415ebcda1c19dda165a48291c8b0d7, name: "Loan token", symbol: "LND" }
+├─ { amount: 1, resource address: 03b1f068cfcec8c34f7f8fe0a8830b9190f5ef2cd433c08c3a1bd1, name: "Admin Badge" }
+├─ { amount: 100, resource address: 03de10b1672c9a8ab30bd71f719dd3b6c94a771ed68941b72e5187, name: "leonets", symbol: "leo" }
+└─ { amount: 1, resource address: 03ef002af8c51cbb344dd813838e67f2c723b60c81f73a117ee672, name: "Borrowing NFTs" }
+   └─ NonFungible { id: 0e53576b148454554d40654e6ba1c0ba6f3fc76352609783dde517c218748036, immutable_data: Struct(), mutable_data: Struct(0i32, Decimal("0"), false, false, false) }
+```
+
+
+Let's look now at how we can close the operation
+
+Max for example looks at the position and decides to close its position but also all the other ones because he thinks the price will decrease
+
+```
+resim call-method $portfolio close_position 230509327473859403985102491547209909823
+
+├─ [INFO ] === SELL OPERATION START === 
+├─ [INFO ] Current epoch 20 vs last epoch 20
+├─ [INFO ] Current price of 030000000000000000000000000000000000000000000000000004/03de10b1672c9a8ab30bd71f719dd3b6c94a771ed68941b72e5187 is 5 
+├─ [INFO ] N. xrd to receive: 500
+└─ [INFO ] === SELL OPERATION END === 
+```
+
+
+No trading operation are open now, so for example Max decides to lend some of the current liquidity the get some reward
+
+```
+resim run transactions/lend.rtm
+resim run transactions/takeback.rtm
+```
+
+The portfolio now contains again only xrd tokens and Bob and Max are obviously allowed to withdraw.
+
+```
+└─ { amount: 30007, resource address: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+```
+
+Max withdraws 
+
+```
+resim run transactions/withdraw_by_Max.rtm
+
+├─ [INFO ] === WITHDRAW PORTFOLIO OPERATION START === 
+├─ [INFO ]  Amount of funded tokens in the portfolio 30000 
+├─ [INFO ]  Amount of yours funded tokens in the portfolio 10000 
+
+├─ [INFO ]  Portfolio amount at time of funding 30000 and actual 30007 
+├─ [INFO ]  Portfolio increase/decrease ratio  0.0233333333333333 
+├─ [INFO ]  you got 10002.33333333333333 from 10000 in 0 epoch 
+```
+
+# Check this
+
+├─ [INFO ] === WITHDRAW PORTFOLIO OPERATION START === 
+├─ [INFO ]  Amount of funded tokens in the portfolio 30000 
+├─ [INFO ]  Amount of yours funded tokens in the portfolio 10000 
+├─ [INFO ] Position size inside portfolio 0
+├─ [INFO ] Current epoch 20 vs last epoch 20
+├─ [INFO ] Current price of 030000000000000000000000000000000000000000000000000004/03fd755fa368cb0b27571d485ab4f5aef45b395e53116a68b378b4 is 39 
+├─ [INFO ] Current epoch 20 vs last epoch 20
+├─ [INFO ] Current price of 030000000000000000000000000000000000000000000000000004/0345e6a8b141c210e7421387da83a62ca0fcb388b45f61448f3484 is 10 
+├─ [INFO ] Current epoch 20 vs last epoch 20
+├─ [INFO ] Current price of 030000000000000000000000000000000000000000000000000004/03de10b1672c9a8ab30bd71f719dd3b6c94a771ed68941b72e5187 is 5 
+├─ [INFO ] 0 tokens are valued xrd 0
+├─ [INFO ] 0 tokens are valued xrd 0
+├─ [INFO ] 0 tokens are valued xrd 0
+├─ [INFO ]  Portfolio amount at time of funding 30000 and actual 30007 
+├─ [INFO ]  Portfolio increase/decrease ratio  0.0233333333333333 
+├─ [INFO ]  you got 10002.33333333333333 from 10000 in 0 epoch 
+└─ [INFO ]  Updated Amount of funded tokens  0 
+New Entities: 0
+lbattagli@DLT016:~/Software/Rust/radixdlt/scrypto-challenges/4-portfolio-management-yield-farming/PortfolioDApp$ 
+lbattagli@DLT016:~/Software/Rust/radixdlt/scrypto-challenges/4-portfolio-management-yield-farming/PortfolioDApp$ 
+lbattagli@DLT016:~/Software/Rust/radixdlt/scrypto-challenges/4-portfolio-management-yield-farming/PortfolioDApp$ 
+lbattagli@DLT016:~/Software/Rust/radixdlt/scrypto-challenges/4-portfolio-management-yield-farming/PortfolioDApp$ resim set-default-account $account $priv2
+Default account updated!
+lbattagli@DLT016:~/Software/Rust/radixdlt/scrypto-challenges/4-portfolio-management-yield-farming/PortfolioDApp$ resim run transactions/withdraw_by_John.rtm 
+Transaction Status: InvokeError
+Execution Time: 78 ms
+Instructions:
+├─ CallMethod { component_address: 02f5ad66df5f5dc26a67939b1d03ae3b5708f42a3466fcfa8cb130, method: "create_proof_by_amount", args: [Decimal("1"), ResourceAddress("03f601495a1e3904c6d2a8db6dff4e1e9944160396fce7ab494758")] }
+├─ PopFromAuthZone
+├─ CallMethod { component_address: 022127235adc9ea993b0e99f40eb7ba6aef54a7f783cd6b775f02f, method: "withdraw_portfolio", args: [Proof(512u32)] }
+└─ CallMethodWithAllResources { component_address: 02f5ad66df5f5dc26a67939b1d03ae3b5708f42a3466fcfa8cb130, method: "deposit_batch" }
+Instruction Outputs:
+├─ Proof(1024u32)
+└─ Proof(512u32)
+Logs: 15
+├─ [INFO ] === WITHDRAW PORTFOLIO OPERATION START === 
+├─ [INFO ]  Amount of funded tokens in the portfolio 0 
+├─ [INFO ]  Amount of yours funded tokens in the portfolio 10000 
+├─ [INFO ] Position size inside portfolio 0
+├─ [INFO ] Current epoch 20 vs last epoch 20
+├─ [INFO ] Current price of 030000000000000000000000000000000000000000000000000004/03fd755fa368cb0b27571d485ab4f5aef45b395e53116a68b378b4 is 39 
+├─ [INFO ] Current epoch 20 vs last epoch 20
+├─ [INFO ] Current price of 030000000000000000000000000000000000000000000000000004/0345e6a8b141c210e7421387da83a62ca0fcb388b45f61448f3484 is 10 
+├─ [INFO ] Current epoch 20 vs last epoch 20
+├─ [INFO ] Current price of 030000000000000000000000000000000000000000000000000004/03de10b1672c9a8ab30bd71f719dd3b6c94a771ed68941b72e5187 is 5 
+├─ [INFO ] 0 tokens are valued xrd 0
+├─ [INFO ] 0 tokens are valued xrd 0
+├─ [INFO ] 0 tokens are valued xrd 0
+├─ [INFO ]  Portfolio amount at time of funding 20000 and actual 20004.66666666666667 
+└─ [ERROR] Panicked at 'attempt to divide by zero', /home/lbattagli/.cargo/registry/src/github.com-1ecc6299db9ec823/num-bigint-0.4.3/src/biguint/division.rs:168:9
+New Entities: 0
+Error: TransactionExecutionError(InvokeError)
+lbattagli@DLT016:~/Software/Rust/radixdlt/scrypto-challenges/4-portfolio-management-yield-farming/PortfolioDApp$ resim set-default-account $account $priv1
+Default account updated!
+lbattagli@DLT016:~/Software/Rust/radixdlt/scrypto-challenges/4-portfolio-management-yield-farming/PortfolioDApp$ resim run transactions/withdraw_by_Bob.rtm 
+Error: CompileError(GeneratorError(InvalidResourceAddress("0236df90ef193cf06840c15984927728408704ab793d63f104d5e0")))
+lbattagli@DLT016:~/Software/Rust/radixdlt/scrypto-challenges/4-portfolio-management-yield-farming/PortfolioDApp$ resim run transactions/withdraw_by_Bob.rtm 
+Transaction Status: InvokeError
+Execution Time: 93 ms
+Instructions:
+├─ CallMethod { component_address: 0236df90ef193cf06840c15984927728408704ab793d63f104d5e0, method: "create_proof_by_amount", args: [Decimal("1"), ResourceAddress("03f601495a1e3904c6d2a8db6dff4e1e9944160396fce7ab494758")] }
+├─ PopFromAuthZone
+├─ CallMethod { component_address: 022127235adc9ea993b0e99f40eb7ba6aef54a7f783cd6b775f02f, method: "withdraw_portfolio", args: [Proof(512u32)] }
+└─ CallMethodWithAllResources { component_address: 0236df90ef193cf06840c15984927728408704ab793d63f104d5e0, method: "deposit_batch" }
+Instruction Outputs:
+├─ Proof(1024u32)
+└─ Proof(512u32)
+
+
 # Integration Test
 
 The portfolio_dapp.sh is a bash script that contains all the functions and methods tested, from the token creation to the component creation, from the fund to the withdraw methods, from the buy/sell methods to the lend/take back methods and it uses some user account to simulate some different events that could happen with these blueprints.
@@ -556,7 +904,7 @@ Execute 'scrypto test'
 //to update the package without resetting resim 
 resim publish . --package-address $package
 
-find ./ -exec sed -i 's/apple/orange/g' {} \;
+find *.rtm -exec sed -i 's/apple/orange/g' {} \;
 
 echo $account
 02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3
@@ -601,10 +949,10 @@ echo $user_account_funding_nft
 032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b
 
 echo $user_account_funding_nft2
-032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b
+032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b--errore
 
 echo $user_account_funding_nft3
-032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b
+032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b--errore
 
 echo $admin_badge
 03d987113ce50a6077a4b4b5b9ef29e6798c20c79a1b1370d56893

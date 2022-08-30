@@ -1,2 +1,2 @@
-CALL_METHOD ComponentAddress("025d180a419b7d526eba63c0b971b875885c0618fc219843685549") "register" ComponentAddress("02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364");
-CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02b61acea4378e307342b2b684fc35acf0238a4accb9f91e8a4364") "deposit_batch";
+CALL_METHOD ComponentAddress("${portfolio}") "register" ComponentAddress("${account2}");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account2}") "deposit_batch";

@@ -1,4 +1,4 @@
-CALL_METHOD ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3") "create_proof_by_amount" Decimal("1") ResourceAddress("032a450d815ecda8c1bfccd52e608a61ce8fec23a21892e2d1314b");
+CALL_METHOD ComponentAddress("${account}") "create_proof_by_amount" Decimal("1") ResourceAddress("${account}");
 POP_FROM_AUTH_ZONE Proof("proof1");
-CALL_METHOD ComponentAddress("025d180a419b7d526eba63c0b971b875885c0618fc219843685549") "buy" Decimal("500") ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3") ResourceAddress("030d4d068757932f986bb98fb65166cd7e3c20b43e71cc775e687b") Proof("proof1");
-CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3") "deposit_batch";
+CALL_METHOD ComponentAddress("${portfolio}") "buy" Decimal("500") ComponentAddress("${account}") ResourceAddress("${eth}") Proof("proof1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";
