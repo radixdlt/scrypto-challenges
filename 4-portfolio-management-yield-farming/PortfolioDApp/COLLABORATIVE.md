@@ -11,11 +11,11 @@ Portfolio dApp is a proof-of-concept protocol of a collaborative portfolio manag
   * [Abstract](#abstract)
   * [Design](#design)
   * [Portfolio dApp demo](#portfolio-dApp-demo)
-  * [Portfolio dApp (Test with only Transaction Manifest)](#portfolio-dApp-(Test-with-only-Transaction-Manifest))
+  * [Portfolio dApp demo (Transaction Manifest only)](#portfolio-dApp-demo(Transaction-Manifest-only))
   * [Integration Test](#integration-Test)
   * [Unit Test](#unit-Test)    
   * [TODO & Useful commands](#TODO-&-Useful-commands)     
-
+  
 # Abstract 
 
 The Portfolio dApp is a decentralized application where users can collaborate to a portfolio management solution where no users profiling exist and it is completely permissionless, any user can deposit asset and any user can put asset at work towards the simulated available deFi applications.
@@ -560,7 +560,7 @@ resim run transactions/portfolio_total_value.rtm
 └─ [INFO ] Grandtotal 10082
 ```
 
-# Portfolio dApp (Test with only Transaction Manifest)
+# Portfolio dApp demo (Transaction Manifest only)
 
 Let's proceed again with a demo of the blueprints, here we recap the final test done using transaction manifest only.
 Let's start publishing the package, all the component/resource need to be exported as shell variable, then the transaction manifest are already using the exact variable names, so please be sure to use the following names!
