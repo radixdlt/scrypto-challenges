@@ -63,7 +63,7 @@ This outline describes the instantiation function and methods for the LP deposit
 
 I’ve used @0xOmarA’s excellent and very well annotated [RaDEX](https://github.com/radixdlt/scrypto-challenges/tree/main/1-exchanges/RaDEX) project for reference.
 
-##### Blueprint
+#### Blueprint:
 
 The blueprint struct would require:
 
@@ -74,7 +74,7 @@ The blueprint struct would require:
 * %-maximum-acceptable-permanent-loss decimal (or upper-nonstable-price-threshold and lower-nonstable-price-thresholds; see below).
 * Fee-to-pool decimal
 
-##### Instantiation:
+#### Instantiation:
 The SMPL-AMM component instantiates upon asserting caller's bounce==false, receiving the caller’s account-address, a quantity of stabletokens, a quantity of nonstable tokens, a %-maximum-acceptable-permanent-loss number, and a fee-to-pool number. 
 
 * Checks include checks bounce==false, checks that one token is a stabletoken and the other is a nonstable token (admin-controlled hashmap-list of acceptable stabletokens could be used), checks that token quantities >0, and checks that %-maximum-acceptable-permanent-loss fee-to-pool numbers are 0>100.
@@ -99,7 +99,7 @@ The SMPL-AMM component instantiates upon asserting caller's bounce==false, recei
 
 * Returns NFT
 
-##### Add-liquidity method
+#### Add-liquidity method:
 Adds liquidity to the pool upon asserting caller's bounce==false, receiving the caller’s account-address, a quantity of stabletokens, a quantity of nonstable tokens, and a %-maximum-acceptable-permanent-loss number.
 
 * Checks as above.
@@ -116,7 +116,7 @@ Adds liquidity to the pool upon asserting caller's bounce==false, receiving the 
 
 * Returns any excess stabletokens or nonstable tokens. Returns NFT.
 
-##### Swap method
+#### Swap method:
 Where a caller initiates an exchange of stabletoken for nonstable token, swap first calculates the potential price-impact of the exchange and then compares this to the upper-nonstable-price-threshold at the 0 position in the ascending vector.
 
 Where a caller initiates an exchange of nonstable for stable token, swap calculates the potential price-impact of the exchange and then compares this to the lower-nonstable-price-threshold at the 0 position in the descending vector.
@@ -136,7 +136,7 @@ If the potential-price < upper-nonstable-price-threshold at the 0 position in th
 
 * Returns swapped tokens to caller. Direct-sends any removed liquidity to appropriate LP(s), if applicable.
 
-##### Manual remove-liquidity method
+#### Manual remove-liquidity method:
 * The caller sends their NFT to the method to remove their liquidity.
 
 * The NFT-ID is checked against the entries in one of the ascending or descending vector.
