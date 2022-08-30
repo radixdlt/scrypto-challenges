@@ -11,9 +11,6 @@ blueprint! {
         fund_name: String,
         fund_ticker: String,
         fund_vaults: HashMap<ResourceAddress, Vault>,
-        // Need to get rid of this
-        token_weights: HashMap<ResourceAddress, Decimal>,
-        // Mints fund tokens
         fund_token_admin_vault: Vault,
         fund_token_address: ResourceAddress,
         starting_share_price: Decimal,
@@ -117,7 +114,6 @@ blueprint! {
                 fund_ticker: fund_ticker.clone(),
                 fund_vaults: fund_vaults,
                 starting_share_price: starting_share_price,
-                token_weights: token_weights,
                 fund_token_admin_vault: Vault::with_bucket(fund_token_admin),
                 fund_token_address: fund_token_address,
                 price_oracle_address: price_oracle_address,
@@ -448,11 +444,6 @@ blueprint! {
                         let collateral_value: Decimal = collateral_price * collateral_amount;
                         let collateral_weight: Decimal = collateral_value / cumulative_value;
                         let amount_to_return: Decimal = token_value * collateral_weight; 
-
-                        // let collateral_weight: Decimal = *self.token_weights.get(&token).unwrap();
-                        // let collateral_price = price_oracle.get_price(token);
-                        // let collateral_value = collateral_price * collateral_weight;
-                        // let collateral_amount = token_value * collateral_value;
 
                         // * PUSHES THE BUCKET OF EACH COLLATERAL TO BE RETURNED TO THE INVESTOR * //
                         let collateral_bucket: Bucket = self.fund_vaults.get_mut(&token).unwrap().take(amount_to_return);

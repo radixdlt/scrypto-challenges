@@ -1,0 +1,27 @@
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${INDEX_BADGE}");
+POP_FROM_AUTH_ZONE Proof("proof1");
+
+CALL_METHOD ComponentAddress("${INDEX}") "swap" 
+Proof("proof1") 
+ResourceAddress("${XRD}")
+Decimal("191")
+ResourceAddress("${USD}");
+
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${INDEX_BADGE}");
+POP_FROM_AUTH_ZONE Proof("proof2");
+
+CALL_METHOD ComponentAddress("${INDEX}") "swap" 
+Proof("proof2") 
+ResourceAddress("${XRD}")
+Decimal("191")
+ResourceAddress("${DOGE}");
+
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${INDEX_BADGE}");
+POP_FROM_AUTH_ZONE Proof("proof3");
+
+CALL_METHOD ComponentAddress("${INDEX}") "swap" 
+Proof("proof3") 
+ResourceAddress("${XRD}")
+Decimal("191")
+ResourceAddress("${BTC}");
+

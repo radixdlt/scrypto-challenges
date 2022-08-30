@@ -3,9 +3,9 @@ POP_FROM_AUTH_ZONE Proof("proof1");
 CALL_METHOD ComponentAddress("${DEBT_FUND}") "instantiate_funding_locker" 
 Proof("proof1")
 # The Loan NFT ID
-NonFungibleId("2d18dbb7d954d1d6cacbac901e300b80")
+NonFungibleId("686806f4084a8946e7ad30bf79d95f73")
 # The Borrower NFT ID
-NonFungibleId("9de27fbb6004424dac937a13ac12b9e6")
+NonFungibleId("6eb26504b5910d099cfef373d9d11d24")
 # Loan Amount
 Decimal("1000")
 # Asset to lend

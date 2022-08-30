@@ -627,6 +627,8 @@ blueprint! {
 
                     loan_nft_data.accrued_interest_expense -= repay_amount.amount();
 
+                    self.fee_vault.put(repay_amount);
+
                     self.authorize_update(loan_nft_data);
 
                     let loan_nft_data: Loan = loan_nft_badge.non_fungible().data();
@@ -646,8 +648,6 @@ blueprint! {
                         info!(
                             "[Funding Locker - Payment]: Thank you for paying off this month's interest expense balance."
                         );
-    
-                        self.authorize_update(loan_nft_data);
     
                         return None
                     }

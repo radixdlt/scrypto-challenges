@@ -1,4 +1,4 @@
-![](./public/images/IMG_1112.jpg)
+![](./images/IMG_1130.png)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Table of Content
@@ -20,14 +20,12 @@
     + [FundingLocker Blueprint](#fundinglocker-blueprint)
   * [Examples](#examples)
     + [Getting Started](#getting-started)
-    + [Example 1: Creating pools & depositing supply](#example-1-creating-pools-&-depositing-supply)
-    + [Example 2: Leverage 1x Long Strategy](#example-2-leverage-1x-long-strategy)
-    + [Example 3: Leverage 2x Short Strategy](#example-3-leverage-2x-short-strategy)
-    + [Example 4: Leverage 3x Long Strategy](#example-4-leverage-3x-long-strategy)
-    + [Example 5: Flash Liquidation](#example-5-flash-liquidation)
-    + [Example 6: Closing out a leveraged position](#example-6-closing-out-a-leveraged-position)
-    + [Example 7: Loan Auctioning](#example-7-loan-auctioning)
-  * [Future Work and Improvements](#future-work-and-improvements)
+    + [Example 1: Creating badges and permitting users](#example-1-creating-badges-and-permitting-users)
+    + [Example 2: Creating an Index Fund](#example-2-creating-an-index-fund)
+    + [Example 3: Purchasing shares of Radish Index Fund](#example-3-purchasing-shares-of-radish-index-fund)
+    + [Example 4: Rebalancing our Index Fund](#example-4-rebalancing-our-index-fund)
+    + [Example 5: Integrating Leverage](#example-5-integrating-leverage)
+    + [Example 6: Creating our Debt Fund, originating our first loan, and managing the loan](#example-6-creating-our-debt-fund-originating-our-first-loan-and-managing-the-loan)
   * [Conclusion](#conclusion)
   * [License](#license)
 
@@ -515,7 +513,8 @@ We now see the Radish Index Fund that we had the Farmer create earlier. Now let'
 resim run ./transactions/buy_fund_tokens.rtm
 ```
 ```sh
-
+Logs: 3
+└─ [INFO ] ["Radish Index" Fund]: You have purchased 191.752894564757472016 amount of "$RADSH".
 ```
 
 Simulating a price increase, let's set the price of `$RADSH` to $2 to see what options the Investor can do.
@@ -533,32 +532,289 @@ Since the sell tokens feature is fairly straightforward... let's showcase what i
 Let's run the following transaction manifest file:
 
 ```sh
-resim run ./transactions/redeem_tokens.rtm
+resim run ./transactions/redeem_fund_tokens.rtm
+```
+```sh
+Logs: 5
+├─ [INFO ] ["Radish Index" Fund]: Fund token value: 382.
+├─ [INFO ] [Redeem]: 038e6a15236a431a8c90504ebb16717ec47847b8021e153f025fb0 of 95.5
+├─ [INFO ] [Redeem]: 0398a76d0eca910998086765cbfcf37cbf4c84e8fc11309d245bc9 of 97.359567743908655024
+├─ [INFO ] [Redeem]: 030000000000000000000000000000000000000000000000000004 of 99.331402260678139286
+└─ [INFO ] [Redeem]: 03239e6b50205527dff639aa174c9065e1bc7d5401bc90102fb9d0 of 101.427223780244379488
 ```
 
+The calculations are a bit iffy, but we are returned $382 in total value of the underlying asset at roughly 25% each in weighting.
+
+### Example 4: Rebalancing our Index Fund
+
+Now let's head over back to our Farmer and see how the fund is doing.
+
+```sh
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+
+```
+
+Let's simulate a change in our token weighting by changing the price of XRD to $2.
+
+```sh
+resim call-method $ORACLE set_price $XRD 2
+```
+
+```sh
+resim run ./transactions/view_token_weights.rtm
+```
+```sh
+Logs: 5
+├─ [INFO ] ["Radish Index" Fund]: The token weights are:
+├─ [INFO ] Token Address: 038e6a15236a431a8c90504ebb16717ec47847b8021e153f025fb0 | Token Amount: 1154.5 | Token Value: 1154.5 | Token Weight: 0.200536719151699525
+├─ [INFO ] Token Address: 030000000000000000000000000000000000000000000000000004 | Token Amount: 1150.668597739321860714 | Token Value: 2301.337195478643721428 | Token Weight: 0.399742408699056393
+├─ [INFO ] Token Address: 0398a76d0eca910998086765cbfcf37cbf4c84e8fc11309d245bc9 | Token Amount: 1152.640432256091344976 | Token Value: 1152.640432256091344976 | Token Weight: 0.200213712123199075
+└─ [INFO ] Token Address: 03239e6b50205527dff639aa174c9065e1bc7d5401bc90102fb9d0 | Token Amount: 1148.572776219755620512 | Token Value: 1148.572776219755620512 | Token Weight: 0.199507160026045006
+```
+
+We can see that XRD has been overweighted. We can have the Farmer rebalance the portfolio to our original weightings by performing the following transactions manifest file:
+
+```sh
+resim run ./transactions/rebalance.rtm
+```
+
+and when we view our tokens:
+
+```sh
+resim run ./transactions/view_token_weights.rtm
+```
+```sh
+Logs: 5
+├─ [INFO ] ["Radish Index" Fund]: The token weights are:
+├─ [INFO ] Token Address: 03239e6b50205527dff639aa174c9065e1bc7d5401bc90102fb9d0 | Token Amount: 1332.013367909032822561 | Token Value: 1332.013367909032822561 | Token Weight: 0.258073497067856386
+├─ [INFO ] Token Address: 030000000000000000000000000000000000000000000000000004 | Token Amount: 577.668597739321860714 | Token Value: 1155.337195478643721428 | Token Weight: 0.223843031543888792
+├─ [INFO ] Token Address: 0398a76d0eca910998086765cbfcf37cbf4c84e8fc11309d245bc9 | Token Amount: 1336.081023945368547025 | Token Value: 1336.081023945368547025 | Token Weight: 0.258861592925943921
+└─ [INFO ] Token Address: 038e6a15236a431a8c90504ebb16717ec47847b8021e153f025fb0 | Token Amount: 1337.940591689277202049 | Token Value: 1337.940591689277202049 | Token Weight: 0.259221878462310899
+```
+
+The weighting is not perfect... but the general idea is there. We are using RaDEX to swap our fund assets around until we reach our desired weighting.
 
 
+### Example 5: Integrating Leverage
+
+This section will be short since most of the features can be explained in [DegenFi](https://github.com/PostNutCIarity/degenfi) page. The idea behind having this feature is to provide Farmers with flexibility with their fund strategies. Integrating a lending protocol such as DegenFi will allow Farmers to pursue a leveraged fund strategy to increase their returns (or losses). 
+
+```sh
+resim run ./transactions/integrate_lending.rtm
+```
+
+### Example 6: Creating our Debt Fund, originating our first loan, and managing the loan
+
+Another strategy Farmers can pursue is creating a debt fund to seek debt investment exposure. Farmers Market allows Farmers to raise capital through the `DebtFund` and originate loans and earn more stable returns than its equity counterpart.
+
+Since most of this section covers some stuff that's unrelated to the theme of Portfolio Management, we'll run through the steps quickly and highlight the fund management aspects of this feature.
+
+We'll create our Debt Fund with the following:
+```sh
+C_DF=$(resim run "./transactions/new_debt_fund.rtm")
+export DEBT_FUND=$(echo "$C_DF" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+export DF_BADGE=$(echo "$C_DF" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '2q;d')
+export TT=$(echo "$C_DF" | sed -nr "s/.* Resource: ([[:alnum:]_]+)/\1/p" | sed '4q;d')
+```
+
+Our Investor will supply liquidity so they can earn a share of the fees. 
+
+```sh
+resim set-default-account $ACC_ADDRESS3 $PRIV_KEY3
+resim call-method $IDASHBOARD retrieve_debt_funds_list
+```
+
+Here our Investor can find a list of Debt Funds they'd like to invest in. 
+
+```sh
+Instruction Outputs:
+├─ HashMap<String, ComponentAddress>("4 Arrows Capital", ComponentAddress("02a22d0a06da3b27910e8d4ce477d5c75d05c272b088a3c6e255dc"))
+```
+
+And they can invest by supplying liquidity.
+
+```sh
+resim run ./transactions/supply_liquidity.rtm
+```
+
+Now that the Debt Fund has some capital, it's time to have our Farmer originate loans. First, let's introduce our Borrower.
+Earlier, we set up a badge for our Borrower, but they have not claimed their Borrower badge yet. We can do that with the following:
+
+```sh
+resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
+C_CB=$(resim run "./transactions/claim_b_badge.rtm")
+export B_BADGE=$(echo "$C_CB" | sed -nr "s/.* The resource address of your NFT is: ([[:alnum:]_]+)/\1/p")
+```
+
+We can have the Borrower request its first loan with:
+
+```sh
+LR=$(resim run "./transactions/new_loan_request.rtm")
+export LR=$(echo "$LR" | sed -nr "s/.* The NFT ID of this loan request is: ([[:alnum:]_]+)/\1/p")
+```
+
+Heading over back to the Farmer we can have it review any available loan requests:
+
+```sh
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+resim run ./transactions/loan_request_list.rtm
+```
+```sh
+Instruction Outputs:
+└─ HashMap<NonFungibleId, TreeSet>(NonFungibleId("6eb26504b5910d099cfef373d9d11d24"), TreeSet<NonFungibleId>(NonFungibleId("686806f4084a8946e7ad30bf79d95f73")))
+```
+
+Here is where it gets a little laborious. There is a manual process in going into our transaction manifest to make sure that the right loan ID and Borrower ID is inputted. You can edit the transaction manifest file here: [./transactions/instantiate_funding_locker.rtm](./transactions/instantiate_funding_locker.rtm).
+
+```sh
+C_FL=$(resim run "./transactions/instantiate_funding_locker.rtm")
+export FUND_LOCKER=$(echo "$C_FL" | sed -nr "s/.* Component: ([[:alnum:]_]+)/\1/p" | sed '1q;d')
+export LNFTID=$(echo "$C_FL" | sed -nr "s/.* The loan id is: ([[:alnum:]_]+)/\1/p")
+```
+
+We can view the loan we created by:
+```sh
+resim call-method $DEBT_FUND view_loan $LNFTID
+```
+```sh
+Logs: 18
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - The Borrower ID is: 6eb26504b5910d099cfef373d9d11d24
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - The Lender ID is: a2196d26266bd6eae670928c128c8934
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - The principal loan amount is: 1000
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Asset borrowed: 03239e6b50205527dff639aa174c9065e1bc7d5401bc90102fb9d0
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Collateral borrowed: 030000000000000000000000000000000000000000000000000004
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - The collateral percent: 0.5
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Annualized Interest Rate: 0.06
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Term Length: ThreeMonth
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Payments Remaining: 3
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Origination Fee: 0.01
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Origination Fee Charged: 10
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Accrued Interest Expense: 0
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Remaining Balance: 0
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Draw Limit: 250
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Draw Minimum: 100
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Last Draw: 0
+├─ [INFO ] [Debt Fund Dashboard - View Loan] - Collateral Amount: 0
+└─ [INFO ] [Debt Fund Dashboard - View Loan] - Loan Status: Current
+```
+
+By heading back over to our Borrower, we can have the Borrower see any approved loans by the Farmer
+
+```sh
+resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
+resim run ./transactions/view_approved_loan_requests.rtm
+```
+```sh
+Instruction Outputs:
+└─ TreeSet<NonFungibleId>(NonFungibleId("686806f4084a8946e7ad30bf79d95f73"))
+```
+
+The Borrower may now begin to deposit collateral:
+```sh
+resim run ./transactions/deposit_collateral.rtm
+```
+```sh
+Logs: 2
+├─ [INFO ] [Funding Locker]: Insufficient collateralization.
+└─ [INFO ] [Funding Locker]: Your collateral percentage is 0.25.
+You must at least provide 0.5 collateralization before this loan can be funded
+```
+
+Since the collateralization requirement is 50% and we've only supplied 250, let's run the method call again.
+
+```sh
+Logs: 3
+├─ [INFO ] [Funding Locker]: Collateralization requirement met!
+├─ [INFO ] [Funding Locker]: You've received a Loan NFT. Use this Loan NFT to access the Funding Locker.
+└─ [INFO ] [Funding Locker]: The resource address of your Loan NFT is: 03f27d68b7485aaf69a119088c643202577b55fbaf3fcbbea2fd7e
+```
+
+Let's also export the Loan NFT into an environment variable.
+
+```sh
+export LNFT=03f27d68b7485aaf69a119088c643202577b55fbaf3fcbbea2fd7e
+```
+
+resim call-method $BDASHBOARD view_loan 1,$LNFT
 
 
-## Future work and improvements
+We can now have the Farmer fund the loan
 
-This prototype is not production ready yet. While there needs to be many more testing and iterations to do for this to be prototype (I can definitely see some areas of improvements after the fact of building this lending protocol), I certainly would not get anywhere this close without the ease of Scrypto, the Radix Engine, and the Transaction Manifest. Here are a few things I have in mind that I'd like to explore more with this prototype:
+```sh
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+resim run ./transactions/fund_loan.rtm
+```
+```sh
+Logs: 1
+└─ [INFO ] [Funding Locker - Loan Funding]: The Funding Locker vault is fully funded.
+The Borrower may now be allowed to draw.
+```
 
-* Researching risk analysis tools to quantify the risk of the protocol with various lending markets.
-* Researching a better user experience for the liquidation mechanism (and user experience overall).
-* Implement a more robust price oracle.
-* Design better calculation mechanics to ensure accuracy.
-* Research, implement, and experiment with securitization designs.
-* Research and experiment more clever usage of flash loans.
-* Research & design protocol economics
-* Interest accrual calculations.
+Let's have the Borrower perform its first draw request.
+
+```sh
+resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
+resim call-method $BDASHBOARD draw_request 1,$LNFT 250
+```
+```sh
+Logs: 1
+└─ [INFO ] [Funding Locker - Draw Request]: You've made a draw request to the amount of 250, 03239e6b50205527dff639aa174c9065e1bc7d5401bc90102fb9d0
+```
+
+The Farmer can view and approve loans with the following:
+
+```sh
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+resim call-method $DEBT_FUND view_draw_request $LNFTID
+resim call-method $DEBT_FUND approve_draw_request 1,$DF_BADGE $LNFTID
+```
+```sh
+Logs: 1
+└─ [INFO ] [Funding Locker - Draw Request Approval]: Draw request ccebc7ce2a7dcd21d2289fe2babdebc4 of the amount 250 has been approved!
+```
+
+The Borrower receives its first draw:
+
+```sh
+resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
+resim run ./transactions/receive_draw.rtm
+```
+```sh
+Logs: 1
+└─ [INFO ] [Funding Locker - Receive Draw]: You've received 240 of 03239e6b50205527dff639aa174c9065e1bc7d5401bc90102fb9d0 in funding.
+```
+
+The Farmer can update the loan with the accrued interest expense owed after some time has passed.
+
+```sh
+resim set-default-account $ACC_ADDRESS2 $PRIV_KEY2
+resim set-current-epoch 10
+resim run ./transactions/update_loan.rtm
+```
+```sh
+Logs: 2
+├─ [INFO ] [Funding Locker - Update Loan]: 10 epoch has lasped since the last draw.
+└─ [INFO ] [Funding Locker - Update Loan]: 150 in interest expense has accrued.
+```
+
+The Borrower pays its interest:
+
+```sh
+resim set-default-account $ACC_ADDRESS4 $PRIV_KEY4
+resim run ./transactions/make_payment.rtm
+```
+```sh
+Logs: 1
+└─ [INFO ] [Funding Locker - Payment]: Thank you for paying off this month's interest expense balance.
+```
+
+As you may have noticed with the pace of the last example, I was rushing through the example as I didn't have enough time to eloquently walk through the all the of protocol's features. So my apologies for that! Please ping me if you need clarity about how this protocol works. I'm always happy to walk anyone through it.
 
 ## Conclusion
 
-This is my first attempt of developing a lending protocol or developing anything at all for that matter on my own; carrying out from design to implementation. It was a tremendous learning experience and incredibly fun visualizing assets being moved around in this protocol due its asset-orientedness. There may have been different parts of this design that could have been implemented better. I suppose you live and you learn. Major thanks to Florian, Omar, Peter Kim, Rock Howard, Clement, and Miso for talking out ideas with me and helping me out along the way. 
+I think what I learned most about this challenge is knowing how to manage the scope of my ideas and sticking through with it. Mid-challenge, I had some ideas I wanted to explore, which expanded the breadth of my protocol. But doing so constrained my time and the quality of this submission. I'll keep that in mind next time! 
 
 ## License 
-
 This work is licensed under Apache 2.0 and the license file is provided [here](./LICENSE).
 
 
