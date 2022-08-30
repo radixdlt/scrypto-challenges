@@ -34,7 +34,7 @@ With a SMPL-AMM, the user experience is relatively predictable. An LP can ‘dep
 ###Dynamic price discovery
 A key advantage of a SMPL-AMM as compared to a conventional AMM can be seen when IL is considered from the perspective of the entire AMM component as well as from the perspective of individual LPs. Essentially, when IL is limited for individual LPs, IL is limited for the component also.
 
-When liquidity is automatically removed from a SMPL-AMM as the result of a sudden price change, the $\x*y=k$ (or similar) curve means that a new target price is reached on lower swap-volume. Therefore, less value can be captured by arbitrageurs capitalising on mispriced assets. To illustrate the problem with mispriced assets, the following model shows simple arbitrage between two similar AMMs:
+When liquidity is automatically removed from a SMPL-AMM as the result of a sudden price change, the $x*y=k$ (or similar) curve means that a new target price is reached on lower swap-volume. Therefore, less value can be captured by arbitrageurs capitalising on mispriced assets. To illustrate the problem with mispriced assets, the following model shows simple arbitrage between two similar AMMs:
 
 *	AMMA and AMMB each contain a similar total value of GBP and XRD (denominated in GBP; XRD at marketwide price = 1.111GBP). However, the XRD is mispriced on AMMA at 0.9GBP, while it is correctly priced on AMMB at 1.111GBP.
 
@@ -79,18 +79,18 @@ The SMPL-AMM component instantiates upon asserting caller's bounce==false, recei
 
 * Checks include checks bounce==false, checks that one token is a stabletoken and the other is a nonstable token (admin-controlled hashmap-list of acceptable stabletokens could be used), checks that token quantities >0, and checks that %-maximum-acceptable-permanent-loss fee-to-pool numbers are 0>100.
 
-* Calculates $\k$ in the constant market maker equation: $\x * y = k$ 
+* Calculates $k$ in the constant market maker equation: $x * y = k$ 
 
 * Mints the NFT minting badge. Mints an NFT with metadata corresponding to proportionate-pool-ownership (initially 100, say). Stores the proportionate-pool-ownership value as an existing-pool-size variable for use in the ‘Add-liquidity’ method.
 
 * Calculates from the %-maximum-acceptable-permanent-loss number, the upper-nonstable-price-threshold and lower-nonstable-price-threshold corresponding to that level of IL.
  * **IL calculation:** 
  * ![image](/images/6.jpg)
- * The total value ($\y$) of a quantity ($\m$) of nonstable tokens with price ($\x$) that is held rather than deposited is linear ($\y=mx+c$).
- * The total value of a deposited stable-nonstable token pair is given by $\2\sqrt{mc}\sqrt{x}$ or $/2\sqrt{k}\sqrt{x}$.
- * Therefore -IL == $\-l = \frac{2\sqrt{k}\sqrt{x}}{mx + c}-1$
- * From the provided %-maximum-acceptable-permanent-loss decimal/100, the prices at which the maximum allowable IL is reached are given by solving the quadratic for $\x$:
- * $$\x_{lower}= \frac{-4\sqrt{-ckl^2m+2cklm-ckm+k^2}-2cl^2m+4clm-2cm+4k}{2(l^2-2l+1)m^2}$$ and $$\x_{upper}= \frac{4\sqrt{-ckl^2m+2cklm-ckm+k^2}-2cl^2m+4clm-2cm+4k}{2(l^2-2l+1)m^2}$$ so depending on how much calculations cost on Radix, it might be worth doing these in the frontend rather than in the component itself…
+ * The total value ($y$) of a quantity ($m$) of nonstable tokens with price ($x$) that is held rather than deposited is linear ($y=mx+c$).
+ * The total value of a deposited stable-nonstable token pair is given by $2\sqrt{mc}\sqrt{x}$ or $/2\sqrt{k}\sqrt{x}$.
+ * Therefore -IL == $-l = \frac{2\sqrt{k}\sqrt{x}}{mx + c}-1$
+ * From the provided %-maximum-acceptable-permanent-loss decimal/100, the prices at which the maximum allowable IL is reached are given by solving the quadratic for $x$:
+ * $$x_{lower}= \frac{-4\sqrt{-ckl^2m+2cklm-ckm+k^2}-2cl^2m+4clm-2cm+4k}{2(l^2-2l+1)m^2}$$ and $$x_{upper}= \frac{4\sqrt{-ckl^2m+2cklm-ckm+k^2}-2cl^2m+4clm-2cm+4k}{2(l^2-2l+1)m^2}$$ so depending on how much calculations cost on Radix, it might be worth doing these in the frontend rather than in the component itself…
  
 
 * Pushes the upper-nonstable-price-threshold, the caller’s account-address, the caller’s NFT-ID and the caller’s proportionate-pool-ownership to the ascending vector.
@@ -124,15 +124,15 @@ Where a caller initiates an exchange of nonstable for stable token, swap calcula
 In either case, potential-price-impact is calculated in a similar way.
 First the potential number of output tokens is calculated according to
 
-$$\dy = \frac {dx * r * y}{x + r * dx}$$ 
+$$dy = \frac {dx * r * y}{x + r * dx}$$ 
 
-where $\x$ is the number of input token already in the pool, $\y$ is the number of output tokens already in the pool, $\dx$ is the number of input tokens provided by the caller, $\dy$ is the potential amount of output tokens, and $\r$ is the fee modifier; $\r$ = (100 - fee) / 100 %.
+where $x$ is the number of input token already in the pool, $y$ is the number of output tokens already in the pool, $dx$ is the number of input tokens provided by the caller, $dy$ is the potential amount of output tokens, and $r$ is the fee modifier; $r$ = (100 - fee) / 100 %.
 
-Then the potential new totals of tokens in the pool are calculated (eg. $\y$ - $\dy$ and $\dx$ + $\x$). Then the nonstable token potential-price is calculated with potential-new-stable-total / potential-new-nonstable-total.
+Then the potential new totals of tokens in the pool are calculated (eg. $y$ - $dy$ and $dx$ + $x$). Then the nonstable token potential-price is calculated with potential-new-stable-total / potential-new-nonstable-total.
 
 If the potential-price > upper-nonstable-price-threshold at the 0 position in the ascending vector or < lower-nonstable-price-threshold at the 0 position in the descending vector then the swap does not proceed. Instead, the corresponding proportionate-pool-ownership number in the vector is used together with the existing-pool-size variable to calculate the number of tokens to directly return funds to the corresponding LP account address. These funds are placed in earmarked buckets. The existing-pool-size variable is updated. Then the entries in both ascending and descending vectors with the corresponding NFT-ID are removed and the vectors are reindexed. Then the method loops back to recalculate a number of output tokens and potential-price change, since these will have changed due to removal of tokens from the pool, and then re-checks the new potential-price against the appropriate vector.
 
-If the potential-price < upper-nonstable-price-threshold at the 0 position in the ascending vector or > lower-nonstable-price-threshold at the 0 position in the descending vector then the swap proceeds. The $\dy$ number from the most recent iteration of the loop gives the number of tokens to return. Note that $\k$ must now be recalculated for future use in the Add-liquidity method.
+If the potential-price < upper-nonstable-price-threshold at the 0 position in the ascending vector or > lower-nonstable-price-threshold at the 0 position in the descending vector then the swap proceeds. The $dy$ number from the most recent iteration of the loop gives the number of tokens to return. Note that $k$ must now be recalculated for future use in the Add-liquidity method.
 
 * Returns swapped tokens to caller. Direct-sends any removed liquidity to appropriate LP(s), if applicable.
 
