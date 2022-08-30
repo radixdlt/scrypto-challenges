@@ -544,7 +544,8 @@ resim run transactions/portfolio_total_value.rtm
 
 # Portfolio dApp (Test with only Transaction Manifest)
 
-Let's proceed with a demo of the blueprints, start publishing the package
+Let's proceed again with a demo of the blueprints, here we recap the final test done using transaction manifest only.
+Let's start publishing the package, all the component/resource need to be exported as shell variable, then the transaction manifest are already using the exact variable names, so please be sure to use the following names!
 
 ```
 resim publish .
@@ -552,15 +553,11 @@ export package=017045972dc31c4425bde71adf087ddedbf7b10adf56ec71a6ce1b
 
 resim new-account
 
-
 export account=
-
 export priv1=
 
 
-
 resim new-account
-
 
 export priv2=
 export account2=
@@ -568,7 +565,6 @@ export account2=
 resim new-account
 
 export account3=
-
 export priv3=
 
 
@@ -600,13 +596,9 @@ resim run transactions/create_lending.rtm
 
 
 export lending=
-
 export admin_badge=
-
 export lend_nft=
-
 export borrow_nft=
-
 export lnd=
 
 
@@ -615,13 +607,9 @@ resim run transactions/create_portfolio.rtm
 
 
 export portfolio=
-
 export admin_badge=
-
 export user_account_history_nft_address=
-
 export user_account_funding_nft_address=
-
 
 resim call-method $portfolio register $account
 resim run transactions/register_with_portfolio.rtm
@@ -634,20 +622,18 @@ After the user account has been registered itself with the PortfolioApp componen
 │  └─ NonFungible { id: 0bfa93aa9159a62422fd0868d0ae4a16e32eff89f39d206bb5eb8267f265c424, immutable_data: Struct(), mutable_data: Struct(ComponentAddress("021025cfda90adea21506170be47c67ec169e41dbbdd063d54d409"), 0u32, 0u32, false) }
 
 export user_account_history_nft=03113e60dbfe0fa744ca9fbecc2441ec230aca977f68bcc102bcb9
+```
+Then we can continue registering with the LendingApp
 
 ```
-
-
-resim call-method $portfolio register_for_lending 
 resim run transactions/register_for_lending.rtm
 
 resim run transactions/register_for_borrowing.rtm
 ```
 
-Bob could operate directly with the TradingApp...
+Now all the components are ready and Bob could operate directly with the TradingApp...
 
 ```
-resim call-method $trading buy_generic 500,$xrd $btc 
 resim run transactions/buy_with_trading.rtm
 ```
 
@@ -668,7 +654,7 @@ Now Bob decides to sell
 
 
 ```
-resim run transactions/sell_with_trading.rtm
+resim run transactions/sell_with_trading_btc.rtm
 
 ├─ [INFO ] Current epoch 2 vs last epoch 2
 ├─ [INFO ] Current price of 030000000000000000000000000000000000000000000000000004/0396c203d001f1fa99fdf081dc2f30e7f3b921eb1b5c9cc9487630 is 36 
@@ -682,7 +668,6 @@ Now let's instead what could happen if Bob uses the PortfolioDapp
 In this example Bob, as all the other users, has to fund directly inside the PortfolioApp component before starting to operate
 
 ```
-resim call-method $portfolio fund_portfolio 10000,$xrd 1,$user_account_funding_nft 
 resim run transactions/fund_portfolio_by_Bob.rtm
 ```
 
@@ -717,7 +702,6 @@ export user_account_funding_nft2=
 And then he can fund the Portfolio
 
 ```
-resim call-method $portfolio fund_portfolio 10000,$xrd $user_account_funding_nft2
 resim run transactions/fund_portfolio_by_John.rtm 
 ```
 
@@ -726,12 +710,10 @@ The same has been done with Max's account
 ```
 $resim set-default-account $account3 $priv3
 
-resim call-method $portfolio register $account3 
 resim run transactions/register_with_portfolio_by_Max.rtm
 
 export user_account_funding_nft3=
 
-resim call-method $portfolio fund_portfolio 10000,$xrd $user_account_funding_nft3
 resim run transactions/fund_portfolio_by_Max.rtm
 ```
 
@@ -819,6 +801,8 @@ resim run transactions/withdraw_by_Max.rtm
 ├─ [INFO ]  you got 10002.33333333333333 from 10000 in 0 epoch 
 ```
 
+Bob and John also can withdraw their amount or continue, getting a reward based on the total portfolio result, whose result has been achieved by all cumulative efforts ! 
+
 # Check this
 
 ├─ [INFO ] === WITHDRAW PORTFOLIO OPERATION START === 
@@ -895,16 +879,16 @@ Instruction Outputs:
 The portfolio_dapp.sh is a bash script that contains all the functions and methods tested, from the token creation to the component creation, from the fund to the withdraw methods, from the buy/sell methods to the lend/take back methods and it uses some user account to simulate some different events that could happen with these blueprints.
 
 
-# Test unitari
+# Unit Test
 
 Execute 'scrypto test' 
 
-# TODO
+# TODO & Useful commands
 
 //to update the package without resetting resim 
 resim publish . --package-address $package
 
-find *.rtm -exec sed -i 's/apple/orange/g' {} \;
+find *.rtm -exec sed -i 's/02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3/${account}/g' {} \;
 
 echo $account
 02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3
