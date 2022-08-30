@@ -908,7 +908,6 @@ blueprint! {
                 coupons.burn();
             });
 
-            info!("maintaining");
             self.maintain_fund(false);
 
             bucket_out
@@ -1815,10 +1814,9 @@ blueprint! {
                 // Run a full fund update
                 // Free up profits and excess funds
                 self.recover_profits_from_ivs();
-                self.trim_vehicles_to_weight(iv_invested, total_funds, total_weight);
+                let (total_funds, iv_invested) = self.calc_iv_funds(None);
 
-                // We can't be sure what the investment vehicles
-                // actually did there, so recalculate with new data.
+                self.trim_vehicles_to_weight(iv_invested, total_funds, total_weight);
                 let (total_funds, iv_invested) = self.calc_iv_funds(None);
                 
                 // Add funds to bring up to weight
@@ -1839,14 +1837,19 @@ blueprint! {
                 
                 self.last_update_epoch = Runtime::current_epoch();
             } else {
-                let minimum_funds = self.free_funds_target_percent / 2;
-                if free_percent < minimum_funds {
+                let minimum_percent = self.free_funds_target_percent / 2;
+                if free_percent < minimum_percent {
                     // Run a toned-down update attempting to free up
                     // some funds
 
+                    let missing_free_funds = (target_free_funds / 2) - self.free_funds.amount();
+                    let old_free_funds = self.free_funds.amount();
+
                     // First just collect any outstanding profits
                     self.recover_profits_from_ivs();
-                    if total_funds.is_positive() && free_percent < minimum_funds {
+                    if total_funds.is_positive()
+                        && (self.free_funds.amount() - old_free_funds) < missing_free_funds
+                    {
                         // If that wasn't enough, ask investment
                         // vehicles to give up some of their funds
                         self.trim_vehicles_to_weight(iv_invested, total_funds, total_weight);
@@ -1866,14 +1869,15 @@ blueprint! {
             // Remove funds to bring down to weight
             for iv in self.investments.keys() {
                 if !self.halted_investments.contains(iv) {
-                    let free_funds_amount = self.free_funds.amount();
+                    let free_funds_target = self.free_funds_target_percent * total_funds / 100;
                     let myweight = *self.investments.get(iv).unwrap();
                     let invested = *iv_invested.get(iv).unwrap();
                     let investment_target = if myweight.is_zero() { Decimal::ZERO } else {
-                        (total_funds - free_funds_amount)
+                        (total_funds - free_funds_target)
                             * (myweight / total_weight)
                     };
                     let investment_overshoot = invested - investment_target;
+
                     if investment_overshoot.is_positive() {
                         if let Some(returns) = self.iv_reduce_funds(iv, investment_overshoot) {
                             self.free_funds.put(returns);

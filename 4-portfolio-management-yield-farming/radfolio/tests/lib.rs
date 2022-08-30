@@ -1405,6 +1405,7 @@ fn _transfer_tokens(to: &Account, asset: &str, amount: &str) {
 
 /// Helper function when debugging, dumps the current funds status to
 /// console.
+#[allow(dead_code)]
 fn print_investments(radfolio: &RadfolioComponent) {
     let free_funds = read_free_funds(radfolio);
     let investments = read_investments(radfolio);
@@ -2826,7 +2827,6 @@ fn test_investment_maintenance() {
     // should be in free funds.
     withdraw(&radfolio, &user, "22000", None, None);
     assert_delta("36593.762", &read_free_funds(&radfolio), "Free funds");
-    print_investments(&radfolio);
 
     // Since our free funds are less than 2x the target this didn't
     // cause an automatic distribution of funds out to investment
@@ -2883,4 +2883,275 @@ fn test_investment_maintenance() {
     let my_coupons = get_balance(&user, &radfolio.coupon_address);
     withdraw(&radfolio, &user, &my_coupons, None, None);
     assert_delta("1056186.8909", &get_balance(&user, RADIX_TOKEN), "balance");
+}
+
+
+/// Sets up a Radfolio with all the options and puts it through a
+/// flurry of activity to see if it can take the pressure. This tests
+/// not correctness of results as much as it tests stability through
+/// chaos.
+#[test]
+fn test_flurry_of_activity() {
+    reset_sim();
+    let owner = create_account();
+    let package_addr = publish_package(None);
+    let participants_package_addr = publish_package(Some("tests/demifi.wasm"));
+    let participants = instantiate_participant_catalog(
+        &owner.address, &participants_package_addr);
+
+    let radfolio = instantiate_radfolio(&owner.address, &package_addr,
+                                        RADIX_TOKEN,
+                                        Some(&participants.nft_address),
+                                        "7",  // free funds target %
+                                        10,   // investment update interval epochs
+                                        "10", // minimum deposit
+                                        Some("admin!"), // admin badge name
+                                        21,   // admin badge quantity
+                                        Some("coupon!"), // coupon name
+                                        Some("3"), // deposit fee bps
+                                        Some("3"), // deposit fee partner bps
+                                        Some("7"), // withdraw fee bps
+                                        Some("1"), // withdraw fee partner bps
+                                        Some("mint!"), // mint badge name
+                                        Some("iv control!"));// iv control badge name
+
+    let iv_control_address = read_iv_control_badge_address(&radfolio);
+
+    // The Xaviers are providing treasury funds for our mocks
+
+    let xavier1 = create_account();
+    set_default_account(&xavier1);
+    let mock1 = instantiate_interestbearing_mock(&xavier1, &package_addr,
+                                                 "0.001", // interest per epoch
+                                                 "1000000", // treasury
+                                                 RADIX_TOKEN,
+                                                 &iv_control_address,
+                                                 None);   // max investment
+    let xavier2 = create_account();
+    set_default_account(&xavier2);
+    let mock2 = instantiate_interestbearing_mock(&xavier2, &package_addr,
+                                                 "0.002", // interest per epoch
+                                                 "1000000", // treasury
+                                                 RADIX_TOKEN,
+                                                 &iv_control_address,
+                                                 None);   // max investment
+    let xavier3 = create_account();
+    set_default_account(&xavier3);
+    let mock3 = instantiate_interestbearing_mock(&xavier3, &package_addr,
+                                                 "0.003", // interest per epoch
+                                                 "1000000", // treasury
+                                                 RADIX_TOKEN,
+                                                 &iv_control_address,
+                                                 Some("2500")); // max investment
+    let xavier4 = create_account();
+    set_default_account(&xavier4);
+    let mock4 = instantiate_interestbearing_mock(&xavier4, &package_addr,
+                                                 "0.004", // interest per epoch
+                                                 "1000000", // treasury
+                                                 RADIX_TOKEN,
+                                                 &iv_control_address,
+                                                 Some("5000"));   // max investment
+    let xavier5 = create_account();
+    set_default_account(&xavier5);
+    let mock5 = instantiate_interestbearing_mock(&xavier5, &package_addr,
+                                                 "0.005", // interest per epoch
+                                                 "1000000", // treasury
+                                                 RADIX_TOKEN,
+                                                 &iv_control_address,
+                                                 None);   // max investment
+
+    set_default_account(&owner);
+
+    set_allow_any_partner(&radfolio, &owner, true);
+
+    add_investment_vehicle(&radfolio, &owner, &mock1, "1");
+    add_investment_vehicle(&radfolio, &owner, &mock2, "100");
+    add_investment_vehicle(&radfolio, &owner, &mock3, "75");
+    add_investment_vehicle(&radfolio, &owner, &mock4, "20");
+
+    // Alice is an investor
+    let alice = create_account();
+
+    // Bob is a highly regarded influencer
+    let bob = create_account();
+    let bob_p = new_participant(&participants, &bob, "Bob", "", "", None);
+
+    // Charlie is an investor
+    let charlie = create_account();
+
+    // Debbie is an investor
+    let debbie = create_account();
+
+    // Eric is an investor
+    let eric = create_account();
+    
+    // Fiona is an investor
+    let fiona = create_account();
+
+    // Geordi is an influencer
+    let geordi = create_account();
+    let geordi_p = new_participant(&participants, &geordi, "Geordi", "", "", None);
+
+    
+    // Investors put money in, some through referral links
+    
+    set_default_account(&alice);
+    deposit(&radfolio, &alice, "100", None, Some(&bob_p));
+
+    set_default_account(&charlie);
+    deposit(&radfolio, &charlie, "500", None, None);
+    
+    set_default_account(&debbie);
+    deposit(&radfolio, &debbie, "50", None, Some(&bob_p));
+
+    set_default_account(&eric);
+    deposit(&radfolio, &eric, "233.24", None, None);
+
+    set_default_account(&fiona);
+    deposit(&radfolio, &fiona, "999.99", None, Some(&geordi_p));
+
+    // Time passes
+    set_current_epoch(10);
+
+    
+    // Introducing a new investment vehicle
+    set_default_account(&owner);
+    add_investment_vehicle(&radfolio, &owner, &mock5, "110");
+    // Balance it in immediately
+    force_fund_maintenance(&radfolio, &owner);
+
+
+    // Investors fomo in more monies
+
+    set_default_account(&alice);
+    deposit(&radfolio, &alice, "24", None, Some(&geordi_p));
+
+    set_default_account(&charlie);
+    deposit(&radfolio, &charlie, "167", None, None);
+    
+    set_default_account(&debbie);
+    deposit(&radfolio, &debbie, "10", None, Some(&bob_p));
+
+    set_default_account(&eric);
+    deposit(&radfolio, &eric, "32", None, None);
+
+    set_default_account(&fiona);
+    deposit(&radfolio, &fiona, "199.99", None, Some(&geordi_p));
+
+
+    // Time passes
+    set_current_epoch(23);
+
+    // An investment vehicle is halted for maintenance reasons
+    set_default_account(&owner);
+    halt_investment_vehicles(&radfolio, &owner, vec![&*mock3].into_iter().collect());
+
+    // Time passes
+    set_current_epoch(29);
+
+    // mock3 was Debbie's favourite part of the fund, she's out
+    set_default_account(&debbie);
+    withdraw(&radfolio, &debbie,
+             &get_balance(&debbie, &radfolio.coupon_address),
+             None, Some(&bob_p));
+
+    // There turns out to be serious problems with mock3, we remove it
+    // completely from the fund.
+    set_default_account(&owner);
+    remove_investment_vehicles(&radfolio, &owner, vec![&*mock3].into_iter().collect());
+    // Balance things immediately
+    force_fund_maintenance(&radfolio, &owner);
+
+    // Time passes
+    set_current_epoch(39);
+
+    // Eric is unhappy about the handling of mock3 and exits. He is a
+    // whale and so he has to exit gradually in order to generate the
+    // liquidity needed.
+    set_default_account(&eric);
+    withdraw(&radfolio, &eric,
+             "100",
+             None, None);
+    withdraw(&radfolio, &eric,
+             "75",
+             None, None);
+    withdraw(&radfolio, &eric,
+             "75",
+             None, None);
+    withdraw(&radfolio, &eric,
+             &get_balance(&eric, &radfolio.coupon_address),
+             None, None);
+
+    // Time passes
+    set_current_epoch(84);
+    
+
+    // The operators of the mock5 investment are shutting down shop,
+    // turns out their business model wasn't sustainable. We will do
+    // an orderly removal of mock5.
+    set_default_account(&owner);
+    modify_investment_vehicle(&radfolio, &owner, &mock5, "0");
+    force_fund_maintenance(&radfolio, &owner);
+    remove_investment_vehicles(&radfolio, &owner, vec![&*mock5].into_iter().collect());
+
+
+    // Time passes
+    set_current_epoch(112);
+
+
+    // Another round of fomo in from remaining investors
+
+    set_default_account(&alice);
+    deposit(&radfolio, &alice, "230", None, Some(&geordi_p));
+
+    set_default_account(&charlie);
+    deposit(&radfolio, &charlie, "438", None, None);
+    
+    set_default_account(&fiona);
+    deposit(&radfolio, &fiona, "42", None, Some(&geordi_p));
+    
+
+    // Time passes
+    set_current_epoch(142);
+
+    // We decided to stop offering incentives for cashing out
+    set_default_account(&owner);
+    set_withdraw_fee_partner_bps(&radfolio, &owner, None);
+
+    // Time passes
+    set_current_epoch(161);
+
+    // Charlie needs some money to pay a bill
+    set_default_account(&charlie);
+    withdraw(&radfolio, &charlie, "70", None, None);
+    withdraw(&radfolio, &charlie, "73", None, None);
+
+    // Time passes
+    set_current_epoch(161);
+
+    // Alice is going on vacation, needs some spending money
+    set_default_account(&alice);
+    withdraw(&radfolio, &alice, "90", None, Some(&bob_p));
+    withdraw(&radfolio, &alice, "90", None, Some(&bob_p));
+    withdraw(&radfolio, &alice, "70", None, Some(&bob_p));
+
+    // Bob cashes out some sweet sweet shilling rewards
+    set_default_account(&bob);
+    withdraw_partner_fees(&radfolio, &bob, &participants, &bob_p);
+
+    // Time passes
+    set_current_epoch(211);
+
+    // Fund managers need to eat too you know
+    set_default_account(&owner);
+    withdraw_protocol_fees(&radfolio, &owner);
+
+    // Time passes
+    set_current_epoch(231);
+
+    // mock3 has been fixed - finally! - enough so that we can pull
+    // out our trapped funds in it.
+    add_investment_vehicle(&radfolio, &owner, &mock3, "0");
+    force_fund_maintenance(&radfolio, &owner);
+    remove_investment_vehicles(&radfolio, &owner, vec![&*mock3].into_iter().collect());
 }
