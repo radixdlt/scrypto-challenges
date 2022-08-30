@@ -3,9 +3,6 @@ use crate::lending_app::LendingApp;
 use crate::trading_app::TradingApp;
 use crate::utils::*;
 
-//fee for each operation executed by the portfolio
-const FIXED_FEE: i32 = 100;
-
 // Here, we define the data that will contain the number of positive/negative operation of the user 
 #[derive(NonFungibleData)]
 struct UserHistory {
