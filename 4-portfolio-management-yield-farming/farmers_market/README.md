@@ -48,7 +48,7 @@ The main challenges I came across with building this protocol were:
 I spent a lot of time considering how the Blueprints should be layed out. There are 4 different types of users that will be using this protocol:
 
 1. Protocol admins
-2. Farmers (Farmerss/portfolio managers)
+2. Farmers (fund managers/portfolio managers)
 3. Borrowers
 4. Investors
 
@@ -60,9 +60,9 @@ Due to my previous experience of building DeFi protocol from the last challenge,
 
 ## Protocol Admin Features:
 
-* **Permissioned user creation** - Because this protocol is permissioned and largely meant for institution. Protocol admins are able to approve prospective instutional Farmerss
+* **Permissioned user creation** - Because this protocol is permissioned and largely meant for institution. Protocol admins are able to approve prospective instutional fund managers
 and borrowers to the protocol.
-  * This process is facilitated by allowing prospective institutional Farmerss and borrowers to create a temporary badge of their user type ("Farmers" or "Borrower").
+  * This process is facilitated by allowing prospective institutional fund managers and borrowers to create a temporary badge of their user type ("Farmers" or "Borrower").
   * After off-chain due-dillegence, the protocol administrator would then approve each respective user type by calling either `create_fund_manager` or `create_borrower` to which a Farmers badge or a Borrower badge will be deposited to their respective component vault. Additionally, a `FundManagerDashboard` or `BorrowerDashboard` will be instantiated for each respective party to use once they claim their associated badges.
   * The Farmers or Borrower may claim their respective badges created by the protocol administrator by calling `claim_badge` where they will deposit their Temporary Badge (which will be burnt) and retrieve their respective badges.
   * There are logic involved to ensure that this process is orderly, which you may view by heading over to the [./src/vault_protocol.rs](./src/vault_protocol.rs).
@@ -78,37 +78,37 @@ Once the Farmers has retrieved their respective badge. They are provided with th
 
 ### Index Fund Features:
 
-The Index Fund is what allows Farmerss to create a fund, rebalance, and manage a basket of assets and allow for flexibilities in the strategies they pursue.
+The Index Fund is what allows fund managers to create a fund, rebalance, and manage a basket of assets and allow for flexibilities in the strategies they pursue.
 
-These are the sets of features Farmerss can access to manage their Index Fund:
+These are the sets of features fund managers can access to manage their Index Fund:
 
-* **Integrate DEX** - Currently, only supports [RaDEX](https://github.com/radixdlt/scrypto-challenges/tree/main/1-exchanges/RaDEX). This will allow Farmerss to swap tokens (in order to rebalance their portfolio) and participate in Liquidity Provider incentives by supplying liquidity to already established liquidity pool. 
-* **Integrate Lending** - Currently, only supports [DegenFi](https://github.com/PostNutCIarity/degenfi). This will allow Farmerss to exercise leveraged fund strategies and participate in DegenFi's protocol features.
-* **Issue fund tokens** - With each Index Fund will come with its own tokens that represents the share of ownership of the fund to be sold to the secondary market. Farmerss and Investors can issue fund tokens by directly providing the underlying assets that the fund supports.
+* **Integrate DEX** - Currently, only supports [RaDEX](https://github.com/radixdlt/scrypto-challenges/tree/main/1-exchanges/RaDEX). This will allow fund managers to swap tokens (in order to rebalance their portfolio) and participate in Liquidity Provider incentives by supplying liquidity to already established liquidity pool. 
+* **Integrate Lending** - Currently, only supports [DegenFi](https://github.com/PostNutCIarity/degenfi). This will allow fund managers to exercise leveraged fund strategies and participate in DegenFi's protocol features.
+* **Issue fund tokens** - With each Index Fund will come with its own tokens that represents the share of ownership of the fund to be sold to the secondary market. fund managers and Investors can issue fund tokens by directly providing the underlying assets that the fund supports.
 * **Redeem fund tokens** - When the Investor wishes to exit out of the fund, they may redeem their share of the fund's underlying asset by exchanging their fund tokens.
 * **Buy fund tokens** - When the Farmers has created a pool on RaDEX that supports the exchange of their respective fund tokens, Investors may now be able to purchase the fund tokens in the secondary market.
 * **Sell fund tokens** - Likewise, Investors can also sell their fund tokens in the secondary market through RaDEX.
 
 ### Debt Fund Features:
 
-The Debt Fund is what allows Farmerss to create a fund where they can raise capital and originate loans for institutional Borrowers in a permissioned and orderly way.
+The Debt Fund is what allows fund managers to create a fund where they can raise capital and originate loans for institutional Borrowers in a permissioned and orderly way.
 
 Before going over the Debt Fund features, it may be helpful to provide context in how loan originations work. Borrowers in this protocol must first be credit-worthy institutional borrowers. The protocol admin does the first phase of due dilligence to ensure that the Borrower is credit worthy by performing off-chain due dilligence. Once the Borrower is accepted into the protocol, Borrowers may request a loan through the `BorrowerDashboard`. 
 
-When the loan request is submitted, Farmerss may view loan requests that have been submitted. They may accept the loan request as is or negotiate with the Borrower off-chain. Underwriting and due-dilligence will be performed by the Farmers off-chain, and once an agreement has been set, Farmerss may instantiate a `FundingLocker` where the loan will be managed. 
+When the loan request is submitted, fund managers may view loan requests that have been submitted. They may accept the loan request as is or negotiate with the Borrower off-chain. Underwriting and due-dilligence will be performed by the Farmers off-chain, and once an agreement has been set, fund managers may instantiate a `FundingLocker` where the loan will be managed. 
 
-These are the set of features Farmerss can access to manage their Debt Fund:
+These are the set of features fund managers can access to manage their Debt Fund:
 
-* **Supply Liquidity** - Allows Farmerss or Investors to supply liquidity to the fund to claim fees. 
-* **Remove Liquidity** - Likewise, Farmerss or Investors can remove liquidity from the fund. Note that there are probably issues of removing liquidity when there is a loan active.
+* **Supply Liquidity** - Allows fund managers or Investors to supply liquidity to the fund to claim fees. 
+* **Remove Liquidity** - Likewise, fund managers or Investors can remove liquidity from the fund. Note that there are probably issues of removing liquidity when there is a loan active.
 * **Instantiate Funding Locker** - The Debt Fund can originate loans by instantiating a funding locker. A Loan NFT is provided and contained in the `FundingLocker` component until the Borrower has deposited enough collateral for the Borrower to retrieve it. The Loan NFT is used to access the `FundingLocker` from the Borrower's side.
 * **Fund Loan** - Once the Borrower has met their collateralization requirement, the Loan NFT is set to `ReadyToFund` to which the Farmers may begin funding the loan through their Debt Fund.
 * **Approve Draw Request** - The Borrower must first provide a draw request for the Farmers to approve. The formal documentations for a draw request will be submitted to the Farmers off-chain. Once satisfied, the Farmers can begin approving the draw request.
 * **Reject Draw Request** - The Farmers may reserve the right to reject the Borrower's draw request.
 * **Update loan** - The Farmers can update the loan with the interest expense accrued for the month.
-* **Transfer Fees** - For user experience purposes, since the Investor primarily only has permissioned access to the Debt Fund, it seems ideal for the Farmerss to transfer fees from their loan originations through the `FundingLocker` to the `DebtFund` component where Borrowers may then be able to directly claim the fees through the `DebtFund` component.
+* **Transfer Fees** - For user experience purposes, since the Investor primarily only has permissioned access to the Debt Fund, it seems ideal for the fund managers to transfer fees from their loan originations through the `FundingLocker` to the `DebtFund` component where Borrowers may then be able to directly claim the fees through the `DebtFund` component.
 * **Claim Fees** - Allows Investors to claim fees based on their ownserhsip of the fund.
-* **Transfer Liquidity** - Farmerss can transfer the repaid loan proceeds from their loan originations through the `FundingLocker` to the `DebtFund`.
+* **Transfer Liquidity** - fund managers can transfer the repaid loan proceeds from their loan originations through the `FundingLocker` to the `DebtFund`.
 
 ## Borrower Fatures:
 
@@ -149,9 +149,9 @@ The `FarmersMarket` blueprint is the main blueprint that primarily used by the p
 #### Dashboard Blueprints
 Since the `FarmerDashboard`, `BorrowerDashboard`, and `InvestorDashboard` blueprints serve similar functions, I'll group them all into this section for brevity. These Dashboards provide a module for users to interact with the protocol in a permissioned way. Investors don't require badges to access the `InvestorDashboard`, so it's the most straightforward blueprint. The component provides a set of methods to allow Investory-type users to query a list of Index Funds/Debt Funds to invest in and allow them to interact with those funds by either buying, selling, issuing tokens, redeeming tokens, or supplying/exiting liquidity. 
 
-Similarly, the `FarmerDashboard` and `BorrowerDashboard` does the same. However, since Farmers and Borrowers need to vetted by the protocol administrator, they do require badges and more detailed authorization model to interact with the protocol. The reason Farmers (or otherwise known as Farmerss) require badges is because the protocol is meant to allow institutional player to access frictionless liquidity of DeFi market, whilst allowing retail investors access to high quality professional managers. 
+Similarly, the `FarmerDashboard` and `BorrowerDashboard` does the same. However, since Farmers and Borrowers need to vetted by the protocol administrator, they do require badges and more detailed authorization model to interact with the protocol. The reason Farmers (or otherwise known as fund managers) require badges is because the protocol is meant to allow institutional player to access frictionless liquidity of DeFi market, whilst allowing retail investors access to high quality professional managers. 
 
-Likewise, Borrowers require badges to allow Farmers (Farmerss) to have access to high quality institutional borrowers, which would help propel DeFi to have more examples of what undercollateralized lending looks like while allowing Borrowers to have more flexibility and access to capital markets beyond traditional finance. 
+Likewise, Borrowers require badges to allow Farmers (fund managers) to have access to high quality institutional borrowers, which would help propel DeFi to have more examples of what undercollateralized lending looks like while allowing Borrowers to have more flexibility and access to capital markets beyond traditional finance. 
 
 In addition to requiring badges to access methods in `FarmerDashboard` and `BorrowerDashboard`, each of the components will have its own admin badges contained in their respective vaults as well. These admin badges is used to provide secure cross-blueprint calls as these components will instantiate other components as well. For example, the `FarmerDashboard` will have responsibility to instantiate both `IndexFund` and `DebtFund` where each will have its own authorization model. So the considerations of how these blueprints connect with one another in a controlled way was an interesting exercise for me. After reading about Scrypto 0.5 with the introduction of Local Components, I can see how the solution I came up with can be significantly simplified. In the meantime, this design was my best solution for this challenge.
 
