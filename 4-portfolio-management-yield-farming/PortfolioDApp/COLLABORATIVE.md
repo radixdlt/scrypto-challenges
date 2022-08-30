@@ -1,5 +1,24 @@
 # Portfolio dApp
 
+![](./images/logo3b.jpg)
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+Portfolio dApp is a proof-of-concept protocol of a collaborative portfolio management solution built on the Radix ledger using v0.4.1 of Scrypto: the smart contract language of the Radix ledger.
+
+## Table of Content
+
+  * [Abstract](#abstract)
+  * [Design](#design)
+  * [Portfolio dApp demo](#portfolio-dApp-demo)
+  * [Portfolio dApp (Test with only Transaction Manifest)](#portfolio-dApp-(Test-with-only-Transaction-Manifest))
+  * [Integration Test](#integration-Test)
+  * [Integration Test](#integration-Test)
+  * [Unit Test](#unit-Test)    
+  * [TODO & Useful commands](#tODO-&-Useful-commands)     
+
+# Abstract 
+
 The Portfolio dApp is a decentralized application where users can collaborate to a portfolio management solution where no users profiling exist and it is completely permissionless, any user can deposit asset and any user can put asset at work towards the simulated available deFi applications.
 
 It is a kind of a social trading application but it differs from it because we think that financial knowledge is spread and also the final retail user has a great understanding and could operate in such a broad market for opportunities.
@@ -60,7 +79,7 @@ The following methods are for the portfolio admin manager and are protected by a
 - reset_positions       -> The admin can reset the list of positions 
 
 
-# Portfolio dApp 
+# Portfolio dApp demo
 
 Let's proceed with a demo of the blueprints, start publishing the package
 
