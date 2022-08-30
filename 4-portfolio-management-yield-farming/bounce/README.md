@@ -8,7 +8,7 @@ The _Withdraw Pattern_ documentation states that *“While the direct transfer o
 
 I have altered the standard account component with the addition of a boolean called ‘bounce’ that defaults to ‘true’ but can be set to ‘false’ by the account owner. The intended use for this switch is to allow an account owner to signal that they are prepared to accept direct transfer of funds from a dApp or other entity on Radix at some indeterminate future point in time, in a separate transaction. Note that I can't check that the code actually works as I can't build the Account component without KeyValueStore. 
  
-![image](/assets/images/2.jpg)
+![image](https://github.com/marktwh/scrypto-challenges/blob/main/4-portfolio-management-yield-farming/bounce/images/2.jpg)
 ![image](/images/3.jpg)
 
 
