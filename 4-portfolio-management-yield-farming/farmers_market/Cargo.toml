@@ -1,5 +1,5 @@
 [package]
-name = "placeholder"
+name = "farmers_market"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,7 +8,6 @@ sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.4.1" }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.4.1" }
 radex = {git = "https://github.com/PostNutCIarity/RaDEX.git" }
 degenfi = {git = "https://github.com/PostNutCIarity/degenfi.git" }
-num-rational = "0.4"
 
 [dev-dependencies]
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.4.1" }
