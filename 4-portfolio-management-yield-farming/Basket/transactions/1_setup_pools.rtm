@@ -1,0 +1,19 @@
+CALL_METHOD ComponentAddress("${ACCOUNT}") "withdraw_by_amount" Decimal("${AMOUNT_A}") ResourceAddress("${TOKEN_A}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("${AMOUNT_A}") ResourceAddress("${TOKEN_A}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${ACCOUNT}") "withdraw_by_amount" Decimal("${AMOUNT_XRD}") ResourceAddress("${XRD}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("${AMOUNT_XRD}") ResourceAddress("${XRD}") Bucket("bucket2");
+CALL_FUNCTION PackageAddress("${AMM_PACKAGE}") "Pool" "new" Bucket("bucket1") Bucket("bucket2");
+
+CALL_METHOD ComponentAddress("${ACCOUNT}") "withdraw_by_amount" Decimal("${AMOUNT_B}") ResourceAddress("${TOKEN_B}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("${AMOUNT_B}") ResourceAddress("${TOKEN_B}") Bucket("bucket3");
+CALL_METHOD ComponentAddress("${ACCOUNT}") "withdraw_by_amount" Decimal("${AMOUNT_XRD}") ResourceAddress("${XRD}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("${AMOUNT_XRD}") ResourceAddress("${XRD}") Bucket("bucket4");
+CALL_FUNCTION PackageAddress("${AMM_PACKAGE}") "Pool" "new" Bucket("bucket3") Bucket("bucket4");
+
+CALL_METHOD ComponentAddress("${ACCOUNT}") "withdraw_by_amount" Decimal("${AMOUNT_C}") ResourceAddress("${TOKEN_C}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("${AMOUNT_C}") ResourceAddress("${TOKEN_C}") Bucket("bucket5");
+CALL_METHOD ComponentAddress("${ACCOUNT}") "withdraw_by_amount" Decimal("${AMOUNT_XRD}") ResourceAddress("${XRD}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("${AMOUNT_XRD}") ResourceAddress("${XRD}") Bucket("bucket6");
+CALL_FUNCTION PackageAddress("${AMM_PACKAGE}") "Pool" "new" Bucket("bucket5") Bucket("bucket6");
+
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACCOUNT}") "deposit_batch";

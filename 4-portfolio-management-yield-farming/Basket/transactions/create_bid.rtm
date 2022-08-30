@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${ACCOUNT}") "withdraw_by_amount" Decimal("${AMOUNT}") ResourceAddress("${TOKEN}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("${AMOUNT}") ResourceAddress("${TOKEN}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${AUCTION}") "create_bid" Bucket("bucket1") Decimal("${PRICE}");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACCOUNT}") "deposit_batch";

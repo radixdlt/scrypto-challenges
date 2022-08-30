@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${FUND}") "process_staking";
+CALL_METHOD ComponentAddress("${FUND}") "process_unstaking";
