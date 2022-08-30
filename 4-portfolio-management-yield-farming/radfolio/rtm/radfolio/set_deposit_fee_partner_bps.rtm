@@ -1,0 +1,22 @@
+# Changes the partner deposit fee.
+#
+# Parameters:
+#
+# component: Address of the Radfolio instance to use
+#
+# account: Account of the user performing the operation.
+#          We must be able to make a Proof of the admin badge from here.
+#
+# admin_badge: ResourceAddress of the component's admin badges
+#
+# fee: None for no fee or Some(Decimal("fee")) to set a fee measured in basis points,
+#      e.g. Some(Decimal("5"))
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${admin_badge}");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "set_deposit_fee_partner_bps"
+   ${fee};

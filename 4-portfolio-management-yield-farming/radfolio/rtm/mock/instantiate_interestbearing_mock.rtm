@@ -1,0 +1,46 @@
+# Instantiates a new InterestBearingMock.
+#
+# THIS IS A DEVELOPMENT TOOL, NOT A PRODUCTION BLUEPRINT. Do not use
+# it for managing actual crypto.
+#
+# Parameters:
+#
+# package: Address of the published package containing the
+#          InterestBearingMock component
+#
+# account: Address of the user account that pays for the treasury
+#
+# treasury: How much to assign to the mock's treasury. This is
+#           taken from the account named above.
+#
+# token: ResourceAddress of the token to use as treasury (e.g.
+#        030000000000000000000000000000000000000000000000000004)
+#
+# interest_percent_per_epoch: How much interest to generate on
+#                             investments per epoch, e.g. 0.005
+#
+# admin_badge: ResourceAddress of the admin badge that gets to
+#              control the mock.
+#
+# max_total_investment: None for no maximum, or the maximum total
+#                       investment we will accept, e.g.
+#                       Some("100000")
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount"
+   Decimal("${treasury}")
+   ResourceAddress("${token}");
+   
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("${treasury}")
+   ResourceAddress("${token}")
+   Bucket("treasurybucket");
+
+CALL_FUNCTION
+   PackageAddress("${package}")
+   "InterestBearingMock"
+   "instantiate_interestbearing_mock"
+   Decimal("${interest_percent_per_epoch}")
+   Bucket("treasurybucket")
+   ResourceAddress("${admin_badge}")
+   ${max_total_investment};

@@ -1,0 +1,8 @@
+# Reads the list of halted investment vehicles
+#
+# Parameters:
+#
+# component: address of the Radfolio instance to use
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_halted_investment_vehicles";

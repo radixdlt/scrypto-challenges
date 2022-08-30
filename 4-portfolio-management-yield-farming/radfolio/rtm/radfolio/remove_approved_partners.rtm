@@ -1,0 +1,22 @@
+# Removes one or more partners from the approved partners list
+#
+# Parameters:
+#
+# component: Address of the Radfolio instance to use
+#
+# account: Account of the user performing the operation.
+#          We must be able to make a Proof of the admin badge from here.
+#
+# admin_badge: ResourceAddress of the component's admin badges
+#
+# partners: Partners to remove, e.g.
+#           HashSet<NonFungibleId>(NonFungibleId("00..00"), NonFungibleId("00..01"))
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${admin_badge}");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "remove_approved_partners"
+   ${partners};

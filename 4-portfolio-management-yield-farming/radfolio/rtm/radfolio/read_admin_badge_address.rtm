@@ -1,0 +1,8 @@
+# Reads the resource address of the admin badges token a fund uses.
+#
+# Parameters:
+#
+# component: address of the Radfolio instance to use
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_admin_badge_address";

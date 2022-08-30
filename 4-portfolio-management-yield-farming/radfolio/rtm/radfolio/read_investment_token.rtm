@@ -1,0 +1,8 @@
+# Reads the resource address of the token a fund manages.
+#
+# Parameters:
+#
+# component: address of the Radfolio instance to use
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_investment_token";
