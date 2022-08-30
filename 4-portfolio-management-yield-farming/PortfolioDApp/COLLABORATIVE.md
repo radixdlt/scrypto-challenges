@@ -13,9 +13,8 @@ Portfolio dApp is a proof-of-concept protocol of a collaborative portfolio manag
   * [Portfolio dApp demo](#portfolio-dApp-demo)
   * [Portfolio dApp (Test with only Transaction Manifest)](#portfolio-dApp-(Test-with-only-Transaction-Manifest))
   * [Integration Test](#integration-Test)
-  * [Integration Test](#integration-Test)
   * [Unit Test](#unit-Test)    
-  * [TODO & Useful commands](#tODO-&-Useful-commands)     
+  * [TODO & Useful commands](#TODO-&-Useful-commands)     
 
 # Abstract 
 
