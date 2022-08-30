@@ -9,7 +9,7 @@ The _Withdraw Pattern_ documentation states that *“While the direct transfer o
 I have altered the standard account component with the addition of a boolean called ‘bounce’ that defaults to ‘true’ but can be set to ‘false’ by the account owner. The intended use for this switch is to allow an account owner to signal that they are prepared to accept direct transfer of funds from a dApp or other entity on Radix at some indeterminate future point in time, in a separate transaction. Note that I can't check that the code actually works as I can't build the Account component without KeyValueStore. 
  
 ![image](https://github.com/marktwh/scrypto-challenges/blob/main/4-portfolio-management-yield-farming/bounce/images/2.jpg)
-![image](/images/3.jpg)
+![image](https://github.com/marktwh/scrypto-challenges/blob/main/4-portfolio-management-yield-farming/bounce/images/3.jpg)
 
 
 Anyway, you get the point. A dApp developer wishing to automate direct transfers to users could voluntarily include a requirement for an assertion that bounce = false as part of any user-submitted transaction.
@@ -39,13 +39,13 @@ When liquidity is automatically removed from a SMPL-AMM as the result of a sudde
 *	AMMA and AMMB each contain a similar total value of GBP and XRD (denominated in GBP; XRD at marketwide price = 1.111GBP). However, the XRD is mispriced on AMMA at 0.9GBP, while it is correctly priced on AMMB at 1.111GBP.
 
 
-![image](/images/4.jpg)
+![image](https://github.com/marktwh/scrypto-challenges/blob/main/4-portfolio-management-yield-farming/bounce/images/4.jpg)
 
 
 *	An arbitrageur exploits the situation. In order to make use of a flash-loan denominated in GBP, and in avoid exposure to the more volatile XRD asset, they perform an atomic transaction in which cheap XRD is first brought on AMMA and then sold on AMMB for a net gain in GBP.
 
 
-![image](/images/5.jpg)
+![image](https://github.com/marktwh/scrypto-challenges/blob/main/4-portfolio-management-yield-farming/bounce/images/5.jpg)
 
 
 Importantly, the arbitrageur’s trade had the effect of removing total value from AMMA whilst it added a small amount of total value to AMMB. If the mispricing persists, AMMA will continue to be vulnerable to monodirectional arbitrage trades that reduce the value of its contents while AMMB will be subject to bidirectional trades around the market price that will gradually increase the value of its contents.
@@ -85,7 +85,7 @@ The SMPL-AMM component instantiates upon asserting caller's bounce==false, recei
 
 * Calculates from the %-maximum-acceptable-permanent-loss number, the upper-nonstable-price-threshold and lower-nonstable-price-threshold corresponding to that level of IL.
  * **IL calculation:** 
- * ![image](/images/6.jpg)
+ * ![image](https://github.com/marktwh/scrypto-challenges/blob/main/4-portfolio-management-yield-farming/bounce/images/6.jpg)
  * The total value ($y$) of a quantity ($m$) of nonstable tokens with price ($x$) that is held rather than deposited is linear ($y=mx+c$).
  * The total value of a deposited stable-nonstable token pair is given by $2\sqrt{mc}\sqrt{x}$ or $/2\sqrt{k}\sqrt{x}$.
  * Therefore -IL == $-l = \frac{2\sqrt{k}\sqrt{x}}{mx + c}-1$
