@@ -87,7 +87,7 @@
 //! method in question, before finally depositing any funds to the
 //! user.
 //!
-//! There are three subdirectories in the `rtm` directory:
+//! There are four subdirectories in the `rtm` directory:
 //!
 //! `rtm/radfolio/` These are the manifests for the Radfolio component
 //! itself. These are the ones you will deal with the most.
@@ -98,6 +98,9 @@
 //!
 //! `rtm/mock/` This contains a manifest for instantiating the mock
 //! investment vehicle we use in our test suite.
+//!
+//! `rtm/participants/` Contains two manifests you will need if you
+//! want to create Participant NFTs to identify partners.
 //!
 //! All these transaction manifests are actively used in execution of
 //! the test suite provided and so they are known to be correct.
