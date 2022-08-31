@@ -1,0 +1,16 @@
+#
+# user buys a lottery ticket and sends it to the lottery tool
+#
+
+# Buy a lottery ticket
+CALL_METHOD ComponentAddress("${yields_comp}") "buy_lottery";
+
+# take the xrd bucket with the payment from the worktop 
+TAKE_FROM_WORKTOP ResourceAddress("${xrd}") Bucket("xrd_bucket");
+
+# and give it to the juice lottery vault together with the user ID (which is used as ticket number)
+# Note! As the user ID is saved as ticket number within a vector, it can actually be used severeal times
+CALL_METHOD ComponentAddress("${juice_comp}") "receive_lottery_ticket" Bucket("xrd_bucket") ResourceAddress("${user_id}");
+
+# clean up the worktop
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

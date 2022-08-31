@@ -1,0 +1,7 @@
+#
+# Make an investment proposal or in our case perform the actual investment directly
+#
+CALL_METHOD ComponentAddress("${yields_comp}") "make_proposal" Decimal("500");
+
+# clean up the worktop
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

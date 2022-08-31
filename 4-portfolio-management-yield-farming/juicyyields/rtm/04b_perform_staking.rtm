@@ -1,0 +1,9 @@
+#
+# Perform a stake
+#
+
+CALL_METHOD ComponentAddress("${yields_comp}") "perform_stake" Decimal("1500");
+
+# Move the XRD investment bucket to the account. 
+# Note! Usually we would give that further to another component handling the investment
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";
