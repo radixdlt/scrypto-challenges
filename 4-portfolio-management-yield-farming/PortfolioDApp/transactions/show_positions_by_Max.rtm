@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${portfolio}") "position";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account3}") "deposit_batch";
