@@ -1,0 +1,6 @@
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${F_BADGE}");
+POP_FROM_AUTH_ZONE Proof("proof1");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "withdraw_by_amount" Decimal("10000") ResourceAddress("${USD}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("10000") ResourceAddress("${USD}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${FDASHBOARD}") "new_debt_fund" Proof("proof1") "4 Arrows Capital" Bucket("bucket1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS2}") "deposit_batch";

@@ -1,0 +1,26 @@
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${F_BADGE}");
+POP_FROM_AUTH_ZONE Proof("proof1");
+CALL_METHOD ComponentAddress("${DEBT_FUND}") "instantiate_funding_locker" 
+Proof("proof1")
+# The Loan NFT ID
+NonFungibleId("686806f4084a8946e7ad30bf79d95f73")
+# The Borrower NFT ID
+NonFungibleId("6eb26504b5910d099cfef373d9d11d24")
+# Loan Amount
+Decimal("1000")
+# Asset to lend
+ResourceAddress("${USD}")
+# Asset to be collateralized
+ResourceAddress("${XRD}")
+# Collateral requirement
+Decimal("0.50")
+# Annualized Interest Rate
+Decimal("0.06")
+# Maximimum draw limit
+Decimal("250")
+# Minimum draw requirement
+Decimal("100")
+# Term length
+Enum("ThreeMonth")
+# Origination fee
+Decimal("0.01");

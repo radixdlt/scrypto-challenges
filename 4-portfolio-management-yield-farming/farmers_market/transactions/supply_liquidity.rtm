@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${ACC_ADDRESS3}") "withdraw_by_amount" Decimal("10000") ResourceAddress("${USD}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("10000") ResourceAddress("${USD}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${IDASHBOARD}") "supply_liquidity" "4 Arrows Capital" Bucket("bucket1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS3}") "deposit_batch";

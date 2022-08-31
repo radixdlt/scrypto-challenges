@@ -1,0 +1,7 @@
+CALL_METHOD
+    ComponentAddress("${FARMER_COMPONENT}")
+    "create_temporary_badge"
+    "Farmer"
+    Enum("Farmer");
+
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS2}") "deposit_batch";
