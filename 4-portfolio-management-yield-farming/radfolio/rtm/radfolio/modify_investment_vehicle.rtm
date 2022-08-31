@@ -1,0 +1,24 @@
+# Modifies the weight of an investment vehicle
+#
+# Parameters:
+#
+# component: Address of the Radfolio instance to use
+#
+# account: Account of user running the transaction. Must 
+#          be able to create proof of the admin badge.
+#
+# admin_badge: ResourceAddress of the admin badge.
+#
+# vehicle: ComponentAddress of investment vehicle to modify.
+#
+# weight: Investment weight to set on the vehicle.
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${admin_badge}");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "modify_investment_vehicle"
+   ComponentAddress("${vehicle}")
+   Decimal("${weight}");

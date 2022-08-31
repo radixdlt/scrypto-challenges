@@ -1,0 +1,8 @@
+# Reads the current investment value of this investment vehicle.
+#
+# Parameters:
+#
+# component: address of the investment vehicle
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_investment_value";

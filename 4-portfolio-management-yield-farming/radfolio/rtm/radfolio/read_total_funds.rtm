@@ -1,0 +1,8 @@
+# Reads the total funds currently under management.
+#
+# Parameters:
+#
+# component: address of the Radfolio instance to use
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_total_funds";

@@ -1,0 +1,9 @@
+# Reads the maximum amount that can be investedin this investment
+# vehicle.
+#
+# Parameters:
+#
+# component: address of the investment vehicle
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_max_investable";

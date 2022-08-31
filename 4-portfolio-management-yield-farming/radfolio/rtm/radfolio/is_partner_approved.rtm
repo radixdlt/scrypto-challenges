@@ -1,0 +1,11 @@
+# Checks if a participant is currently an approved partner.
+#
+# Parameters:
+#
+# component: address of the Radfolio instance to use
+#
+# candidate: NonFungibleId of participant to investigate
+CALL_METHOD
+   ComponentAddress("${component}")
+   "is_partner_approved"
+   NonFungibleId("${candidate}");

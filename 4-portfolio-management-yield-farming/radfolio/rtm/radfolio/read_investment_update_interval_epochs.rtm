@@ -1,0 +1,8 @@
+# Reads the update interval of a fund.
+#
+# Parameters:
+#
+# component: address of the Radfolio instance to use
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_investment_update_interval_epochs";
