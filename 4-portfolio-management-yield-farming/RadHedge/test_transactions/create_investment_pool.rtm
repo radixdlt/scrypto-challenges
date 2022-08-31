@@ -1,0 +1,5 @@
+# Creating the test environment for the RadHedge investment pool
+CALL_FUNCTION PackageAddress("${PACKAGE}") "InvestmentPool" "instantiate_pool" Decimal("3") ComponentAddress("${ORACLE}") ComponentAddress("${RADEX}") ResourceAddress("${BASE_CURRENCY}") "My first pool" "RadHedge";
+
+# Take everything from the worktop and put it into the present account.
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS1}") "deposit_batch";
