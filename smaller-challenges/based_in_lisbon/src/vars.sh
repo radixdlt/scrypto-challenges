@@ -1,0 +1,9 @@
+export account=
+export pubkey=
+export privkey=
+export package=
+
+# Account component address: 020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a
+# Public key: 044083a64afb4b630ce7683674a6cdcebc7007aef7cb08f10b2cd491b6ce24ca1204f88bd2a2068e27591f1c5cfbd4fddf9a51f7b2360d784ee1e8fbec8f7476a6
+# Private key: 7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8
+# New Package: 01fa86512fc42daed5b81a426781e5e19a4a56cfc6f6fdf3b423d6

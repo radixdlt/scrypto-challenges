@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Gantari:wght@100&display=swap');
+
+#img {
+  display: block;
+  margin: auto;
+  height: 128px;
+  width: 128px;
+  padding: 2rem;
+}
+
+#canvas {
+  display: block;
+  margin: 2rem auto;
+  width: 540px;
+  height: 540px;
+}
+
+h1, h2, h3, p, pre, label {
+  font-family: 'Gantari', sans-serif;
+  color: #F8FFE5;
+}
+
+body {
+    background-color: #2EBFA5;
+}
+
+input, button, select {
+    border: 2px solid #fff;
+    background-color: #339966;
+    color: #fff;
+    font-size: 20px;
+    font-family: 'Gantari', sans-serif;
+    padding: 5px;
+}
+
+.main-container {
+    max-width: 1200px;
+    width: 90%;
+    margin: 0 auto;
+    padding-top: 40px;
+}
+
+.section-boxes-format .section {
+    width: 32%;
+    float: left;
+    min-height: 300px;
+}
+
+input[type="text"] {
+    width: 50px;
+}
+
+.section-boxes-format .section p {
+    max-width: 90%;
+}
+
+.contain-sections.section-boxes-format {
+    padding-bottom: 80px;
+    display: table;
+}

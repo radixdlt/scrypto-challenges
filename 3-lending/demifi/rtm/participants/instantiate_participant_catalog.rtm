@@ -1,0 +1,30 @@
+# Instantiates a new Participants catalog.
+#
+# Parameters:
+#
+# $package: address of the published package containing the
+#           Participants component
+#
+# $account: address of the user account that will receive
+#           the root participant NFT
+#
+# $admin_badge_name: None for default name or Some("<name>")
+#                    to set a custom name for the admin badge resource
+#
+# $nft_resource_name: None for default name or Some("<name>")
+#                     to set a custom name for the participant NFT resource
+#
+# $root_participant_name: None for default name or Some("<name>")
+#                         to set a custom name for the root participant. Note
+#                         this can be changed later by calling change_name
+CALL_FUNCTION
+   PackageAddress("${package}")
+   "Participants"
+   "instantiate_participant_catalog"
+   ${admin_badge_name}
+   ${nft_resource_name}
+   ${root_participant_name};
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";

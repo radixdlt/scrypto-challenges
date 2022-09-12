@@ -1,0 +1,34 @@
+# TRANSACTION 1
+# Flash loan borrow 1,000 XRD
+CALL_METHOD ComponentAddress("${COMPONENT}") "flash_borrow" ResourceAddress("030000000000000000000000000000000000000000000000000004") Decimal("1000");
+
+# TRANSACTION 2
+# Deposit 2,000 XRD as collateral (1,000 XRD from your own and 2,000 XRD from flash loan)
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${PROOF2}");
+POP_FROM_AUTH_ZONE Proof("proof1");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "withdraw_by_amount" Decimal("2000") ResourceAddress("030000000000000000000000000000000000000000000000000004");
+
+# Taking collateral from account
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("2000") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${COMPONENT}") "deposit_collateral" Proof("proof1") Bucket("bucket1");
+
+# TRANSACTION 3
+# Borrow 1,000 USD
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "create_proof_by_amount" Decimal("1") ResourceAddress("${PROOF2}");
+POP_FROM_AUTH_ZONE Proof("proof2");
+CALL_METHOD ComponentAddress("${COMPONENT}") "borrow" Proof("proof2") ResourceAddress("${USD}") ResourceAddress("030000000000000000000000000000000000000000000000000004") Decimal("1000");
+
+# TRANSACTION 4
+# Swap 1,000 USD for 1,000 XRD
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${USD}") Bucket("bucket2");
+CALL_METHOD ComponentAddress("${COMPONENT}") "swap" Bucket("bucket2");
+
+# TRANSACTION 5
+# Pay back 1,000 XRD from the flash loan
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "withdraw_by_amount" Decimal("1000") ResourceAddress("030000000000000000000000000000000000000000000000000004");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("bucket3");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1") ResourceAddress("${FLASH}") Bucket("bucket4");
+CALL_METHOD ComponentAddress("${COMPONENT}") "flash_repay" Bucket("bucket3") Bucket("bucket4");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS2}") "deposit_batch";
+
+

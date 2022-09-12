@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${account}") "withdraw_by_amount" Decimal("500") ResourceAddress("030000000000000000000000000000000000000000000000000004");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("500") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${trading}") "buy" Bucket("bucket1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

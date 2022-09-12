@@ -1,0 +1,16 @@
+CALL_METHOD
+    ComponentAddress("0229dd9023da6b84a5a16283277cc13eddb2ae882cb16155dcb49f")
+    "create_proof" 
+    ResourceAddress("036f3ba049f2775907af81f3174cde75673bf4cbc6e764d555fe7f");
+
+CALL_METHOD
+    ComponentAddress("0229dd9023da6b84a5a16283277cc13eddb2ae882cb16155dcb49f")
+    "withdraw_funds" 
+    Decimal("100");
+
+CALL_METHOD_WITH_ALL_RESOURCES
+    ComponentAddress("0229dd9023da6b84a5a16283277cc13eddb2ae882cb16155dcb49f")
+    "deposit_batch";  
+
+    
+    

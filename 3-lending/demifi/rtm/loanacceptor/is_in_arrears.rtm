@@ -1,0 +1,11 @@
+# Checks if a loan is in arrears
+#
+# Parameters:
+#
+# $component: address of the LoanAcceptor component to call
+#
+# $loan_nfid: NFT id of the Loan to query
+CALL_METHOD
+   ComponentAddress("${component}")
+   "is_in_arrears"
+   NonFungibleId("${loan_nfid}");

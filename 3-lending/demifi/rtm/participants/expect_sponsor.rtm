@@ -1,0 +1,29 @@
+# A Participant registers an expectation of sponsorship from another
+#
+# Parameters:
+#
+# $account: address of the account running this transaction, used to create proof
+#
+# $component: address of the Participants component to call
+#
+# $nft_address: The ResourceAddress of the Participant NFTs
+#
+# $hopeful_nfid: NFT id of the Participent expecting a sponsorship. The transaction
+#                 needs to be able to create a Proof of this NFT.
+#
+# $sponsor_nfid: NFT id of the Participant that is expected to become sponsor
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${nft_address}");
+
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+    TreeSet<NonFungibleId>(NonFungibleId("${hopeful_nfid}"))
+    ResourceAddress("${nft_address}")
+    Proof("proof");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "expect_sponsor"
+   Proof("proof")
+   NonFungibleId("${sponsor_nfid}");

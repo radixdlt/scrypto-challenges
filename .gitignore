@@ -1,5 +1,6 @@
 # Visual studio code
 .vscode
+.history
 
 # macOS folder attributes
 .DS_Store

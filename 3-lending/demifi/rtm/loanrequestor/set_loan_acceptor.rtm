@@ -1,0 +1,27 @@
+# Ties a loan requestor to a loan acceptor.
+#
+# Parameters:
+#
+# $component: address of the LoanRequestor component to call
+#
+# $account: address of the account running this transaction,
+#            used to burn its config badge
+#
+# $config_badge_addr: The ResourceAddress of the requestor's config badge
+#
+# $acceptor_addr: The ComponentAddress of the acceptor to tie to
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount" Decimal("1")
+   ResourceAddress("${config_badge_addr}");
+   
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("1")
+   ResourceAddress("${config_badge_addr}")
+   Bucket("badge_bucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "set_loan_acceptor"
+   Bucket("badge_bucket")
+   ComponentAddress("${acceptor_addr}");

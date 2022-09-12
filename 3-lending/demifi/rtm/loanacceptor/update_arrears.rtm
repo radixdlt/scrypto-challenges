@@ -1,0 +1,30 @@
+# Makes a loan update its formal arrears status. Only a lender to the
+# loan can force this operation.
+#
+# Parameters:
+#
+# $component: ComponentAddress of LoanAcceptor component to call
+#
+# $account: address of the user account that requests the update
+#
+# $participants_nft_addr: ResourceAddress of our Participants NFTs.
+#
+# $lender_nfid: NonFungibleId of the lender Participant.
+#               We must be able to make a Proof of this.
+#
+# $loan_nfid: NonFungibleId of the loan whose arrears to update
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${participants_nft_addr}");
+
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+    TreeSet<NonFungibleId>(NonFungibleId("${lender_nfid}"))
+    ResourceAddress("${participants_nft_addr}")
+    Proof("proof");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "update_arrears"
+   Proof("proof")
+   NonFungibleId("${loan_nfid}");

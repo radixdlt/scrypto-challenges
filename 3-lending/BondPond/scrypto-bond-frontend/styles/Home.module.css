@@ -1,0 +1,79 @@
+
+.container {
+  min-height: 70vh;
+  padding: 0 0.5rem;
+  background-color: "bg-dark";
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+}
+
+.main {
+  padding: 5rem 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+.title {
+  margin: 0;
+  line-height: 1.15;
+  font-size: 2rem;        
+  color: rgb(152, 147, 255);
+  background-color: bisque;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 0;
+}
+
+
+
+.grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 800px;
+  margin-top: 3rem;
+}
+
+.card {
+  margin: 0.75rem;
+  padding: 1rem;
+  text-align: left;
+  font-size: 2rem;
+  font-weight: 'bold'; 
+  font-style: 'bold';
+  color: rgb(238, 125, 220);
+  background-color: rgb(247, 244, 228);
+  text-decoration: none;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  width: 65%;
+}
+
+.card:hover,
+.card:focus,
+.card:active {
+  color: #f300ba;
+  border-color: #f300ba;
+}
+
+.card h2 {
+  font-size: 1.5rem;
+}
+
+
+@media (max-width: 600px) {
+  .grid {
+    width: 100%;
+    flex-direction: column;
+  }
+}

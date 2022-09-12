@@ -1,0 +1,33 @@
+# Instantiates a new LoanAcceptor.
+#
+# Parameters:
+#
+# $component: ComponentAddress of LoanAcceptor component to call
+#
+# $account: address of the user account that will pay up
+#
+# $loan_nfid: NonFungibleId of the loan to pay on
+#
+# $token_resource: ResourceAddress of the token to pay
+#
+# $amount: Amount of token to pay
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount"
+   Decimal("${amount}")
+   ResourceAddress("${token_resource}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("${amount}")
+   ResourceAddress("${token_resource}")
+   Bucket("payment_bucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "pay_installment"
+   NonFungibleId("${loan_nfid}")
+   Bucket("payment_bucket");
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";

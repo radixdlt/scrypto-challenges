@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${COMPONENT}") "set_price" ResourceAddress("030000000000000000000000000000000000000000000000000004") Decimal("0.5");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS1}}") "deposit_batch";

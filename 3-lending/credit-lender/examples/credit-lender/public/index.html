@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Web site created using create-snowpack-app" />
+    <link rel="stylesheet" type="text/css" href="/index.css" />
+    <title>Credit Lender</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script type="module" src="/dist/index.js"></script>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+
+    <h1>Credit Lender</h1>
+
+    <h2>1. Fetch User Account Address</h2>
+    <p><button id="fetchAccountAddress">Click me</button> to get the account address of the PTE Browser Extension user.</p>
+    <p>Account Address: <pre id="accountAddress"></pre></p>
+
+    <h2>2. Publish Package</h2>
+    <p><button id="publishPackage">Publish</button></p>
+    <p>Package Address:<br><pre id="packageAddress"></pre></p>
+
+    <h2>3. Instantiate Credit Lender</h2>
+    <p><button id="instantiateComponent">Instantiate</button></p>
+    <p>Component Address:<br><pre id="componentAddress"></pre></p>
+    <p>Resource Address 1 Minting Badge:<br><pre id="resourceAddress1"></pre></p>
+    <p>Resource Address 2 Lender Receipt NFT:<br><pre id="resourceAddress2"></pre></p>
+    <p>Resource Address 3 Borrower Receipt NFT:<br><pre id="resourceAddress3"></pre></p>
+    <p>Resource Address 4 Loan NFT:<br><pre id="resourceAddress4"></pre></p>
+    <p>Resource Address 5 Credit Report NFT:<br><pre id="resourceAddress5"></pre></p>
+
+    <h2>3. Add/Remove liquidity from Lending Pool</h2>
+    <label for="addamount">Add $XRD Amount:</label>
+    <input type="text" id="addamount" name="addamount">
+    <span><button id="addliquidity">Add</button></span><br><br>
+
+    <label for="removeamount">Remove $XRD Amount:</label>
+    <input type="text" id="removeamount" name="removeamount">
+    <span><button id="removeliquidity">Remove</button></span>
+    <p>Receipt:<br><pre id="receipt"></pre></p>
+
+    <h2>4. Open Loan </h2>
+    <label for="loanamount">Loan Amount $USD:</label>
+    <input type="text" id="loanamount" name="loanamount"><br><br>
+    
+
+    <label for="collateralamount">Collateral Amount $XRD:</label>
+    <input type="text" id="collateralamount" name="collateralamount">
+    <span><button id="createLoan">Create</button></span>
+    <p>Receipt:<br><pre id="receipt2"></pre></p>
+
+    <h2>5. Close Loan</h2>
+    <label for="payamount">Payment Amount $XRD:</label>
+    <input type="text" id="payamount" name="payamount"><br><br>
+    <span><button id="payloan">Pay</button></span>
+    <p>Receipt:<br><pre id="receipt3"></pre></p>
+
+    <h2>6. Service Existing Loan</h2>
+    <h3>6.1 Add Collateral</h3>
+    <label for="addCollateralAmount">Add Collateral Amount $XRD:</label>
+    <input type="text" id="addCollateralAmount" name="addCollateralAmount">
+    <span><button id="addCollateral">Add</button></span>
+
+    <h3>6.2 Remove Collateral</h3>
+    <label for="RemoveCollateralAmount">Remove Collateral Amount $XRD:</label>
+    <input type="text" id="RemoveCollateralAmount" name="RemoveCollateralAmount">
+    <span><button id="removeCollateral">Remove</button></span>
+    
+    <h3>6.3 Borrow More</h3>
+    <label for="borrowAmount">Borrow Amount $XRD:</label>
+    <input type="text" id="borrowAmount" name="borrowAmount">
+    <span><button id="borrowMore">Borrow</button></span>
+
+
+    <h3>6.4 Make Loan Payment</h3>
+    <label for="payAmount">Pay Amount $XRD:</label>
+    <input type="text" id="payAmount" name="payAmount">
+    <span><button id="payMore">Pay</button></span>
+
+    <p>Receipt:<br><pre id="receipt4"></pre></p>
+
+    <h2>7. Check Loan Status</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+    <h2>7. Check Wallet Balance</h2>
+    <p><button id="checkBalance">Check Balance</button></p>
+    <p> XRD -<span id="xrdBalance">?</span></p>
+    <p> Lender Receipt -<span id="lenderReceipt">?</span></p>
+    <p>Lender Receipt NFT IDs - <span id="lenderNFT"></span></p>
+    <p> Borrower Receipt -<span id="borrowerReceipt">?</span></p>
+    <p>Borrower Receipt NFT IDs - <span id="borrowerNFT"></span></p>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+# Reads a Participant's endorsements
+#
+# Parameters:
+#
+# $component: address of the Participants component to call
+#
+# $participant_nfid: NFT id of the Participent to query
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_endorsements"
+   NonFungibleId("${participant_nfid}");

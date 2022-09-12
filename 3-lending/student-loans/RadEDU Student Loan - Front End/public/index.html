@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Web site created using create-snowpack-app" />
+    <link rel="stylesheet" type="text/css" href="/index.css" />
+    <title>RadEDU - Student Loans</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script type="module" src="/dist/index.js"></script>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+    <div class="main-container">
+        <div class="contain-sections">
+          <div class="section">
+            <h1>RadEDU - Student Loan Simulation</h1>
+
+            <p>To get started, follow these 4 steps before trying out the Loan Options.</p>
+
+            <h2>1. Show User Account Address</h2>
+            <p><button id="fetchAccountAddress">Show Address</button> of the PTE Browser Extension user.</p>
+            <p>Account Address: <pre id="accountAddress"></pre></p>
+          </div>
+
+          <div class="section">
+            <h2>2. Publish Package</h2>
+            <p><button id="publishPackage">Publish</button></p>
+            <p>Package Address:<br><pre id="packageAddress"></pre></p>
+          </div>
+
+          <div class="section">
+            <h2>3. Launch Student Loan Component</h2>
+            <p>The loan's interest rate will be determined based on projected career path.</p>
+            <p>Majors with higher earning potential will be given higher interest rates.</p>
+            <label for="major">Choose your major:</label>
+            <select name="major" id="major">
+              <option value="socialservices">Social Services (1%)</option>
+              <option value="performingarts">Performing Arts (2%)</option>
+              <option value="earlychildhoodeducation">Early Childhood Education (3%)</option>
+              <option value="electricalengineering">Electrical Engineering (4%)</option>
+              <option value="computerscience">Computer Science (4.5%)</option>
+            </select>
+            <p><button id="instantiateComponent">Launch</button></p>
+            <p>Component Address:<br><pre id="componentAddress"></pre></p>
+          </div>
+
+          <div class="section">
+            <h2>4. Register Student</h2>
+            <p>A <strong>soulbound token</strong> will be generated for the student.</p>
+            <p>Similar to how student loans are not forgiven in the event of bankruptcy, this token stays with the user forever.</p>
+            <p><button id="registerNewUser">Register</button></p>
+            <p><pre id="registerAddress"></pre></p>
+          </div>
+        </div>
+
+        <h3>Loan Options</h3>
+        <hr>
+
+        <div class="contain-sections section-boxes-format">
+          <div class="section">
+            <h2>Deposit</h2>
+            <p>Amount: <input type="text" placeholder="100" id="depositAmount" name="depositAmount"></p>
+            <p><button id="deposit">Deposit</button></p>
+            <p><pre id="depositAddress"></pre></p>
+          </div>
+
+          <div class="section">
+            <h2>Redeem</h2>
+            <p>Amount: <input type="text" placeholder="100" id="redeemAmount" name="redeemAmount"></p>
+            <p><button id="redeem">Redeem</button></p>
+            <p><pre id="redeemAddress"></pre></p>
+          </div>
+
+          <div class="section">
+            <h2>Borrow</h2>
+            <p>Amount: <input type="text" placeholder="25" id="borrowAmount" name="borrowAmount"></p>
+            <p><button id="borrow">Borrow</button></p>
+            <p><pre id="borrowAddress"></pre></p>
+          </div>
+
+          <div class="section">
+            <h2>Repay</h2>
+            <p>Amount: <input type="text" placeholder="25" id="repayAmount" name="repayAmount"></p>
+            <p><button id="repay">Repay</button></p>
+            <p><pre id="repayAddress"></pre></p>
+          </div>
+
+          <div class="section">
+            <h2>Change Borrow Rate</h2>
+            <p>In the event of unemployment or disability, we can change the interest rate on the loan.</p>
+            <p>To initiate a forbearance plan and set the interest rate to 0%, click the button below.</p>
+            <p><button id="setBorrow">Claim unemployment/disability</button></p>
+            <p><pre id="setBorrowAddress"></pre></p>
+          </div>
+
+          <div class="section">
+            <h2>Check Account Balances</h2>
+            <p><button id="checkBalance">Check Balances</button></p>
+            <p>Account has <span id="userBalance">?</span> XRD, and the lending pool has <span id="machineBalance">?</span> XRD.</p>
+          </div>
+      </div>
+
+  </div>
+  </body>
+</html>

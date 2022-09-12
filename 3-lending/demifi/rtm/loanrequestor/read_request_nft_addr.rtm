@@ -1,0 +1,8 @@
+# Reads the LoanRequest NFT ResourceAddress for a LoanRequestor
+#
+# Parameters:
+#
+# $component: address of the LoanRequestor instance to query
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_request_nft_addr";
