@@ -1,0 +1,34 @@
+# Invests money into the fund, returning coupons.
+#
+# Parameters:
+#
+# component: ComponentAddress of the published package containing the
+#            ArchDAO component.
+#
+# account: ComponentAddress of the user account from which funds to
+#          invest will be taken, and fund coupons will be put.
+#
+# amount: Number of tokens to invest.
+#
+# token: ResourceAddress of token to invest.
+#
+# TODO
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount"
+   Decimal("${amount}")
+   ResourceAddress("${token}");
+   
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("${amount}")
+   ResourceAddress("${token}")
+   Bucket("fundsbucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "register"
+   Bucket("fundsbucket");
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";   

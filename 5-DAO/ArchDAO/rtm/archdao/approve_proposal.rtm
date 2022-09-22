@@ -1,0 +1,19 @@
+# Parameters:
+#
+# component: ComponentAddress of the published package containing the
+#            ArchDAO component.
+#
+# account: ComponentAddress of the user account from which funds to
+#          invest will be taken, and fund coupons will be put.
+#
+# admin_badge: ResourceAddress of the admin badge.
+#
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${admin_badge}");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "approve_proposal";
+

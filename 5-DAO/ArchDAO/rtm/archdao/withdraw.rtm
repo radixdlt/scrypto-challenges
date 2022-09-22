@@ -1,0 +1,33 @@
+# Unregisters from the DAO
+#
+# Parameters:
+#
+# component: ComponentAddress of the published package containing the
+#            ArchDAO component.
+#
+# account: ComponentAddress of the user account where the xrd tokens will be put.
+#
+# amount: Number of tokens to get back.
+#
+# vote_token: ResourceAddress of the dao's vote_tokens.
+#
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount"
+   Decimal("${amount}")
+   ResourceAddress("${vote_token}");
+   
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("${amount}")
+   ResourceAddress("${vote_token}")
+   Bucket("votebucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "withdraw"
+   Bucket("votebucket")
+   ${partner};
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";

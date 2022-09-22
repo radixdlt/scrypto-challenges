@@ -1,0 +1,9 @@
+# Parameters:
+#
+# component: address of the ArchDAO instance to use
+#
+# amount: Number of vote tokens to value, e.g. 100
+CALL_METHOD
+   ComponentAddress("${component}")
+   "value_of_vote_tokens"
+   Decimal("${amount}");

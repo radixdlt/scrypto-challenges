@@ -1,0 +1,32 @@
+# Instantiates a new ArchDAO.
+#
+# Parameters:
+#
+# package: address of the published package containing the
+#          ArchDAO component
+#
+# account: address of the user account that will receive
+#          the admin badges
+#
+# investment_token: ResourceAddress of the token to manage (e.g.
+#                   030000000000000000000000000000000000000000000000000004)
+#
+CALL_FUNCTION
+   PackageAddress("${package}")
+   "ArchDAO"
+   "instantiate_archdao"
+   ResourceAddress("${investment_token}")
+   Decimal("${free_funds_target_percent}")
+   ${proposal_update_interval_epochs}u64
+   Decimal("${minimum_deposit}")
+   ${admin_badge_name}
+   ${admin_badge_quantity}u64
+   ${vote_name}
+   ${deposit_fee_bps}
+   ${withdraw_fee_bps}
+   ${vote_mint_badge_name}
+   ${proposal_control_badge_name};
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";
