@@ -27,7 +27,7 @@ for details. You will need Scrypto 0.4.1.
 The generated web pages contain detailed documentation on how the
 blueprints work.
 
-#Useful command
+### Useful command
 scrypto test -- --nocapture
 cargo test -- --test-threads=1 --nocapture
 

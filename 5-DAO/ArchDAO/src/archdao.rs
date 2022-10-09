@@ -24,9 +24,7 @@
 //! 
 //! # Overview of functions and methods
 //!
-//! This is a brief synopsis of all of the public functions and
-//! methods provided by ArchDAO. They are grouped by categories of
-//! functionality.
+//! To be done
 //!
 //! ## Instantiation
 //!
@@ -50,7 +48,7 @@
 //! ArchDAO allows you to set protocol fees when instantiating it. In
 //! order to provide stability it is not possible
 //! to change the protocol fees after creation. You can set one
-//! fee for voting and another fee for remoting votes; Also other different
+//! fee for voting and another fee for removing votes; Also other different
 //! fees are for proposal's approval.
 //!
 //!
@@ -64,11 +62,6 @@
 //!
 //! Admin can force approvals by calling
 //! [force_approvals].
-//!
-//! An approvals process is expected to be potentially a very
-//! expensive operation. Perhaps a future version of ArchDAO will
-//! find a way to not charge any proposers unlucky forcing an approval cycle 
-//! while calling `vote` or `remove vote`.
 //!
 //!
 //! ## Minimum Deposit
@@ -344,7 +337,7 @@ blueprint! {
         /// ```text
         #[doc = include_str!("../rtm/archdao/deposit.rtm")]
         /// ```
-        pub fn deposit(&mut self, mut funds: Bucket, partner: Option<NonFungibleId>) -> Bucket  {
+        pub fn deposit(&mut self, funds: Bucket) -> Bucket  {
             assert!(funds.resource_address() == self.archdao_token,
                     "Wrong token type sent");
             assert!(funds.amount() >= self.minimum_deposit,
@@ -396,7 +389,7 @@ blueprint! {
             // then this call fails and the user needs to wait for
             // free_funds to refill, possibly making a smaller
             // withdrawal in the meantime.
-            let mut bucket_out = self.free_funds_for_proposals.take(self.value_of(vote_tokens.amount(), cmgr));
+            let bucket_out = self.free_funds_for_proposals.take(self.value_of(vote_tokens.amount(), cmgr));
             // self.charge_fees(self.withdraw_fee_bps, self.withdraw_fee_partner_bps,
             //                  &mut bucket_out, &partner);
             self.vote_mint_badge.authorize(||  {
@@ -558,7 +551,7 @@ blueprint! {
                     "Minimum level for starting approvals is 1000, please fund the dao!"
                 );
 
-            let mut totals: HashMap<ComponentAddress,Decimal> = self.list_proposal();
+            let totals: HashMap<ComponentAddress,Decimal> = self.list_proposal();
 
             for (proposal_address, &amount) in totals.iter() {
                 info!("Amount of votes to send to proposal {}: {}", proposal_address, amount); 
@@ -591,13 +584,7 @@ blueprint! {
                         "add_funds",
                         args!(bucket)));                
         }
-
-        /// Add votes to the specified proposal
-        fn add_votes_to_proposal(&self, project: &ComponentAddress, bucket: Bucket)  {
-            borrow_component!(*project).call::<Decimal>(
-                "add_votes",
-                args!(bucket));
-        }        
+    
 
         /// Calculate the total value of the vote, checking for how long the vote has been given
         fn sum(&self, vote: &Vote) -> Decimal {
@@ -711,24 +698,6 @@ blueprint! {
             self.admin_badge_address
         }
 
-        
-        /// Returns the amount of free funds currently held. These are
-        /// funds that aren't bound into any particular investment,
-        /// but instead are available for withdrawals and which may be
-        /// used for future investments.
-        ///
-        /// ---
-        ///
-        /// **Access control:** Read only, can be called by anyone.
-        ///
-        /// **Transaction manifest:**
-        /// `rtm/archdao/read_free_funds.rtm`
-        /// ```text
-        #[doc = include_str!("../rtm/archdao/read_free_funds.rtm")]
-        /// ```
-        pub fn read_free_funds(&self) -> Decimal {
-            self.free_funds_for_proposals.amount()
-        }
 
 
         /// Returns how many epochs must pass after an approval process
@@ -778,7 +747,7 @@ blueprint! {
             self.minimum_deposit
         }
 
-        /// Returns the deposit fee, measured in basis points.
+        /// Returns the deposit fee
         ///
         /// ---
         ///
@@ -793,7 +762,7 @@ blueprint! {
             self.deposit_fee_bps
         }
 
-        /// Returns the withdraw fee, measured in basis points.
+        /// Returns the withdraw fee
         ///
         /// ---
         ///
@@ -843,22 +812,6 @@ blueprint! {
             self.proposals_control_badge.resource_address()
         }        
 
-        /// Reports how many protocol fees are currently sitting in
-        /// the component, waiting to be collected.
-        ///
-        /// ---
-        ///
-        /// **Access control:** Read only, can be called by anyone.
-        ///
-        /// **Transaction manifest:**
-        /// `rtm/archdao/read_fees_stored.rtm`
-        /// ```text
-        #[doc = include_str!("../rtm/archdao/read_fees_stored.rtm")]
-        /// ```
-        pub fn read_fees_stored(&self) -> Decimal {
-            self.fees.amount()
-        }
-
         /// TODO
         ///
         /// ---
@@ -882,44 +835,10 @@ blueprint! {
 
         /// Calculates the total funds we have
         fn calc_total_funds(&self) -> Decimal {
-            let mut total: Decimal = self.free_funds_for_proposals.amount();
+            let total: Decimal = self.free_funds_for_proposals.amount();
             total
         }        
 
-                /// TODO 
-        /// 
-        /// NOT VALID ANYMORE
-        /// 
-        ///
-        /// ---
-        ///
-        /// **Transaction manifest:**
-        /// `rtm/archdao/add_vote.rtm`
-        /// ```text
-        pub fn add_vote(&self, proposal: ComponentAddress,
-            vote: Decimal)
-                -> HashMap<ComponentAddress, Proposal> {
-        info!("add_vote START"); 
-        let mut map: HashMap<ComponentAddress, Proposal> = HashMap::new();
-        info!("start voting ");
-
-        //loop along keys to find if a proposal with the same component_address does exist
-        for proposal_address in self.proposal.keys() {
-            let inner_prop = self.proposal.get(proposal_address).unwrap();
-            info!("loop 1");
-            //check if the component_address is the same, then add the vote
-            if proposal_address==&proposal {
-                //now the votes has to be added to the hashmap 
-                for inside in inner_prop.votes.keys() {
-                    info!("loop 2");
-                }
-                map.insert(proposal_address.clone(), inner_prop.clone());
-            } else {
-                map.insert(proposal_address.clone(), inner_prop.clone());
-            }
-        }
-       map
-    } 
 
     }
 }
