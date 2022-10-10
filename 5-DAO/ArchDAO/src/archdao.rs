@@ -177,8 +177,7 @@ blueprint! {
         /// Protocol fees collected.
         fees: Vault,
 
-        /// OLD FIELS
-        
+        /// OLD FIELDS
         /// We try to keep our `free_funds` at this level relative to
         /// the total funds we have under management.
         free_funds_target_percent: Decimal,        
@@ -201,8 +200,6 @@ blueprint! {
         /// an overview of parameters not explained here and how they
         /// relate to each other.
         ///
-        /// `investment_token` is the token we're managing investments
-        /// of, e.g. XRD.
         ///
         /// `ArchDAO vote tokens` is the token one that
         /// is visible to your voters since they will all have
@@ -270,7 +267,7 @@ blueprint! {
                     "ArchDAO vote tokens".to_string()))
                 .initial_supply(0);
 
-            let archdao = 
+            let mut archdao = 
                 Self {
                     archdao_token,
                     vote_address: votes.resource_address(),
@@ -289,8 +286,9 @@ blueprint! {
                     proposals_control_badge: Vault::with_bucket(proposal_control_badge),
                     fees: Vault::new(archdao_token),
                 }
-            .instantiate()
-                .add_access_check(
+            .instantiate();
+
+            archdao.add_access_check(
                     AccessRules::new()
                     // In order to stay on the safe side we default to
                     // requiring the admin badge, and individually
@@ -309,9 +307,12 @@ blueprint! {
                         .method("register", rule!(allow_all))    
                         // .method("approve_proposal", rule!(allow_all))    
                         .method("withdraw_partner_fees", rule!(allow_all))
-                ).globalize();
+                    );
+                    
+                let archdaocopy = archdao.globalize();
+
             (
-                archdao,
+                archdaocopy,
                 admin_badges.resource_address(),
                 admin_badges,
                 votes.resource_address(),
@@ -351,7 +352,10 @@ blueprint! {
             let total = self.calc_total_funds();
             let mint_q = if total.is_zero()
             { funds.amount() } else { (cmgr.total_supply() / total ) * funds.amount()};
-            let votes: Bucket = self.vote_mint_badge.authorize(|| cmgr.mint(mint_q));
+
+            let votes = self.vote_mint_badge.authorize(|| {
+                borrow_resource_manager!(self.vote_address).mint(mint_q)
+            });
 
             self.free_funds_for_proposals.put(funds);
             // self.maintain_proposals(false); //TODO
@@ -414,9 +418,10 @@ blueprint! {
         /// ```
         pub fn register(&mut self, xrd_bucket: Bucket) -> Bucket {
             info!("register START");  
-            let resource_manager: &ResourceManager = borrow_resource_manager!(self.vote_address);
             // mint vote
-            let vote_bucket: Bucket = self.vote_mint_badge.authorize(|| resource_manager.mint(xrd_bucket.amount()));
+            let vote_bucket = self.vote_mint_badge.authorize(|| {
+                borrow_resource_manager!(self.vote_address).mint(xrd_bucket.amount())
+            });
 
             //deposit xrd token
             self.free_funds_for_proposals.put(xrd_bucket);
@@ -820,6 +825,7 @@ blueprint! {
         ///
         /// **Transaction manifest:**
         /// `rtm/archdao/read_proposal_for_approval.rtm`
+        /// ```text
         #[doc = include_str!("../rtm/archdao/read_proposal_for_approval.rtm")]
         /// ```
         pub fn read_proposal_for_approval(&self) -> HashMap<ComponentAddress, Proposal> {

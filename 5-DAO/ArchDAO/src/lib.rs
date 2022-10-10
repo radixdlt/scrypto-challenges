@@ -25,7 +25,7 @@
 //!
 //!
 //! We provide one mock propoposal for testing
-//! purposes, in the [archproposalMock] blueprint. Call its
+//! purposes, in the [ArchProposalMock] blueprint. Call its
 //! [instantiate_archproposal_mock] function any number of times to
 //! create mocks to then add them to your ArchDAO.
 //!
@@ -63,15 +63,8 @@
 //! # Development environment
 //!
 //!
-//! This project has been developed for Scrypto v0.4.1.
+//! This project has been developed for Scrypto v0.5.1.
 //!
-//! # License etc.
-//!
-//! This software is intended for entering into the **Radix Scrypto
-//! Portfolio Management and Yield Farming Challenge,** and the author
-//! cedes such rights as is necessary to do so, ref. the challenge's
-//! official rules which are at time of writing available
-//! [here.](https://www.radixdlt.com/post/portfolio-management-and-yield-farming-challenge-is-live)
 //!
 mod archdao;
 mod archproposal;

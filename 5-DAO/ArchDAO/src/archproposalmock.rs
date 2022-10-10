@@ -57,7 +57,7 @@ blueprint! {
             // This is a mock, so we don't check
             // preconditions. 
 
-            Self {
+            let mut mock = Self {
                 description: proposal_description,
                 last_epoch: Runtime::current_epoch(),
                 money_for_execution: Vault::new(money_received.resource_address()),
@@ -65,8 +65,9 @@ blueprint! {
                 money_funded: Vault::with_bucket(money_received),
                 votes: Vault::new(vote_token_address),
                 proposal_control_badge,
-            }.instantiate()
-                .add_access_check(
+            }.instantiate();
+
+            mock.add_access_check(
                     AccessRules::new()
                         .default(rule!(require(proposal_control_badge)))
                         .method("reward", rule!(allow_all))
@@ -75,7 +76,8 @@ blueprint! {
                         .method("remove_funds", rule!(allow_all))
                         .method("add_votes", rule!(allow_all))
                         .method("remove_votes", rule!(allow_all))
-                ).globalize()
+                );
+            mock.globalize()
         }
 
         /// ---
