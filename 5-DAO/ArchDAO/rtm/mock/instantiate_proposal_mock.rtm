@@ -2,6 +2,11 @@
 #
 # THIS IS FOR TESTING
 #
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+
 CALL_METHOD
    ComponentAddress("${account}")
    "withdraw_by_amount"
@@ -21,3 +26,9 @@ CALL_FUNCTION
    Bucket("treasurybucket")
    ResourceAddress("${vote_token}")
    ResourceAddress("${admin_badge}");
+
+DROP_ALL_PROOFS;
+CALL_METHOD
+   ComponentAddress("${account}")
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");

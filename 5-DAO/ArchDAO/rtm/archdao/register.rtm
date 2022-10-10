@@ -1,4 +1,4 @@
-# Invests money into the fund, returning coupons.
+# Register to the Dao, sending tokens ang getting back vote tokens.
 #
 # Parameters:
 #
@@ -6,13 +6,18 @@
 #            ArchDAO component.
 #
 # account: ComponentAddress of the user account from which funds to
-#          invest will be taken, and fund coupons will be put.
+#          register to the Dao will be get, and vote tokens will be put.
 #
-# amount: Number of tokens to invest.
+# amount: Number of tokens.
 #
-# token: ResourceAddress of token to invest.
+# token: ResourceAddress of token.
 #
 # TODO
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+
 CALL_METHOD
    ComponentAddress("${account}")
    "withdraw_by_amount"
@@ -29,6 +34,13 @@ CALL_METHOD
    "register"
    Bucket("fundsbucket");
 
-CALL_METHOD_WITH_ALL_RESOURCES
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");   
+
+DROP_ALL_PROOFS;
+CALL_METHOD
    ComponentAddress("${account}")
-   "deposit_batch";   
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");   

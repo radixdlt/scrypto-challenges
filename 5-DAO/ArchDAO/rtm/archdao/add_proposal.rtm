@@ -8,8 +8,11 @@
 # admin_badge: ResourceAddress of the admin badge.
 #
 # proposalProject: ComponentAddress of proposal component to add.
-#
-# proposal: Investment weight to set on the proposal.
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+
 CALL_METHOD
    ComponentAddress("${account}")
    "create_proof"

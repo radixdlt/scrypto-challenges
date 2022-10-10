@@ -8,6 +8,11 @@
 #
 # admin_badge: ResourceAddress of the admin badge.
 #
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+
 CALL_METHOD
    ComponentAddress("${account}")
    "withdraw_by_amount"
@@ -29,7 +34,9 @@ CALL_METHOD
    "fund_approved_projects"
    Bucket("fundsbucket");
 
-CALL_METHOD_WITH_ALL_RESOURCES
+DROP_ALL_PROOFS;
+CALL_METHOD
    ComponentAddress("${account}")
-   "deposit_batch";   
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");   
 

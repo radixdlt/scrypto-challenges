@@ -1,6 +1,11 @@
 # Parameters:
 #
 # component: address of the ArchDAO instance to use
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+    
 CALL_METHOD
    ComponentAddress("${component}")
    "read_admin_badge_address";

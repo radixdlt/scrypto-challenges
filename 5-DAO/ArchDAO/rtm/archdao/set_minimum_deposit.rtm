@@ -10,6 +10,11 @@
 # admin_badge: ResourceAddress of the component's admin badges
 #
 # minimum: New minimum deposit, e.g. 5000
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+    
 CALL_METHOD
    ComponentAddress("${account}")
    "create_proof"

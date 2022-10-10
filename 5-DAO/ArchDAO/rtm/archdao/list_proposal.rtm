@@ -3,12 +3,11 @@
 # component: ComponentAddress of the published package containing the
 #            ArchDAO component.
 #
-# account: ComponentAddress of the user account from which funds to
-#          invest will be taken, and fund coupons will be put.
-#
-# amount: Number of tokens to invest.
-#
-# token: ResourceAddress of token to invest.
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+    
 CALL_METHOD
    ComponentAddress("${component}")
    "list_proposal";

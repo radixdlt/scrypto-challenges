@@ -1,4 +1,3 @@
-//! This blueprint demonstrates the interface you need to provide ...
 //! 
 //! TODO
 
@@ -14,7 +13,7 @@ blueprint! {
         ///
         /// ---
         ///
-        /// **Access control:** Can only be called with `iv_control_badge` in auth zone
+        /// **Access control:** Can only be called with `proposal_control_badge` in auth zone
         ///
         /// **Transaction manifest:** Not user callable, so no manifest is provided
         pub fn add_funds(&mut self, mut _new_funds: Bucket) -> Option<Bucket>
@@ -28,7 +27,7 @@ blueprint! {
         ///
         /// ---
         ///
-        /// **Access control:** Can only be called with `iv_control_badge` in auth zone
+        /// **Access control:** Can only be called with `proposal_control_badge` in auth zone
         ///
         /// **Transaction manifest:** Not user callable, so no manifest is provided
         pub fn reward(&mut self, _by_amount: Decimal) -> Option<Bucket>
@@ -37,7 +36,7 @@ blueprint! {
         /// TODO
         /// ---
         ///
-        /// **Access control:** Can only be called with `iv_control_badge` in auth zone
+        /// **Access control:** Can only be called with `proposal_control_badge` in auth zone
         ///
         /// **Transaction manifest:** Not user callable, so no manifest is provided
         pub fn airdrop(&mut self) -> Option<Bucket>

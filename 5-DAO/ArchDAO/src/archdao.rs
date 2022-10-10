@@ -302,11 +302,9 @@ blueprint! {
                         .method("read_proposal_for_approval", rule!(allow_all))         
                         .method("read_proposal_control_badge_address", rule!(allow_all))     
                         .method("vote_proposal", rule!(allow_all))   
-                        .method("add_vote", rule!(allow_all))      
                         .method("list_proposal", rule!(allow_all))    
                         .method("register", rule!(allow_all))    
                         // .method("approve_proposal", rule!(allow_all))    
-                        .method("withdraw_partner_fees", rule!(allow_all))
                     );
                     
                 let archdaocopy = archdao.globalize();
@@ -552,8 +550,8 @@ blueprint! {
             info!("approve_proposal START"); 
 
             assert!(
-                    self.free_funds_for_proposals.amount()>dec!(1000),
-                    "Minimum level for starting approvals is 1000, please fund the dao!"
+                    self.free_funds_for_proposals.amount()>dec!(100),
+                    "Minimum level for starting approvals is 100, please fund the dao!"
                 );
 
             let totals: HashMap<ComponentAddress,Decimal> = self.list_proposal();

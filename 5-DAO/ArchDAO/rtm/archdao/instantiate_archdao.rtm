@@ -8,9 +8,14 @@
 # account: address of the user account that will receive
 #          the admin badges
 #
-# investment_token: ResourceAddress of the token to manage (e.g.
+# token: ResourceAddress of the token to manage (e.g.
 #                   030000000000000000000000000000000000000000000000000004)
 #
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+    
 CALL_FUNCTION
    PackageAddress("${package}")
    "ArchDAO"
@@ -27,6 +32,8 @@ CALL_FUNCTION
    ${vote_mint_badge_name}
    ${proposal_control_badge_name};
 
-CALL_METHOD_WITH_ALL_RESOURCES
+DROP_ALL_PROOFS;
+CALL_METHOD
    ComponentAddress("${account}")
-   "deposit_batch";
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");

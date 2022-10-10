@@ -8,6 +8,11 @@
 #          We must be able to make a Proof of the admin badge from here.
 #
 # admin_badge: ResourceAddress of the component's admin badges
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+
 CALL_METHOD
    ComponentAddress("${account}")
    "create_proof"
@@ -17,6 +22,13 @@ CALL_METHOD
    ComponentAddress("${component}")
    "withdraw_protocol_fees";
 
-CALL_METHOD_WITH_ALL_RESOURCES
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");   
+
+DROP_ALL_PROOFS;
+CALL_METHOD
    ComponentAddress("${account}")
-   "deposit_batch";
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");   

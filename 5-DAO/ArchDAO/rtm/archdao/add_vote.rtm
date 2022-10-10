@@ -16,6 +16,10 @@
 #   ComponentAddress("${account}")
 #   "create_proof"
 #   ResourceAddress("${admin_badge}");
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
 
 CALL_METHOD
    ComponentAddress("${component}")

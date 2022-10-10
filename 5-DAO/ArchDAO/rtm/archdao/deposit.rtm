@@ -5,13 +5,17 @@
 # component: ComponentAddress of the published package containing the
 #            ArchDAO component.
 #
-# account: ComponentAddress of the user account from which funds to
-#          invest will be taken, and fund coupons will be put.
+# account: ComponentAddress of the user account from which funds will be taken, and vote tokens will be put.
 #
-# amount: Number of tokens to invest.
+# amount: Number of tokens to send in the DAO.
 #
-# token: ResourceAddress of token to invest.
+# token: ResourceAddress of token.
 #
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+
 CALL_METHOD
    ComponentAddress("${account}")
    "withdraw_by_amount"
@@ -29,6 +33,8 @@ CALL_METHOD
    Bucket("fundsbucket")
    ${partner};
 
-CALL_METHOD_WITH_ALL_RESOURCES
+DROP_ALL_PROOFS;
+CALL_METHOD
    ComponentAddress("${account}")
-   "deposit_batch";
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");   
