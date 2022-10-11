@@ -7,7 +7,7 @@ Hello, my names is Tomas. I would like to guide you through my Root DAO idea.
 Although this entry won´t be eligible for participating in the Scrypto DAO challenge, because it does not contains code, I still hope that it may serve as an inspiration for others and I will be eligible for at least early adopter NFT badge.*
 
 > following section contains questions one should ask and reasons why I have designed my DAO the way I did
-#### DAO and Justice
+## DAO and Justice
 
 For a longe time I thought about DAO structure that would not bee ruled by whales.
 Some DAOs implement quadratic principle of 1 token = 1 vote, 4 tokens = 2 votes to prevent whales from ruling the protocol.
