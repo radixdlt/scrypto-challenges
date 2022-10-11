@@ -1,6 +1,7 @@
 import CreateDAO from '../components/CreateDAO';
 import CreateBallot from '../components/CreateBallot';
 import CreateProposal from '../components/CreateProposal';
+import Withdraw from '../components/Withdraw';
 
 const Dashboard = () => {
   return (
@@ -8,6 +9,9 @@ const Dashboard = () => {
       <h2 className="text-2xl font-bold mb-2">Dashboard</h2>
       <div className="border-2">
         <CreateDAO />
+      </div>
+      <div className="border-2">
+        <Withdraw />
       </div>
       <div className="border-2 mt-8">
         <CreateBallot />
