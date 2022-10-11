@@ -44,7 +44,11 @@
 //! must be considered suspect. (They have never been run.)
 //!
 //! What is tested is a DAO with anonmyous proposers and anonymous
-//! voters. Use of identity badges has not been tested.
+//! voters, leading to both advisory and executive proposals. Use of
+//! identity badges has not been tested.
+//!
+//! The test suite demonstrates DAO control of a faux third-party
+//! component and also of the SmorgasDAO's own configuration.
 //!
 //! The test suite is provided in the project source tree, in the
 //! `tests` directory. In order to run these tests you must have the
