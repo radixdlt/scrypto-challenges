@@ -1,0 +1,42 @@
+CALL_METHOD
+	ComponentAddress("account_sim1q0cc3zrk04q46tlc6rcz60xltgw3jhk4rst8cc4aqhhs846fjy")
+	"lock_fee"
+	Decimal("10");
+
+CALL_METHOD 
+  ComponentAddress("account_sim1q0cc3zrk04q46tlc6rcz60xltgw3jhk4rst8cc4aqhhs846fjy") 
+  "withdraw_by_amount"
+  Decimal("15")
+  ResourceAddress("resource_sim1qpcn2s7z8ekzhya40usele4et5svk9m8jj9mf8sfg5vsmts36n");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+  Decimal("15")
+  ResourceAddress("resource_sim1qpcn2s7z8ekzhya40usele4et5svk9m8jj9mf8sfg5vsmts36n") 
+  Bucket("channel_rewards");
+
+CALL_METHOD 
+  ComponentAddress("account_sim1q0cc3zrk04q46tlc6rcz60xltgw3jhk4rst8cc4aqhhs846fjy") 
+  "withdraw_by_ids" 
+  Set<NonFungibleId>(NonFungibleId("300710000000f6e1a08d4775fd1932b8fcd4bf6fc768")) 
+  ResourceAddress("resource_sim1qzgve5wk6402ym0nee033h7a677yf57cpj7txpuc540s0wxu69");
+
+TAKE_FROM_WORKTOP_BY_IDS
+  Set<NonFungibleId>(NonFungibleId("300710000000f6e1a08d4775fd1932b8fcd4bf6fc768")) 
+  ResourceAddress("resource_sim1qzgve5wk6402ym0nee033h7a677yf57cpj7txpuc540s0wxu69") 
+  Bucket("membership_bucket");
+
+CALL_METHOD
+  ComponentAddress("component_sim1q25l8w727l29ks4g6a5g3cx7znhczqtac4dx3m4xyygqnvhra7")
+  "new_proposal"
+  Bucket("channel_rewards")
+  Bucket("membership_bucket")
+  "300710000000675d99491692569fccd56ec78f2b25ca"
+  List<String>("DAN-COIN", "COIN-DAN", "DAN-DAN")
+  "https://snapshot.mypinata.cloud/ipfs/bafkreic2nbcusjm5umpifbinomvt3impewseprxz2dc23e5ixvlpsqw7uu"
+  25u64
+  75u64;
+
+CALL_METHOD
+  ComponentAddress("account_sim1q0cc3zrk04q46tlc6rcz60xltgw3jhk4rst8cc4aqhhs846fjy")
+  "deposit_batch"
+  Expression("ENTIRE_WORKTOP");
