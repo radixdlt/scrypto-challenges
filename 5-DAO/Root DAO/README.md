@@ -51,7 +51,7 @@ The vote weight is calculated for every token separately.
 <img src="https://github.com/tomashla/root_dao/blob/main/graf0.PNG" alt="Vote weight chart" title="Vote weight chart" >
 
 ## Features of Root DAO
-*This is just list of features / capabilities that are for DAO in my opinion nice to have
+>This is just list of features / capabilities that are for DAO in my opinion nice to have
 
 1) Option to delegate votes to someone else => if proposals are regular, not everybody has time to check each
 2) Option to cancel his delegation and vote otherwise if the person does not agree with the delegate 
