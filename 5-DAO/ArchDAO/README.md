@@ -1,4 +1,4 @@
-![](./archdao2.jpg)
+![](./archdao_black_mini.jpg)
 
 # ArchDAO - A proposal DAO
 
