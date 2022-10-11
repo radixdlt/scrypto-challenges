@@ -41,7 +41,7 @@ Clearly, the aim of the institution should be to maximise efficient equipment us
 The *RPG_infra* components could support the second model of equipment booking according to the following workflow.
 
 ### Workflow
-!image()
+![image](https://github.com/marktwh/scrypto-challenges/blob/main/5-DAO/RPG_infra/booking_system.png)
 * The institution instantiates a set of *RPG_infra* components for each individual item of equipment.
 * The institution mints a generic 'machine-time' tokens (for internal use only) and deposits these into the *multivault*s corresponding to each item, in proportion to the relative running costs of each item.
 * The institution is issued specific 'wrapper' tokens for each item of equipment. These are then used by the *booking_system* (not implemented), within which they represent the right to book each item for a set amount of time.
