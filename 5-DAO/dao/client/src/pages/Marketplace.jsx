@@ -5,7 +5,7 @@ import BuyTokens from '../components/BuyTokens';
 
 const Marketplace = () => {
   const [account, setAccount] = useState(
-    'account_tdx_a_1qd9eafyqjh750uv7scsy474xdceh2x2cjqdccus5k0ls06kddh'
+    'account_tdx_a_1q06j4qxaqmdg7qm2vq04a9smz4nnx6x8we7xwm5fvueqd9pz2n'
   );
 
   const sdk = Sdk();
