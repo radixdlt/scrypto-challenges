@@ -30,10 +30,15 @@ blueprint! {
    pub fn distribute_earnings() {
     // Validate accounting_badge && founders_badge
 
-    // distribute earnings to members
+    // distribute earnings to members vaults
 
     // transfer doa owned earnings to accounts_payable vault
     
+   }
+
+   pub fn withdraw_earnings(_member_tokens_proof: Proof){
+    // validate member token ownership via proof & allow withdraw of earnings due.
+    // earnings_per_share * member_tokens_held 
    }
 
    pub fn pay_expenses() {
