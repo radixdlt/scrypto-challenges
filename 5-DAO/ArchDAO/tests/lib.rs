@@ -17,7 +17,6 @@ use std::process::Command;
 use std::collections::HashMap;
 use regex::Regex;
 use lazy_static::lazy_static;
-use scrypto::debug;
 
 const RADIX_TOKEN: &str = "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag";
 
@@ -115,7 +114,7 @@ fn publish_package(path: Option<&str>) -> String {
 /// Creates a new ArchDAO via
 /// rtm/archdao/instantiate_archdao.rtm
 ///
-/// Returns the catalog created.
+/// Returns the component created.
 fn instantiate_archdao(
     account_addr: &str, 
     package_addr: &str,
@@ -132,7 +131,7 @@ fn instantiate_archdao(
     proposal_control_badge_name: Option<&str>)
                -> ArchDAOComponent
 {
-let output = run_command(Command::new("resim")
+    let output = run_command(Command::new("resim")
          .arg("run")
          .arg("rtm/archdao/instantiate_archdao.rtm")
          .env("account", account_addr)
@@ -149,30 +148,29 @@ let output = run_command(Command::new("resim")
          .env("vote_mint_badge_name", option_string_to_tm_string(vote_mint_badge_name))
          .env("proposal_control_badge_name", option_string_to_tm_string(proposal_control_badge_name)));
 
-println!("Output from ArchDAO instantiate {} " , output);
+    println!("Output from ArchDAO instantiate {} " , output);
 
-lazy_static! {
-static ref RE_TUPLE: Regex = Regex::new(concat!(
-r#"Instruction Outputs:\n\W*"#,
-r#".─ Tuple\(ComponentAddress\("(\w*)"\).*"#,
-r#"ResourceAddress\("(\w*)"\).*"#,
-r#"ResourceAddress\("(\w*)"\)"#)).unwrap();
+    lazy_static! {
+    static ref RE_TUPLE: Regex = Regex::new(concat!(
+        r#"Instruction Outputs:\n\W*"#,
+        r#".─ Tuple\(ComponentAddress\("(\w*)"\).*"#,
+        r#"ResourceAddress\("(\w*)"\).*"#,
+        r#"ResourceAddress\("(\w*)"\)"#)).unwrap();
+    }
+
+    let matches = RE_TUPLE.captures(&output).expect(
+    "Failed to parse instantiate_archdao");
+
+    println!("ArchDAO address {} " , matches[1].to_string());
+    println!("Admin address {} " , matches[2].to_string());
+
+    ArchDAOComponent {
+        address: matches[1].to_string(),
+        admin_address: matches[2].to_string(),
+        vote_token_address: matches[3].to_string(),
+        token_address: proposal_token.to_string(),
+    }
 }
-
-let matches = RE_TUPLE.captures(&output).expect(
-"Failed to parse instantiate_archdao");
-
-println!("ArchDAO address {} " , matches[1].to_string());
-println!("Admin address {} " , matches[2].to_string());
-
-ArchDAOComponent {
-address: matches[1].to_string(),
-admin_address: matches[2].to_string(),
-vote_token_address: matches[3].to_string(),
-token_address: proposal_token.to_string(),
-}
-}
-
 
 
 
@@ -205,7 +203,7 @@ fn fund_approved_projects(archdao: &ArchDAOComponent, account: &Account,
 
     println!("fund_approved_projects START");  
 
-run_command(Command::new("resim")
+    run_command(Command::new("resim")
          .arg("run")
          .arg("rtm/archdao/fund_approved_project.rtm")
          .env("component", &archdao.address)
@@ -238,7 +236,7 @@ fn instantiate_proposal_mock(account: &Account, package_addr: &str,
         .env("funding_token", funding_token)
         .env("admin_badge", admin_badge));
 
-        println!("Output from Mock instantiate {} " , output);
+        //println!("Output from Mock instantiate {} " , output);
         lazy_static! {
         static ref RE_TUPLE: Regex = Regex::new(concat!(
         r#"Instruction Outputs:\n\W*"#,
@@ -282,15 +280,15 @@ fn add_proposal(component: &ArchDAOComponent, account: &Account,
 }
 
 /// Reads the list of current proposals, via
-/// rtm/archdao/read_proposal_for_approval.rtm
+/// rtm/archdao/vote_proposal.rtm
 fn vote_proposal(component: &ArchDAOComponent,proposal_project: &str, account: &Account, amount: &str, token: Option<&str>)
                             -> HashMap<String, String> {
-    println!("Vote proposal, amout put to vote: {}", amount);  
-    println!("Vote proposal, ArchDAO address: {}", component.address);
-    println!("Vote proposal, Proposal Project Address: {}", proposal_project);
-    println!("Vote proposal, Token Resource Address: {:?}", token);
+    //println!("Vote proposal, amout put to vote: {}", amount);  
+    //println!("Vote proposal, ArchDAO address: {}", component.address);
+    //println!("Vote proposal, Proposal Project Address: {}", proposal_project);
+    //println!("Vote proposal, Token Resource Address: {:?}", token);
 
-    let output = run_command(Command::new("resim")
+    run_command(Command::new("resim")
                              .arg("run")
                              .arg("rtm/archdao/vote_proposal.rtm")
                              .env("component", &component.address)
@@ -299,14 +297,10 @@ fn vote_proposal(component: &ArchDAOComponent,proposal_project: &str, account: &
                              .env("account", &account.address)
                              .env("token", if token.is_some() { token.unwrap() } else { &component.token_address })
                              );
-
-    println!("Add vote: {}", output);   
-    
     let proposals: HashMap<String, String> = HashMap::new();
     
     proposals
 }
-
 
 /// Reads the list of current proposal, via
 /// rtm/archdao/read_proposal_for_approval.rtm
@@ -318,8 +312,7 @@ fn read_proposal_for_approval(component: &ArchDAOComponent, account: &Account)
                              .env("account", &account.address)
                              .env("component", &component.address));
 
-    println!("Proposal for approval: {}", output);                             
-
+    //println!("Proposal for approval: {}", output);                             
     lazy_static! {
         static ref RE_MAP: Regex = Regex::new(concat!(
             r#"Instruction Outputs:\n\W*"#,
@@ -337,8 +330,8 @@ fn read_proposal_for_approval(component: &ArchDAOComponent, account: &Account)
     let hashmap = RE_MAP.captures(&output).expect(
         "Failed to parse read_proposal_for_approval")[1].to_string();
     let elements: Vec<&str> = RE_SPLIT.split(&hashmap).collect();
-    println!("re map {}" , hashmap );
-    println!("elements {:?}" , elements );
+    //println!("re map {}" , hashmap );
+    //println!("elements {:?}" , elements );
     //to be checked in scrypto 0.6, not working anymore
     let proposals: HashMap<String, String> = HashMap::new();
     // let mut key: Option<String> = None;
@@ -367,19 +360,15 @@ fn read_proposal_for_approval(component: &ArchDAOComponent, account: &Account)
 /// rtm/archdao/list_proposal.rtm
 fn list_proposal(component: &ArchDAOComponent, account: &Account)
                             -> HashMap<String, String> {
-    println!("list_proposal");
-
-    let output = run_command(Command::new("resim")
+    //println!("list_proposal");
+    run_command(Command::new("resim")
                              .arg("run")
                              .arg("rtm/archdao/list_proposal.rtm")
                              .env("account", &account.address)
                              .env("component", &component.address)
                              );
-
-    println!("list_proposal result : {}", output);   
-    
-    let proposals: HashMap<String, String> = HashMap::new();
-    
+    //println!("list_proposal result : {}", output);   
+    let proposals: HashMap<String, String> = HashMap::new();    
     proposals
 }
 
@@ -387,23 +376,17 @@ fn list_proposal(component: &ArchDAOComponent, account: &Account)
 /// rtm/archdao/approve_proposal.rtm
 fn approve_proposal(component: &ArchDAOComponent, account: &Account)
                             -> HashMap<String, String> {
-    println!("approve_proposal");
-
-    let output = run_command(Command::new("resim")
+    run_command(Command::new("resim")
                              .arg("run")
                              .arg("rtm/archdao/approve_proposal.rtm")
                              .env("account", &account.address)
                              .env("admin_badge", &component.admin_address)
                              .env("component", &component.address)
                              );
-
-    println!("approve_proposal result : {}", output);   
-    
-    let proposals: HashMap<String, String> = HashMap::new();
-    
+    //println!("approve_proposal result : {}", output);   
+    let proposals: HashMap<String, String> = HashMap::new();    
     proposals
 }
-
 
 /// Changes the default account by calling "resim set-default-account ..."
 fn set_default_account(account: &Account) {
@@ -419,9 +402,7 @@ fn get_balance(account: &Account, resource_addr: &str) -> String {
     let output = run_command(Command::new("resim")
                              .arg("show")
                              .arg(&account.address));
-
-    println!("Account balance: \n {}", output);
-                             
+    //println!("Account balance: \n {}", output);                        
     let regexp = r#".─ \{ amount: ([\d.]*), resource address: "#.to_string() + resource_addr + ",";
     let re_balance: Regex = Regex::new(&regexp).unwrap();
 
@@ -434,7 +415,7 @@ fn get_component(account: &ArchDAOComponent, resource_addr: &str) -> String {
     let output = run_command(Command::new("resim")
                              .arg("show")
                              .arg(&account.address));
-    println!("ArchDAO  balance: \n {}", output);
+    //println!("ArchDAO  balance: \n {}", output);
     let regexp = r#".─ \{ amount: ([\d.]*), resource address: "#.to_string() + resource_addr + ",";
     let re_balance: Regex = Regex::new(&regexp).unwrap();
 
@@ -455,29 +436,6 @@ fn get_proposal(account: &str, resource_addr: &str) -> String {
     
 }
 
-/// Given a string of the form "None" or "Some(string)" returns either
-/// a None or a Some(string)
-fn _maybe_some(input: &str) -> Option<String> {
-    if input == "None" {
-        return None;
-    }
-    lazy_static! {
-        static ref RE_OPTION: Regex = Regex::new(r#"Some\((.*)\)"#).unwrap();
-    }
-    Some(RE_OPTION.captures(&input).expect("Invalid string-form Option")[1].to_string())
-}
-
-/// Given a u64 of the form "None" or "Some(Xu64)" returns either
-/// a None or a Some(X)
-fn _maybe_some_u64(input: &str) -> Option<u64> {
-    if input == "None" {
-        return None;
-    }
-    lazy_static! {
-        static ref RE_OPTION: Regex = Regex::new(r#"Some\((.*)u64\)"#).unwrap();
-    }
-    Some(RE_OPTION.captures(&input).expect("Invalid string-form Option")[1].parse().unwrap())
-}
     
 /// Converts an Option<&str> where the str is a plain string into a
 /// string that can be used inside a transaction manifest. For example,
@@ -607,10 +565,11 @@ fn test_proposal_management() {
                                         None, // mint badge name
                                         None);// proposal control badge name
 
-    println!("archdao: {}", archdao.address);
+    println!("archdao address: {}", archdao.address);
     println!("vote token resource address: {}", vote_token);
     let vote_token = &archdao.vote_token_address;
     println!("vote token resource address minted: {}", vote_token);
+    println!(" ---- ");       
 
     // The Admin are providing treasury funds for our mocks
     let admin1 = create_account();
@@ -619,22 +578,27 @@ fn test_proposal_management() {
     //get control badge
     let proposal_control_address = read_proposal_control_badge_address(&archdao, &admin1);
     println!("proposal_control_address: {} ", proposal_control_address);
+    println!(" ---- ");       
+
     println!("Let's now create some proposal project! ");
+    println!(" ---- ");       
     //Let's propose a project
-    let text_proposal: String = "Proposed something that could be used to teach Scrypto".to_string();
+    let text_proposal: String = "Propose something that could be used to teach Scrypto".to_string();
     let mock1 = instantiate_proposal_mock(&admin1, &package_addr,&vote_token,RADIX_TOKEN,                                                    
                                                  &text_proposal, // text proposal
                                                  "900", // treasury
                                                  &proposal_control_address);
     println!("mock1: {} ", mock1);
+    println!(" ---- ");       
 
     let admin2 = create_account();
     set_default_account(&admin2);
     let mock2 = instantiate_proposal_mock(&admin2, &package_addr,&vote_token,RADIX_TOKEN,
-        "Proposed something that could be used to teach Rust", // text proposal
+        "Propose something that could be used to teach Rust", // text proposal
         "900", // treasury
         &proposal_control_address);
     println!("mock2: {} ", mock2);
+    println!(" ---- ");       
 
     let admin3 = create_account();
     set_default_account(&admin3);
@@ -643,6 +607,7 @@ fn test_proposal_management() {
         "900", // treasury
         &proposal_control_address);
     println!("mock3: {} ", mock3);        
+    println!(" ---- ");       
         
     let admin4 = create_account();
     set_default_account(&admin4);
@@ -651,6 +616,7 @@ fn test_proposal_management() {
         "900", // treasury
         &proposal_control_address);
     println!("mock4: {} ", mock4);        
+    println!(" ---- ");       
 
     let admin5 = create_account();
     set_default_account(&admin5);
@@ -659,6 +625,7 @@ fn test_proposal_management() {
         "900", // treasury
         &proposal_control_address);
     println!("mock5: {} ", mock5);        
+    println!(" ---- ");       
 
     set_default_account(&admin_user);
 
@@ -681,8 +648,16 @@ fn test_proposal_management() {
     println!("register for voting ");        
     register(&archdao, &user1, "500", Some(RADIX_TOKEN));
 
+    let  user1_balance = get_balance(&user1, RADIX_TOKEN);
+    println!("Balance of current user1 {}", user1_balance);   
+    println!(" ---- ");       
+
     //let's vote
     vote_proposal(&archdao, &mock5, &user1, "10", Some(&archdao.vote_token_address));
+
+    //move epoch to lool at vote values
+    set_current_epoch(40);
+
     vote_proposal(&archdao, &mock4, &user1, "20", Some(&archdao.vote_token_address));
     vote_proposal(&archdao, &mock3, &user1, "50", Some(&archdao.vote_token_address));
     vote_proposal(&archdao, &mock2, &user1, "15", Some(&archdao.vote_token_address));
@@ -690,11 +665,13 @@ fn test_proposal_management() {
 
     let mut balance = get_balance(&admin_user, RADIX_TOKEN);
     println!("Balance of current admin user {}", balance);   
+    println!(" ---- ");       
 
     //user1 should have 100xrd less
     //he should have also some tokens from the proposal component //TO BE IMPLEMENTED
     balance = get_balance(&user1, RADIX_TOKEN);
-    println!("Balance of current user1 {}", balance);   
+    println!("Balance of current user 1 after voting {}", balance);   
+    println!(" ---- ");       
 
     //Create another user and let him vote
     let user2 = create_account();
@@ -709,7 +686,8 @@ fn test_proposal_management() {
     vote_proposal(&archdao, &mock1, &user2, "10", Some(&archdao.vote_token_address));
 
     balance = get_balance(&user2, RADIX_TOKEN);
-    println!("Balance of current user 2 {}", balance);   
+    println!("Balance of current user 2 after voting {}", balance);   
+    println!(" ---- ");       
 
     //Create another user and let him vote
     let user3 = create_account();
@@ -724,7 +702,8 @@ fn test_proposal_management() {
     vote_proposal(&archdao, &mock1, &user3, "10", Some(&archdao.vote_token_address));
 
     balance = get_balance(&user3, RADIX_TOKEN);
-    println!("Balance of current user 3 {}", balance);   
+    println!("Balance of current user 3 after voting {}", balance);   
+    println!(" ---- ");       
 
     //move epoch to lool at vote values
     set_current_epoch(90);
@@ -733,6 +712,7 @@ fn test_proposal_management() {
     list_proposal(&archdao, &user3);
 
     println!("Balance of Proposal Project ");   
+    println!(" ---- ");       
     get_proposal(&mock5, RADIX_TOKEN);
     get_proposal(&mock4, RADIX_TOKEN);
     get_proposal(&mock3, RADIX_TOKEN);
@@ -748,12 +728,9 @@ fn test_proposal_management() {
     //fund the approval process
     fund_approved_projects(&archdao, &admin_user, "500", None);
     
+    println!(" ---- ");       
     balance = get_component(&archdao, RADIX_TOKEN);
-    println!("Balance of ArchDAO before approval {} " , balance);       
-    balance = get_proposal(&mock1, RADIX_TOKEN);    
-    println!("Balance of Proposal Project 1 before approval {}" , balance);       
-    balance = get_proposal(&mock5, RADIX_TOKEN);
-    println!("Balance of Proposal Project 5 before approval {}" , balance);  
+    println!("[ERR] Balance of ArchDAO before approval {} " , balance);       
 
     let mut balance_vote = get_proposal(&mock5, &archdao.vote_token_address);
     println!("Balance of Proposal Project 5 before approval (XRD) {}" , balance);       
@@ -763,7 +740,8 @@ fn test_proposal_management() {
     approve_proposal(&archdao, &admin_user);
 
     balance = get_component(&archdao, RADIX_TOKEN);
-    println!("Balance of ArchDAO after approval {}" , balance);   //ERROR (this is the output of the first vault)
+    println!("[ERR] Balance of ArchDAO after approval {}" , balance);   //ERROR (this is the output of the first vault)
+    println!(" ---- ");       
     
     balance_vote = get_proposal(&mock5, &archdao.vote_token_address);
     println!("Balance of Proposal Project 5 after approval (VOTE) {}" , balance_vote);           

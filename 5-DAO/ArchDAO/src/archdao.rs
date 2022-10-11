@@ -591,7 +591,6 @@ blueprint! {
 
         /// Calculate the total value of the vote, checking for how long the vote has been given
         fn sum(&self, vote: &Vote) -> Decimal {
-            info!("Start sum vote: "); 
             let mut tot = Decimal::zero();
             let diff: Decimal = Decimal::from(Runtime::current_epoch()-vote.epoch_opened); 
             if diff < dec!("100") {

@@ -34,11 +34,6 @@ CALL_METHOD
    "register"
    Bucket("fundsbucket");
 
-CALL_METHOD 
-    ComponentAddress("${account}")
-    "lock_fee"
-    Decimal("10");   
-
 DROP_ALL_PROOFS;
 CALL_METHOD
    ComponentAddress("${account}")
