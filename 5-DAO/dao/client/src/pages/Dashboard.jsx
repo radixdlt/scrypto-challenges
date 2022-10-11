@@ -10,7 +10,7 @@ const Dashboard = () => {
       <div className="border-2">
         <CreateDAO />
       </div>
-      <div className="border-2">
+      <div className="border-2 mt-8">
         <Withdraw />
       </div>
       <div className="border-2 mt-8">

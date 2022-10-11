@@ -62,7 +62,7 @@ const Withdraw = () => {
   };
 
   return (
-    <div className="border-2">
+    <div className="p-4">
       <h2>Withdraw Funds</h2>
       <p>NOTE: This is still Work In Progress</p>
       <button
