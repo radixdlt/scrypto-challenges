@@ -1,0 +1,29 @@
+# Instantiates a new Intermediary component.
+#
+# Parameters:
+#
+# $package: Address of the published package containing the
+#           Intermediary component
+#
+# $account: Address of the account running the transaction.
+#
+# $dao_addr: address of the SmorgasDao component, e.g.
+#            component_sim1...."
+#
+# $controlled_addr: address of the controlled component, e.g.
+#                   component_sim1....
+#
+# $dao_admin_badge: resource address of the  DAO's
+#                   admin badge, e.g. resource_sim1...
+CALL_METHOD 
+   ComponentAddress("${account}")
+   "lock_fee"
+   Decimal("10");
+
+CALL_FUNCTION
+   PackageAddress("${package}")
+   "Intermediary"
+   "instantiate_intermediary"
+   ComponentAddress("${dao_addr}")
+   ComponentAddress("${controlled_addr}")
+   ResourceAddress("${dao_admin_badge}");

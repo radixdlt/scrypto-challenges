@@ -1,0 +1,42 @@
+# An anoymous vote is placed.
+#
+# Parameters:
+#
+# $component: address of the SmorgasDao instance to use
+#
+# $account: address of the user account running this transaction
+#
+# $proposal: proposal id to vote on, e.g. 2284
+#
+# $vote_token: the token to vote with, e.g. resource_sim1...
+#
+# $vote_amount: the number of voting tokens to cast, e.g. 50
+#
+# $vote_for: the option to vote for, e.g. 2
+CALL_METHOD 
+   ComponentAddress("${account}")
+   "lock_fee"
+   Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount"
+   Decimal("${vote_amount}")
+   ResourceAddress("${vote_token}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("${vote_amount}")
+   ResourceAddress("${vote_token}")
+   Bucket("votes_bucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "vote_with_receipt"
+   ${proposal}u64
+   Bucket("votes_bucket")
+   ${vote_for}u64;
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");

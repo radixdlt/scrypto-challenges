@@ -1,0 +1,31 @@
+# Adds external badges to the DAO.
+#
+# Parameters:
+#
+# $component: address of the SmorgasDao instance to use
+#
+# $account: address of the user account running this transaction
+#
+# $badge_addr: resource address of the badges to add, e.g. resource_sim1...
+#
+# $badge_amount: quantity of badges to add, e.g. 1
+CALL_METHOD 
+   ComponentAddress("${account}")
+   "lock_fee"
+   Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount"
+   Decimal("${badge_amount}")
+   ResourceAddress("${badge_addr}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("${badge_amount}")
+   ResourceAddress("${badge_addr}")
+   Bucket("badge_bucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "add_external_badges"
+   Vec<Bucket>(Bucket("badge_bucket"));

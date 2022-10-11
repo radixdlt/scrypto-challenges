@@ -1,0 +1,39 @@
+# Instantiates a new SmorgasDAO.
+#
+# Parameters:
+#
+# $package: Address of the published package containing the
+#           SmorgasDao component
+#
+# $account: Address of the account running the transaction.
+#
+# $proposal_duration: Duration of proposals in epochs, e.g. 10
+#
+# $quorum: Quorum to use, e.g. Any
+#
+# $vote_token: Token to use for voting with, e.g. resource_sim1qqqq...yag
+#              (even if the XRD token isn't really recommended).
+#
+# $id_token: None to not use id tokens, or Some(ResourceAddress("..."))
+#            to use them.
+#
+# $vote_tally: The type of tally to use, e.g. Linear
+#
+# $vote_subsidy: The vote subsidy policy, e.g. NoSubsidy
+CALL_METHOD 
+   ComponentAddress("${account}")
+   "lock_fee"
+   Decimal("10");
+
+CALL_FUNCTION
+   PackageAddress("${package}")
+   "SmorgasDao"
+   "instantiate_smorgasdao"
+   ${proposal_duration}u64
+   Enum("${quorum}")
+   ResourceAddress("${vote_token}")
+   ${id_token}
+   Enum("${vote_tally}")
+   Enum("${vote_subsidy}")
+   None
+   None;
