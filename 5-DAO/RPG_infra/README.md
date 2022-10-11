@@ -4,7 +4,7 @@ Unfortunately, the .rs files associated with this submission are not actual code
 ## Radical Public Good infrastructure
 This thing consists of three components. First, a *multivault* component that accepts deposits/donations of any kind of fungible asset from anyone. Next, a *multivault_controller* component that accepts and burns 'wrapper' tokens representing proportionate ownership of of the contents of the *multivault*. The *multivault controller* returns an appropriate fraction of the *multivault* contents to the caller using a badge to authorise the withdrawal(s). Finally, the *RPG_infra* component, which instantiates the *multivault* and *multivault_controller* components, and issues tranches of 'wrapper' tokens with an owner-specified delay before the issue of each tranche.
 
-!image()
+![image](https://github.com/marktwh/scrypto-challenges/blob/main/5-DAO/RPG_infra/instantiation_and_operation.png)
 ## Usecase 1: fundraising
 An organisation wishing to raise funds invites donations of any kind of fungible asset to the *multivault* component. After the specified delay the *RPG_infra* component issues the organisation with an initial tranche of 'wrapper' tokens. The organisation then sells the 'wrapper' tokens on the open market for at least as much as the underlying value of the assets contained in the *multivault*. The organisation does not need to liquidate the multi-asset donations itself. Owners of 'wrapper' tokens can hold or trade them, or burn them in exchange for underlying assets at any time using the *multivault_controller* component.
 ### Participant motivations: donors
