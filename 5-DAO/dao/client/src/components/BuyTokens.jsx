@@ -11,7 +11,7 @@ const BuyTokens = (props) => {
   // );
   // TODO handle passing Component props
   const [component, setComponent] = useState(
-    'component_tdx_a_1qgq6augflx3els05k97ccslfyjxhtgkawtjt23s0lasskjxtyp'
+    'component_tdx_a_1qf8xcstdppjsd84d5py8zgzxnaumwlyqjw84ryjhgt7qksemdq'
   );
   // Initialize the SDK
   const sdk = Sdk();

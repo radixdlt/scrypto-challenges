@@ -9,13 +9,13 @@ import {
 
 const Withdraw = () => {
   const [account, setAccount] = useState(
-    'account_tdx_a_1qd9eafyqjh750uv7scsy474xdceh2x2cjqdccus5k0ls06kddh'
+    'account_tdx_a_1q06j4qxaqmdg7qm2vq04a9smz4nnx6x8we7xwm5fvueqd9pz2n'
   );
   const [component, setComponent] = useState(
-    'component_tdx_a_1qgq6augflx3els05k97ccslfyjxhtgkawtjt23s0lasskjxtyp'
+    'component_tdx_a_1qf8xcstdppjsd84d5py8zgzxnaumwlyqjw84ryjhgt7qksemdq'
   );
   const [founders_badge, setFounders_badge] = useState(
-    'resource_tdx_a_1qq3nnfj68j04urt997paq6hc7mf6zkmjyqu29nmua9aqxq5d23'
+    'resource_tdx_a_1qq5gqjw5930agas4es9mgqk4htj5kjj5rt5xrdhupx8sw2wnwv'
   );
 
   // Initialize the SDK
@@ -41,10 +41,8 @@ const Withdraw = () => {
   const withdrawFoundersFunds = async () => {
     let manifest = new ManifestBuilder()
       .callMethod(account, 'lock_fee', ['Decimal("100")'])
-      .createProofFromAccount(
-        account,
-        'resource_tdx_a_1qq3nnfj68j04urt997paq6hc7mf6zkmjyqu29nmua9aqxq5d23'
-      )
+      .createProofFromAccount(account, founders_badge)
+      .callMethod(component, 'withdraw_funds', ['Decimal("33")'])
       .callMethod(account, 'deposit_batch', ['Expression("ENTIRE_WORKTOP")'])
       .build()
       .toString();
