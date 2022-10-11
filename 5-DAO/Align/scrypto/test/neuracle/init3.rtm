@@ -1,0 +1,16 @@
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "lock_fee" Decimal("100");
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "create_proof" ResourceAddress("${admin_badge}");
+
+CALL_METHOD ComponentAddress("${project_component}") "withdraw" Decimal("10000");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${NAR}") Bucket("nar");
+
+CALL_METHOD ComponentAddress("${validator}") "stake" Bucket("nar");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("10") ResourceAddress("${NAR}") Bucket("nar2");
+
+CALL_METHOD ComponentAddress("${oraclecomp}") "become_new_user" Bucket("nar2");
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "deposit_batch" Expression("ENTIRE_WORKTOP");
+# CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ADMIN_ACC}") "deposit_batch";

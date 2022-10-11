@@ -1,0 +1,26 @@
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "lock_fee" Decimal("100");
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "withdraw_by_amount" Decimal("500") ResourceAddress("${XRD}");
+
+TAKE_FROM_WORKTOP ResourceAddress("${XRD}") Bucket("xrd");
+
+CALL_FUNCTION PackageAddress("${package}") "NeuraProject" "init_project" 
+    "NeuRacle" 
+    "NAR" 
+    Decimal("10000000") 
+    18u8
+    7u32
+    Tuple(Decimal("1"), Decimal("10"), Decimal("5"))
+    Decimal("100")
+    Decimal("456")
+    Decimal("10")
+    Decimal("20")
+    Decimal("10")
+    1000u64
+    15u8
+    Tuple(Decimal("1"), Decimal("3"))
+    Tuple(Decimal("5"), Decimal("10"))
+    Bucket("xrd");
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "deposit_batch" Expression("ENTIRE_WORKTOP");
+# CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ADMIN_ACC}") "deposit_batch";

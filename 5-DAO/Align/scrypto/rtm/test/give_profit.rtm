@@ -1,0 +1,7 @@
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "lock_fee" Decimal("100");
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "withdraw_by_amount" Decimal("${amount}") ResourceAddress("${stable_coin}");
+
+TAKE_FROM_WORKTOP ResourceAddress("${stable_coin}") Bucket("stablecoin");
+
+CALL_METHOD ComponentAddress("${project_lead}") "deposit" Bucket("stablecoin");
