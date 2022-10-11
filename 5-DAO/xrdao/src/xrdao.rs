@@ -152,11 +152,16 @@ blueprint! {
             
             // take fee in put tokens in fee vault
             let total_fee: Decimal = xrd_deposit.amount() * self.buy_fee; // Calculate fees
-            self.xrd_fees_collected.put(xrd_deposit.amount(total_fee)); // puts the collected fee in vault
+            let fee_collected: Bucket = xrd_deposit.take(total_fee);
+            self.xrd_fees_collected.put(fee_collected); // puts the collected fee in vault***********************
 
             // Take remainder and send back to user
+            
+            // test how much is actually in here? has fee been successfully taken?
+            info!("amount to mint is {:?}", xrd_deposit.amount()) // ***should be 99.5
+
             let xrdao_to_mint: Decimal = xrd_deposit.amount();
-            self.collected_xrd.put(xrd_deposit.amount(xrdao_to_mint)); // puts xrd in vault
+            self.collected_xrd.put(xrd_deposit); // puts xrd in vault *****************************************
 
             // Mint xrdao according to how much xrd was deposited
             let xrdao_resource_manager: &mut Resourcemanager = borrow_resource_manager!(self.xrdao_address);
@@ -308,11 +313,14 @@ blueprint! {
         }    
 
         // Buy xrdao-xrd liquidity and deposit LP tokens to vault in this component
+
+        // make sure no dangeling resources or leftovers
         fn buy_xrdao_lp(&mut self, xrd_tokens: Bucket) -> () {
             let radiswap: Radiswap = self.xrdao_radiswap_component.into(); 
             let half = xrd_tokens.take(xrd_tokens.amount()/dec!("2"));
             let (xrdao_tokens, swap_remainder) = radiswap.swap(half);
             self.collected_xrd_fees.put(swap_remainder); // put any remainder back in vault
+            //verify what resource remainder is to put in correct vault ******************************
             let (lp_tokens, lp_remainder) = radiswap.add_liquidity(xrd_tokens.empty(), xrdao_tokens);
             self.lp_token_vault.put(lp_tokens);
             self.collected_xrd_fees.put(lp_remainder); // put any remainder back in vault

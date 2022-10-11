@@ -40,7 +40,7 @@ blueprint! {
         pub fn take_tax() {
             /// take in bucket of token
             /// assert token address matches token address from component
-            /// take tax from bucket, put
+            /// take tax from bucket, put in xrd_fees_collected vault in xrdao component
             /// pass remainder back to user
             /// present admin badge to allow the portion sent back to user to be used in trade/swap/transfer
         }
