@@ -14,7 +14,7 @@ const CreateDAO = () => {
   const [component, setComponent] = useState(
     'component_tdx_a_1qgq6augflx3els05k97ccslfyjxhtgkawtjt23s0lasskjxtyp'
   );
-  const [founders_badge, setFounders_badge] = useState('');
+  // const [founders_badge, setFounders_badge] = useState('');
 
   // form fields
   const [name, setName] = useState('');
@@ -46,7 +46,8 @@ const CreateDAO = () => {
     // create Transaction Manifest to instantiate Component
     let packageAddress =
       'package_tdx_a_1q93v6jul0vn348eqdc0fg3p389gdum696j0uhrehesksd4f9x7';
-    // 'package_tdx_a_1qxewk0hjxuq6ewxgn0h7tygp4vwafeet2hk0fhyxavyscxactj';
+    // 'package_tdx_a_1qxgjavtfh32pvjjrqp9lpf6quy2gk2l9agyx4j2e6kcqp9efa4'; using u64 for total shares
+
     let manifest = new ManifestBuilder()
       .callMethod(account, 'lock_fee', ['Decimal("100")'])
       .callFunction(packageAddress, 'Members', 'instantiate_members', [
