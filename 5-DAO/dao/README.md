@@ -1,5 +1,8 @@
 Getting Started
 
+You can interact with a deployed version @ https://devpathdao.web.app/
+There is a known issue with account switching due to no event from test wallet.
+
 `cd client`
 `npm i`
 `npm start`
