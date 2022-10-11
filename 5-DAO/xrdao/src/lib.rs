@@ -43,12 +43,21 @@
 /// When there is ever a price difference above the fee that is being charged (.5%) there will be a profitable
 /// arbitration opportunity within the pool.  Whether an arbitrage bot or a user makes it, fees are then
 /// generated from that trade and go back to buying more liquidity and rewarding each user based on reputation. 
+/// Reputation is basically earning a share of xrd market volatility combined with platform fees.
 /// 
-/// The majority of my work here is to the xrdaouser and user components.  Tokentax is a start of an attempt to 
+/// The majority of my work here is to the xrdaouser and xrdao components.  Tokentax is a start of an attempt to 
 /// design a component that a token must pass through in order to extract taxes from dex transactions.  My 
-/// understanding is this feature doesnt current work at the resource level, but hopefully it will be in the
-/// future. xrdaoproposal is mostly still copy paste from the Liquidity Dao scrypto examples.  Radiswap is instantiated
-/// to trade and provide liquidity for XRDao-XRD token.
+/// understanding is this feature doesnt current work at the resource level, but hopefully it will in the
+/// future. Radiswap is instantiated to trade and provide liquidity for XRDao-XRD token.
+/// 
+/// 
+/// XRDaoProposal is a copy paste from the Liquidity DAO scrypto examples that I am in process of modifying to fit
+/// my own purposes.  This component is for creating voting proposals that must be funded and voted on.   Vote weight is calculated by
+/// total xrdao tokens held on the platform and the curve associated with the user's Rank.  Proposals can be challenge
+/// any proposal they deem harmful to the platform by voting with reputation instead of xrdao token balance.
+/// When voting with rep, you stake your rep tokens on the correct outcome of the proposal.  Those on the losing side
+/// of the vote forfeit their tokens to the winning side.  This way the voters with the most conviction on the best 
+/// outcome will be willing to risk their earning power from the platform on the outcome.
 /// 
 /// written by Austin
 /// @aus877 on twitter
