@@ -19,7 +19,7 @@ blueprint! {
 
  impl Voting {
      // TODO implement access rules to accept founders or operators badge for auth
-   pub fn instantiate_voting(auth_badge: Proof, total_shares: u128) -> ComponentAddress {
+   pub fn instantiate_voting(_auth_badge: Proof, total_shares: u128) -> ComponentAddress {
 
      let admin_badge: Bucket = ResourceBuilder::new_fungible()
      .divisibility(DIVISIBILITY_NONE)
@@ -45,13 +45,13 @@ blueprint! {
    }
 
   //  general DAO ballot mechanism for initiatives voted on my all members 1share = 1vote
-   pub fn create_ballot(&mut self, ballot_options: HashMap<String,String>) {
+   pub fn create_ballot(&mut self, _ballot_options: HashMap<String,String>) {
      // iterate over ballot_options and create a vault/toke pair for each option
     //  ballot_options structure -> key:option_name,value:options_descritption
   }
 
 // require proof of voters badge --> include num_member_tokens for weighted votes/delegate voters
-   pub fn operators_vote(ballot_name: String, vote: String, num_votes: u32) {
+   pub fn operators_vote(_ballot_name: String, _vote: String, _num_votes: u32) {
      // general purpose voting mechanism for internal initiatives voted on by operators only
     // collect votes
     // deposit signed ballot w/num_votes * vote_token into vault with corresponding ballot_name/vote
@@ -65,7 +65,7 @@ blueprint! {
     // create vault to collect votes
     }
 
-   pub fn tally_votes(ballot_id: ResourceAddress) {
+   pub fn tally_votes(_ballot_id: ResourceAddress) {
      // get list of vaults assaciated with ballot_id
      // count num of tokens for each ballot vault
      // evaluate ballot vaults to determine ranked results

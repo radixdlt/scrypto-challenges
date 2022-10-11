@@ -20,7 +20,7 @@ blueprint! {
      .globalize()
    }
 
-   pub fn generate_earnings_report(member_owned_tokens: Proof) {
+   pub fn generate_earnings_report(_member_owned_tokens: Proof) {
     // Calculate earnings_per_token == total_earnings / total_shares
     // calculate earnings per member --> member_owned_tokens * earning_per_token <--
     // return members(member -> {member_address: total_earnings_due})
