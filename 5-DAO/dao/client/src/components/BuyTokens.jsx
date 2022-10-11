@@ -6,9 +6,9 @@ import {
   // StatusApi,
 } from '@radixdlt/alphanet-gateway-api-v0-sdk';
 const BuyTokens = (props) => {
-  const [account, setAccount] = useState(
-    'account_tdx_a_1qd9eafyqjh750uv7scsy474xdceh2x2cjqdccus5k0ls06kddh'
-  );
+  // const [account, setAccount] = useState(
+  //   'account_tdx_a_1qd9eafyqjh750uv7scsy474xdceh2x2cjqdccus5k0ls06kddh'
+  // );
   // TODO handle passing Component props
   const [component, setComponent] = useState(
     'component_tdx_a_1qgq6augflx3els05k97ccslfyjxhtgkawtjt23s0lasskjxtyp'
@@ -16,24 +16,24 @@ const BuyTokens = (props) => {
   // Initialize the SDK
   const sdk = Sdk();
   const transactionApi = new TransactionApi();
-  useEffect(() => {
-    const getAddress = async () => {
-      const result = await sdk.request({
-        accountAddresses: {},
-      });
-      console.log('buy tokens accountAddresses: ', result.value);
-      const { accountAddresses } = result.value;
-      setAccount(accountAddresses[0].address);
-    };
-    getAddress();
-    return () => {};
-  }, [sdk]);
+  // useEffect(() => {
+  //   const getAddress = async () => {
+  //     const result = await sdk.request({
+  //       accountAddresses: {},
+  //     });
+  //     console.log('buy tokens accountAddresses: ', result.value);
+  //     const { accountAddresses } = result.value;
+  //     setAccount(accountAddresses[0].address);
+  //   };
+  //   getAddress();
+  //   return () => {};
+  // }, [sdk]);
 
   const buyMemberToken = async () => {
     let manifest = new ManifestBuilder()
-      .callMethod(account, 'lock_fee', ['Decimal("100")'])
+      .callMethod(props.account, 'lock_fee', ['Decimal("100")'])
       .withdrawFromAccountByAmount(
-        account,
+        props.account,
         33,
         'resource_tdx_a_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqegh4k9'
       )
@@ -43,7 +43,9 @@ const BuyTokens = (props) => {
         'xrd_bucket'
       )
       .callMethod(component, 'buy_member_tokens', ['Bucket("xrd_bucket")'])
-      .callMethod(account, 'deposit_batch', ['Expression("ENTIRE_WORKTOP")'])
+      .callMethod(props.account, 'deposit_batch', [
+        'Expression("ENTIRE_WORKTOP")',
+      ])
       .build()
       .toString();
 
@@ -63,6 +65,9 @@ const BuyTokens = (props) => {
   return (
     <div>
       <h2>Buy Memeber Tokens</h2>
+      <p className="p-2 border-2 m-4">
+        <strong>Connected Account: </strong> {props.account}
+      </p>
       <button
         className="mt-2 mr-5 bg-green-700 hover:bg-green-500"
         onClick={buyMemberToken}
