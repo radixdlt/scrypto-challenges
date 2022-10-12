@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs9fh54n") "lock_fee" Decimal("100");
+PUBLISH_PACKAGE Blob("9b0048e68866e3990e297e2526149af9abe50e379ed750970a1098095873c696") Blob("c294bbe49c2cc0deaaafe6f7004cba937bedf0b6e9f9f3b513b6a6bdbef05fc6");

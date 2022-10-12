@@ -1,0 +1,10 @@
+CALL_METHOD ComponentAddress("${caller}") "lock_fee" Decimal("200");
+
+CALL_FUNCTION PackageAddress("${package}") "TestProposal" "new" 
+
+    ComponentAddress("${caller}")
+    ResourceAddress("${dao_badge}")
+    ResourceAddress("${stable_coin}")
+    ComponentAddress("${dao_comp}")
+    "${name}"
+    Decimal("${fee}");

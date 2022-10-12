@@ -1,0 +1,14 @@
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "lock_fee" Decimal("100");
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "create_proof" ResourceAddress("${admin_badge}");
+
+CALL_METHOD ComponentAddress("${project_component}") "withdraw" Decimal("1000");
+
+CALL_METHOD ComponentAddress("${neuracle_component}") "create_new_validator_node" "test_node" "test" "test" Decimal("0.5");
+
+TAKE_FROM_WORKTOP ResourceAddress("${NAR}") Bucket("nar");
+
+CALL_METHOD ComponentAddress("${neuracle_component}") "create_new_data_point" Bucket("nar") "test" Struct("https://showcase.api.linx.twenty57.net/UnixTime/tounix?date=now", None, None);
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "deposit_batch" Expression("ENTIRE_WORKTOP");
+# CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ADMIN_ACC}") "deposit_batch";

@@ -1,0 +1,3 @@
+CALL_METHOD ComponentAddress("${caller}") "lock_fee" Decimal("100");
+
+CALL_METHOD ComponentAddress("${dao_comp}") "check_dividend";

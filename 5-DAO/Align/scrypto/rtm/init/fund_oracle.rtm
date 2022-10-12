@@ -1,0 +1,10 @@
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "lock_fee" Decimal("100");
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "withdraw" ResourceAddress("${NAR}");
+
+TAKE_FROM_WORKTOP ResourceAddress("${NAR}") Bucket("neura");
+
+CALL_METHOD ComponentAddress("${local_oracle}") "refund_oracle" Bucket("neura");
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "deposit_batch" Expression("ENTIRE_WORKTOP");
+# CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ADMIN_ACC}") "deposit_batch";
