@@ -1,0 +1,14 @@
+# Parameters:
+#
+# component: ComponentAddress of the published package containing the
+#            ArchDAO component.
+#
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+    
+CALL_METHOD
+   ComponentAddress("${component}")
+   "list_proposal";
+
