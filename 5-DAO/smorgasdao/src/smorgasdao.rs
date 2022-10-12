@@ -80,8 +80,8 @@
 //! complication here as the intermediary cannot call the DAO back
 //! directly (this would be an invalid re-entrant call) but instead it
 //! must store the admin token awaiting a second call from the
-//! transaction manifest which then calls the DAO. Finally, a third
-//! call must be made to return the Admin token to the DAO component.
+//! transaction manifest which then calls the DAO to do the
+//! configuration change, before returning the admin badge to the DAO.
 //!
 //! Note that the current DAO implementation only offers a single
 //! configuration method, for the `proposal_duration` option, but of
