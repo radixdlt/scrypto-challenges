@@ -36,7 +36,7 @@ The author believe that distribute of ["Conviction"](https://medium.com/giveth/c
  responsibility on decision making, directly align members' interest to the DAO's interest and raise their responsibility for the DAO.
 
 Commitment Voting mechanism is the voting model that require DAO members to commit their resource before participate in decision making. 
-Voting power of DAO member will also grow linearly with their commitment history. The longer a member committed their resource on the DAO, 
+Voting power of DAO member will also grow progressively with their commitment history. The longer a member committed their resource on the DAO, 
 the larger his/her voting power will become.
 
 This novel approach will undoubtedly become the core technique of Align DAO and create solid [Alignment of Interest](crate#alignment-of-interest).
