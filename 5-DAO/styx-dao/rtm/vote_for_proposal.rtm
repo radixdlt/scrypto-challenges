@@ -1,0 +1,37 @@
+# Votes for a proposal
+# Parameters:
+#
+# dao: address of the dao component
+#
+# account:  account voting
+#
+# voter_card: votercard resource address
+#
+# vote: Vote to cast
+#
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${account}")
+    "create_proof"
+    ResourceAddress("${voter_card}");
+
+CREATE_PROOF_FROM_AUTH_ZONE 
+    ResourceAddress("${voter_card}") 
+    Proof("VoterCard");
+  
+CALL_METHOD
+   ComponentAddress("${dao}")
+   "delegate_with_proposal"
+   ${proposal_id}u64
+   Proof("VoterCard")
+   Enum("${vote}");
+
+CALL_METHOD
+    ComponentAddress("${account}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");
