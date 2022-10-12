@@ -375,21 +375,6 @@ fn execute_proposal_executive(account: &Account, dao: &SmorgasDaoComponent,
                 .env("followup", followup_method));
 }
 
-/// Attempts to return the Admin token to the DAO
-/// rtm/smorgasdao/execute_proposal_return.rtm
-fn execute_proposal_return(account: &Account,
-                              intermediary_addr: &str,
-                              return_method: &str)
-{
-    run_command(Command::new("resim")
-                .arg("run")
-                .arg("rtm/smorgasdao/execute_proposal_return.rtm")
-                .env("account", &account.address)
-                .env("intermediary_addr", intermediary_addr)
-                .env("return_method", return_method));
-}
-
-
 /// Reads the result of a proposal via
 /// rtm/smorgasdao/read_proposal_result.rtm
 ///
@@ -595,9 +580,6 @@ fn test_smorgasdao() {
                                prop_id,
                                &intermediary_component_address,
                                "execute_dao_call");
-    execute_proposal_return(&alice,
-                            &intermediary_component_address,
-                            "return_dao_admin_token");
 
     assert_eq!(1,
                read_proposal_result(&alice, &smorgasdao, prop_id).unwrap().unwrap(),

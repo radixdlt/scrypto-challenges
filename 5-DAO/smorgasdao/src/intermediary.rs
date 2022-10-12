@@ -48,9 +48,12 @@ blueprint! {
             .instantiate().globalize()
         }
 
-        /// This is the first of three stages needed for the
+        /// This is the first of two stages needed for the
         /// SmorgasDAO to alter its own configuration with an
         /// executive proposal.
+        ///
+        /// We need two stages because the engine doesn't allow us to
+        /// do a re-entrant call back into the DAO direct.
         ///
         /// This method receives the SmorgasDAO's admin badge after an
         /// executive proposal passes, and stores it for the
@@ -86,6 +89,8 @@ blueprint! {
         /// configuration change on the originating SmorgasDao
         /// component.
         ///
+        /// The badge is then sent back to the SmorgasDao.
+        ///
         /// ---
         ///
         /// **Access control:** This method doesn't do anything useful
@@ -96,32 +101,15 @@ blueprint! {
         /// by a different component. Since users are not meant to
         /// call it directly no transaction manifest is provided.
         pub fn execute_dao_call(&mut self) {
-            self.dao_admin_badge.authorize(
+            let badge = self.dao_admin_badge.take_all();
+            badge.authorize(
                 ||
                     borrow_component!(self.dao_component).call::<()>(
                         "set_proposal_duration",
                         args!(100u64)));
-        }
-
-        /// This is the third stage of effecting a configuration
-        /// change of the SmorgasDAO.
-        ///
-        /// This method return the Admin badge we stored here back to
-        /// the DAO.
-        ///
-        /// ---
-        ///
-        /// **Access control:** This method doesn't do anything useful
-        /// unless it's called with the DAO's admin badge in
-        /// `badges[0]`
-        ///
-        /// **Transaction manifest:** This method is only ever called
-        /// by a different component. Since users are not meant to
-        /// call it directly no transaction manifest is provided.
-        pub fn return_dao_admin_token(&mut self) {
             borrow_component!(self.dao_component).call::<()>(
                 "return_internal_badge",
-                args!(self.dao_admin_badge.take_all()));
+                args!(badge));
         }
 
         /// This method relays a call from a SmorgasDAO executive
