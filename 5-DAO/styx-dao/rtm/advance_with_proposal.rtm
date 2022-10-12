@@ -1,0 +1,28 @@
+# Try to make a proposal advance to its next phase
+#
+# Parameters:
+#
+# dao: address of the dao component
+#
+# account: address of the user account that will lock tokens 
+#  
+# proposal_id: id of the proposal to try to make advance
+#
+
+
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_METHOD
+   ComponentAddress("${dao}")
+   "advance_with_proposal"
+   Decimal("${proposal_id}");
+
+CALL_METHOD
+    ComponentAddress("${account}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");
+

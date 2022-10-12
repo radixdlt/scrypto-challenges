@@ -1,0 +1,33 @@
+# Emits a certain amount of DAO tokens
+#
+# Parameters:
+#
+# dao: address of the dao component
+#
+# account: address of the user account that has the external admin badge
+#          and will mint a certain amount of tokens in the dao
+#  
+# amount: number of supply to be emitted
+#
+# admin_badge : address of the external_admin_badge
+#
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "lock_fee" 
+    Decimal("100");
+    
+CALL_METHOD
+    ComponentAddress("${account}")
+    "create_proof"
+    ResourceAddress("${admin_badge}");
+  
+CALL_METHOD
+   ComponentAddress("${dao}")
+   "emit"
+   Decimal("${amount}");
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");
