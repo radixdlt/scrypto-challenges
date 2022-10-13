@@ -1,0 +1,41 @@
+# Previously placed voting tokens are withdrawn.
+#
+# Parameters:
+#
+# $component: address of the SmorgasDao instance to use
+#
+# $account: address of the user account running this transaction
+#
+# $proposal: proposal id to withdraw votes from, e.g. 2284
+#
+# $receipt_nfres: the ResourceAddress of the receipt we received
+#                 when we placed the votes
+#
+# $receipt_nfid: the NonFungibleId of the receipt we received
+#                when we placed the votes
+CALL_METHOD 
+   ComponentAddress("${account}")
+   "lock_fee"
+   Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_ids"
+   Set<NonFungibleId>(NonFungibleId("${receipt_nfid}"))
+   ResourceAddress("${receipt_nfres}");
+
+TAKE_FROM_WORKTOP_BY_IDS
+   Set<NonFungibleId>(NonFungibleId("${receipt_nfid}"))
+   ResourceAddress("${receipt_nfres}")
+   Bucket("receipt_bucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "withdraw_votes_with_receipt"
+   ${proposal}u64
+   Bucket("receipt_bucket");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");

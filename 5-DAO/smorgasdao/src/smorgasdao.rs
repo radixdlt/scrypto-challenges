@@ -684,6 +684,9 @@ blueprint! {
         /// You will be returned a receipt NFT which you will need
         /// later to recover your voting tokens.
         ///
+        /// Also returns the ResourceAddress and NonFungibleId of the
+        /// receipt NFT.
+        ///
         /// ---
         ///
         /// **Access control:** If the DAO is configured to require an
@@ -695,7 +698,8 @@ blueprint! {
         #[doc = include_str!("../rtm/smorgasdao/vote_with_receipt.rtm")]
         /// ```
         pub fn vote_with_receipt(&mut self,
-                                 proposal: u64, tokens: Bucket, vote_for: usize) -> Bucket {
+                                 proposal: u64, tokens: Bucket, vote_for: usize)
+                                 -> (Bucket, ResourceAddress, NonFungibleId) {
             assert!(self.id_token.is_none(),
                     "We only accept votes with an id NFT");
 
@@ -722,11 +726,11 @@ blueprint! {
             }
 
             // Record votes
-            proposal.votes_cast.insert(receipt_nfaddr, VotesCast {
+            proposal.votes_cast.insert(receipt_nfaddr.clone(), VotesCast {
                 option: vote_for,
                 votes: Vault::with_bucket(tokens) });
 
-            receipt_nft
+            (receipt_nft, receipt_nfaddr.resource_address(), receipt_nfaddr.non_fungible_id())
         }
 
         /// Call this to pull out your votes from a proposal when you
@@ -747,8 +751,11 @@ blueprint! {
         /// **Access control:** If the DAO is configured to require an
         /// id, no one can call this method.
         ///
-        /// **Transaction manifest:** This method is not in the test
-        /// suite and does not yet have a transaction manifest.
+        /// **Transaction manifest:** 
+        /// `rtm/smorgasdao/withdraw_votes_with_receipt.rtm`
+        /// ```text
+        #[doc = include_str!("../rtm/smorgasdao/withdraw_votes_with_receipt.rtm")]
+        /// ```
         pub fn withdraw_votes_with_receipt(&mut self,
                                            proposal: u64,
                                            id: Bucket) -> Bucket {
@@ -766,7 +773,7 @@ blueprint! {
                 "This proposal does not exist");
 
             let removed_votes =
-                proposal.votes_cast.remove(&id_nfaddr);
+                proposal.votes_cast.get_mut(&id_nfaddr);
             
             // burn the temporary id NFT
             self.id_mint_badge.authorize(|| id.burn());
