@@ -361,6 +361,11 @@ pub struct Proposal {
     target_funding: Option<Decimal>,
 }
 
+fn blah() {
+    let _f: PreciseDecimal;
+    let _a = dec!("28");
+}
+
 blueprint! {
     struct SmorgasDao {
         /// This holds the XRD we use for our vote subsidies and for
@@ -782,8 +787,8 @@ blueprint! {
             removed_votes.unwrap().votes.take_all()
         }
 
-        /// Call this method to vote on a DAO that identity NFTs when
-        /// voting.
+        /// Call this method to vote on a DAO that uses identity NFTs
+        /// when voting.
         ///
         /// Provide the unique id of the proposal to vote on, a proof
         /// of your identity, the bucket of tokens you want to bind up
@@ -1135,10 +1140,13 @@ blueprint! {
             // already take tally type into account
             let mut result = vec![Decimal::ZERO; proposal.options.len()];
 
-            // We use PreciseDecimal here and further down because
-            // we're multiplying Decimals together and want to prevent
-            // overflow when we do so.
-            let mut tokens_cast = PreciseDecimal::ZERO;
+            // We should use PreciseDecimal here and further down
+            // because we're multiplying Decimals together and want to
+            // prevent overflow when we do so. We don't do so yet
+            // because Decimal and PreciseDecimal don't seem to play
+            // nice together, you get strange results when you add a
+            // Decimal to a PreciseDecimal.
+            let mut tokens_cast = Decimal::ZERO;
 
             for voter in proposal.votes_cast.values() {
                 result[voter.option] +=
@@ -1179,12 +1187,12 @@ blueprint! {
             match self.quorum {
                 Quorum::Percent(p) => {
                     let cmgr: &ResourceManager = borrow_resource_manager!(self.vote_token);
-                    let supply: PreciseDecimal = cmgr.total_supply().into();
+                    let supply: Decimal = cmgr.total_supply().into();
                     if supply.is_zero() {
                         // Avoid divide by zero
                         meets_quorum = p.is_zero();
                     } else {
-                        let attendance = PreciseDecimal::from("100") * tokens_cast / supply;
+                        let attendance = Decimal::from("100") * tokens_cast / supply;
                         meets_quorum = attendance >= p.into();
                     }
                 },

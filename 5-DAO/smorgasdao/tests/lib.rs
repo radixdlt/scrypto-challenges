@@ -511,9 +511,9 @@ fn get_balance(account: &Account, resource_addr: &str) -> String {
 //
 
 
-/// Tests the SmorgasDAO
+/// Tests basic anonymous voting
 #[test]
-fn test_smorgasdao() {
+fn test_anonymous_voting() {
     reset_sim();
 
     let alice = create_account();
@@ -523,7 +523,7 @@ fn test_smorgasdao() {
 
     let smorgasdao = instantiate_smorgasdao(&alice, &package_addr,
                                             10,
-                                            "Any",
+                                            r#""Any""#,
                                             &vote_res,
                                             None,
                                             "Linear",
@@ -602,6 +602,80 @@ fn test_smorgasdao() {
                "Alice should have her voting tokens back");
 
 
+    // Now we do an advisory proposal with a sneaky withdrawal of votes
+
+    let prop_id = create_proposal(&alice, &smorgasdao,
+                                  "Advisory",
+                                  r#""Disagree", "Agree", "Twerk""#,
+                                  "My proposal",
+                                  "I propose all of this blah blah blah (wall of text follows)",
+                                  10,
+                                  None,
+                                  None,
+                                  "",
+                                  "",
+                                  None);
+
+    let mut alice_receipts = Vec::new();
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "100",
+                          1)
+    );
+
+    let withdraw_this =
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "50",
+                          2);
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "100",
+                          0)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "51",
+                          2)
+    );
+
+    // At this point 2 stands to win but Alice withdraws some votes
+    // for it which leads to a tie between 0 and 1, which leads to a
+    // win for 0 because it's the earlier option.
+    withdraw_votes_with_receipt(&alice, &smorgasdao, prop_id, withdraw_this);
+    
+    assert_eq!("999749", get_balance(&alice, &vote_res),
+               "Cast votes should have reduced Alice's vote stash");
+    
+    set_current_epoch(11);
+
+
+    execute_proposal(&alice, &smorgasdao,
+                     prop_id);
+
+    assert_eq!(0,
+               read_proposal_result(&alice, &smorgasdao, prop_id).unwrap().unwrap(),
+               "Option 0 should win");
+
+    for receipt in alice_receipts.into_iter() {
+        withdraw_votes_with_receipt(&alice, &smorgasdao, prop_id, receipt);
+    }
+
+    assert_eq!("1000000", get_balance(&alice, &vote_res),
+               "Alice should have her voting tokens back");
+
+    
+
     // We will now do an executive vote to change the DAO's max
     // proposal duration
 
@@ -617,7 +691,7 @@ fn test_smorgasdao() {
                                   "",
                                   "Increase proposal duration",
                                   "I propose that we increase proposal duration to 100 epochs, as implemented in this call.",
-                                  10,
+                                  15,
                                   Some(&intermediary_component_address),
                                   Some("store_dao_admin_badge"),
                                   "",
@@ -657,7 +731,7 @@ fn test_smorgasdao() {
     assert_eq!("999969.9", get_balance(&alice, &vote_res),
                "Cast votes should have reduced Alice's vote stash");
 
-    set_current_epoch(11);
+    set_current_epoch(16);
 
     assert_eq!(10,
                read_proposal_duration(&alice, &smorgasdao),
@@ -698,7 +772,7 @@ fn test_smorgasdao() {
                                   "",
                                   "Count them",
                                   "I propose that we increase the count of the controlled component.",
-                                  15,
+                                  20,
                                   Some(&intermediary_component_address),
                                   Some("call_controlled"),
                                   "",
@@ -739,7 +813,7 @@ fn test_smorgasdao() {
     assert_eq!("999969.9", get_balance(&alice, &vote_res),
                "Cast votes should have reduced Alice's vote stash");
 
-    set_current_epoch(16);
+    set_current_epoch(21);
 
     assert_eq!(0,
                controlled_read_count(&alice, &controlled_comp.address),
@@ -761,5 +835,391 @@ fn test_smorgasdao() {
     }
     assert_eq!("1000000", get_balance(&alice, &vote_res),
                "Alice should have her voting tokens back");
+
+
+
+
+
+    // We will now execute an executive vote to try exert control over
+    // a protected third-party component but the vote will fail.
+
+    let prop_id = create_proposal(&alice, &smorgasdao,
+                                  "Executive",
+                                  "",
+                                  "Count them",
+                                  "I propose that we increase the count of the controlled component.",
+                                  25,
+                                  Some(&intermediary_component_address),
+                                  Some("call_controlled"),
+                                  "",
+                                  &format!(r#"Enum("ExternalFungibleBadge",ResourceAddress("{}"),Decimal("1"))"#,
+                                           controlled_comp.admin_badge.to_string()),
+                                  None);
+
+    let mut alice_receipts = Vec::new();
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "10",
+                          0));
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "5",
+                          0));
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "10",
+                          1));
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "5.1",
+                          0));
+
+    assert_eq!("999969.9", get_balance(&alice, &vote_res),
+               "Cast votes should have reduced Alice's vote stash");
+
+    set_current_epoch(26);
+
+    assert_eq!(1,
+               controlled_read_count(&alice, &controlled_comp.address),
+               "Controlled component should start with a count of 1");
+
+    execute_proposal(&alice, &smorgasdao,
+                     prop_id);
+
+    assert_eq!(0,
+               read_proposal_result(&alice, &smorgasdao, prop_id).unwrap().unwrap(),
+               "Option 0 should win");
+
+    assert_eq!(1,
+               controlled_read_count(&alice, &controlled_comp.address),
+               "Controlled component should end with a count of 1");
+
+    for receipt in alice_receipts.into_iter() {
+        withdraw_votes_with_receipt(&alice, &smorgasdao, prop_id, receipt);
+    }
+    assert_eq!("1000000", get_balance(&alice, &vote_res),
+               "Alice should have her voting tokens back");
 }
 
+
+/// Tests quorum based on percent of supply
+#[test]
+fn test_percent_quorum() {
+    reset_sim();
+
+    let alice = create_account();
+    let vote_res = new_token_fixed("Governance Tokens", "gov", "10000");
+
+    let package_addr = publish_package();
+
+    let smorgasdao = instantiate_smorgasdao(&alice, &package_addr,
+                                            10,
+                                            r#""Percent", Decimal("10")"#,
+                                            &vote_res,
+                                            None,
+                                            "Linear",
+                                            "NoSubsidy");
+
+    // Do an advisory proposal that meets quorum
+
+    let prop_id = create_proposal(&alice, &smorgasdao,
+                                  "Advisory",
+                                  r#""Disagree", "Agree", "Twerk""#,
+                                  "My proposal",
+                                  "I propose all of this blah blah blah (wall of text follows)",
+                                  5,
+                                  None,
+                                  None,
+                                  "",
+                                  "",
+                                  None);
+
+    let mut alice_receipts = Vec::new();
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "500",
+                          1)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "450",
+                          2)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "300",
+                          0)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "51",
+                          2)
+    );
+
+    assert_eq!("8699", get_balance(&alice, &vote_res),
+               "Cast votes should have reduced Alice's vote stash");
+    
+    set_current_epoch(6);
+
+
+    execute_proposal(&alice, &smorgasdao,
+                     prop_id);
+
+    assert_eq!(2,
+               read_proposal_result(&alice, &smorgasdao, prop_id).unwrap().unwrap(),
+               "Option 2 should win");
+
+    for receipt in alice_receipts.into_iter() {
+        withdraw_votes_with_receipt(&alice, &smorgasdao, prop_id, receipt);
+    }
+
+    assert_eq!("10000", get_balance(&alice, &vote_res),
+               "Alice should have her voting tokens back");
+
+
+    // Do an advisory proposal that fails quorum
+
+    let prop_id = create_proposal(&alice, &smorgasdao,
+                                  "Advisory",
+                                  r#""Disagree", "Agree", "Twerk""#,
+                                  "My proposal",
+                                  "I propose all of this blah blah blah (wall of text follows)",
+                                  10,
+                                  None,
+                                  None,
+                                  "",
+                                  "",
+                                  None);
+
+    let mut alice_receipts = Vec::new();
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "50",
+                          1)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "45",
+                          2)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "30",
+                          0)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "5.1",
+                          2)
+    );
+
+    assert_eq!("9869.9", get_balance(&alice, &vote_res),
+               "Cast votes should have reduced Alice's vote stash");
+    
+    set_current_epoch(11);
+
+    execute_proposal(&alice, &smorgasdao,
+                     prop_id);
+
+    assert!(read_proposal_result(&alice, &smorgasdao, prop_id).unwrap().is_none(),
+            "Consensus should be inconclusive");
+
+    for receipt in alice_receipts.into_iter() {
+        withdraw_votes_with_receipt(&alice, &smorgasdao, prop_id, receipt);
+    }
+
+    assert_eq!("10000", get_balance(&alice, &vote_res),
+               "Alice should have her voting tokens back");
+}
+
+
+
+/// Tests quorum based on fixed total
+#[test]
+fn test_fixed_quorum() {
+    reset_sim();
+
+    let alice = create_account();
+    let vote_res = new_token_fixed("Governance Tokens", "gov", "10000");
+
+    let package_addr = publish_package();
+
+    let smorgasdao = instantiate_smorgasdao(&alice, &package_addr,
+                                            10,
+                                            r#""Fixed", Decimal("1000")"#,
+                                            &vote_res,
+                                            None,
+                                            "Linear",
+                                            "NoSubsidy");
+
+    // Do an advisory proposal that meets quorum
+
+    let prop_id = create_proposal(&alice, &smorgasdao,
+                                  "Advisory",
+                                  r#""Disagree", "Agree", "Twerk""#,
+                                  "My proposal",
+                                  "I propose all of this blah blah blah (wall of text follows)",
+                                  5,
+                                  None,
+                                  None,
+                                  "",
+                                  "",
+                                  None);
+
+    let mut alice_receipts = Vec::new();
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "500",
+                          1)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "450",
+                          2)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "300",
+                          0)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "51",
+                          2)
+    );
+
+    assert_eq!("8699", get_balance(&alice, &vote_res),
+               "Cast votes should have reduced Alice's vote stash");
+    
+    set_current_epoch(6);
+
+
+    execute_proposal(&alice, &smorgasdao,
+                     prop_id);
+
+    assert_eq!(2,
+               read_proposal_result(&alice, &smorgasdao, prop_id).unwrap().unwrap(),
+               "Option 2 should win");
+
+    for receipt in alice_receipts.into_iter() {
+        withdraw_votes_with_receipt(&alice, &smorgasdao, prop_id, receipt);
+    }
+
+    assert_eq!("10000", get_balance(&alice, &vote_res),
+               "Alice should have her voting tokens back");
+
+
+    // Do an advisory proposal that fails quorum
+
+    let prop_id = create_proposal(&alice, &smorgasdao,
+                                  "Advisory",
+                                  r#""Disagree", "Agree", "Twerk""#,
+                                  "My proposal",
+                                  "I propose all of this blah blah blah (wall of text follows)",
+                                  10,
+                                  None,
+                                  None,
+                                  "",
+                                  "",
+                                  None);
+
+    let mut alice_receipts = Vec::new();
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "50",
+                          1)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "45",
+                          2)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "30",
+                          0)
+    );
+
+    alice_receipts.push(
+        vote_with_receipt(&alice, &smorgasdao,
+                          prop_id,
+                          &vote_res,
+                          "5.1",
+                          2)
+    );
+
+    assert_eq!("9869.9", get_balance(&alice, &vote_res),
+               "Cast votes should have reduced Alice's vote stash");
+    
+    set_current_epoch(11);
+
+    execute_proposal(&alice, &smorgasdao,
+                     prop_id);
+
+    assert!(read_proposal_result(&alice, &smorgasdao, prop_id).unwrap().is_none(),
+            "Consensus should be inconclusive");
+
+    for receipt in alice_receipts.into_iter() {
+        withdraw_votes_with_receipt(&alice, &smorgasdao, prop_id, receipt);
+    }
+
+    assert_eq!("10000", get_balance(&alice, &vote_res),
+               "Alice should have her voting tokens back");
+}
