@@ -124,7 +124,7 @@ blueprint! {
             }
          
             let escrow_obligations:Bucket=ResourceBuilder::new_non_fungible()
-                .metadata("name","escrow obligtion")
+                .metadata("name","Escrow Obligation")
                 .metadata("symbol", "ESCROW")
                 .metadata("description", "This resource describes the obligation of the two parties involved in the exchange.")
                 .metadata("team-member-1-github-username ", "emanuelgaspar")
