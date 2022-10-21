@@ -129,6 +129,10 @@ blueprint! {
                 .metadata("name", "Escrow Obligation")
                 .metadata("symbol", "ESCROW")
                 .metadata("description", "This resource describes the obligation of the two parties involved in the exchange.")
+                .metadata("team-member-1-github-username ", "Janos889")
+                .metadata("team-member-2-github-username ", "alexskin")
+                .metadata("team-member-3-github-username ", "htomee")
+                .metadata("team-member-4-github-username ", "foleri")
                 // .no_initial_supply();
                 .initial_supply([
                     (
