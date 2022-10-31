@@ -1,3 +1,40 @@
+//reset
+//new-account -> act
+//show $act
+
+////publish ./dependencies/oracle_placeholder --manifest rtm/publish_oracle.rtm
+////call-function $oracle_package OraclePlaceholder new --manifest rtm/instantiate_oracle.rtm
+////publish . --manifest rtm/publish_rai_lending_platform.rtm
+////call-function $package RaiTest new $oracle_component --manifest rtm/instantiate_rai_lending_platform.rtm
+////call-method $component open_position 500,resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag --manifest rtm/open_position.rtm
+////call-method $component draw 1,$position 5 --manifest rtm/draw.rtm
+////call-method $component close_position_with_payment 1,$position 5,$rai --manifest rtm/close_position_with_payment.rtm
+
+//publish ./dependencies/oracle_placeholder -> oracle_package
+//call-function $oracle_package OraclePlaceholder new -> oracle_component
+
+//publish . -> package
+//call-function $package RaiTest new $oracle_component -> component adminbadge minterbadge position rai
+//call-method $component open_position 500,resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag
+//call-method $component draw 1,$position 5
+//call-method $component close_position_with_payment 1,$position 5,$rai
+
+//reset
+//new-account -> act
+//show $act
+//
+//publish ./dependencies/oracle_placeholder -> oracle_package
+//call-function $oracle_package OraclePlaceholder new -> oracle_component
+//
+//publish . -> package
+//call-function $package RaiTest new $oracle_component -> component adminbadge minterbadge position rai
+//call-method $component open_position 500,resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag
+//call-method $component draw 1,$position 5
+//set-current-epoch 15000
+//call-method $component paydown 1,$position 5,$rai
+//call-method $component add_collateral 1,$position 20,resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag
+//call-method $component partial_withdraw_collateral 1,$position 400
+
 reset
 new-account -> act
 
@@ -6,40 +43,13 @@ call-function $oracle_package OraclePlaceholder new -> oracle_component
 
 publish . -> package
 call-function $package RaiTest new $oracle_component -> component adminbadge minterbadge position rai
-call-method $component open_position 500,030000000000000000000000000000000000000000000000000004 
-call-method $component draw 1,$position 5
-call-method $component close_position_with_payment 1,$position 5,$rai
-
-reset
-new-account -> act
-
-publish ./dependencies/oracle_placeholder -> oracle_package
-call-function $oracle_package OraclePlaceholder new -> oracle_component
-
-publish . -> package
-call-function $package RaiTest new $oracle_component -> component adminbadge minterbadge position rai
-call-method $component open_position 500,030000000000000000000000000000000000000000000000000004 
-call-method $component draw 1,$position 5
+call-method $component open_position 50,resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag 
+call-method $component draw #0a0000000000000000,$position 3
 set-current-epoch 15000
-call-method $component paydown 1,$position 5,$rai
-call-method $component add_collateral 1,$position 20,030000000000000000000000000000000000000000000000000004
-call-method $component partial_withdraw_collateral 1,$position 400
-
-reset
-new-account -> act
-
-publish ./dependencies/oracle_placeholder -> oracle_package
-call-function $oracle_package OraclePlaceholder new -> oracle_component
-
-publish . -> package
-call-function $package RaiTest new $oracle_component -> component adminbadge minterbadge position rai
-call-method $component open_position 500,030000000000000000000000000000000000000000000000000004 
-call-method $component draw #0000000000000000,$position 30
-set-current-epoch 15000
-call-method $component open_position 1000,030000000000000000000000000000000000000000000000000004 
-call-method $component draw #0000000000000001,$position 50
+call-method $component open_position 100,resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag 
+call-method $component draw #0a0100000000000000,$position 5
 call-method $oracle_component set_price .075
-call-method $component liquidate 0000000000000000 50,$rai
+call-method $component liquidate 0a0000000000000000 5,$rai
 
 reset
 new-account -> act
@@ -49,15 +59,15 @@ call-function $oracle_package OraclePlaceholder new -> oracle_component
 
 publish . -> package
 call-function $package RaiTest new $oracle_component -> component adminbadge minterbadge position rai
-call-method $component open_position 500,030000000000000000000000000000000000000000000000000004 
-call-method $component draw #0000000000000000,$position 30
+call-method $component open_position 50,resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag 
+call-method $component draw #0a0000000000000000,$position 3
 set-current-epoch 15000
-call-method $component open_position 1000,030000000000000000000000000000000000000000000000000004 
-call-method $component draw #0000000000000001,$position 50
+call-method $component open_position 100,resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag 
+call-method $component draw #0a0100000000000000,$position 5
 call-method $oracle_component set_price .01
-call-method $component liquidate 0000000000000000 50,$rai
+call-method $component liquidate 0a0000000000000000 5,$rai
 call-method $component check_protocol_solvency
-call-method $component redeem 48.46186973689145765,$rai
+call-method $component redeem 4.846186973689139873,$rai
 
 reset
 new-account -> act
@@ -67,11 +77,11 @@ call-function $oracle_package OraclePlaceholder new -> oracle_component
 
 publish . -> package
 call-function $package RaiTest new $oracle_component -> component adminbadge minterbadge position rai
-call-method $component open_position 500,030000000000000000000000000000000000000000000000000004 
-call-method $component draw #0000000000000000,$position 33
+call-method $component open_position 50,resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag 
+call-method $component draw #0a0000000000000000,$position 3.3
 set-current-epoch 15000
-call-method $component open_position 1000,030000000000000000000000000000000000000000000000000004 
-call-method $component draw #0000000000000001,$position 50
-call-method $component open_position 2500,030000000000000000000000000000000000000000000000000004 
-call-method $component draw #0000000000000002,$position 100
+call-method $component open_position 100,resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag 
+call-method $component draw #0a0100000000000000,$position 5
+call-method $component open_position 250,resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag 
+call-method $component draw #0a0200000000000000,$position 10
 call-method $component print_all_positions
