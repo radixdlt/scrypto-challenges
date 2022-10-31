@@ -1,0 +1,12 @@
+[package]
+name = "automated-token-sale-checker"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+regex = { version = "1.6.0" }
+walkdir = { version = "2.3.2" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.4.1" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.4.1" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.4.1" }
+cargo_toml = "0.11.5"

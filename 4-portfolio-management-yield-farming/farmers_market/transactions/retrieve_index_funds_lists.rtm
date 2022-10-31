@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${IDASHBOARD}") "retrieve_index_funds_lists";
+

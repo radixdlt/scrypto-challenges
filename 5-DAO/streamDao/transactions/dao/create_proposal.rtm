@@ -1,0 +1,18 @@
+CALL_METHOD
+	ComponentAddress("account_sim1q0cc3zrk04q46tlc6rcz60xltgw3jhk4rst8cc4aqhhs846fjy")
+	"lock_fee"
+	Decimal("10");
+
+CALL_METHOD
+	ComponentAddress("component_sim1q25l8w727l29ks4g6a5g3cx7znhczqtac4dx3m4xyygqnvhra7")
+	"create_proposal"
+	List<String>("DAN-COIN", "COIN-DAN", "DAN-DAN")
+  "https://streamdaotest/ipfs/a5XPj3N75k4ZUNcFLGngSj72kYZBH"
+	NonFungibleId("300710000000675d99491692569fccd56ec78f2b25ca")
+	20u64
+	50u64;
+
+CALL_METHOD
+	ComponentAddress("account_sim1q0cc3zrk04q46tlc6rcz60xltgw3jhk4rst8cc4aqhhs846fjy")
+	"deposit_batch"
+	Expression("ENTIRE_WORKTOP");

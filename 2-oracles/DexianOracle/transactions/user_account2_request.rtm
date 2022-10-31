@@ -1,0 +1,13 @@
+CALL_METHOD 
+    ComponentAddress("${user_account}")
+    "withdraw_by_amount"
+    Decimal("20")
+    ResourceAddress("030000000000000000000000000000000000000000000000000004");
+
+CALL_METHOD
+    ComponentAddress("${user_account}")
+    "create_proof"
+    ResourceAddress("${badge}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("20") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("request_fee");
+CALL_METHOD ComponentAddress("${comp}") "request_price" Bucket("request_fee") "XRD/USD" ComponentAddress("${user_account}") "deposit_batch" "xxx";

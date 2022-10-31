@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${ACCOUNT}") "withdraw_by_ids" TreeSet<NonFungibleId>(NonFungibleId("${FUND_STAKE_RECEIPT_ID}")) ResourceAddress("${FUND_STAKE_RECEIPT}");
+TAKE_FROM_WORKTOP_BY_IDS TreeSet<NonFungibleId>(NonFungibleId("${FUND_STAKE_RECEIPT_ID}")) ResourceAddress("${FUND_STAKE_RECEIPT}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${FUND}") "unstake" Bucket("bucket1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACCOUNT}") "deposit_batch";

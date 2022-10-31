@@ -1,0 +1,11 @@
+# Checks if a loan request has been cancelled
+#
+# Parameters:
+#
+# $component: address of the LoanRequestor instance to use
+#
+# $loanrequest_nfid: NonFungibleId of the loan request to query
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_is_cancelled"
+   NonFungibleId("${loanrequest_nfid}");

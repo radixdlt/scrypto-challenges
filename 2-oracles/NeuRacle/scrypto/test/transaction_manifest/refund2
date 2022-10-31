@@ -1,0 +1,6 @@
+CALL_METHOD ComponentAddress("${USER4_ACC}") "withdraw_by_amount" Decimal("1") ResourceAddress("${USER_BADGE}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1") ResourceAddress("${USER_BADGE}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${USER4_ACC}") "withdraw_by_amount" Decimal("123") ResourceAddress("${NEURA}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("123") ResourceAddress("${NEURA}") Bucket("bucket2");
+CALL_METHOD ComponentAddress("${COMP}") "refund_account" Bucket("bucket1") Bucket("bucket2");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${USER4_ACC}") "deposit_batch";

@@ -1,0 +1,17 @@
+Transaction Status: SUCCESS
+Execution Time: 26 ms
+Instructions:
+├─ CallFunction { package_address: 01b907181d4f384701b8b56ebd5c6403477af4179b363cb2bcd8e7, blueprint_name: "Trifold", function: "instantiate", args: [] }
+└─ CallMethodWithAllResources { component_address: 020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a, method: "deposit_batch" }
+Instruction Outputs:
+├─ Tuple(ComponentAddress("020e1af8698f1803a3aae57f2c95c3bbfcbce3f1eb34ac94b9cefe"), Bucket(1032u32))
+└─ ()
+Logs: 0
+New Entities: 7
+└─ Component: 020e1af8698f1803a3aae57f2c95c3bbfcbce3f1eb34ac94b9cefe
+├─ Resource: 039cca078d6212fe1f2dc8b55a460b592295309274ed14aeec13eb
+├─ Resource: 031ece787327a5efdb10c5d2f0e97db36294f8fb79afad43f8e2c1
+├─ Resource: 03fddd24e9fac88120c4ccff77e461b968a9e02059d9837c96f19f
+├─ Resource: 03a070e48232bf39bc467a62a41968b99a44fcbed2f16b316315ec
+├─ Resource: 03f3dafc0f56dbcbf4ce0d36cd1014c19ddbcd5d98cf161b3c44c3
+└─ Resource: 038036e0705e1241df112d4a8fd9b8e99887ebe231944266fa9df1

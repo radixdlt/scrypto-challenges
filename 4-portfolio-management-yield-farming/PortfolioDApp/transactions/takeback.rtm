@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${portfolio}") "take_back" Decimal("107");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account3}") "deposit_batch";

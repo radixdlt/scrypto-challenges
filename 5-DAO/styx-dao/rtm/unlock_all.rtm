@@ -1,0 +1,34 @@
+# Unlocks all tokens form a VoterCard
+#
+# Parameters:
+#
+# dao: address of the dao component
+#
+# account: address of the user account that will unlock tokens
+#
+# voter_card : VoterCard resourceaddress
+#
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${account}")
+    "create_proof"
+    ResourceAddress("${voter_card}");
+
+CREATE_PROOF_FROM_AUTH_ZONE 
+    ResourceAddress("${voter_card}") 
+    Proof("VoterCard");
+
+CALL_METHOD
+   ComponentAddress("${dao}")
+   "unlock_all"
+   Proof("VoterCard");
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");

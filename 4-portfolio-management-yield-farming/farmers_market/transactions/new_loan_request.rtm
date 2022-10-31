@@ -1,0 +1,6 @@
+CALL_METHOD ComponentAddress("${ACC_ADDRESS4}") "withdraw_by_amount" Decimal("1") ResourceAddress("${B_BADGE}");
+TAKE_FROM_WORKTOP
+    ResourceAddress("${B_BADGE}")
+    Bucket("bucket1");
+CALL_METHOD ComponentAddress("${BDASHBOARD}") "request_new_loan" Bucket("bucket1") ResourceAddress("${USD}") Decimal("1000") ResourceAddress("${XRD}") Decimal("0.50") Enum("ThreeMonth") Decimal("0.01");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS4}") "deposit_batch";

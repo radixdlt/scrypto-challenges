@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${USER1_ACC}") "withdraw_by_amount" Decimal("234") ResourceAddress("${NEURA}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("234") ResourceAddress("${NEURA}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${COMP}") "become_new_user" Bucket("bucket1") "https://api.bitfinex.com/v2/ticker/tXRDUSD";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${USER1_ACC}") "deposit_batch";

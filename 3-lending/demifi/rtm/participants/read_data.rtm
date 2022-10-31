@@ -1,0 +1,11 @@
+# Reads the NFT data of a Participant
+#
+# Parameters:
+#
+# $component: address of the Participants component to call
+#
+# $participant_nfid: NFT id of the Participent to query
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_data"
+   NonFungibleId("${participant_nfid}");

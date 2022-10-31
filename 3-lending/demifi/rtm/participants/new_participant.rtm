@@ -1,0 +1,28 @@
+# Create a new participant in the catalog
+#
+# Parameters:
+#
+# $component: address of the Participants component to call
+#
+# $account: address of the user account that will receive
+#           the participant NFT
+#
+# $name: Name of the new participant (free text, can be empty)
+#
+# $url: URL of the new participant (can be empty, otherwise should be a URL)
+#
+# $id_ref: ID reference of the new participant (syntax can vary, can be empty)
+#
+# $expect_sponsor: None for no sponsor yet, or Some(NonFungibleId("<nfid>"))
+#                  to set an expected sponsor.
+CALL_METHOD
+   ComponentAddress("${component}")
+   "new_participant"
+   "${name}"
+   "${url}"
+   "${id_ref}"
+   ${expect_sponsor};
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";

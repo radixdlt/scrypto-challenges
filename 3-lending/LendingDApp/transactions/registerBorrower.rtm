@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${component}") "register_borrower";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

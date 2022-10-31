@@ -1,0 +1,38 @@
+# Transfers some asset from one account to another one
+#
+# Parameters:
+#
+# account1: address of the user account that sends
+#
+# account2: address of the user account that receives
+#
+# amount: amount to transfer
+#
+# asset : address of the asset to transfer
+#
+
+CALL_METHOD
+    ComponentAddress("${account1}")
+    "lock_fee"
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${account1}")
+    "withdraw_by_amount"
+    Decimal("${amount}")
+    ResourceAddress("${asset}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("${amount}")
+    ResourceAddress("${asset}")
+    Bucket("Asset");
+
+CALL_METHOD
+    ComponentAddress("${account2}")
+    "deposit"
+    Bucket("Asset");
+
+CALL_METHOD
+    ComponentAddress("${account1}")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");

@@ -1,0 +1,40 @@
+# Delegates the voting power of a user for a given proposal
+#
+# Parameters:
+#
+# dao: address of the dao component
+#
+# voter_card: address of the VoterCard resource
+#
+# account: address of the member calling the function
+#  
+# delegate_to: VoterCard id of the member to whom to delegate
+#
+# proposal_id : if of the proposal for which to deldegate
+#
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${account}")
+    "create_proof"
+    ResourceAddress("${voter_card}");
+
+CREATE_PROOF_FROM_AUTH_ZONE 
+    ResourceAddress("${voter_card}") 
+    Proof("VoterCard");
+  
+CALL_METHOD
+   ComponentAddress("${dao}")
+   "delegate_with_proposal"
+   ${proposal_id}u64
+   ${delegate_to}u64
+   Proof("VoterCard");
+
+CALL_METHOD
+    ComponentAddress("${account}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");

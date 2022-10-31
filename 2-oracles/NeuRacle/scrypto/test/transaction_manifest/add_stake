@@ -1,0 +1,6 @@
+CALL_METHOD ComponentAddress("${VAL4_ACC}") "withdraw_by_amount" Decimal("65") ResourceAddress("${NEURA}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("65") ResourceAddress("${NEURA}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${VAL4_ACC}") "withdraw_by_amount" Decimal("1") ResourceAddress("${STAKER_VAL2_BADGE}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1") ResourceAddress("${STAKER_VAL2_BADGE}") Bucket("bucket2");
+CALL_METHOD ComponentAddress("${VAL2_ADDRESS}") "add_stake" Bucket("bucket1") Bucket("bucket2");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${VAL4_ACC}") "deposit_batch";

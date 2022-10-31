@@ -1,0 +1,1 @@
+CALL_METHOD ComponentAddress("${COMPONENT}") "check_liquidity" ResourceAddress("${USD}");

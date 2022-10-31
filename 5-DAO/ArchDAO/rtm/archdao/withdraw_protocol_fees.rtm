@@ -1,0 +1,34 @@
+# Withdraws all protocol fees accrued.
+#
+# Parameters:
+#
+# component: Address of the ArchDAO instance to use
+#
+# account: Account of the user performing the operation.
+#          We must be able to make a Proof of the admin badge from here.
+#
+# admin_badge: ResourceAddress of the component's admin badges
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${admin_badge}");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "withdraw_protocol_fees";
+
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");   
+
+DROP_ALL_PROOFS;
+CALL_METHOD
+   ComponentAddress("${account}")
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");   

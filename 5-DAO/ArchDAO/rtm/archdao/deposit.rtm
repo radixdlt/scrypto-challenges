@@ -1,0 +1,40 @@
+# Send tokens to the dao to get back right to vote for proposals
+#
+# Parameters:
+#
+# component: ComponentAddress of the published package containing the
+#            ArchDAO component.
+#
+# account: ComponentAddress of the user account from which funds will be taken, and vote tokens will be put.
+#
+# amount: Number of tokens to send in the DAO.
+#
+# token: ResourceAddress of token.
+#
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount"
+   Decimal("${amount}")
+   ResourceAddress("${token}");
+   
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("${amount}")
+   ResourceAddress("${token}")
+   Bucket("fundsbucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "deposit"
+   Bucket("fundsbucket")
+   ${partner};
+
+DROP_ALL_PROOFS;
+CALL_METHOD
+   ComponentAddress("${account}")
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");   

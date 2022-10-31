@@ -1,0 +1,5 @@
+CALL_METHOD ComponentAddress("${caller}") "lock_fee" Decimal("100");
+
+CALL_METHOD ComponentAddress("${caller}") "create_proof" ResourceAddress("${member_sbt}");
+
+CALL_METHOD ComponentAddress("${community_address}") "amend_tax_policy" Decimal("${new_tax}");

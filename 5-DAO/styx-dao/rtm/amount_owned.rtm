@@ -1,0 +1,27 @@
+# Gets the amount of certain asset owned by the DAO
+#
+# Parameters:
+#
+# dao: address of the dao component
+#
+# account: address of the user account that will lock tokens 
+#  
+# asset: resource address of the asset to check
+#
+#
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_METHOD
+   ComponentAddress("${dao}")
+   "amount_owned"
+   ResourceAddress("${asset}");
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");
+

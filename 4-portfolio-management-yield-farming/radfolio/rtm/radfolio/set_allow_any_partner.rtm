@@ -1,0 +1,22 @@
+# Sets or unsets the "allow any partner" flag.
+#
+# Parameters:
+#
+# component: Address of the Radfolio instance to use
+#
+# account: Account of the user performing the operation.
+#          We must be able to make a Proof of the admin badge from here.
+#
+# admin_badge: ResourceAddress of the component's admin badges
+#
+# allow: true to allow anyone, or false to only allow partners in the
+#        approved partners list.
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${admin_badge}");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "set_allow_any_partner"
+   ${allow};

@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${ACCOUNT}") "withdraw_by_amount" Decimal("${AMOUNT}") ResourceAddress("${LP_TOKEN}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("${AMOUNT}") ResourceAddress("${LP_TOKEN}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${POOL}") "remove_liquidity" Bucket("bucket1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACCOUNT}") "deposit_batch";

@@ -1,0 +1,18 @@
+# A proposal is executed.
+#
+# Parameters:
+#
+# $component: address of the SmorgasDao instance to use
+#
+# $account: address of the user account running this transaction
+#
+# $proposal: proposal id to execute, e.g. 2284
+CALL_METHOD 
+   ComponentAddress("${account}")
+   "lock_fee"
+   Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "execute_proposal"
+   ${proposal}u64;

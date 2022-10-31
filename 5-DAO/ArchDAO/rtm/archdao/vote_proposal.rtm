@@ -1,0 +1,41 @@
+# Vote for a proposal
+#
+# Parameters:
+#
+# component: ComponentAddress of the published package containing the
+#            ArchDAO component.
+#
+# account: ComponentAddress of the user account 
+#
+# amount: Number of tokens .
+#
+# token: ResourceAddress of token.
+#
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount"
+   Decimal("${amount}")
+   ResourceAddress("${token}");
+   
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("${amount}")
+   ResourceAddress("${token}")
+   Bucket("votebucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "vote_proposal"
+   ComponentAddress("${proposal_project}")
+   Bucket("votebucket")
+   ComponentAddress("${account}");
+
+DROP_ALL_PROOFS;
+CALL_METHOD
+   ComponentAddress("${account}")
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");   

@@ -1,0 +1,35 @@
+# Instantiates a new LoanAcceptor.
+#
+# Parameters:
+#
+# $package: address of the published package containing the
+#            Participants component
+#
+# $account: address of the user account that will receive
+#            the root participant NFT
+#
+# $participants_nft_addr: ResourceAddress of the Participants NFTs to use
+#
+# $requestor_admin_addr: ResourceAddress of the LoanRequestor's admin badge
+#
+# $facilitator: None for no facilitator, or Some(NonFungibleId("<nfid>"))
+#                to establish a facilitator for this acceptor.
+#
+# $facilitator_fee: The fee in basis points paid from each loan installment
+#                    to the facilitator. E.g. 10.
+#
+# $admin_badge_name: None for default name or Some("<name>")
+#                     to set a custom name for the admin badge resource
+#
+# $nft_resource_name: None for default name or Some("<name>")
+#                      to set a custom name for the Loan NFT resource
+CALL_FUNCTION
+   PackageAddress("${package}")
+   "LoanAcceptor"
+   "instantiate_loan_acceptor"
+   ResourceAddress("${participants_nft_addr}")
+   ResourceAddress("${requestor_admin_addr}")
+   ${facilitator}
+   Decimal("${facilitator_fee}")
+   ${admin_badge_name}
+   ${nft_resource_name};

@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("02a534436e42bed825afd55efb0f9bf27403f2c71c546ee47ed8df") "create_transient_token";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("021025cfda90adea21506170be47c67ec169e41dbbdd063d54d409") "deposit_batch";

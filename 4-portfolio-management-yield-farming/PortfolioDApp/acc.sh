@@ -1,0 +1,1 @@
+resim show $account

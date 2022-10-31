@@ -1,0 +1,6 @@
+CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "create_proof_by_amount" Decimal("1") ResourceAddress("${PROOF}");
+POP_FROM_AUTH_ZONE Proof("proof1");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "withdraw_by_amount" Decimal("4000") ResourceAddress("${USD}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("4000") ResourceAddress("${USD}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${COMPONENT}") "deposit_collateral" Proof("proof1") Bucket("bucket1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS1}") "deposit_batch";

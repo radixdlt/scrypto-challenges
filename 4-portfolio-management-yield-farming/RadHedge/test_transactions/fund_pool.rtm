@@ -1,0 +1,29 @@
+# --------------- Fund the pool ---------------
+
+# First: Push the pool manager badge to the worktop and then into a bucket.
+CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "withdraw_by_amount" Decimal("1") ResourceAddress("${ADMIN_BADGE}");
+TAKE_FROM_WORKTOP ResourceAddress("${ADMIN_BADGE}") Bucket("pool_manager_badge");
+
+# Generate a Proof.
+CREATE_PROOF_FROM_BUCKET Bucket("pool_manager_badge") Proof("pool_manager_proof");
+
+# Push to authorization zone
+PUSH_TO_AUTH_ZONE Proof("pool_manager_proof");
+
+
+# Fund the pool with 3 btc and 50 eth.
+CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "withdraw_by_amount" Decimal("3") ResourceAddress("${BTC}");
+TAKE_FROM_WORKTOP ResourceAddress("${BTC}") Bucket("btc_bucket");
+CALL_METHOD ComponentAddress("${POOL}") "fund_pool" Bucket("btc_bucket");
+
+CALL_METHOD ComponentAddress("${ACC_ADDRESS1}") "withdraw_by_amount" Decimal("50") ResourceAddress("${ETH}");
+TAKE_FROM_WORKTOP ResourceAddress("${ETH}") Bucket("eth_bucket");
+CALL_METHOD ComponentAddress("${POOL}") "fund_pool" Bucket("eth_bucket");
+
+# Finish up this transaction
+# DROP_PROOF Proof("pool_manager_proof");
+
+# Add this point we fail, because I forgot to initialized the Oracle prices...
+
+# Take everything from the worktop and put it into the present account.
+# CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS1}") "deposit_batch";

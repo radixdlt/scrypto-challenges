@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress(${SELLER}) "create_proof" ResourceAddress(${BADGE});
+CALL_METHOD ComponentAddress(${COMP}) "change_price" Decimal("0.5");

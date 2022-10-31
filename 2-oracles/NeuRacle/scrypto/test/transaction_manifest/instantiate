@@ -1,0 +1,8 @@
+CALL_METHOD 
+    ComponentAddress("${ADMIN_ACC}") "withdraw_by_amount" Decimal("1") ResourceAddress("${MINT_CONTROLLER_BADGE}");
+TAKE_FROM_WORKTOP 
+    ResourceAddress("${MINT_CONTROLLER_BADGE}") Bucket("Mint_controller_badge");
+CALL_FUNCTION 
+    PackageAddress("${package}") "NeuRacle" "new" ResourceAddress("${NEURA}") ResourceAddress("${ADMIN_BADGE}") Bucket("Mint_controller_badge") ResourceAddress("${CONTROLLER_BADGE}") 100u32 1u64 Decimal("1") Decimal("0.3") 500u64 Decimal("0.0015") Decimal("10");
+CALL_METHOD_WITH_ALL_RESOURCES 
+    ComponentAddress("${ADMIN_ACC}") "deposit_batch";

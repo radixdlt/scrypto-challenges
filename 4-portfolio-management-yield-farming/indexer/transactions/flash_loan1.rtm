@@ -1,0 +1,13 @@
+CALL_METHOD ComponentAddress("${INDEXER_COMPONENT}") "take_loan" Decimal("100") ResourceAddress("${XRP}");
+
+TAKE_FROM_WORKTOP ResourceAddress("${XRP}") Bucket("xrd_bucket");
+
+CALL_METHOD ComponentAddress("${INDEXER_COMPONENT}") "opportunity" Bucket("xrd_bucket");
+
+TAKE_FROM_WORKTOP ResourceAddress("${XRP}") Bucket("xrd_bucket1");
+
+TAKE_FROM_WORKTOP ResourceAddress("${FLASH_TOKEN}") Bucket("nft_bucket");
+
+CALL_METHOD ComponentAddress("${INDEXER_COMPONENT}") "repay_loan" Bucket("xrd_bucket1") Bucket("nft_bucket") ;
+
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress ("${ACC_ADDRESS1}") "deposit_batch";

@@ -1,0 +1,19 @@
+# Reads the amount of partner fees currently stored in a fund.
+#
+# Parameters:
+#
+# component: address of the Radfolio instance to use
+#
+# partners: None to return a complete list of all partner 
+#           fees (intuitively enough), or
+#           Some(HashSet<NonFungibleId>(NonFungibleId("(nfid)"), ...)))
+#           to return a list for only a few.
+#           (Note that in the latter case the returned list may be
+#           smaller than requested as zero fee entries are
+#           not inserted.)
+#           E.g.
+#           Some(HashSet<NonFungibleId>(NonFungibleId("1122...3344", NonFungibleId("5566..7788"))))
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_partner_fees_stored"
+   ${partners};

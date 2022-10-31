@@ -1,0 +1,50 @@
+# Locks some tokens on a VoterCard
+#
+# Parameters:
+#
+# dao: address of the dao component
+#
+# account: address of the user account that will lock tokens 
+#  
+# amount: number of supply that will be locked
+#
+# voter_card : address of VoterCard
+#
+# styx : the address of Styx tokens
+#
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${account}")
+    "withdraw_by_amount"
+    Decimal("${amount}")
+    ResourceAddress("${styx}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("${amount}")
+    ResourceAddress("${styx}")
+    Bucket("Styxs");
+
+CALL_METHOD
+    ComponentAddress("${account}")
+    "create_proof"
+    ResourceAddress("${voter_card}");
+
+CREATE_PROOF_FROM_AUTH_ZONE 
+    ResourceAddress("${voter_card}") 
+    Proof("VoterCard");
+  
+CALL_METHOD
+   ComponentAddress("${dao}")
+   "lock"
+   Proof("VoterCard")
+   Bucket("Styxs");
+
+CALL_METHOD
+    ComponentAddress("${account}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");

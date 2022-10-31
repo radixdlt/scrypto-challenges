@@ -1,0 +1,29 @@
+# Instantiates a new Styx DAO
+#
+# Parameters:
+#
+# package: address of the published package containing the
+#          Styx component
+#
+# account: address of the user account that will receive
+#          the admin badges
+#
+# initial_supply: amount that will be minted at the instantition
+#
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "lock_fee" 
+    Decimal("100");
+ 
+CALL_FUNCTION
+   PackageAddress("${package}")
+   "Styx"
+   "instantiate"
+   Decimal("${initial_supply}");
+
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");

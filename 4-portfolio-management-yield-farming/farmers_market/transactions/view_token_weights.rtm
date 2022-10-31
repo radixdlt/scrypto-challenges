@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${INDEX}") "view_token_weights";
+

@@ -1,0 +1,17 @@
+# A proposal is executed.
+#
+# Parameters:
+#
+# $intermediary_addr: address of the Intermediary that has the followup method
+#
+# $account: address of the user account running this transaction
+#
+# $return: method to call to return admin token to DAO
+CALL_METHOD 
+   ComponentAddress("${account}")
+   "lock_fee"
+   Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${intermediary_addr}")
+   "${return_method}";

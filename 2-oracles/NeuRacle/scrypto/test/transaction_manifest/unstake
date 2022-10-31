@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${USER2_ACC}") "withdraw_by_amount" Decimal("1") ResourceAddress("${STAKER_VAL4_BADGE}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1") ResourceAddress("${STAKER_VAL4_BADGE}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${VAL4_ADDRESS}") "unstake" Decimal("9") Bucket("bucket1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${USER2_ACC}") "deposit_batch";

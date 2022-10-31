@@ -1,0 +1,45 @@
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "lock_fee" Decimal("200");
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "withdraw_by_amount" Decimal("${stablecoin_amount}") ResourceAddress("${stable_coin}");
+
+TAKE_FROM_WORKTOP ResourceAddress("${stable_coin}") Bucket("stable_coin");
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "withdraw" ResourceAddress("${data_badge}");
+
+TAKE_FROM_WORKTOP ResourceAddress("${data_badge}") Bucket("data_badge");
+
+CALL_FUNCTION PackageAddress("${package}") "AlignProject" "init_project" 
+
+    ${initial_supply}u64
+    Decimal("${liquidity_allocation}")
+
+    # ResourceAddress("${admin_badge}")
+    Bucket("stable_coin")
+    ComponentAddress("${oraclecomp}")
+    Bucket("data_badge")
+    
+    Decimal("${swap_fee}")
+    Decimal("${withdraw_threshold}")
+    ${withdraw_period}u64
+    Decimal("${rage_withdraw_decline_multiply}")
+    ${rage_withdraw_time_limit}u64
+
+    Decimal("${dividend}")
+    Decimal("${slash_rate}")
+
+    Decimal("${initital_commitment_rate}")
+    ${minimum_retirement}u64
+    ${maximum_retirement}u64
+    Decimal("${commitment_grow_rate}")
+    Decimal("${maximum_vote_rate}")
+    ${period_length}u64
+
+    ${initial_credibility}u8
+    Decimal("${representative_requirement}")
+
+    Decimal("${proposal_requirement}")
+    Decimal("${proposal_quorum}")
+    ${proposal_minimum_delay}u64;
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "deposit_batch" Expression("ENTIRE_WORKTOP");
+# CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ADMIN_ACC}") "deposit_batch";

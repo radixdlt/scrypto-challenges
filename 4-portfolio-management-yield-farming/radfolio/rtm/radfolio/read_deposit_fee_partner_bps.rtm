@@ -1,0 +1,8 @@
+# Reads the deposit partner fee (in basis points) of a fund.
+#
+# Parameters:
+#
+# component: address of the Radfolio instance to use
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_deposit_fee_partner_bps";

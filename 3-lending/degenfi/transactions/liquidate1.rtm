@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("026918e6ad5a3afdc67cd3f7171fc8b8ebaf00f059f1961e119b52") "flash_borrow" ResourceAddress("03b1feb305c9ca25e4cc946e57c7ef86e25e187c68e98020b8846e") Decimal("1500");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "deposit_batch";

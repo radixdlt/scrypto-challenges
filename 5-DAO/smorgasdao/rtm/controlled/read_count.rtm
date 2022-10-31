@@ -1,0 +1,15 @@
+# Reads the counter in a Controlled component.
+#
+# Parameters:
+#
+# $component: address of the Controlled instance to use
+#
+# $account: address of the user account running this transaction
+CALL_METHOD 
+   ComponentAddress("${account}")
+   "lock_fee"
+   Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_count";

@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${DEBT_FUND}") "loan_request_list";
+

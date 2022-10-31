@@ -1,0 +1,54 @@
+[package]
+name = "mfa_oracle"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+testing = [] # gates on-ledger tests
+
+[dependencies]
+base64 = "0.13.0"
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.4.1" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.4.1" }
+#serde_nofloat = { package = "serde", version = "1.0.137", path = "../../../../serde" } # nofloat path of 1.0.137
+#serde_json = { version = "=1.0.81" } # pin version to the nofloat patch (this one will pull in the nofloat version of serde for only that use)
+serde_json = { path = "../../../../serde-rs/json" }
+serde = { path = "../../../../serde/serde", features = ["derive"]}
+#serde_json_nofloat = { package = "serde_json", path = "../../../../serde-rs/json" }
+#slauth = { version = "0.5.0", default_features = false, features = ["webauthn-server", "webpki"] }
+#slauth = { version = "0.6.5", default_features = false, features = ["webauthn-server", "webpki"] }
+# version which removes deps on wasm-bindgen js-sys and web-sys and requires nofloat serde which means serde_json and serde_cbor too (and maybe serde_repr and serde_bytes)
+# not sure using patch in these downstream Cargo.toml files is working as compared to explicit path which is honored
+slauth = { path = "../../../../slauth", default_features = false, features = ["webauthn-server", "webpki"] }
+# make sure we get p256 and getrandom that work with wasm
+p256 = { features = ["ecdsa-core", "sha256"] }
+getrandom = { features = ["custom"] }
+sha2 = "0.10.2"
+hex = "0.4.3"
+
+[patch.crates-io]
+#wasm-bindgen = { path = "../../../../wasm-bindgen" }
+#js-sys = { path = "../../../../wasm-bindgen/crates/js-sys" }
+#slauth = { path = "../../../../slauth" }
+#serde = { path = "../../../../serde/serde", version="1.0.137" }
+# dont patch this since it messes up scrypto, instead pull in manually and then do same in slauth and webpki maybe?
+#serde_json = { path = "../../../../serde-rs/json" }
+#serde_cbor = { path = "../../../../cbor" } # needed since the patch in slauth isn't being picked up?
+ring = { path = "../../../../ring" } # need this to avoid ring-asm conflict when pulling in our slauth
+
+[dev-dependencies]
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.4.1" }
+
+[profile.release]
+opt-level = 's'     # Optimize for size.
+lto = true          # Enable Link Time Optimization.
+codegen-units = 1   # Reduce number of codegen units to increase optimizations.
+panic = 'abort'     # Abort on panic.
+strip = "debuginfo" # Strip debug info.
+
+[profile.release.build-override]
+opt-level = 's'
+codegen-units = 1
+
+[lib]
+crate-type = ["cdylib", "lib"]

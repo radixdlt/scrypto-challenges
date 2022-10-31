@@ -1,0 +1,59 @@
+# A participant files a loan request
+#
+# Parameters:
+#
+# $component: address of the LoanRequestor instance to use
+#
+# $account: address of the user account running this transaction
+#
+# $participants_nft_addr: ResourceAddress of the Participants NFTs to use
+#
+# $borrower_nfid: NonFungibleId of the participant that requests the loan
+#
+# $request_token: ResourceAddress of the token to request
+#
+# $request_amount: How many tokens the loan is for
+#
+# $minimum_share: Minimum pledge we want to accept
+#
+# $pledge_lock_epochs: The length of the pledge lock
+#
+# $loan_filled_lock_epochs: The length of the loan filled lock
+#
+# $promise_payment_intervals: How many epochs between the installments we will pay
+#
+# $promise_installments: How many installments we promise to repay
+#
+# $promise_amount_per_installment: How much we will pay per installment
+#
+# $loan_purpose_summary: A brief blurb explaining what the loan is for
+#
+# $loan_purpose_url: Link to a more in-depth explanation of the loan
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${participants_nft_addr}");
+
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+    TreeSet<NonFungibleId>(NonFungibleId("${borrower_nfid}"))
+    ResourceAddress("${participants_nft_addr}")
+    Proof("proof");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "request_loan"
+   Proof("proof")
+   ResourceAddress("${request_token}")
+   Decimal("${request_amount}")
+   Decimal("${minimum_share}")
+   ${pledge_lock_epochs}u64
+   ${loan_filled_lock_epochs}u64
+   ${promise_payment_intervals}u64
+   ${promise_installments}u64
+   Decimal("${promise_amount_per_installment}")
+   "${loan_purpose_summary}"
+   "${loan_purpose_url}";
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";

@@ -1,0 +1,38 @@
+# Retrieves the assets that a member can take from the DAO
+#
+# Parameters:
+#
+# dao: address of the dao component
+#
+# account: address of the member that want to retrieve assets
+#
+# voter_card : address of the VoterCard resource
+#
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${account}")
+    "withdraw"
+    ResourceAddress("${voter_card}");
+
+TAKE_FROM_WORKTOP
+    ResourceAddress("${voter_card}")
+    Bucket("VoterCard");
+
+CREATE_PROOF_FROM_BUCKET 
+    Bucket("VoterCard") 
+    Proof("VoterCard Proof");
+
+CALL_METHOD
+   ComponentAddress("${dao}")
+   "claim_assets"
+   Proof("VoterCard Proof");
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");

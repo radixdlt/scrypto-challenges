@@ -1,0 +1,21 @@
+# TRANSACTION 1
+# Flash borrow in USD
+CALL_METHOD ComponentAddress("${COMPONENT}") "flash_borrow" ResourceAddress("${USD}") Decimal("1500");
+
+# TRANSACTION 2
+# Liquidate and pay the USD loan
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1500") ResourceAddress("${USD}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${COMPONENT}") "liquidate" NonFungibleId("${LOAN}") Bucket("bucket1");
+
+# TRANSACTION 3
+# Swap - Retrieve XRD collateral and swap for USD
+CALL_METHOD ComponentAddress("${ACC_ADDRESS5}") "withdraw_by_amount" Decimal("1841") ResourceAddress("030000000000000000000000000000000000000000000000000004");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1841") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("bucket2");
+CALL_METHOD ComponentAddress("${COMPONENT}") "swap" Bucket("bucket2");
+
+# TRANSACTION 4
+# Pay USD flash loan
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1500") ResourceAddress("${USD}") Bucket("bucket3");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1") ResourceAddress("${FLASH}") Bucket("bucket4");
+CALL_METHOD ComponentAddress("${COMPONENT}") "flash_repay" Bucket("bucket3") Bucket("bucket4");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS5}") "deposit_batch";

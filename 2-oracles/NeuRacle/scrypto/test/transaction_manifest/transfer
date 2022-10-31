@@ -1,0 +1,22 @@
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "withdraw_by_amount" Decimal("10000") ResourceAddress("${NEURA}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${NEURA}") Bucket("1000neura");
+CALL_METHOD ComponentAddress("${VAL1_ACC}") "deposit" Bucket("1000neura");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${NEURA}") Bucket("1000neura2");
+CALL_METHOD ComponentAddress("${VAL2_ACC}") "deposit" Bucket("1000neura2");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${NEURA}") Bucket("1000neura3");
+CALL_METHOD ComponentAddress("${VAL3_ACC}") "deposit" Bucket("1000neura3");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${NEURA}") Bucket("1000neura4");
+CALL_METHOD ComponentAddress("${VAL4_ACC}") "deposit" Bucket("1000neura4");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${NEURA}") Bucket("1000neura5");
+CALL_METHOD ComponentAddress("${VAL5_ACC}") "deposit" Bucket("1000neura5");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${NEURA}") Bucket("1000neura6");
+CALL_METHOD ComponentAddress("${USER1_ACC}") "deposit" Bucket("1000neura6");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${NEURA}") Bucket("1000neura7");
+CALL_METHOD ComponentAddress("${USER2_ACC}") "deposit" Bucket("1000neura7");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${NEURA}") Bucket("1000neura8");
+CALL_METHOD ComponentAddress("${USER3_ACC}") "deposit" Bucket("1000neura8");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${NEURA}") Bucket("1000neura9");
+CALL_METHOD ComponentAddress("${USER4_ACC}") "deposit" Bucket("1000neura9");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${NEURA}") Bucket("1000neura10");
+CALL_METHOD ComponentAddress("${USER5_ACC}") "deposit" Bucket("1000neura10");
+

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Web site created using create-snowpack-app" />
+    <link rel="stylesheet" type="text/css" href="/index.css" />
+    <title>Lending dApp</title>
+  </head>
+  <style>
+    #gradient1 {
+    height: 500px;
+    background-color: #cccccc;
+    background-image: radial-gradient(red, blue, green);
+    }     
+  </style>
+  <!--
+    body {
+      background-image: url("https://assets.website-files.com/6053f7fca5bf627283b582c2/60ba5985f394bf1012c0c83a_Comp%201%20-%20v2-poster-00001.jpg");
+      background-color: #0805b6;
+    }
+    </style>  
+  -->
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script type="module" src="/dist/index.js"></script>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+
+    <center>
+      <img src="images/logo3b.jpg" width="300" height="150"></img>
+    </center>
+
+    <center>
+    <table>
+      <tr>
+        <td width="45%">
+          <h2>1. Fetch User Account Address</h2>
+          <p><button id="fetchAccountAddress">Click me</button> to get the account address of the PTE Browser Extension user.</p>
+          <p>Account Address: <pre id="accountAddress"></pre></p>
+
+          <h2>2. Publish Package</h2>
+          <p><button id="publishPackage">Publish</button></p>
+          <p>Package Address:<pre id="packageAddress"></pre></p>
+      
+          <h2>3. Instantiate Lending dApp</h2>
+          <p><button id="instantiateComponent">Instantiate</button></p>
+          <p>Component Address:<pre id="componentAddress"></pre></p>
+          <p>Badge Address:<pre id="resourceAddress"></pre></p>
+          <p>Lending NFT:<pre id="resourceAddress1"></pre></p>
+          <p>Borrowing NFT:<pre id="resourceAddress2"></pre></p>
+          <p>LND Token:<pre id="resourceAddress3"></pre></p>
+      
+          <h2>3. Register Lender Account</h2>
+          <p><button id="register">Register Lender Account</button></p>
+          <p>Receipt:<pre id="result"></pre></p>
+      
+          <h2>4. Register Borrower Account</h2>
+          <p><button id="register_borrower">Register Borrower Account</button></p>
+          <p>Receipt:<pre id="resultBorrower"></pre></p>          
+        </td>
+        <td width="10%"></td>
+        <td width="45%">
+          <h2>5. Lend </h2>
+          <p><input type="number" id="number_to_lend"></input><button id="lendMoney">Lend XRD</button></p>
+          <p>Receipt:<br><pre id="receipt"></pre></p>
+      
+          <h2>6. Get Back</h2>
+          <p><button id="getMoney">Get Back XRD plus reward</button></p>
+          <p>Receipt:<br><pre id="getMoneyResult"></pre></p>
+          
+          <h2>7. Borrow </h2>
+          <p>
+            <!--<input type="number" id="number_to_borrow"></input>-->
+            <button id="borrowMoney">Borrow 100 XRD</button></p>
+          <p>Receipt:<br><pre id="borrowMoneyResult"></pre></p>
+          
+          <h2>8. Repay </h2>
+          <p><button id="repayMoney">Repay 100 XRD plus fee</button></p>
+          <p>Receipt:<br><pre id="repayMoneyResult"></pre></p>             
+
+          <h2>9. Check balance</h2>
+          <p><button id="checkBalance">Check</button></p>
+          <p>I have <span id="userBalanceXRD">?</span> XRD and <span id="userBalanceLND">?</span> LND, 
+            and the LendingApp has <span id="machineBalanceXRD">?</span> XRD and has <span id="machineBalanceLND">?</span> LND.</p>                
+        </td>
+      </tr>
+    </table>    
+  </center>
+
+  </body>
+</html>

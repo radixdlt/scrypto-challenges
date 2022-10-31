@@ -1,0 +1,39 @@
+# Withdrawing the user lending badge from the user account. When we call the `create_proof` methods on
+# the account component the returned proof is automatically put in our auth zone so we do not need to
+# manually manage it.
+CALL_METHOD
+    ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3")
+    "create_proof"
+    ResourceAddress("03febac2e12ed1c01b89d5c523bd1bae544e5859ccd2d4d85ee141");
+
+# The `create_proof` method returns as Proof. As soon as a proof comes back to the transaction worktop, it gets sent
+# directly to the auth zone. Therefore, in the following instruction we're creating a `Proof` out of the badge in the
+# auth zone.
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("03febac2e12ed1c01b89d5c523bd1bae544e5859ccd2d4d85ee141")
+    Proof("user_badge");
+
+# Add XRD to the worktop
+CALL_METHOD
+    ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3")
+    "withdraw_by_amount"
+    Decimal("1000")
+    ResourceAddress("030000000000000000000000000000000000000000000000000004");
+
+# Put worktop XRD into a bucket
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("750")
+    ResourceAddress("030000000000000000000000000000000000000000000000000004")
+    Bucket("deposit_1");
+
+# Call `deposit_asset` to deposit the `deposit_1` XRD into the lending pool
+CALL_METHOD
+    ComponentAddress("02a72345b48e3f4520c608dd972ae93c6cc3992c325afe7e172065")
+    "deposit_asset"
+    Bucket("deposit_1")
+    Proof("user_badge");
+
+# The remaining 250 XRD are sent back to User 1
+CALL_METHOD_WITH_ALL_RESOURCES
+    ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3")
+    "deposit_batch";
