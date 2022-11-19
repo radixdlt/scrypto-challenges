@@ -52,3 +52,9 @@ export pkg=<package-address>
 resim call-function $pkg Fond instantiate_fond  
 export comp=<component-address>
 resim call-method $comp create_campaign "wine" "red" 6.0 
+
+resim new-account
+export ac2=<account-address>
+export p2=<private-key>
+resim set-default-account $ac2 $p2
+
