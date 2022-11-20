@@ -51,10 +51,10 @@ resim call-method $comp invest_in_campaigns 7,$rdx 7.0 "0" $ac2
 resim call-method $comp invest_in_campaigns 50,$rdx 50.0 "1" $ac2
 
 # SWITCH ACCOUNTS
-resim set-default-account $ac1 $pv1
+resim set-default-account $ac2 $pv2
 
 ## BUY ITEM
-# resim call-method $comp buy_item "1" $itemVendorAccount
+resim call-method $comp buy_item "1" $itemVendorAccount
 
 
 echo "VARS"

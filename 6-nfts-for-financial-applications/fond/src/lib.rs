@@ -8,28 +8,38 @@ pub struct Campaign {
     campaign_vault_address: ResourceAddress,
     active: bool,
     fullfilled: bool,
+    ids_of_contributors: HashSet<String>,
 }
 
 #[derive(Debug, NonFungibleData)]
 pub struct Contribution {
     /// The amount of tokens which this party needs to pay to the other party.
     amount: Decimal,
-    campaign_address: ResourceAddress,
+    campaign_id: usize,
 }
 
 #[derive(Debug, NonFungibleData)]
 pub struct Todo {
-    fix:Decimal
+    fix: Decimal,
+}
+
+#[derive(Debug, NonFungibleData)]
+pub struct Inventory {
+    campaign_id: usize,
+    name: String,
+    description: String,
+    price: Decimal,
 }
 
 blueprint! {
     struct Fond {
         admin_badge: Vault,
         current_campaigns_address: ResourceAddress,
-        // current_campaigns_vault: Vault,
         inventory_vault: Vault,
-        campaign_vaults:  HashMap<ResourceAddress, Vault>,
-        campaigns: Vec<NonFungibleId>
+        campaign_vaults:  HashMap<usize, Vault>,
+        campaigns: Vec<NonFungibleId>,
+        inventory_address:ResourceAddress,
+        item_vaults: HashMap<usize, Vault>,
     }
 
 
@@ -61,16 +71,15 @@ blueprint! {
             let current_campaigns_address = ResourceBuilder::new_non_fungible()
             .metadata("name", "Current Campaigns of company")
             .mintable(rule!(require(admin_badge.resource_address())), LOCKED)
+            // should change this to allow anyone to update mutable data only.
             .updateable_non_fungible_data(rule!(allow_all), LOCKED)
             .no_initial_supply();
 
             // let current_campaigns_bucket = Bucket::new(current_campaigns_address);
 
-
             let inventory_address = ResourceBuilder::new_non_fungible()
                 .metadata("name", "Inventory of company")
                 .mintable(rule!(require(admin_badge.resource_address())), LOCKED)
-                // any one can update the data so that investment can be done
                 .updateable_non_fungible_data(rule!(require(admin_badge.resource_address())), LOCKED)
 
                 .no_initial_supply();
@@ -87,7 +96,9 @@ blueprint! {
                 current_campaigns_address:current_campaigns_address,
                 // current_campaigns_vault:  Vault::with_bucket(current_campaigns_bucket),
                 inventory_vault: Vault::with_bucket(inventory_bucket),
-                campaign_vaults: HashMap::new()
+                inventory_address:inventory_address,
+                campaign_vaults: HashMap::new(),
+                item_vaults: HashMap::new(),
             }
             .instantiate()
             .globalize()
@@ -125,7 +136,8 @@ blueprint! {
                 investment_goal: investment_goal,
                 campaign_vault_address: campaign_vault.resource_address(),
                 fullfilled:false,
-                active: true
+                active: true,
+                ids_of_contributors: HashSet::new()
             };
             let id = &NonFungibleId::random();
             let nft = campaign_resource_manager.mint_non_fungible(id, asset);
@@ -134,26 +146,20 @@ blueprint! {
             );
             ComponentAuthZone::pop().drop();
 
-            self.campaign_vaults.insert(campaign_vault.resource_address(),campaign_vault);
+            self.campaign_vaults.insert(self.campaigns.len()-1,campaign_vault);
             return nft
         }
 
-        //
-        // get campaign by nftbyID
-        // take users payment from their bucket and put into campaign vault
-        // return user an NFT which has respective amount of their investment
-        //
         pub fn invest_in_campaigns(
             &mut self,
             mut customer_account: Bucket,
             amount: Decimal,
             campaign_id:usize,
+            customer_address: String
         )-> (Bucket,Bucket) {
-
             let resource_manager = borrow_resource_manager!(self.current_campaigns_address);
             let campaign_nft_id = &self.campaigns[campaign_id];
             let campaign_nft_data: Campaign = resource_manager.get_non_fungible_data(campaign_nft_id);
-            let campaign_vault_address = campaign_nft_data.campaign_vault_address;
 
             // fix this return types issue
             if campaign_nft_data.fullfilled {
@@ -171,11 +177,11 @@ blueprint! {
                 return (nft,customer_account)
             }
 
-            let campaign_vault = self.campaign_vaults.get_mut(&campaign_vault_address).unwrap();
-            
+            let campaign_vault = self.campaign_vaults.get_mut(&campaign_id).unwrap();
+
 
             let amount_possible_to_invest = campaign_nft_data.investment_goal - campaign_vault.amount();
-                                
+
 
             let difference = amount_possible_to_invest - amount;
 
@@ -185,24 +191,39 @@ blueprint! {
             let balance = customer_account.take(amount_customer_can_invest);
             campaign_vault.put(balance);
 
-            
+            let mut new_ids_of_contributors = campaign_nft_data.ids_of_contributors.clone();
+
+            new_ids_of_contributors.insert(customer_address);
+
             if campaign_vault.amount() + amount  >= campaign_nft_data.investment_goal {
+                // set fulfilled, need to find spread operator
                 resource_manager.update_non_fungible_data(campaign_nft_id, Campaign {
                     fullfilled: true,
                     asset_name: campaign_nft_data.asset_name,
                     asset_description: campaign_nft_data.asset_description,
                     investment_goal: campaign_nft_data.investment_goal,
                     campaign_vault_address: campaign_nft_data.campaign_vault_address,
-                    active: campaign_nft_data.active
+                    active: campaign_nft_data.active,
+                    ids_of_contributors: new_ids_of_contributors
                 });
-            } 
+            }
+            else {
+                resource_manager.update_non_fungible_data(campaign_nft_id, Campaign {
+                    fullfilled: campaign_nft_data.fullfilled,
+                    asset_name: campaign_nft_data.asset_name,
+                    asset_description: campaign_nft_data.asset_description,
+                    investment_goal: campaign_nft_data.investment_goal,
+                    campaign_vault_address: campaign_nft_data.campaign_vault_address,
+                    active: campaign_nft_data.active,
+                    ids_of_contributors: new_ids_of_contributors
+                });
+            }
+
 
             let amount_data: Contribution = Contribution {
                 amount: amount,
-                campaign_address: campaign_vault_address
+                campaign_id: campaign_id
             };
-            
-
             let shareNFT = ResourceBuilder::new_non_fungible()
                 .metadata("name", "amount-paid")
                 .initial_supply([
@@ -215,6 +236,49 @@ blueprint! {
         }
 
 
+        // when a campaign is fulfilled, this function will hit the market and buy the item
+        // for now, it just means the admin mints an nft with that value embedded into it.
+        // it should also take the money out of the respective campaign vault.
+        // pub fn buy_item(& mut self, campaign_id:usize, seller_address:ComponentAddress){
+        //     let resource_manager = borrow_resource_manager!(self.current_campaigns_address);
+        //     let campaign_nft_id = &self.campaigns[campaign_id];
+        //     let campaign_nft_data: Campaign = resource_manager.get_non_fungible_data(campaign_nft_id);
+
+            
+            
+        //     ComponentAuthZone::push(self.admin_badge.create_proof());
+
+        //     let inventory_resource_manager = borrow_resource_manager!(self.inventory_address);       
+        //     let item = Inventory {
+        //         campaign_id: campaign_id,
+        //         name: campaign_nft_data.asset_name,
+        //         description: campaign_nft_data.asset_description,
+        //         price: campaign_nft_data.investment_goal
+        //     };
+
+        //     let id = &NonFungibleId::random();
+        //     let nft = inventory_resource_manager.mint_non_fungible(id, item);
+        //     let inventory_vault = Vault::with_bucket(nft);
+
+        //     ComponentAuthZone::pop().drop();
+
+        //     self.item_vaults.insert(campaign_id,inventory_vault);
+
+            // =======
+            // handle mocking payment
+            // =======
+            // let campaign_vault = self.campaign_vaults.get_mut(&campaign_id).unwrap();
+            // let payment_bucket = campaign_vault.take_all();
+            // let comp = borrow_component!(seller_address);
+
+            // comp.
+        // }
+
+
+        // This should
+        // fn sell_item(item_to_buy:String, amount:Decimal, vault_address:ResourceAddress){
+
+        // }
 
     }
 
