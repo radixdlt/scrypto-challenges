@@ -1,4 +1,6 @@
 use scrypto::prelude::*;
+use rand::Rng;
+
 
 
 #[derive(NonFungibleData)]
@@ -74,7 +76,7 @@ blueprint! {
         ///
         /// #### Returns:
         /// * `ComponentAddress` - The address of the `Fond` component just created.
-        pub fn instantiate_fond(admin_funds_bucket: Bucket) -> ComponentAddress {
+        pub fn instantiate_fond(mut admin_funds_bucket: Bucket) -> ComponentAddress {
             let admin_badge: Bucket = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Fond admin auth")
@@ -103,6 +105,7 @@ blueprint! {
                 inventory_vault: Vault::with_bucket(inventory_bucket),
                 collected_assets_funds: HashMap::new(),
                 dead_vaults: Vec::new(),
+                //FIXME: do we need to return the bucket?
                 mock_funds: Vault::with_bucket(admin_funds_bucket.take(800))
             }
             .instantiate()
@@ -260,6 +263,9 @@ blueprint! {
             //Get the non fungible data part of the shared asset badge NFT
             let mut shared_asset_badge_non_fungible_data: SharedAsset = shared_asset_badge.non_fungible().data();
             
+            let shared_asset_badge_id: NonFungibleId = shared_asset_badge.non_fungible::<SharedAsset>().id();
+
+
             // The NFT ID of the actual asset
             let original_asset_id = shared_asset_badge_non_fungible_data.original_asset_id.clone();
 
@@ -275,13 +281,23 @@ blueprint! {
             // Collect some funds greater than the original price (investment_goal)
             // For simulation purposes, the item always sells for 5-12% more of the original price (random)
             
-            let original_price = shared_asset_badge_non_fungible_data.investment_goal;
+            let original_price = shared_asset_badge_non_fungible_data.investment_goal.clone();
 
-            //TODO: calculate 5-12% of the original price and retrieve funds from mock_funds vault
-
-            //TODO:
+            //calculate 5-12% of the original price and retrieve funds from mock_funds vault
             //we then have a bucket, take the funds out of the bucket and store them in the appropriate vault
             // (collected_assets_funds vault)
+            let mut rng = rand::thread_rng();
+            let generated_percentage = rng.gen_range(5..12);
+            
+            let simulated_return = original_price + (original_price * (generated_percentage / 100));
+
+            let acquired_funds: Bucket = self.mock_funds.take(simulated_return);
+            
+
+            
+            let mut asset_funds_vault: Vault = self.collected_assets_funds.remove(&shared_asset_badge_id).unwrap();
+            asset_funds_vault.put(acquired_funds);
+            self.collected_assets_funds.insert(shared_asset_badge_id, asset_funds_vault);
 
 
             //on success:
@@ -307,20 +323,28 @@ blueprint! {
 		/// * `Bucket` - The investor's cut of the funds
         pub fn retrieve_funds(&mut self, investor_asset_ownership_badge: Bucket) -> Bucket {
             //1. Get investor's share value
-            let mut investor_ownership_badge_data: InvestorAssetOwnershipBadge 
+            let investor_ownership_badge_data: InvestorAssetOwnershipBadge 
                 = investor_asset_ownership_badge.non_fungible().data();
             let share = investor_ownership_badge_data.share;
-            let shared_asset_badge_id = investor_ownership_badge_data.shared_asset_badge_id;
+            let shared_asset_badge_id = investor_ownership_badge_data.shared_asset_badge_id.clone();
             
-            //2. Calculate and retrieve amount owed from vault with the shared asset badge ID
-            //let mut funds_vault: ResourceAddress = self.collected_assets_funds.get(&shared_asset_badge_id);
-
-            //let investor_owed_funds: Bucket = funds_vault.take(share )
-
-            //3. Burn the investor's ownership badge
+            //2. Get shared asset badge and retrieve non-fungible data
+            let shared_asset_badge: Bucket = self.current_campaigns_vault.take_non_fungible(&shared_asset_badge_id);
+            let shared_asset_badge_non_fungible_data: SharedAsset = shared_asset_badge.non_fungible().data();
             
-            //investor_owed_funds
+            let original_price: Decimal = shared_asset_badge_non_fungible_data.investment_goal.clone();
 
+            //3. Calculate and retrieve amount owed from vault with the shared asset badge ID
+
+            let investor_owed_funds: Bucket = self.collected_assets_funds
+                .get_mut(&shared_asset_badge_id)
+                .unwrap()
+                .take(share * original_price);            
+
+            //4. Burn the investor's ownership badge
+            self.admin_badge.authorize(|| investor_asset_ownership_badge.burn());
+            
+            investor_owed_funds
         }
 
     }
