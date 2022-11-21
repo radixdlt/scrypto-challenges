@@ -8,7 +8,7 @@ pub struct Asset {
 
 #[derive(NonFungibleData)]
 pub struct InvestorAssetOwnershipBadge {
-    //...
+    
     share: Decimal,
     shared_asset_badge_id: NonFungibleId
 }
@@ -21,6 +21,8 @@ pub struct SharedAsset {
 	asset_name: String,
 	asset_description: String,
 	investment_goal: Decimal,
+
+
 
     original_asset_id: NonFungibleId,
 
@@ -47,7 +49,9 @@ blueprint! {
         // V = (Vault) A vault containing all funds respective to the asset
         collected_assets_funds: HashMap<NonFungibleId, Vault>,
 
-        dead_vaults: Vec<Vault>
+        dead_vaults: Vec<Vault>,
+
+        mock_funds: Vault
     }
 
 
@@ -70,7 +74,7 @@ blueprint! {
         ///
         /// #### Returns:
         /// * `ComponentAddress` - The address of the `Fond` component just created.
-        pub fn instantiate_fond() -> ComponentAddress {
+        pub fn instantiate_fond(admin_funds_bucket: Bucket) -> ComponentAddress {
             let admin_badge: Bucket = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Fond admin auth")
@@ -98,7 +102,8 @@ blueprint! {
                 current_campaigns_vault:  Vault::with_bucket(current_campaigns_bucket),
                 inventory_vault: Vault::with_bucket(inventory_bucket),
                 collected_assets_funds: HashMap::new(),
-                dead_vaults: Vec::new()
+                dead_vaults: Vec::new(),
+                mock_funds: Vault::with_bucket(admin_funds_bucket.take(800))
             }
             .instantiate()
             .globalize()
@@ -225,8 +230,8 @@ blueprint! {
             let collected_asset_funds_bucket: Bucket = collected_asset_funds_vault.take_all();
 
 
-            //simulate payment to external source: burn collected funds for that asset
-            self.admin_badge.authorize(|| collected_asset_funds_bucket.burn());
+            //simulate payment to external source: store funds in mock funds vault
+            self.mock_funds.put(collected_asset_funds_bucket);
 
             //on success:
             shared_asset_badge_non_fungible_data.bought = true;
@@ -268,10 +273,11 @@ blueprint! {
             self.admin_badge.authorize(|| original_asset.burn());
 
             // Collect some funds greater than the original price (investment_goal)
-            // For simulation purposes, the item always sells for 110% of the original price
+            // For simulation purposes, the item always sells for 5-12% more of the original price (random)
             
-            // FIXME: how do we mint fungibles
-            // let accquired_funds: Bucket = 
+            let original_price = shared_asset_badge_non_fungible_data.investment_goal;
+
+            //TODO: calculate 5-12% of the original price and retrieve funds from mock_funds vault
 
             //TODO:
             //we then have a bucket, take the funds out of the bucket and store them in the appropriate vault
