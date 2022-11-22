@@ -36,7 +36,7 @@ resim call-method $comp create_campaign "MonaLisa" "You're an overrated piece of
 
 resim show $ac1
 
-#resim call-method $comp create_campaign "VanGogh" "I can't hear you" 50.0
+resim call-method $comp create_campaign "VanGogh" "I can't hear you" 50.0
 
 
 # SWITCH ACCOUNTS
@@ -57,13 +57,16 @@ resim call-method $comp invest_in_campaigns 100,$rdx 0
 #resim call-method $comp invest_in_campaigns 7,$rdx 7.0 "0" $ac2
 
 #INVEST IN CAMPAIGN 1
-#resim call-method $comp invest_in_campaigns 50,$rdx 50.0 "1" $ac2
+resim call-method $comp invest_in_campaigns 50,$rdx 1
 
 # SWITCH ACCOUNTS
 resim set-default-account $ac1 $pv1
 
 ## BUY ITEM
 resim call-method $comp add_to_inventory 0
+
+## SELL ITEM
+resim call-method $comp sell_item 0
 
 
 echo "VARS"

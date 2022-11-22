@@ -83,6 +83,7 @@ blueprint! {
             let inventory_address = ResourceBuilder::new_non_fungible()
                 .metadata("name", "Inventory of company")
                 .mintable(rule!(require(admin_badge.resource_address())), LOCKED)
+                .burnable(rule!(require(admin_badge.resource_address())), LOCKED)
                 .updateable_non_fungible_data(rule!(require(admin_badge.resource_address())), LOCKED)
                 .no_initial_supply();
 
@@ -193,9 +194,9 @@ blueprint! {
             let inventory_resource_manager = borrow_resource_manager!(self.inventory_vault.resource_address());
 
 
-            //FIXME: needs to be admin burnable (for simulation purposes); Asset
             self.admin_badge.authorize(|| self.inventory_vault.put(
-                    inventory_resource_manager.mint_non_fungible(&original_asset_id, Asset {})
+                    inventory_resource_manager
+                    .mint_non_fungible(&original_asset_id, Asset {})
                 )
             );
 
@@ -210,63 +211,41 @@ blueprint! {
 		}
 
      
-     /*
-		pub fn sell_item(&mut self, shared_asset_badge: Bucket) -> Bucket{
-
-            //1. get the ID of the actual asset from the shared_asset_badge
-
-            //Get the non fungible data part of the shared asset badge NFT
-            let mut shared_asset_badge_non_fungible_data: SharedAsset = shared_asset_badge.non_fungible().data();
+		pub fn sell_item(&mut self, campaign_id: usize) {
+            let mut campaign_data: &mut Campaign = self.current_campaigns.get_mut(&campaign_id).unwrap();
             
-            let shared_asset_badge_id: NonFungibleId = shared_asset_badge.non_fungible::<SharedAsset>().id();
-
-
-            // The NFT ID of the actual asset
-            let original_asset_id = shared_asset_badge_non_fungible_data.original_asset_id.clone();
-
+            // 1. extract original asset NFT ID from the campaign
+            // Retrieve the ID of the NFT of the actual asset
+            let original_asset_id: NonFungibleId = campaign_data.original_asset_id.clone();
 
             //2. With that ID retrieve actual asset from inventory.
-            let original_asset: Bucket = self.inventory_vault.take_non_fungible(&original_asset_id);
-
+           let original_asset: Bucket = self.inventory_vault.take_non_fungible(&original_asset_id);
 
             //3. Simulate selling it: 
             // Burn the asset (sell to external source)
             self.admin_badge.authorize(|| original_asset.burn());
+                
 
             // Collect some funds greater than the original price (investment_goal)
-            // For simulation purposes, the item always sells for 5-12% more of the original price (random)
+            // For simulation purposes, the item always sells for 10% more of the original price (random)
             
-            let original_price = shared_asset_badge_non_fungible_data.investment_goal.clone();
+            let original_price: Decimal = campaign_data.investment_goal.clone();
 
-            //calculate 5-12% of the original price and retrieve funds from mock_funds vault
+            //calculate 10% of the original price and retrieve funds from mock_funds vault
             //we then have a bucket, take the funds out of the bucket and store them in the appropriate vault
-            // (collected_assets_funds vault)
-            
-            //FIXME: this is not working, so I'll just change it to 10% for now
-            //let mut rng = rand::thread_rng();
-            //let generated_percentage = rng.gen_range(5..12);
-            let generated_percentage = 10;
-            
-            let simulated_return = original_price + (original_price * (generated_percentage / 100));
+            // (campaign data funds)
+            let generated_percentage: Decimal = Decimal::from("1.1");
+            let simulated_return = original_price * generated_percentage;
 
             let acquired_funds: Bucket = self.mock_funds.take(simulated_return);
-            
 
-            
-            let mut asset_funds_vault: Vault = self.collected_assets_funds.remove(&shared_asset_badge_id).unwrap();
-            asset_funds_vault.put(acquired_funds);
-            self.collected_assets_funds.insert(shared_asset_badge_id, asset_funds_vault);
-
+            campaign_data.collected_funds.put(acquired_funds);
 
             //on success:
-            shared_asset_badge_non_fungible_data.sold = true;
-
-            // Then commit our updated data to our shared_asset_badge NFT
-            self.admin_badge.authorize(|| shared_asset_badge.non_fungible().update_data(shared_asset_badge_non_fungible_data));
-
-            shared_asset_badge
+            campaign_data.sold = true;
+            
 		}
-*/
+
         
  /*
         pub fn retrieve_funds(&mut self, investor_asset_ownership_badge: Bucket) -> Bucket {
