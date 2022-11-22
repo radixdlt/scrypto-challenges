@@ -11,7 +11,7 @@ class BlockProvider extends Component {
         this.sdk = Sdk()
         this.transactionApi = new TransactionApi()
         this.stateApi = new StateApi()
-        this.componentAddress = "package_tdx_a_1qymn9kdj28k7ske8uuur5r66gu8y9aanjr4agaztuhvq7ctd9w"
+        this.componentAddress = "component_tdx_a_1qfjxhdlla3w5hp6pgyjypuwuuuga4hh8sw6gutvyuc4sxentdx"
 
         this.state = {
             address: null
