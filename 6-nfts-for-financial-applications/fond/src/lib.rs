@@ -112,6 +112,8 @@ blueprint! {
         }
 
 
+        
+
         /// The platform lists an item that it intends to buy, i.e., it mints an NFT that represents said asset
 		/// with the appropriate metadata. Then stores it in a vault containing all listed assets 
 		/// (assets that were not yet bought) and initializes the funds vault for that asset.
@@ -168,16 +170,142 @@ blueprint! {
                 original_asset_id: NonFungibleId::random()
 
             };
+
+            let new_shared_asset_badge_id = NonFungibleId::random(); 
+
             self.current_campaigns_vault.put(
                 campaign_resource_manager
-                    .mint_non_fungible(&NonFungibleId::random(), asset),
+                    .mint_non_fungible(&new_shared_asset_badge_id, asset),
             );
+
+            self.collected_assets_funds.insert(new_shared_asset_badge_id, Vault::new(RADIX_TOKEN));
+
+  
 
             ComponentAuthZone::pop().drop();
    
 
-            self.current_campaigns_vault.take_all()
+            //self.current_campaigns_vault.take_all()
         }
+
+
+
+
+
+        pub fn invest_in_campaigns(
+            &mut self,
+            /*mut customer_account: Bucket,
+            amount: Decimal,
+            campaign_id:usize,
+            customer_address: String,*/
+
+            payment: Bucket,
+            shared_asset_badge_id: NonFungibleId
+        ) ->  Bucket /*(Bucket,Bucket)*/ {
+            //let resource_manager = borrow_resource_manager!(self.current_campaigns_address);
+            //let campaign_nft_id = &self.campaigns[campaign_id];
+            //let campaign_nft_data: Campaign = resource_manager.get_non_fungible_data(campaign_nft_id);
+
+
+            //let shared_asset_badge: Bucket =  self.current_campaigns_vault.take_non_fungible(&shared_asset_badge_id);
+
+
+            self.collected_assets_funds.get_mut(&shared_asset_badge_id).unwrap().put(payment);
+
+            // fix this return types issue
+            /*if campaign_nft_data.fullfilled {
+                let x: Todo = Todo {
+                    fix: dec!(0),
+                };
+                let nft = ResourceBuilder::new_non_fungible()
+                .metadata("TODO", "fix workaround :)")
+                .initial_supply([
+                    (
+                        NonFungibleId::from_u32(1),
+                        x,
+
+                    )]);
+                return (nft,customer_account)
+            }*/
+
+            /*
+            let campaign_vault = self.campaign_vaults.get_mut(&campaign_id).unwrap();
+
+
+            let amount_possible_to_invest = campaign_nft_data.investment_goal - campaign_vault.amount();
+
+
+            let difference = amount_possible_to_invest - amount;
+
+            let amount_customer_can_invest = if difference <  dec!(0) {amount + difference } else {amount};
+
+
+            let balance = customer_account.take(amount_customer_can_invest);
+            campaign_vault.put(balance);
+
+            let mut new_ids_of_contributors = campaign_nft_data.ids_of_contributors.clone();
+
+            new_ids_of_contributors.insert(customer_address);
+
+            if campaign_vault.amount() + amount  >= campaign_nft_data.investment_goal {
+                // set fulfilled, need to find spread operator
+                resource_manager.update_non_fungible_data(campaign_nft_id, Campaign {
+                    fullfilled: true,
+                    asset_name: campaign_nft_data.asset_name,
+                    asset_description: campaign_nft_data.asset_description,
+                    investment_goal: campaign_nft_data.investment_goal,
+                    campaign_vault_address: campaign_nft_data.campaign_vault_address,
+                    active: campaign_nft_data.active,
+                    ids_of_contributors: new_ids_of_contributors
+                });
+            }
+            else {
+                resource_manager.update_non_fungible_data(campaign_nft_id, Campaign {
+                    fullfilled: campaign_nft_data.fullfilled,
+                    asset_name: campaign_nft_data.asset_name,
+                    asset_description: campaign_nft_data.asset_description,
+                    investment_goal: campaign_nft_data.investment_goal,
+                    campaign_vault_address: campaign_nft_data.campaign_vault_address,
+                    active: campaign_nft_data.active,
+                    ids_of_contributors: new_ids_of_contributors
+                });
+            }
+
+
+            let amount_data: Contribution = Contribution {
+                amount: amount,
+                campaign_id: campaign_id
+            };
+            let shareNFT = ResourceBuilder::new_non_fungible()
+                .metadata("name", "amount-paid")
+                .initial_supply([
+                    (
+                        NonFungibleId::from_u32(1),
+                        amount_data,
+
+                    )]);
+            return (shareNFT,customer_account)
+            */
+            let investor_ownership_badge_data = InvestorAssetOwnershipBadge {
+                //FIXME: this is only for testing purps (should be payment / investment_goal)
+                share: dec!(1),
+                shared_asset_badge_id: shared_asset_badge_id
+            };
+            return ResourceBuilder::new_non_fungible()
+                .metadata("name", "Share of ownership of asset")
+                .initial_supply([
+                    (
+                        NonFungibleId::random(),
+                        investor_ownership_badge_data
+                    )
+                ]);
+        }
+
+
+
+
+
+
 
          
 		/// When funding for an item is achieved, the platform automatically buys the item. 
@@ -218,10 +346,10 @@ blueprint! {
 
             
             //Get the non fungible data of the listed asset NFT, so we can update it
-            let mut shared_asset_badge_non_fungible_data: SharedAsset = shared_asset_badge.non_fungible().data();
+            //let mut shared_asset_badge_non_fungible_data: SharedAsset = shared_asset_badge.non_fungible().data();
             
             // Retrieve the ID of the NFT of the actual asset
-            let original_asset_id = shared_asset_badge_non_fungible_data.original_asset_id.clone();
+            //let original_asset_id = shared_asset_badge_non_fungible_data.original_asset_id.clone();
             
 
             // 2. simulate buying the asset: 
@@ -229,29 +357,35 @@ blueprint! {
 
             //For simulation purposes we'll mint an NFT with the ID of the original asset and add it to our inventory.
             // We then burn the funds in order to simulate payment to an external source.
-            let inventory_resource_manager = borrow_resource_manager!(self.inventory_vault.resource_address());
+            //let inventory_resource_manager = borrow_resource_manager!(self.inventory_vault.resource_address());
 
             //FIXME: needs to be admin burnable (for simulation purposes)
             // Asset {} was included because the function was complaining. 
             // I don't know exactly which data should the asset contain 
-            self.admin_badge.authorize(|| self.inventory_vault.put(
+            /*self.admin_badge.authorize(|| self.inventory_vault.put(
                     inventory_resource_manager.mint_non_fungible(&original_asset_id, Asset {})
                 )
-            );
+            );*/
 
             //Collect the funds saved to pay for the asset
-            let mut collected_asset_funds_vault: Vault = self.collected_assets_funds.remove(&shared_asset_badge_id).unwrap();
-            let collected_asset_funds_bucket: Bucket = collected_asset_funds_vault.take_all();
+            /*let collected_asset_funds_bucket: Bucket = 
+                self.collected_assets_funds
+                .get_mut(&shared_asset_badge_id)
+                .unwrap()
+                .take_all();
+            */
+            
+            //let collected_asset_funds_bucket: Bucket = collected_asset_funds_vault.take_all();
 
 
             //simulate payment to external source: store funds in mock funds vault
-            self.mock_funds.put(collected_asset_funds_bucket);
+            //self.mock_funds.put(collected_asset_funds_bucket);
 
             //on success:
-            shared_asset_badge_non_fungible_data.bought = true;
+            //shared_asset_badge_non_fungible_data.bought = true;
             
             // Then commit our updated data to our shared_asset_badge NFT
-            self.admin_badge.authorize(|| shared_asset_badge.non_fungible().update_data(shared_asset_badge_non_fungible_data));
+            //self.admin_badge.authorize(|| shared_asset_badge.non_fungible().update_data(shared_asset_badge_non_fungible_data));
 
             shared_asset_badge
 		}
