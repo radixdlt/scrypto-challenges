@@ -3,7 +3,7 @@ import {BlockContext} from "./Context"
 // import {BigNumber} from "ethers"
 
 export default function Invest() {
-    const {buy} = useContext(BlockContext)
+    const {address, buy} = useContext(BlockContext)
     const [amount, setAmount] = useState(0)
 
     return (
@@ -19,7 +19,7 @@ export default function Invest() {
                     <input type="text" placeholder="0" className="input input-bordered w-full pr-16"
                     onChange={(e) => setAmount(parseInt(e.target.value))}/>
                     <button className="btn btn-primary absolute top-0 right-0 rounded-l-none"
-                    onClick={() => buy(amount)}
+                    onClick={() => buy(amount)} disabled={address == null}
                     >Invest</button>
                 </div>
             </div>
