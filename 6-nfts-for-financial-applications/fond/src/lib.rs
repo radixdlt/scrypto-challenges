@@ -27,7 +27,7 @@ pub struct Campaign {
     bought: bool,
     fulfilled: bool,
     sold: bool,
-
+    sold_price: Decimal,
 	//accepted_token_address: ResourceAddress
 
     collected_funds: Vault
@@ -125,7 +125,7 @@ blueprint! {
                 bought:false,
                 sold: false,
                 fulfilled:false,
-
+                sold_price: dec!(0),
                 collected_funds: Vault::new(RADIX_TOKEN)
 
             };
@@ -169,12 +169,15 @@ blueprint! {
 
             let shareNFT = ResourceBuilder::new_non_fungible()
                 .metadata("name", "Share of ownership of asset")
+                //FIXME: access rules
+                .burnable(rule!(allow_all), LOCKED)
                 .initial_supply([
                     (
                         NonFungibleId::random(),
                         investor_contribution_data,
 
-                    )]);
+                )]);
+                    
             return (shareNFT, investment)
         }
 
@@ -239,6 +242,7 @@ blueprint! {
 
             let acquired_funds: Bucket = self.mock_funds.take(simulated_return);
 
+            campaign_data.sold_price = acquired_funds.amount();
             campaign_data.collected_funds.put(acquired_funds);
 
             //on success:
@@ -246,35 +250,25 @@ blueprint! {
             
 		}
 
-        
- /*
-        pub fn retrieve_funds(&mut self, investor_asset_ownership_badge: Bucket) -> Bucket {
+        pub fn retrieve_funds(&mut self, investor_contribution_token: Bucket, campaign_id: usize) -> Bucket {
+            
             //1. Get investor's share value
-            let investor_ownership_badge_data: InvestorAssetOwnershipBadge 
-                = investor_asset_ownership_badge.non_fungible().data();
-            let share = investor_ownership_badge_data.share;
-            let shared_asset_badge_id = investor_ownership_badge_data.shared_asset_badge_id.clone();
+            let investor_contribution_data: InvestorContribution  = investor_contribution_token.non_fungible().data();
+            let share = investor_contribution_data.share.clone();
             
             //2. Get shared asset badge and retrieve non-fungible data
-            let shared_asset_badge: Bucket = self.current_campaigns_vault.take_non_fungible(&shared_asset_badge_id);
-            let shared_asset_badge_non_fungible_data: SharedAsset = shared_asset_badge.non_fungible().data();
-            
-            let original_price: Decimal = shared_asset_badge_non_fungible_data.investment_goal.clone();
+            let campaign_data: &mut Campaign = self.current_campaigns.get_mut(&campaign_id).unwrap();
+            let sold_price: Decimal = campaign_data.sold_price.clone();
 
-            //3. Calculate and retrieve amount owed from vault with the shared asset badge ID
-
-            let investor_owed_funds: Bucket = self.collected_assets_funds
-                .get_mut(&shared_asset_badge_id)
-                .unwrap()
-                .take(share * original_price);            
+            //3. Calculate and retrieve amount owed from vault with the campaign ID
+            let investor_owed_funds: Bucket = campaign_data.collected_funds.take(share * sold_price);      
 
             //4. Burn the investor's ownership badge
-            self.admin_badge.authorize(|| investor_asset_ownership_badge.burn());
+            self.admin_badge.authorize(|| investor_contribution_token.burn());
             
             investor_owed_funds
         }
-*/
     
-    //}
     }
 }
+

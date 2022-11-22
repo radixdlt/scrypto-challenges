@@ -68,6 +68,12 @@ resim call-method $comp add_to_inventory 0
 ## SELL ITEM
 resim call-method $comp sell_item 0
 
+# SWITCH ACCOUNTS
+resim set-default-account $ac2 $pv2
+
+
+# resim call-method retrieve_funds 1,<nft-resource-address> 0
+
 
 echo "VARS"
 echo "account1"
