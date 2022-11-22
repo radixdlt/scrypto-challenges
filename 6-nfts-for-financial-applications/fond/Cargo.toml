@@ -8,7 +8,6 @@ sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0" }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0" }
 strum = "0.24.1"
 strum_macros = "0.24.3"
-rand = "0.8"
 
 [dev-dependencies]
 transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0" }

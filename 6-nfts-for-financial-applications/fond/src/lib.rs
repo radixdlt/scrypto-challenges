@@ -1,5 +1,5 @@
 use scrypto::prelude::*;
-use rand::Rng;
+//use rand::Rng;
 
 
 
@@ -76,7 +76,7 @@ blueprint! {
         ///
         /// #### Returns:
         /// * `ComponentAddress` - The address of the `Fond` component just created.
-        pub fn instantiate_fond(mut admin_funds_bucket: Bucket) -> ComponentAddress {
+        pub fn instantiate_fond(admin_funds_bucket: Bucket) -> ComponentAddress {
             let admin_badge: Bucket = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Fond admin auth")
@@ -105,8 +105,7 @@ blueprint! {
                 inventory_vault: Vault::with_bucket(inventory_bucket),
                 collected_assets_funds: HashMap::new(),
                 dead_vaults: Vec::new(),
-                //FIXME: do we need to return the bucket?
-                mock_funds: Vault::with_bucket(admin_funds_bucket.take(800))
+                mock_funds: Vault::with_bucket(admin_funds_bucket)
             }
             .instantiate()
             .globalize()
@@ -199,12 +198,24 @@ blueprint! {
 		/// 
 		/// ### Returns:
 		/// * `Bucket` - The updated badge that represents the shared asset
-		pub fn add_to_inventory(&mut self, shared_asset_badge: Bucket) -> Bucket {
+		pub fn add_to_inventory(&mut self, shared_asset_badge_id: NonFungibleId) -> Bucket {
+
+            //TODO: check Proof
+            /*let shared_asset_badge: ValidatedProof = shared_asset_badge
+                .validate_proof(ProofValidationMode::ValidateContainsAmount(
+                    self.shareholder_badge_resource_address,
+                    dec!("1"),
+                ))
+                .expect("[Withdraw by Amount]: Invalid badge resource address or amount");
+
+            */
 
             // 1. extract original asset NFT ID from the shared_asset_badge NFT
 
             // Get the ID of the listed asset NFT
-            let shared_asset_badge_id: NonFungibleId = shared_asset_badge.non_fungible::<SharedAsset>().id();
+            //let shared_asset_badge_id: NonFungibleId = shared_asset_badge.non_fungible::<SharedAsset>().id();
+            let shared_asset_badge: Bucket =  self.current_campaigns_vault.take_non_fungible(&shared_asset_badge_id);
+
             
             //Get the non fungible data of the listed asset NFT, so we can update it
             let mut shared_asset_badge_non_fungible_data: SharedAsset = shared_asset_badge.non_fungible().data();
@@ -286,8 +297,11 @@ blueprint! {
             //calculate 5-12% of the original price and retrieve funds from mock_funds vault
             //we then have a bucket, take the funds out of the bucket and store them in the appropriate vault
             // (collected_assets_funds vault)
-            let mut rng = rand::thread_rng();
-            let generated_percentage = rng.gen_range(5..12);
+            
+            //FIXME: this is not working, so I'll just change it to 10% for now
+            //let mut rng = rand::thread_rng();
+            //let generated_percentage = rng.gen_range(5..12);
+            let generated_percentage = 10;
             
             let simulated_return = original_price + (original_price * (generated_percentage / 100));
 
