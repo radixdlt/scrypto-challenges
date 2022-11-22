@@ -5,7 +5,7 @@ use scrypto::prelude::*;
 
 #[derive(NonFungibleData)]
 pub struct Asset {
-    
+    //TODO:
 }
 
 #[derive(NonFungibleData)]
@@ -37,6 +37,7 @@ pub struct Campaign {
 
 blueprint! {
     struct Fond {
+        //FIXME: should admin_badge be in the smart contract??
         admin_badge: Vault,
         
         //current_campaigns_vault: Vault,
@@ -176,80 +177,39 @@ blueprint! {
             return (shareNFT, investment)
         }
 
-
-
-
-
-
-
-         
-	/*
-		pub fn add_to_inventory(&mut self, shared_asset_badge_id: NonFungibleId) -> Bucket {
-
-            //TODO: check Proof
-            /*let shared_asset_badge: ValidatedProof = shared_asset_badge
-                .validate_proof(ProofValidationMode::ValidateContainsAmount(
-                    self.shareholder_badge_resource_address,
-                    dec!("1"),
-                ))
-                .expect("[Withdraw by Amount]: Invalid badge resource address or amount");
-
-            */
-
-            // 1. extract original asset NFT ID from the shared_asset_badge NFT
-
-            // Get the ID of the listed asset NFT
-            //let shared_asset_badge_id: NonFungibleId = shared_asset_badge.non_fungible::<SharedAsset>().id();
-            let shared_asset_badge: Bucket =  self.current_campaigns_vault.take_non_fungible(&shared_asset_badge_id);
-
+	
+		pub fn add_to_inventory(&mut self, campaign_id:usize) {
+            let mut campaign_data: &mut Campaign = self.current_campaigns.get_mut(&campaign_id).unwrap();
             
-            //Get the non fungible data of the listed asset NFT, so we can update it
-            //let mut shared_asset_badge_non_fungible_data: SharedAsset = shared_asset_badge.non_fungible().data();
-            
+            // 1. extract original asset NFT ID from the campaign
             // Retrieve the ID of the NFT of the actual asset
-            //let original_asset_id = shared_asset_badge_non_fungible_data.original_asset_id.clone();
-            
+            let original_asset_id = campaign_data.original_asset_id.clone();
 
             // 2. simulate buying the asset: 
             // TODO: How do we deal with non-NFT items?
 
             //For simulation purposes we'll mint an NFT with the ID of the original asset and add it to our inventory.
             // We then burn the funds in order to simulate payment to an external source.
-            //let inventory_resource_manager = borrow_resource_manager!(self.inventory_vault.resource_address());
+            let inventory_resource_manager = borrow_resource_manager!(self.inventory_vault.resource_address());
 
-            //FIXME: needs to be admin burnable (for simulation purposes)
-            // Asset {} was included because the function was complaining. 
-            // I don't know exactly which data should the asset contain 
-            /*self.admin_badge.authorize(|| self.inventory_vault.put(
+
+            //FIXME: needs to be admin burnable (for simulation purposes); Asset
+            self.admin_badge.authorize(|| self.inventory_vault.put(
                     inventory_resource_manager.mint_non_fungible(&original_asset_id, Asset {})
                 )
-            );*/
+            );
 
             //Collect the funds saved to pay for the asset
-            /*let collected_asset_funds_bucket: Bucket = 
-                self.collected_assets_funds
-                .get_mut(&shared_asset_badge_id)
-                .unwrap()
-                .take_all();
-            */
-            
-            //let collected_asset_funds_bucket: Bucket = collected_asset_funds_vault.take_all();
+            let collected_funds_bucket: Bucket = campaign_data.collected_funds.take_all();
 
-
-            //simulate payment to external source: store funds in mock funds vault
-            //self.mock_funds.put(collected_asset_funds_bucket);
+            //Simulate payment to external source: store funds in mock funds vault
+            self.mock_funds.put(collected_funds_bucket);
 
             //on success:
-            //shared_asset_badge_non_fungible_data.bought = true;
-            
-            // Then commit our updated data to our shared_asset_badge NFT
-            //self.admin_badge.authorize(|| shared_asset_badge.non_fungible().update_data(shared_asset_badge_non_fungible_data));
-
-            shared_asset_badge
+            campaign_data.bought = true;
 		}
 
-     */
-
+     
      /*
 		pub fn sell_item(&mut self, shared_asset_badge: Bucket) -> Bucket{
 
