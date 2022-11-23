@@ -1,0 +1,39 @@
+# Mints a new VoterCard with an initial amount of locked tokens
+#
+# Parameters:
+#
+# dao: address of the dao component
+#
+# account: address of the user account that will lock tokens 
+#          and receive a VoterCard
+#  
+#
+# amount: number of supply that will be locked
+#
+# styx : address of the Styx tokens
+#
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${account}")
+    "withdraw"
+    ResourceAddress("${styx}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("${amount}")
+    ResourceAddress("${styx}")
+    Bucket("Styxs");
+  
+CALL_METHOD
+   ComponentAddress("${dao}")
+   "mint_voter_card_with_bucket"
+   Bucket("Styxs");
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");

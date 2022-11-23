@@ -1,0 +1,34 @@
+CLONE_BUCKET_REF BucketRef(1u32) BucketRef("Badge1");
+CLONE_BUCKET_REF BucketRef(1u32) BucketRef("Badge2");
+
+#Withdraw NFT from account 1 and put on worktop
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw_non_fungibles" TreeSet<NonFungibleKey>(NonFungibleKey("00000000000000000000000000000001")) Address("036273d5754d78080aabeeead8a9d0e01986e35b672c28c52e80de") BucketRef("Badge1"); 
+
+#Withdraw XRD from account 2 and put on worktop
+CALL_METHOD Address("0236ca00316c8eb5ad51b0cb5e3f232cb871803a85ec3847b36bb4") "withdraw" Decimal("1000.00") Address("030000000000000000000000000000000000000000000000000004") BucketRef("Badge2");
+
+#-----------------------------------------------------------------------------
+
+#Run increment nft method 
+CALL_METHOD Address("029bcee04344d0ca6d747e764a64e30a2d01dbc6d940fb1d11fa37") "increment_nft" NonFungibleKey("00000000000000000000000000000001");
+
+#-----------------------------------------------------------------------------
+
+#Take buyer's XRD off worktop and put in bucket
+TAKE_FROM_WORKTOP Decimal("1000.00") Address("030000000000000000000000000000000000000000000000000004") Bucket("buyer_xrd_bucket");
+
+#Run mint_share_nft method and pass in sellers address and buyer_xrd_bucket
+CALL_METHOD Address("029bcee04344d0ca6d747e764a64e30a2d01dbc6d940fb1d11fa37") "mint_nft_shares" Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") Bucket("buyer_xrd_bucket");
+
+#-----------------------------------------------------------------------------
+
+#Take NFT off worktop and put in bucket
+TAKE_NON_FUNGIBLES_FROM_WORKTOP TreeSet<NonFungibleKey>(NonFungibleKey("00000000000000000000000000000001")) Address("036273d5754d78080aabeeead8a9d0e01986e35b672c28c52e80de") Bucket("nft_bucket");
+
+#Take NFT and deposit into account 2
+CALL_METHOD Address("0236ca00316c8eb5ad51b0cb5e3f232cb871803a85ec3847b36bb4") "deposit" Bucket("nft_bucket");
+
+#-------------------------------------------------------------------------
+
+#Take the remaining resources, in this case XRD, and put back into account 1
+CALL_METHOD_WITH_ALL_RESOURCES Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "deposit_batch";

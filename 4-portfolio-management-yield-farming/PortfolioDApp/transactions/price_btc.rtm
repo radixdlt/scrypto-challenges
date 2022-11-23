@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${trading}") "current_price" ResourceAddress("030000000000000000000000000000000000000000000000000004") ResourceAddress("${btc}");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

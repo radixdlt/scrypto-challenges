@@ -1,0 +1,36 @@
+# For the purposes of testing the exchange we need to create a number of tokens. The following instructions may be used
+# to withdraw funds from the first account and deposit them into the other accounts
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw" ResourceAddress("<<<bitcoin_resource_address>>>");
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw" ResourceAddress("<<<cardano_resource_address>>>");
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw" ResourceAddress("<<<xrp_resource_address>>>");
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw" ResourceAddress("<<<quant_resource_address>>>");
+
+# To test the DEX the other accounts created need to have some of the test tokens that were created by account 1. This
+# transaction manifest file contains the instructions used to deposit some test tokens into the other accounts.
+
+# Creating buckets of the tokens and depositing them into account 2
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000") ResourceAddress("<<<bitcoin_resource_address>>>") Bucket("bitcoin_bucket2");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000") ResourceAddress("<<<cardano_resource_address>>>") Bucket("cardano_bucket2");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000") ResourceAddress("<<<xrp_resource_address>>>") Bucket("xrp_bucket2");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000") ResourceAddress("<<<quant_resource_address>>>") Bucket("quant_bucket2");
+
+CALL_METHOD ComponentAddress("<<<account2_address>>>") "deposit_batch" Vec<Bucket>(Bucket("bitcoin_bucket2"), Bucket("cardano_bucket2"), Bucket("xrp_bucket2"), Bucket("quant_bucket2"));
+
+# Creating buckets of the tokens and depositing them into account 3
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000") ResourceAddress("<<<bitcoin_resource_address>>>") Bucket("bitcoin_bucket3");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000") ResourceAddress("<<<cardano_resource_address>>>") Bucket("cardano_bucket3");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000") ResourceAddress("<<<xrp_resource_address>>>") Bucket("xrp_bucket3");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000") ResourceAddress("<<<quant_resource_address>>>") Bucket("quant_bucket3");
+
+CALL_METHOD ComponentAddress("<<<account3_address>>>") "deposit_batch" Vec<Bucket>(Bucket("bitcoin_bucket3"), Bucket("cardano_bucket3"), Bucket("xrp_bucket3"), Bucket("quant_bucket3"));
+
+# Creating buckets of the tokens and depositing them into account 4
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000") ResourceAddress("<<<bitcoin_resource_address>>>") Bucket("bitcoin_bucket4");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000") ResourceAddress("<<<cardano_resource_address>>>") Bucket("cardano_bucket4");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000") ResourceAddress("<<<xrp_resource_address>>>") Bucket("xrp_bucket4");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000") ResourceAddress("<<<quant_resource_address>>>") Bucket("quant_bucket4");
+
+CALL_METHOD ComponentAddress("<<<account4_address>>>") "deposit_batch" Vec<Bucket>(Bucket("bitcoin_bucket4"), Bucket("cardano_bucket4"), Bucket("xrp_bucket4"), Bucket("quant_bucket4"));
+
+# Depositing everything in the transaction worktop into the account.
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("<<<account1_address>>>") "deposit_batch";

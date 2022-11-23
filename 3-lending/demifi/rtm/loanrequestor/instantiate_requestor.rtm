@@ -1,0 +1,28 @@
+# Instantiates a new LoanRequestor.
+#
+# Parameters:
+#
+# $package: address of the published package containing the
+#           Participants component
+#
+# $account: address of the user account that will receive
+#           the root participant NFT
+#
+# $participants_nft_addr: ResourceAddress of the Participants NFTs to use
+#
+# $admin_badge_name: None for default name or Some("<name>")
+#                    to set a custom name for the admin badge resource
+#
+# $nft_resource_name: None for default name or Some("<name>")
+#                     to set a custom name for the LoanRequest NFT resource
+CALL_FUNCTION
+   PackageAddress("${package}")
+   "LoanRequestor"
+   "instantiate_requestor"
+   ResourceAddress("${participants_nft_addr}")
+   ${admin_badge_name}
+   ${nft_resource_name};
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";

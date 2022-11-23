@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "withdraw_by_amount" Decimal("${NUM}") ResourceAddress("${RS}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("${NUM}") ResourceAddress("${RS}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${SC_COMP}") "auto_swap" Bucket("bucket1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ADMIN_ACC}") "deposit_batch";

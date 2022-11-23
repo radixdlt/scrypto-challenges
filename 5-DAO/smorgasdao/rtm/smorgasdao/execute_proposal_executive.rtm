@@ -1,0 +1,26 @@
+# A proposal is executed.
+#
+# Parameters:
+#
+# $dao_addr: address of the SmorgasDao instance to use
+#
+# $intermediary_addr: address of the Intermediary that has the followup method
+#
+# $account: address of the user account running this transaction
+#
+# $proposal: proposal id to execute, e.g. 2284
+#
+# $followup: followup method to call
+CALL_METHOD 
+   ComponentAddress("${account}")
+   "lock_fee"
+   Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${dao_addr}")
+   "execute_proposal"
+   ${proposal}u64;
+
+CALL_METHOD
+   ComponentAddress("${intermediary_addr}")
+   "${followup}";

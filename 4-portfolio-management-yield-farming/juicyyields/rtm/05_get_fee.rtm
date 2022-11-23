@@ -1,0 +1,25 @@
+#
+# fees are first saved within an extra vault of the user and can be withdrawn 
+# and deposited to the platform fee vault by this
+#
+
+# Collect the XRD that were paid as fee
+CALL_METHOD ComponentAddress("${yields_comp}") "collect_fee";
+
+# take that xrd bucket from the worktop (we do not know the amount to take here)
+TAKE_FROM_WORKTOP ResourceAddress("${xrd}") Bucket("xrd_bucket");
+
+# check the admin badge for the juice vault
+CALL_METHOD ComponentAddress("${account}") "create_proof" ResourceAddress("${admin_badge}");
+
+# then give the xrd fee to the juice vault and return a juice bucket for incentives 
+CALL_METHOD ComponentAddress("${juice_comp}") "get_fee" Bucket("xrd_bucket");
+
+# take the juice bucket from the worktop (again, we do not know the amount to take)
+TAKE_FROM_WORKTOP ResourceAddress("${juice_token}") Bucket("juice_bucket");
+
+# and give it to the yields component
+CALL_METHOD ComponentAddress("${yields_comp}") "drop_juice" Bucket("juice_bucket");
+
+# at the end clean up the worktop
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

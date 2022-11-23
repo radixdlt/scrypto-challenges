@@ -1,0 +1,10 @@
+CALL_METHOD ComponentAddress("${account}") "withdraw_by_amount" Decimal("1000") ResourceAddress("030000000000000000000000000000000000000000000000000004");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${account}") "withdraw_by_amount" Decimal("1000") ResourceAddress("${btc}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${btc}") Bucket("bucket2");
+CALL_METHOD ComponentAddress("${account}") "withdraw_by_amount" Decimal("1000") ResourceAddress("${eth}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1000") ResourceAddress("${eth}") Bucket("bucket3");
+CALL_METHOD ComponentAddress("${account}") "withdraw_by_amount" Decimal("100") ResourceAddress("${leo}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100") ResourceAddress("${leo}") Bucket("bucket4");
+CALL_METHOD ComponentAddress("${trading}") "fund_market" Bucket("bucket1") Bucket("bucket2") Bucket("bucket3") Bucket("bucket4");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

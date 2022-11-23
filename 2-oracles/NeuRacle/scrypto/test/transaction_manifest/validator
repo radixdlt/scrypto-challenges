@@ -1,0 +1,40 @@
+CALL_METHOD 
+    ComponentAddress("${ADMIN_ACC}") "withdraw_by_amount" Decimal("1") ResourceAddress("${ADMIN_BADGE}");
+TAKE_FROM_WORKTOP 
+    ResourceAddress("${ADMIN_BADGE}") Bucket("bucket");
+CREATE_PROOF_FROM_BUCKET 
+    Bucket("bucket") Proof("admin_proof");
+PUSH_TO_AUTH_ZONE 
+    Proof("admin_proof");
+CALL_METHOD 
+    ComponentAddress("${COMP}") "create_new_validator_node" "val1" "VietNam" "val1.vn" Decimal("0");
+TAKE_FROM_WORKTOP_BY_AMOUNT 
+    Decimal("1") ResourceAddress("${VALIDATOR_BADGE}") Bucket("val1");
+CALL_METHOD
+    ComponentAddress("${VAL1_ACC}") "deposit" Bucket("val1");
+CALL_METHOD 
+    ComponentAddress("${COMP}") "create_new_validator_node" "val2" "US" "val2.us" Decimal("0.2");
+TAKE_FROM_WORKTOP_BY_AMOUNT 
+    Decimal("1") ResourceAddress("${VALIDATOR_BADGE}") Bucket("val2");
+CALL_METHOD
+    ComponentAddress("${VAL2_ACC}") "deposit" Bucket("val2");
+CALL_METHOD 
+    ComponentAddress("${COMP}") "create_new_validator_node" "val3" "London" "val3.uk" Decimal("0.5");
+TAKE_FROM_WORKTOP_BY_AMOUNT 
+    Decimal("1") ResourceAddress("${VALIDATOR_BADGE}") Bucket("val3");
+CALL_METHOD
+    ComponentAddress("${VAL3_ACC}") "deposit" Bucket("val3");
+CALL_METHOD 
+    ComponentAddress("${COMP}") "create_new_validator_node" "val4" "Singapore" "val4.sg" Decimal("1");
+TAKE_FROM_WORKTOP_BY_AMOUNT 
+    Decimal("1") ResourceAddress("${VALIDATOR_BADGE}") Bucket("val4");
+CALL_METHOD
+    ComponentAddress("${VAL4_ACC}") "deposit" Bucket("val4");
+CALL_METHOD 
+    ComponentAddress("${COMP}") "create_new_validator_node" "val5" "China" "val5.cn" Decimal("7");
+TAKE_FROM_WORKTOP_BY_AMOUNT 
+    Decimal("1") ResourceAddress("${VALIDATOR_BADGE}") Bucket("val5");
+CALL_METHOD
+    ComponentAddress("${VAL5_ACC}") "deposit" Bucket("val5");
+CALL_METHOD_WITH_ALL_RESOURCES
+    ComponentAddress("${ADMIN_ACC}") "deposit_batch";

@@ -1,0 +1,16 @@
+CALL_METHOD 
+    ComponentAddress("${account1}") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_FUNCTION
+    PackageAddress("${package}")
+    "Escrow"
+    "instantiate_escrow"
+    Enum("Fungible", ResourceAddress("${token1}"), Decimal("20"))
+    Enum("Fungible", ResourceAddress("${token2}"), Decimal("300"));
+
+CALL_METHOD
+    ComponentAddress("${account1}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");

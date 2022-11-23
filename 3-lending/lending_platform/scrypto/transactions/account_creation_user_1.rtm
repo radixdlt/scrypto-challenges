@@ -1,0 +1,6 @@
+CALL_METHOD
+    ComponentAddress("02a72345b48e3f4520c608dd972ae93c6cc3992c325afe7e172065")
+    "new_user";
+CALL_METHOD_WITH_ALL_RESOURCES
+    ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3")
+    "deposit_batch";

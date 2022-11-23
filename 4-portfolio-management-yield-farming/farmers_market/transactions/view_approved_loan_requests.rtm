@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${ACC_ADDRESS4}") "create_proof_by_amount" Decimal("1") ResourceAddress("${B_BADGE}");
+POP_FROM_AUTH_ZONE Proof("proof1");
+CALL_METHOD ComponentAddress("${BDASHBOARD}") "view_approved_loan_requests" Proof("proof1");
+

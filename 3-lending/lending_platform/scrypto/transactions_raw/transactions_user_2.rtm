@@ -1,0 +1,73 @@
+# Withdrawing the user lending badge from the user account. When we call the `create_proof` methods on
+# the account component the returned proof is automatically put in our auth zone so we do not need to
+# manually manage it.
+CALL_METHOD
+    ComponentAddress("<<<account_2_address>>>")
+    "create_proof"
+    ResourceAddress("<<<account_2_lending_platform_badge>>>");
+
+# Add XRD to the worktop
+CALL_METHOD
+    ComponentAddress("<<<account_2_address>>>")
+    "withdraw_by_amount"
+    Decimal("2000")
+    ResourceAddress("<<<xrd_token>>>");
+
+# Put worktop XRD into a bucket
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("2000")
+    ResourceAddress("<<<xrd_token>>>")
+    Bucket("deposit_1");
+
+# Call `deposit_asset` to deposit the deposit_1 XRD into the lending pool
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("<<<account_2_lending_platform_badge>>>")
+    Proof("user_badge_proof_instance_1");
+CALL_METHOD
+    ComponentAddress("<<<lending_platform_component_address>>>")
+    "deposit_asset"
+    Bucket("deposit_1")
+    Proof("user_badge_proof_instance_1");
+
+# Call `deposit_asset` to deposit the deposit_1 XRD into the lending pool
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("<<<account_2_lending_platform_badge>>>")
+    Proof("user_badge_proof_instance_2");
+CALL_METHOD
+    ComponentAddress("<<<lending_platform_component_address>>>")
+    "withdraw_asset"
+    ResourceAddress("<<<xrd_token>>>")
+    Decimal("1000")
+    Proof("user_badge_proof_instance_2");
+
+# Call `borrow_asset` to borrow 500 XRD from the pool
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("<<<account_2_lending_platform_badge>>>")
+    Proof("user_badge_proof_instance_3");
+CALL_METHOD
+    ComponentAddress("<<<lending_platform_component_address>>>")
+    "borrow_asset"
+    ResourceAddress("<<<xrd_token>>>")
+    Decimal("500")
+    Proof("user_badge_proof_instance_3");
+
+# Call `repay_loan`
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("250")
+    ResourceAddress("<<<xrd_token>>>")
+    Bucket("repay_1");
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("<<<account_2_lending_platform_badge>>>")
+    Proof("user_badge_proof_instance_4");
+CALL_METHOD
+    ComponentAddress("<<<lending_platform_component_address>>>")
+    "repay_asset"
+    Bucket("repay_1")
+    Proof("user_badge_proof_instance_4");
+
+# The remaining 250 XRD are sent back to User 1
+CALL_METHOD_WITH_ALL_RESOURCES
+    ComponentAddress("<<<account_2_address>>>")
+    "deposit_batch";
+
+

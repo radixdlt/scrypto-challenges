@@ -1,0 +1,5 @@
+CALL_FUNCTION PackageAddress("010000000000000000000000000000000000000000000000000001") "System" "new_resource" Enum("Fungible", 18u8) HashMap<String, String>("name", "token_A") HashMap<Enum, Tuple>(Enum("Withdraw"), Tuple(Enum("AllowAll"), Enum("LOCKED"))) Some(Enum("Fungible", Decimal("1000000")));
+CALL_FUNCTION PackageAddress("010000000000000000000000000000000000000000000000000001") "System" "new_resource" Enum("Fungible", 18u8) HashMap<String, String>("name", "token_B") HashMap<Enum, Tuple>(Enum("Withdraw"), Tuple(Enum("AllowAll"), Enum("LOCKED"))) Some(Enum("Fungible", Decimal("3000000")));
+CALL_FUNCTION PackageAddress("010000000000000000000000000000000000000000000000000001") "System" "new_resource" Enum("Fungible", 18u8) HashMap<String, String>("name", "token_C") HashMap<Enum, Tuple>(Enum("Withdraw"), Tuple(Enum("AllowAll"), Enum("LOCKED"))) Some(Enum("Fungible", Decimal("5000000")));
+
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACCOUNT}") "deposit_batch";

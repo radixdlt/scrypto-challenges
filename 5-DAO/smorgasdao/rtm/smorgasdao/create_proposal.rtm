@@ -1,0 +1,56 @@
+# A proposal gets made.
+#
+# Parameters:
+#
+# $component: address of the SmorgasDao instance to use
+#
+# $account: address of the user account running this transaction
+#
+# $ptype: type of proposal to make, e.g. Executive
+#
+# $options: empty string if executive, or options to present if advisory, e.g.
+#           "one", "two", "three"
+#
+# $title: a catchy title for the proposal
+#
+# $pitch: a well-laid out pitch for the proposal
+#
+# $deadline: the epoch of timeout for the proposal
+#
+# $target_component: None for an advisory proposal, or else the
+#                    component to call e.g.
+#                    Some("ComponentAddress("component_sim1..."))
+#
+# $target_method: None for an advisory proposal, or else the name
+#                 of the method to call e.g.
+#                 Some("make_big_changes")
+#
+# $target_proofs: empty string for an advisory proposal, or else a list
+#                 of badge Proofs to send to the target component. E.g.
+#                 Enum("AdminBadge"), Enum("IdMintBadge")
+#                 
+# $target_buckets: empty string for an advisory proposal, or else a list
+#                  of badge Buckets to send to the target component. E.g.
+#                  Enum("AdminBadge"), Enum("IdMintBadge")
+#
+# $target_funding: None for an advisory proposal, or else the amount of XRD
+#                  to send to the target component e.g. Some(Decimal("2000"))
+CALL_METHOD 
+   ComponentAddress("${account}")
+   "lock_fee"
+   Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "create_proposal"
+   ${authority}
+   Enum("${ptype}")
+   Vec<String>(${options})
+   "${title}"
+   "${pitch}"
+   ${deadline}u64
+   ${target_component}
+   ${target_method}
+   Vec<Enum>(${target_proofs})
+   Vec<Enum>(${target_buckets})
+   ${target_funding};

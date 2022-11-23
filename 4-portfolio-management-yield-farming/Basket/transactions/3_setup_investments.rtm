@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${ACCOUNT}") "create_proof" ResourceAddress("${FUND_ADMIN_BADGE}");
+CALL_METHOD ComponentAddress("${FUND}") "add_investment" ComponentAddress("${POOL_A}");
+CALL_METHOD ComponentAddress("${FUND}") "add_investment" ComponentAddress("${POOL_B}");
+CALL_METHOD ComponentAddress("${FUND}") "add_investment" ComponentAddress("${POOL_C}");

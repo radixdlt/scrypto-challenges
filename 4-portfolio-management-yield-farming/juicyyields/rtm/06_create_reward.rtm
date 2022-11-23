@@ -1,0 +1,31 @@
+#
+# gets the XRD rewards as share from the fees based on number of owned Juice tokens
+#
+# Note! This is checking for rewards payout every 500 epochs only.
+# So you might want to set the current epoch to another higher value via
+# resim set-current-epoch <EPOCH_NUMBER> in your terminal
+#
+
+# ask the user for the Juice bucket (temporary)
+CALL_METHOD ComponentAddress("${yields_comp}") "check_juice_amount";
+
+# take the juice bucket from the worktop (we do not know the amount to take)
+TAKE_FROM_WORKTOP ResourceAddress("${juice_token}") Bucket("juice_bucket");
+
+# hand over the juice bucket and calculate the rewards
+CALL_METHOD ComponentAddress("${juice_comp}") "payout_xrd" Bucket("juice_bucket");
+
+# take the juice bucket from the worktop (again, we do not know the amount to take)
+TAKE_FROM_WORKTOP ResourceAddress("${juice_token}") Bucket("juice_bucket2");
+
+# also take the xrd bucket from the worktop (we still do not know the amount to take)
+TAKE_FROM_WORKTOP ResourceAddress("${xrd}") Bucket("xrd_bucket");
+
+# return the juice bucket to the user
+CALL_METHOD ComponentAddress("${yields_comp}") "drop_juice" Bucket("juice_bucket2");
+
+# and give him as well the rewards in form of xrd
+CALL_METHOD ComponentAddress("${yields_comp}") "set_deposit" Bucket("xrd_bucket");
+
+# clean up the worktop
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

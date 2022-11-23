@@ -1,0 +1,27 @@
+#
+# Set the user preferences for his investment
+#
+# risk_level, contribution_level, wants_lottery, wants_charity, wants_airdrops
+#
+# could be changed and executed as well later on to change the values before doing a new investment
+#
+CALL_METHOD ComponentAddress("${yields_comp}") "set_preferences" Enum("Low") Enum("Low") false false true;
+
+#
+# And directly continue to also create some deposit
+#
+# in case you execute this several times, the deposit is increased
+#
+
+# withdraw 5000 XRD from account, which goes to the worktop
+CALL_METHOD ComponentAddress("${account}") "withdraw_by_amount" Decimal("5000") ResourceAddress("${xrd}");
+
+# take 5000 XRD from the worktop and put it in a bucket
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${xrd}") Bucket("xrd");
+
+# then deposit it to the user's vault
+CALL_METHOD ComponentAddress("${yields_comp}") "set_deposit" Bucket("xrd");
+
+# clean up the worktop
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";
+

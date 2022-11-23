@@ -1,0 +1,61 @@
+# In order for the trading on the DEX to begin, we first need to have liquidity in the DEX so that users can swap their
+# tokens for another tokens. In this RTM file, we are adding liquidity to the DEX from the account that created the 
+# test tokens.
+
+# Withdrawing the total amount of tokens from the account and into the transaction worktop.
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw" ResourceAddress("030000000000000000000000000000000000000000000000000004"); #Withdrawing XRD
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw" ResourceAddress("<<<tether_resource_address>>>"); #Withdrawing USDT
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw" ResourceAddress("<<<quant_resource_address>>>"); #Withdrawing QNT
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw" ResourceAddress("<<<cardano_resource_address>>>"); #Withdrawing ADA
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw" ResourceAddress("<<<bitcoin_resource_address>>>"); #Withdrawing BTC
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw" ResourceAddress("<<<litecoin_resource_address>>>"); #Withdrawing LTC
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw" ResourceAddress("<<<bnb_resource_address>>>"); #Withdrawing BNB
+CALL_METHOD ComponentAddress("<<<account1_address>>>") "withdraw" ResourceAddress("<<<doge_resource_address>>>"); #Withdrawing DOGE
+
+# Creating an XRD-USDT pool with: 14,000 USDT and 100,000 XRD.
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000.00") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("XRD_USDT_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("14000.00") ResourceAddress("<<<tether_resource_address>>>") Bucket("USDT_XRD_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "add_liquidity" Bucket("USDT_XRD_bucket") Bucket("XRD_USDT_bucket");
+
+# Creating a QNT-USDT pool with: 100,000 USDT and 865.276 QNT.
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("865.276") ResourceAddress("<<<quant_resource_address>>>") Bucket("QNT_USDT_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000.00") ResourceAddress("<<<tether_resource_address>>>") Bucket("USDT_QNT_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "add_liquidity" Bucket("USDT_QNT_bucket") Bucket("QNT_USDT_bucket");
+
+# Creating a ADA-USDT pool with: 100,000 USDT and 105263.1578 ADA
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("105263.1578") ResourceAddress("<<<cardano_resource_address>>>") Bucket("ADA_USDT_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000.00") ResourceAddress("<<<tether_resource_address>>>") Bucket("USDT_ADA_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "add_liquidity" Bucket("USDT_ADA_bucket") Bucket("ADA_USDT_bucket");
+
+# Creating a BTC-USDT pool with: 10,000,000 USDT tokens and 232.558 BTC
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("232.558") ResourceAddress("<<<bitcoin_resource_address>>>") Bucket("BTC_USDT_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("10000000.00") ResourceAddress("<<<tether_resource_address>>>") Bucket("USDT_BTC_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "add_liquidity" Bucket("USDT_BTC_bucket") Bucket("BTC_USDT_bucket");
+
+# Creating an LTC-BTC pool with: 23.1835 BTC and 8720.6767 LTC
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("8720.6767") ResourceAddress("<<<litecoin_resource_address>>>") Bucket("LTC_BTC_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("23.1835") ResourceAddress("<<<bitcoin_resource_address>>>") Bucket("BTC_LTC_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "add_liquidity" Bucket("LTC_BTC_bucket") Bucket("BTC_LTC_bucket");
+
+# Creating an ADA-XRD pool with: 19526.357 ADA and 67485 XRD.
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("67485") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("XRD_ADA_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("19526.357") ResourceAddress("<<<cardano_resource_address>>>") Bucket("ADA_XRD_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "add_liquidity" Bucket("XRD_ADA_bucket") Bucket("ADA_XRD_bucket");
+
+# Creating an LTC-XRD pool with: 88.67 LTC and 67485 XRD
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("67485") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("XRD_LTC_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("88.67") ResourceAddress("<<<litecoin_resource_address>>>") Bucket("LTC_XRD_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "add_liquidity" Bucket("XRD_LTC_bucket") Bucket("LTC_XRD_bucket");
+
+# Creating an LTC-BNB pool with: 88.67 LTC and 24.2187 BNB
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("24.2187") ResourceAddress("<<<bnb_resource_address>>>") Bucket("BNB_LTC_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("88.67") ResourceAddress("<<<litecoin_resource_address>>>") Bucket("LTC_BNB_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "add_liquidity" Bucket("BNB_LTC_bucket") Bucket("LTC_BNB_bucket");
+
+# Creating an BNB-DOGE pool with: 2481.57 BNB and 7692307.692 DOGE
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("2481.57") ResourceAddress("<<<bnb_resource_address>>>") Bucket("BNB_DOGE_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("7692307.692") ResourceAddress("<<<doge_resource_address>>>") Bucket("DOGE_BNB_bucket");
+CALL_METHOD ComponentAddress("<<<component_address>>>") "add_liquidity" Bucket("BNB_DOGE_bucket") Bucket("DOGE_BNB_bucket");
+
+# Deposit the tracking tokens back into the account
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("<<<account1_address>>>") "deposit_batch";

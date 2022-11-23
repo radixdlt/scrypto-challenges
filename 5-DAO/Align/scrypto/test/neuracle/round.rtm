@@ -1,0 +1,13 @@
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "lock_fee" Decimal("200");
+
+CALL_METHOD ComponentAddress("${neuracle_component}") "new_round";
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "create_proof" ResourceAddress("${validator_badge}");
+
+CALL_METHOD ComponentAddress("${validator}") "update_data" 
+    Map<Struct, String>(Struct("https://showcase.api.linx.twenty57.net/UnixTime/tounix?date=now", None, None), "${time}");
+
+CALL_METHOD ComponentAddress("${neuracle_component}") "end_round";
+
+CALL_METHOD ComponentAddress("${ADMIN_ACC}") "deposit_batch" Expression("ENTIRE_WORKTOP");
+# CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ADMIN_ACC}") "deposit_batch";

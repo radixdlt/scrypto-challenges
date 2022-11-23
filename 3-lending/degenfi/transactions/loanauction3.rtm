@@ -1,0 +1,8 @@
+CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "create_proof_by_amount" Decimal("1") ResourceAddress("03c5d637757cd332d804f229f5034b75535528a3bfd2f262f8c14b");
+POP_FROM_AUTH_ZONE Proof("proof1");
+CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "create_proof_by_amount" Decimal("1") ResourceAddress("03c5d637757cd332d804f229f5034b75535528a3bfd2f262f8c14b");
+POP_FROM_AUTH_ZONE Proof("proof2");
+CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "withdraw_by_amount" Decimal("2180") ResourceAddress("03d60d45d5ed19cf27fe66a0220001bc0b8838ccf7a2a64ba6258e");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("2180") ResourceAddress("03d60d45d5ed19cf27fe66a0220001bc0b8838ccf7a2a64ba6258e") Bucket("bucket1");
+CALL_METHOD ComponentAddress("027709ff06a8fbcf8a5276f4d8dfb79a5aef271d261ee838fbca2c") "auction_repay" Proof("proof1") NonFungibleId("a080cce68fbabc5e378003cffe381d08") ResourceAddress("03d60d45d5ed19cf27fe66a0220001bc0b8838ccf7a2a64ba6258e") Proof("proof2") Bucket("bucket1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "deposit_batch";

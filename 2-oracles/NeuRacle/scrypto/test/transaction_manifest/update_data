@@ -1,0 +1,12 @@
+CALL_METHOD 
+    ComponentAddress("${VALUP_ACC}") "withdraw_by_amount" Decimal("1") ResourceAddress("${VALIDATOR_BADGE}");
+TAKE_FROM_WORKTOP 
+    ResourceAddress("${VALIDATOR_BADGE}") Bucket("bucket");
+CREATE_PROOF_FROM_BUCKET 
+    Bucket("bucket") Proof("validator_proof");
+PUSH_TO_AUTH_ZONE 
+    Proof("validator_proof");
+CALL_METHOD 
+    ComponentAddress("${VALUP_ADDRESS}") "update_data" TreeMap<String, String>(${RESULTS});
+CALL_METHOD_WITH_ALL_RESOURCES 
+    ComponentAddress("${VALUP_ACC}") "deposit_batch";

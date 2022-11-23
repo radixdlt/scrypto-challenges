@@ -1,0 +1,8 @@
+#
+# Do some arbitrage
+#
+
+CALL_METHOD ComponentAddress("${yields_comp}") "perform_arbitrage" Decimal("500") "DPH";
+
+# clean up the worktop
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

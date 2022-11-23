@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${ACC_ADDRESS3}") "withdraw_by_amount" Decimal("191") ResourceAddress("${RADSH}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("191") ResourceAddress("${RADSH}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${IDASHBOARD}") "redeem_fund_tokens" "Radish Index" Bucket("bucket1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS3}") "deposit_batch";

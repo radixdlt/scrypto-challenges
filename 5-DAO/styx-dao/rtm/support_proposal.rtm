@@ -1,0 +1,39 @@
+# Supports a Proposal with voting power owned in a voter card
+#
+# Parameters:
+#
+# dao: address of the dao component
+#
+# account: address of the user account that will support a proposal
+#  
+# proposal_id: 
+#
+# voter_card : address of the VoterCard resource
+#
+
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${account}")
+    "create_proof"
+    ResourceAddress("${voter_card}");
+
+CREATE_PROOF_FROM_AUTH_ZONE 
+    ResourceAddress("${voter_card}") 
+    Proof("VoterCard");
+  
+CALL_METHOD
+   ComponentAddress("${dao}")
+   "support_proposal"
+   Proof("VoterCard")
+   Decimal("${proposal_id}");
+
+CALL_METHOD
+    ComponentAddress("${account}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");
+

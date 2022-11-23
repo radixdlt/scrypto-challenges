@@ -1,0 +1,54 @@
+@startuml
+
+
+[*] -> OpenPosition
+OpenPosition: Deposit Collateral 
+OpenPosition: Mint badge receipt for new position id, return to caller
+
+
+state ActivePosition {
+
+ActivePosition -d-> Draw
+ActivePosition -d-> AddCollateral
+ActivePosition -d-> PartialWithdrawCollateral
+ActivePosition -d-> Paydown
+
+Draw: Show position id proof, Mint RAI
+Draw: Mint requested number of RAI (up to max borrow amount $1.5/$1 collateral/RAI)
+Draw: Store loan principal and epoch
+
+AddCollateral: Show position id proof, add bucket to collateral
+
+Paydown: Show position id proof
+Paydown: Repay up to RAI principal + interest, store new loan principal and epoch, send back any remaining RAI if overpaid
+
+PartialWithdrawCollateral: Show position id proof
+PartialWithdrawCollateral: Withdraw collateral down to minimum collateral floor to maintain position
+}
+
+OpenPosition --> ActivePosition
+
+
+Draw ---> ClosePosition
+Paydown ---> ClosePosition
+PartialWithdrawCollateral --> ClosePosition
+AddCollateral --> ClosePosition
+ClosePosition: Takes bucket of RAI (principal + total interest), free and return collateral, send back collateral and remaining RAI if overpaid
+
+OpenPosition -[#orange]> Liquidate: Called by Liquidators
+Liquidate: Take position id and RAI payment (loan principal and interest), return liquidated position collateral
+Liquidate: Future Improvement - auction collateral so position owner can get partial redemption of equity
+
+Liquidate -[#red]> ProtocolInsolvency: Is protocol insolvent?
+[*] -[#red]-----> ProtocolInsolvency: Is protocol insolvent?
+
+state ProtocolInsolvency {
+[*] -> FreezeAndAllowRedemptionsOnly
+FreezeAndAllowRedemptionsOnly -> Redeem
+
+FreezeAndAllowRedemptionsOnly: Lock RAI supply, stop allowing new positions
+Redeem: Takes bucket of RAI, calculates the % of total RAI supply, and returns an equal % of the underlying collateral vault
+Redeem: Fractional redemption discourages bank run - no rush to the exit
+}
+
+@enduml

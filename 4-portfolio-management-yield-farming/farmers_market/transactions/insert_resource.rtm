@@ -1,0 +1,3 @@
+CALL_METHOD ComponentAddress("${ORACLE}") "insert_resource" ResourceAddress("030000000000000000000000000000000000000000000000000004");
+CALL_METHOD ComponentAddress("${ORACLE}") "insert_resource" ResourceAddress("${USD}");
+CALL_METHOD ComponentAddress("${ORACLE}") "insert_resource" ResourceAddress("${DOGE}");

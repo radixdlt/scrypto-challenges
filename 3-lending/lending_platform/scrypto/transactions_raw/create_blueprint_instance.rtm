@@ -1,0 +1,6 @@
+CALL_FUNCTION
+    PackageAddress("<<<package>>>")
+    "LendingPlatform" "instantiate_lending_platform";
+CALL_METHOD_WITH_ALL_RESOURCES
+    ComponentAddress("<<<admin_account>>>")
+    "deposit_batch";

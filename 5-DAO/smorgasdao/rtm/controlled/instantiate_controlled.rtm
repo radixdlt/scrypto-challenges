@@ -1,0 +1,22 @@
+# Instantiates a new Controlled component.
+#
+# Parameters:
+#
+# $package: Address of the published package containing the
+#           Controlled component
+#
+# $account: Address of the account running the transaction.
+CALL_METHOD 
+   ComponentAddress("${account}")
+   "lock_fee"
+   Decimal("10");
+
+CALL_FUNCTION
+   PackageAddress("${package}")
+   "Controlled"
+   "instantiate_controlled";
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");

@@ -1,0 +1,80 @@
+# Instantiates a new Radfolio.
+#
+# Parameters:
+#
+# package: address of the published package containing the
+#          Radfolio component
+#
+# account: address of the user account that will receive
+#          the admin badges
+#
+# investment_token: ResourceAddress of the token to manage (e.g.
+#                   030000000000000000000000000000000000000000000000000004)
+#
+# participants_nft_address: None to not use a Participants catalog
+#                           (i.e. we're not using partners), or
+#                           Some("<ResourceAddress>") of the
+#                           Participants NFTs to use. E.g.
+#                           Some("1122...3344")
+#
+# free_funds_target_percent: how many percent of the fund to hold back
+#                            (approximately) for withdrawal liquidity
+#                            (e.g. 10)
+#
+# investment_update_interval_epochs: how many epochs between full
+#                                    maintenance runs (e.g. 100)
+#
+# minimum_deposit: don't accept deposits below this amount (e.g. 1000)
+#
+# admin_badge_name: if None use default admin badge name, or if
+#                   Some("name") use name
+#
+# admin_badge_quantity: how many admin badges to mint and return to
+#                       the caller (e.g. 1)
+#
+# coupon_name: if None use default coupon name, or if Some("name") use
+#              name
+#
+# deposit_fee_bps: if None don't charge a general deposit fee, or if
+#                  Some("x") charge x basis points
+#
+# deposit_fee_partner_bps: if None don't offer a fee to partners, or
+#                          if Some("x") take x basis points from the
+#                          general deposit fee (if any) and give to
+#                          partners
+#
+# withdraw_fee_bps: if None don't charge a general withdraw fee, or if
+#                   Some("x") charge x basis points
+#
+# withdraw_fee_partner_bps: if None don't offer a fee to partners, or
+#                           if Some("x") take x basis points from the
+#                           withdraw deposit fee (if any) and give to
+#                           partners
+#
+# mint_badge_name: if None use the default minting badge name, or if
+#                  Some("name") use name
+#
+# iv_control_badge_name: if None use the default investment vehicle 
+#                        badge name, or if Some("name") use name
+CALL_FUNCTION
+   PackageAddress("${package}")
+   "Radfolio"
+   "instantiate_radfolio"
+   ResourceAddress("${investment_token}")
+   ${participants_nft_address}
+   Decimal("${free_funds_target_percent}")
+   ${investment_update_interval_epochs}u64
+   Decimal("${minimum_deposit}")
+   ${admin_badge_name}
+   ${admin_badge_quantity}u64
+   ${coupon_name}
+   ${deposit_fee_bps}
+   ${deposit_fee_partner_bps}
+   ${withdraw_fee_bps}
+   ${withdraw_fee_partner_bps}
+   ${mint_badge_name}
+   ${iv_control_badge_name};
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";

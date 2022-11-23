@@ -1,0 +1,9 @@
+#
+# Instantiates the Juice Component.
+# Should just be done once!
+#
+
+CALL_FUNCTION PackageAddress("${package}") "Juice" "instantiate_juice";
+
+# clean up the worktop
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

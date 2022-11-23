@@ -1,0 +1,360 @@
+>>> reset
+Data directory cleared.
+
+
+>>> new-account
+A new account has been created!
+Account address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a
+Public key: 005feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9
+No configuration found on system. will use the above account and public key as default.
+
+
+account=0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a
+pubkey=005feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9
+>>> set-default-account 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a  005feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9 
+Default account updated!
+
+
+>>> publish . 
+Success! New Package: 01ff3eae9463d913a0dba37b78896414eadf59ce144a9143c8018f
+
+warning: crate `petitcroco_OrderBook` should have a snake case name
+  |
+  = note: `#[warn(non_snake_case)]` on by default
+  = help: convert the identifier to snake case: `petitcroco_order_book`
+
+warning: `petitcroco-OrderBook` (lib) generated 1 warning
+    Finished release [optimized] target(s) in 0.03s
+
+package=01ff3eae9463d913a0dba37b78896414eadf59ce144a9143c8018f
+>>> call-function 01ff3eae9463d913a0dba37b78896414eadf59ce144a9143c8018f  TestTokens  init  testTokens-name 
+Transaction Status: SUCCESS
+Execution Time: 30 ms
+Instructions:
+├─ CallFunction { package_address: 01ff3eae9463d913a0dba37b78896414eadf59ce144a9143c8018f, blueprint_name: "TestTokens", function: "init", args: ["testTokens-name"] }
+└─ CallMethodWithAllResources { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "deposit_batch" }
+Instruction Outputs:
+├─ Address("02045ae9a11a80df853143b94868672b2ad7e26753e5bdc0b9a9b9")
+└─ ()
+Logs: 0
+New Entities: 2
+├─ ResourceDef: 03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542
+└─ Component: 02045ae9a11a80df853143b94868672b2ad7e26753e5bdc0b9a9b9
+
+
+testtokens=03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542
+component1=02045ae9a11a80df853143b94868672b2ad7e26753e5bdc0b9a9b9
+>>> call-method 02045ae9a11a80df853143b94868672b2ad7e26753e5bdc0b9a9b9  get_for_free  50 
+Transaction Status: SUCCESS
+Execution Time: 26 ms
+Instructions:
+├─ CallMethod { component_address: 02045ae9a11a80df853143b94868672b2ad7e26753e5bdc0b9a9b9, method: "get_for_free", args: [Decimal("50")] }
+└─ CallMethodWithAllResources { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "deposit_batch" }
+Instruction Outputs:
+├─ Bucket(1024u32)
+└─ ()
+Logs: 3
+├─ [INFO ] The special containers have : 7500 DUCKM.
+├─ [INFO ] A safe removal will take place : 50 DUCKM will be taken !
+└─ [INFO ] The special containers will have : 7450 DUCKM.
+New Entities: 0
+
+
+>>> show 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a 
+Component: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a
+Blueprint: { package_address: 010000000000000000000000000000000000000000000000000003, blueprint_name: "Account" }
+State: Struct({Struct((Array<U8>(0u8, 95u8, 236u8, 235u8, 102u8, 255u8, 200u8, 111u8, 56u8, 217u8, 82u8, 120u8, 108u8, 109u8, 105u8, 108u8, 121u8, 194u8, 219u8, 194u8, 57u8, 221u8, 78u8, 145u8, 180u8, 103u8, 41u8, 215u8, 58u8, 39u8, 251u8, 87u8, 233u8))), LazyMap("6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b01040000")})
+Lazy Map: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b01040000
+├─ Address("030000000000000000000000000000000000000000000000000004") => Vault("6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b02040000")
+└─ Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") => Vault("4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a02040000")
+Resources:
+├─ { amount: 50, resource_def: 03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542, name: "testTokens-name", symbol: "DUCKM" }
+└─ { amount: 1000000, resource_def: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+
+
+>>> call-function 01ff3eae9463d913a0dba37b78896414eadf59ce144a9143c8018f  OrderBook  init 
+Transaction Status: SUCCESS
+Execution Time: 22 ms
+Instructions:
+├─ CallFunction { package_address: 01ff3eae9463d913a0dba37b78896414eadf59ce144a9143c8018f, blueprint_name: "OrderBook", function: "init", args: [] }
+└─ CallMethodWithAllResources { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "deposit_batch" }
+Instruction Outputs:
+├─ Tuple(Bucket(1025u32), Address("02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b"))
+└─ ()
+Logs: 0
+New Entities: 4
+├─ ResourceDef: 03afe53b9981dddb1b4ae44ff09deeae68f5bf42b360d88eaeb077
+├─ ResourceDef: 03bb52f6cf513295fdd13dfa70a7bbd49aa8a860a304b4ff00c1f0
+├─ ResourceDef: 034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782
+└─ Component: 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b
+
+
+adminBadge=03afe53b9981dddb1b4ae44ff09deeae68f5bf42b360d88eaeb077
+_=03bb52f6cf513295fdd13dfa70a7bbd49aa8a860a304b4ff00c1f0
+memberBadge=034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782
+component2=02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b
+>>> call-method 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b  init_pair_orderbook  03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542  030000000000000000000000000000000000000000000000000004  1,03afe53b9981dddb1b4ae44ff09deeae68f5bf42b360d88eaeb077 
+Transaction Status: SUCCESS
+Execution Time: 21 ms
+Instructions:
+├─ CloneBucketRef { rid: Rid(1) }
+├─ CallMethod { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "withdraw", args: [Decimal("1"), Address("03afe53b9981dddb1b4ae44ff09deeae68f5bf42b360d88eaeb077"), BucketRef(512u32)] }
+├─ TakeFromWorktop { amount: 1, resource_address: 03afe53b9981dddb1b4ae44ff09deeae68f5bf42b360d88eaeb077 }
+├─ CreateBucketRef { bid: Bid(513) }
+├─ CallMethod { component_address: 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b, method: "init_pair_orderbook", args: [Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542"), Address("030000000000000000000000000000000000000000000000000004"), BucketRef(514u32)] }
+└─ CallMethodWithAllResources { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "deposit_batch" }
+Instruction Outputs:
+├─ BucketRef(512u32)
+├─ Bucket(1024u32)
+├─ Bucket(513u32)
+├─ BucketRef(514u32)
+├─ ()
+└─ ()
+Logs: 1
+└─ [INFO ] Order book correctly initialized!
+New Entities: 0
+
+
+>>> call-method 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b  become_member  account1 
+Transaction Status: SUCCESS
+Execution Time: 21 ms
+Instructions:
+├─ CallMethod { component_address: 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b, method: "become_member", args: ["account1"] }
+└─ CallMethodWithAllResources { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "deposit_batch" }
+Instruction Outputs:
+├─ Bucket(1027u32)
+└─ ()
+Logs: 0
+New Entities: 0
+
+
+>>> show 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a 
+Component: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a
+Blueprint: { package_address: 010000000000000000000000000000000000000000000000000003, blueprint_name: "Account" }
+State: Struct({Struct((Array<U8>(0u8, 95u8, 236u8, 235u8, 102u8, 255u8, 200u8, 111u8, 56u8, 217u8, 82u8, 120u8, 108u8, 109u8, 105u8, 108u8, 121u8, 194u8, 219u8, 194u8, 57u8, 221u8, 78u8, 145u8, 180u8, 103u8, 41u8, 215u8, 58u8, 39u8, 251u8, 87u8, 233u8))), LazyMap("6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b01040000")})
+Lazy Map: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b01040000
+├─ Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") => Vault("4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a02040000")
+├─ Address("034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782") => Vault("7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b245105040000")
+├─ Address("03afe53b9981dddb1b4ae44ff09deeae68f5bf42b360d88eaeb077") => Vault("ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d08040000")
+└─ Address("030000000000000000000000000000000000000000000000000004") => Vault("6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b02040000")
+Resources:
+├─ { amount: 50, resource_def: 03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542, name: "testTokens-name", symbol: "DUCKM" }
+├─ { amount: 1000000, resource_def: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+├─ { amount: 1, resource_def: 03afe53b9981dddb1b4ae44ff09deeae68f5bf42b360d88eaeb077, name: "Attests the holder to be an admin of the DUCKM exchange book" }
+└─ { amount: 1, resource_def: 034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782 }
+   └─ NON_FUNGIBLE { id: 5d558ce1cc9168d333a7cf7f72054522, immutable_data: Struct({"account1"}), mutable_data: Struct({}) }
+
+
+>>> call-method 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b  add_order_orderbook  03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542  030000000000000000000000000000000000000000000000000004  10  5  10,03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542  0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a  1,034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782 
+Transaction Status: SUCCESS
+Execution Time: 23 ms
+Instructions:
+├─ CloneBucketRef { rid: Rid(1) }
+├─ CallMethod { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "withdraw", args: [Decimal("10"), Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542"), BucketRef(512u32)] }
+├─ TakeFromWorktop { amount: 10, resource_address: 03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542 }
+├─ CloneBucketRef { rid: Rid(1) }
+├─ CallMethod { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "withdraw", args: [Decimal("1"), Address("034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782"), BucketRef(514u32)] }
+├─ TakeFromWorktop { amount: 1, resource_address: 034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782 }
+├─ CreateBucketRef { bid: Bid(515) }
+├─ CallMethod { component_address: 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b, method: "add_order_orderbook", args: [Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542"), Address("030000000000000000000000000000000000000000000000000004"), Decimal("10"), Decimal("5"), Bucket(513u32), Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a"), BucketRef(516u32)] }
+└─ CallMethodWithAllResources { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "deposit_batch" }
+Instruction Outputs:
+├─ BucketRef(512u32)
+├─ Bucket(1024u32)
+├─ Bucket(513u32)
+├─ BucketRef(514u32)
+├─ Bucket(1025u32)
+├─ Bucket(515u32)
+├─ BucketRef(516u32)
+├─ Bucket(513u32)
+└─ ()
+Logs: 2
+├─ [INFO ] Funds deposited on the order!
+└─ [INFO ] New order in the book, All orders : [([10, 5], 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a)] 
+New Entities: 0
+
+
+>>> call-method 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b  add_order_orderbook  03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542  030000000000000000000000000000000000000000000000000004  8  3.5  8,03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542  0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a  1,034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782 
+Transaction Status: SUCCESS
+Execution Time: 24 ms
+Instructions:
+├─ CloneBucketRef { rid: Rid(1) }
+├─ CallMethod { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "withdraw", args: [Decimal("8"), Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542"), BucketRef(512u32)] }
+├─ TakeFromWorktop { amount: 8, resource_address: 03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542 }
+├─ CloneBucketRef { rid: Rid(1) }
+├─ CallMethod { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "withdraw", args: [Decimal("1"), Address("034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782"), BucketRef(514u32)] }
+├─ TakeFromWorktop { amount: 1, resource_address: 034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782 }
+├─ CreateBucketRef { bid: Bid(515) }
+├─ CallMethod { component_address: 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b, method: "add_order_orderbook", args: [Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542"), Address("030000000000000000000000000000000000000000000000000004"), Decimal("8"), Decimal("3.5"), Bucket(513u32), Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a"), BucketRef(516u32)] }
+└─ CallMethodWithAllResources { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "deposit_batch" }
+Instruction Outputs:
+├─ BucketRef(512u32)
+├─ Bucket(1024u32)
+├─ Bucket(513u32)
+├─ BucketRef(514u32)
+├─ Bucket(1025u32)
+├─ Bucket(515u32)
+├─ BucketRef(516u32)
+├─ Bucket(513u32)
+└─ ()
+Logs: 2
+├─ [INFO ] Funds deposited on the order!
+└─ [INFO ] New order in the book, All orders : [([10, 5], 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a), ([8, 3.5], 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a)] 
+New Entities: 0
+
+
+>>> call-method 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b  add_order_orderbook  03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542  030000000000000000000000000000000000000000000000000004  13  2  13,03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542  0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a  1,034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782 
+Transaction Status: SUCCESS
+Execution Time: 25 ms
+Instructions:
+├─ CloneBucketRef { rid: Rid(1) }
+├─ CallMethod { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "withdraw", args: [Decimal("13"), Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542"), BucketRef(512u32)] }
+├─ TakeFromWorktop { amount: 13, resource_address: 03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542 }
+├─ CloneBucketRef { rid: Rid(1) }
+├─ CallMethod { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "withdraw", args: [Decimal("1"), Address("034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782"), BucketRef(514u32)] }
+├─ TakeFromWorktop { amount: 1, resource_address: 034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782 }
+├─ CreateBucketRef { bid: Bid(515) }
+├─ CallMethod { component_address: 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b, method: "add_order_orderbook", args: [Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542"), Address("030000000000000000000000000000000000000000000000000004"), Decimal("13"), Decimal("2"), Bucket(513u32), Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a"), BucketRef(516u32)] }
+└─ CallMethodWithAllResources { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "deposit_batch" }
+Instruction Outputs:
+├─ BucketRef(512u32)
+├─ Bucket(1024u32)
+├─ Bucket(513u32)
+├─ BucketRef(514u32)
+├─ Bucket(1025u32)
+├─ Bucket(515u32)
+├─ BucketRef(516u32)
+├─ Bucket(513u32)
+└─ ()
+Logs: 2
+├─ [INFO ] Funds deposited on the order!
+└─ [INFO ] New order in the book, All orders : [([10, 5], 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a), ([8, 3.5], 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a), ([13, 2], 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a)] 
+New Entities: 0
+
+
+>>> call-method 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b  get_best_price_orderbook  03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542  030000000000000000000000000000000000000000000000000004 
+Transaction Status: SUCCESS
+Execution Time: 21 ms
+Instructions:
+├─ CallMethod { component_address: 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b, method: "get_best_price_orderbook", args: [Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542"), Address("030000000000000000000000000000000000000000000000000004")] }
+└─ CallMethodWithAllResources { component_address: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a, method: "deposit_batch" }
+Instruction Outputs:
+├─ ()
+└─ ()
+Logs: 2
+├─ [INFO ] Current best price : 2 per unit.
+└─ [INFO ] Corresponding order : [13, 2] 
+New Entities: 0
+
+
+>>> new-account
+A new account has been created!
+Account address: 02728af5b6039a25c1391ccf70f46c2c2dd474ca56050082c26198
+Public key: 006b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918
+
+
+account2=02728af5b6039a25c1391ccf70f46c2c2dd474ca56050082c26198
+pubkey2=006b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918
+>>> set-default-account 02728af5b6039a25c1391ccf70f46c2c2dd474ca56050082c26198  006b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918 
+Default account updated!
+
+
+>>> call-method 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b  become_member  theAccount2example 
+Transaction Status: SUCCESS
+Execution Time: 22 ms
+Instructions:
+├─ CallMethod { component_address: 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b, method: "become_member", args: ["theAccount2example"] }
+└─ CallMethodWithAllResources { component_address: 02728af5b6039a25c1391ccf70f46c2c2dd474ca56050082c26198, method: "deposit_batch" }
+Instruction Outputs:
+├─ Bucket(1027u32)
+└─ ()
+Logs: 0
+New Entities: 0
+
+
+>>> call-method 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b  accept_an_order  03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542  030000000000000000000000000000000000000000000000000004  13  2  26,030000000000000000000000000000000000000000000000000004  1,034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782 
+Transaction Status: SUCCESS
+Execution Time: 27 ms
+Instructions:
+├─ CloneBucketRef { rid: Rid(1) }
+├─ CallMethod { component_address: 02728af5b6039a25c1391ccf70f46c2c2dd474ca56050082c26198, method: "withdraw", args: [Decimal("26"), Address("030000000000000000000000000000000000000000000000000004"), BucketRef(512u32)] }
+├─ TakeFromWorktop { amount: 26, resource_address: 030000000000000000000000000000000000000000000000000004 }
+├─ CloneBucketRef { rid: Rid(1) }
+├─ CallMethod { component_address: 02728af5b6039a25c1391ccf70f46c2c2dd474ca56050082c26198, method: "withdraw", args: [Decimal("1"), Address("034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782"), BucketRef(514u32)] }
+├─ TakeFromWorktop { amount: 1, resource_address: 034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782 }
+├─ CreateBucketRef { bid: Bid(515) }
+├─ CallMethod { component_address: 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b, method: "accept_an_order", args: [Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542"), Address("030000000000000000000000000000000000000000000000000004"), Decimal("13"), Decimal("2"), Bucket(513u32), BucketRef(516u32)] }
+└─ CallMethodWithAllResources { component_address: 02728af5b6039a25c1391ccf70f46c2c2dd474ca56050082c26198, method: "deposit_batch" }
+Instruction Outputs:
+├─ BucketRef(512u32)
+├─ Bucket(1024u32)
+├─ Bucket(513u32)
+├─ BucketRef(514u32)
+├─ Bucket(1025u32)
+├─ Bucket(515u32)
+├─ BucketRef(516u32)
+├─ Tuple(Bucket(513u32), Bucket(1026u32))
+└─ ()
+Logs: 3
+├─ [INFO ] The order exists! 
+├─ [INFO ] Ordre complet ! 
+└─ [INFO ] One less order in the book, All orders : [([10, 5], 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a), ([8, 3.5], 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a)] 
+New Entities: 0
+
+
+>>> show 02728af5b6039a25c1391ccf70f46c2c2dd474ca56050082c26198 
+Component: 02728af5b6039a25c1391ccf70f46c2c2dd474ca56050082c26198
+Blueprint: { package_address: 010000000000000000000000000000000000000000000000000003, blueprint_name: "Account" }
+State: Struct({Struct((Array<U8>(0u8, 107u8, 81u8, 212u8, 49u8, 223u8, 93u8, 127u8, 20u8, 28u8, 190u8, 206u8, 204u8, 247u8, 158u8, 223u8, 61u8, 216u8, 97u8, 195u8, 180u8, 6u8, 159u8, 11u8, 17u8, 102u8, 26u8, 62u8, 239u8, 172u8, 187u8, 169u8, 24u8))), LazyMap("3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e27801040000")})
+Lazy Map: 02728af5b6039a25c1391ccf70f46c2c2dd474ca56050082c261983fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e27801040000
+├─ Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") => Vault("e629fa6598d732768f7c726b4b621285f9c3b85303900aa912017db7617d8bdb05040000")
+├─ Address("034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782") => Vault("8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e6105040000")
+└─ Address("030000000000000000000000000000000000000000000000000004") => Vault("3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e27802040000")
+Resources:
+├─ { amount: 1, resource_def: 034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782 }
+│  └─ NON_FUNGIBLE { id: fcd20fd3958ddae75cc7c638f4c441a8, immutable_data: Struct({"theAccount2example"}), mutable_data: Struct({}) }
+├─ { amount: 999974, resource_def: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+└─ { amount: 13, resource_def: 03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542, name: "testTokens-name", symbol: "DUCKM" }
+
+
+>>> call-method 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b  get_best_price_orderbook  03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542  030000000000000000000000000000000000000000000000000004 
+Transaction Status: SUCCESS
+Execution Time: 22 ms
+Instructions:
+├─ CallMethod { component_address: 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b, method: "get_best_price_orderbook", args: [Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542"), Address("030000000000000000000000000000000000000000000000000004")] }
+└─ CallMethodWithAllResources { component_address: 02728af5b6039a25c1391ccf70f46c2c2dd474ca56050082c26198, method: "deposit_batch" }
+Instruction Outputs:
+├─ ()
+└─ ()
+Logs: 2
+├─ [INFO ] Current best price : 3.5 per unit.
+└─ [INFO ] Corresponding order : [8, 3.5] 
+New Entities: 0
+
+
+>>> show 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a 
+Component: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a
+Blueprint: { package_address: 010000000000000000000000000000000000000000000000000003, blueprint_name: "Account" }
+State: Struct({Struct((Array<U8>(0u8, 95u8, 236u8, 235u8, 102u8, 255u8, 200u8, 111u8, 56u8, 217u8, 82u8, 120u8, 108u8, 109u8, 105u8, 108u8, 121u8, 194u8, 219u8, 194u8, 57u8, 221u8, 78u8, 145u8, 180u8, 103u8, 41u8, 215u8, 58u8, 39u8, 251u8, 87u8, 233u8))), LazyMap("6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b01040000")})
+Lazy Map: 0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b01040000
+├─ Address("034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782") => Vault("7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b245105040000")
+├─ Address("030000000000000000000000000000000000000000000000000004") => Vault("6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b02040000")
+├─ Address("03afe53b9981dddb1b4ae44ff09deeae68f5bf42b360d88eaeb077") => Vault("ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d08040000")
+└─ Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542") => Vault("4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a02040000")
+Resources:
+├─ { amount: 1, resource_def: 03afe53b9981dddb1b4ae44ff09deeae68f5bf42b360d88eaeb077, name: "Attests the holder to be an admin of the DUCKM exchange book" }
+├─ { amount: 1, resource_def: 034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782 }
+│  └─ NON_FUNGIBLE { id: 5d558ce1cc9168d333a7cf7f72054522, immutable_data: Struct({"account1"}), mutable_data: Struct({}) }
+├─ { amount: 19, resource_def: 03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542, name: "testTokens-name", symbol: "DUCKM" }
+└─ { amount: 1000026, resource_def: 030000000000000000000000000000000000000000000000000004, name: "Radix", symbol: "XRD" }
+
+
+>>> show 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b 
+Component: 02b47568f61ad9596570b52e114e5151dd9ea4df982fb940eb0b6b
+Blueprint: { package_address: 01ff3eae9463d913a0dba37b78896414eadf59ce144a9143c8018f, blueprint_name: "OrderBook" }
+State: Struct({HashMap<Tuple, Vec>(Tuple(Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542"), Address("030000000000000000000000000000000000000000000000000004")), Vec<Tuple>(Tuple(Array<Decimal>(Decimal("10"), Decimal("5")), Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a")), Tuple(Array<Decimal>(Decimal("8"), Decimal("3.5")), Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a")))), HashMap<Address, Vault>(Address("03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542"), Vault("e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f091968301040000")), Address("03afe53b9981dddb1b4ae44ff09deeae68f5bf42b360d88eaeb077"), Vault("ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d05040000"), Address("034486cb926e3608d63429a08ed8a61122d70c7bd71d5db9880782")})
+Resources:
+├─ { amount: 18, resource_def: 03d527faee6d0b91e7c1bab500c6a986e5777a25d704acc288d542, name: "testTokens-name", symbol: "DUCKM" }
+└─ { amount: 1, resource_def: 03bb52f6cf513295fdd13dfa70a7bbd49aa8a860a304b4ff00c1f0 }
+
+

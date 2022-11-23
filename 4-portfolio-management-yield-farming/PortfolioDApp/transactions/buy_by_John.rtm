@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${account2}") "create_proof_by_amount" Decimal("1") ResourceAddress("03f601495a1e3904c6d2a8db6dff4e1e9944160396fce7ab494758");
+POP_FROM_AUTH_ZONE Proof("proof1");
+CALL_METHOD ComponentAddress("${portfolio}") "buy" Decimal("500") ComponentAddress("${account2}") ResourceAddress("${eth}") Proof("proof1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account2}") "deposit_batch";

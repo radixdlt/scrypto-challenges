@@ -1,0 +1,25 @@
+# Parameters:
+#
+# component: Address of the ArchDAO instance to use
+#
+# account: Account of user running the transaction. Must 
+#          be able to create proof of the admin badge.
+#
+# admin_badge: ResourceAddress of the admin badge.
+#
+# proposalProject: ComponentAddress of proposal component to add.
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${admin_badge}");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "add_proposal"
+   ComponentAddress("${proposal_project}")
+   "${proposal}";

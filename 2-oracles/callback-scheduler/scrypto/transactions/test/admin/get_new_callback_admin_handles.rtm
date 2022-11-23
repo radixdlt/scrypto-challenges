@@ -1,0 +1,7 @@
+CALL_METHOD 
+    ComponentAddress("${admin_account}") 
+    "create_proof" 
+    ResourceAddress("${scheduler_component_admin_badge}");
+
+CALL_METHOD ComponentAddress("${scheduler_component}") "get_new_callback_admin_handles";
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${admin_account}") "deposit_batch";

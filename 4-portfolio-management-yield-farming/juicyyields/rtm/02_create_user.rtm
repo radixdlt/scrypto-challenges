@@ -1,0 +1,19 @@
+#
+# creates a new user and gives him 5 initial Juice Token
+#
+
+# check the admin badge first
+CALL_METHOD ComponentAddress("${account}") "create_proof" ResourceAddress("${admin_badge}");
+
+# then take 5 JUICE from the vault to the worktop
+CALL_METHOD ComponentAddress("${juice_comp}") "withdraw" Decimal("5");
+
+# and from the worktop to a new bucket
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5.0") ResourceAddress("${juice_token}") Bucket("juice_bucket");
+
+
+# create a new component of JYields with the user and the bucket with 5 JUICE Token
+CALL_FUNCTION PackageAddress("${package}") "JYields" "create_user" "User1" Bucket("juice_bucket");
+
+# clean up the worktop
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

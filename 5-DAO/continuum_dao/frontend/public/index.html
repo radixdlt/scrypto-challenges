@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ContinuumDAO</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script type="module" src="/dist/index.js"></script>
+    
+    <h1>Vote Testing</h1>
+
+    <h2>1. Fetch User Account Address</h2>
+    <p><button id="fetchAccountAddress">Get wallet account address</button></p>
+    <p>Account Address: <pre id="accountAddress"></pre></p>
+    
+    <h2>2. Instantiate Components</h2>
+    <h3>Place the package address obtained from <a href="https://alphanet-deployer.radixdlt.com/">Alphanet Package Deployer</a> </h2>
+    <input type="text" placeholder="Package address" id="packageAddress" />
+    <p><button id="instantiateMockInstapassButton" >Instantiate Mock Instapass </button></p>
+    <p><button id="instantiateUselessBoxButton" >Instantiate Useless Box</button></p>
+    <p><button id="instantiateDAOButton" >Instantiate DAO</button></p>
+    <p>Useless Box Address: <span id="componentAddress"></span></p>
+    <p>Mock Instapass Address: <span id="componentAddress"></span></p>
+    <p>DAO Component Address: <span id="componentAddress"></span></p>
+
+    <h2>3. Account and Component Details</h2>
+    <p>My Account:<br><pre id="receipt"></pre></p>
+    <p><button id="refreshAccountStatsButton">Refresh Stats</button></p>
+    <p>My Account:<br><pre id="receipt"></pre></p>
+    <p>Useless Box:<br><pre id="receipt"></pre></p>
+
+    
+    <h2>4. Check balance</h2>
+    <p><button id="checkBalance">Check balance</button></p>
+    <p>I have <span id="userBalance">?</span> GUM, and the machine has <span id="machineBalance">?</span> GUM.</p>
+  </body>
+</html>

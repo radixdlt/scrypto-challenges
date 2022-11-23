@@ -1,0 +1,37 @@
+# Invests money into the fund, returning coupons.
+#
+# Parameters:
+#
+# component: ComponentAddress of the published package containing the
+#            Radfolio component.
+#
+# account: ComponentAddress of the user account from which funds to
+#          invest will be taken, and fund coupons will be put.
+#
+# amount: Number of tokens to invest.
+#
+# token: ResourceAddress of token to invest.
+#
+# partner: None for no partner, or else Some(NonFungibleId("partnerid"))
+#          to credit a partner for fees, e.g.
+#          Some(NonFungibleId("1122...3344"))
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount"
+   Decimal("${amount}")
+   ResourceAddress("${token}");
+   
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("${amount}")
+   ResourceAddress("${token}")
+   Bucket("fundsbucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "deposit"
+   Bucket("fundsbucket")
+   ${partner};
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";

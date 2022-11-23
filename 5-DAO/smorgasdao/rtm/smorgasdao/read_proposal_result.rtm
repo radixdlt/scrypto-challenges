@@ -1,0 +1,18 @@
+# Reads the result of a proposition.
+#
+# Parameters:
+#
+# $component: address of the SmorgasDao instance to use
+#
+# $account: address of the user account running this transaction
+#
+# $prop_id: proposition id to read the result of, e.g. 2285
+CALL_METHOD 
+   ComponentAddress("${account}")
+   "lock_fee"
+   Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_proposal_result"
+   ${prop_id}u64;

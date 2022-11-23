@@ -1,0 +1,12 @@
+CALL_METHOD
+    ComponentAddress("${admin_account}")
+    "withdraw_by_ids" TreeSet<NonFungibleId>(NonFungibleId("${callback_id_4}"))
+    ResourceAddress("${callback_admin_handle_resource}");
+
+TAKE_FROM_WORKTOP_BY_IDS
+    TreeSet<NonFungibleId>(NonFungibleId("${callback_id_4}"))
+    ResourceAddress("${callback_admin_handle_resource}")
+    Bucket("callback_admin_handle");
+
+CALL_METHOD ComponentAddress("${scheduler_component}") "execute_callback" Bucket("callback_admin_handle");
+#CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${admin_account}") "deposit_batch";

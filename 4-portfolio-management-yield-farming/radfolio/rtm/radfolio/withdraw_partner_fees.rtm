@@ -1,0 +1,30 @@
+# Withdraws partner fees accrued.
+#
+# Parameters:
+#
+# component: Address of the Radfolio instance to use
+#
+# account: Account of the user performing the operation.
+#          We must be able to make a Proof of the Participant NFT from here.
+#
+# participants_nft_addr: ResourceAddress of the Participants NFTs we use.
+#
+# partner_nfid: NonFungibleId of the partner wanting to withdraw fees.
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${participants_nft_addr}");
+
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+    TreeSet<NonFungibleId>(NonFungibleId("${partner_nfid}"))
+    ResourceAddress("${participants_nft_addr}")
+    Proof("proof");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "withdraw_partner_fees"
+   Proof("proof");
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";

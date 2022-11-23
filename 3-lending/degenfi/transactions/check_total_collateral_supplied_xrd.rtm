@@ -1,0 +1,2 @@
+CALL_METHOD ComponentAddress("${COMPONENT}") "check_total_collateral_supplied" ResourceAddress("030000000000000000000000000000000000000000000000000004");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS1}") "deposit_batch";

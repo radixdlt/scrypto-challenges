@@ -1,0 +1,144 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 15em;
+  padding: 1.5em;
+  will-change: filter;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  50%, 100% {
+    opacity: 1;
+    transform: rotateY(360deg)
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 5s ease-in-out;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .logo {
+    animation: logo-spin infinite 5s ease-in-out;
+  }
+}
+
+.card {
+  padding-top: 2em;
+  font-size: 20px;
+}
+
+.role-button {
+  display:block;
+  justify-content: space-between;
+}
+
+.borrower {
+  font-size: 20px;
+  color:blanchedalmond
+}
+
+.credit-name {
+  color:blanchedalmond
+}
+
+.credit-name:hover {
+    color: chocolate;
+  }
+
+.lender {
+  font-size: 20px;
+  color:lightblue;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.box-stats {
+  border: hidden;
+  width: auto;
+}
+
+.box-stats.stats {
+  padding: 20px;
+  padding-left: 50px;
+  padding-right: 50px;
+  height: 60px;
+  width: 50%;
+  margin: auto;
+  border: 1px solid #242424 ;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  word-break: normal;
+}
+
+.box-stats.stats.borrower {
+  background-color: blanchedalmond;
+}
+
+.box-stats.stats.lender {
+  background-color: lightblue;
+}
+
+.title {
+  color: rgb(0, 0, 0);
+  font-size: 15px;
+  font-weight: 100;
+  text-align: left;
+  width: 130px;
+}
+
+.info {
+  color: chocolate;
+  font-size: 25px;
+  font-weight: bold;
+  text-align: right;
+}
+
+.borrower-info {
+  color: chocolate;
+  font-size: 20px;
+  font-weight: bold;
+  margin-left: 70px;
+  text-align: right;
+}
+
+.lender-info {
+  color:cornflowerblue;
+  font-size: 20px;
+  font-weight: bold;
+  margin-left: 70px;
+  text-align: right;
+}
+
+.lender-info.id {
+  word-break: break-all;
+}
+
+.installment-credit-user {
+  border-radius: 25px;
+  background-color: blanchedalmond;
+  border: 1px solid blanchedalmond;
+  height: 120px;
+  width: 595px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1em;
+  align-self: center;
+  padding-top: 1em;
+}

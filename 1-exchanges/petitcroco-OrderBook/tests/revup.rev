@@ -1,0 +1,59 @@
+//resim -r tests/revup.rev
+
+reset
+
+//Set up a new account
+new-account -> account pubkey
+set-default-account $account $pubkey
+
+
+//Publish the package
+publish . -> package
+
+//Get for free 50 tests tokens for create a future pair
+call-function $package TestTokens init testTokens-name -> testtokens component1
+call-method $component1 get_for_free 50
+
+show $account
+
+//Creation of the OrderBook component
+call-function $package OrderBook init -> adminBadge _ memberBadge component2
+
+//pair initialization (testtokens / XRD)
+call-method $component2 init_pair_orderbook $testtokens 030000000000000000000000000000000000000000000000000004 1,$adminBadge
+
+//Give to the current account the member badge of the dex
+call-method $component2 become_member account1
+
+show $account
+
+//Adding orders in the pair
+call-method $component2 add_order_orderbook $testtokens 030000000000000000000000000000000000000000000000000004 10 5 10,$testtokens $account 1,$memberBadge
+call-method $component2 add_order_orderbook $testtokens 030000000000000000000000000000000000000000000000000004 8 3.5 8,$testtokens $account 1,$memberBadge//Adding orders in the pair
+call-method $component2 add_order_orderbook $testtokens 030000000000000000000000000000000000000000000000000004 13 2 13,$testtokens $account 1,$memberBadge
+
+//Show the best order for this pair
+call-method $component2 get_best_price_orderbook $testtokens 030000000000000000000000000000000000000000000000000004
+
+
+//Creation of a new account (the buyer)
+new-account -> account2 pubkey2
+set-default-account $account2 $pubkey2
+
+call-method $component2 become_member theAccount2example
+
+
+//He accept the best best order for the specific pair
+call-method $component2 accept_an_order $testtokens 030000000000000000000000000000000000000000000000000004 13 2 26,030000000000000000000000000000000000000000000000000004 1,$memberBadge
+
+// He exchange 26 XRD for 13 DUCKM test tokens
+show $account2
+
+//The new best pair is now : 
+call-method $component2 get_best_price_orderbook $testtokens 030000000000000000000000000000000000000000000000000004
+
+//The account1 has 26 XRD more in the wallet
+show $account
+
+//The OrderBook component have always 2 order for the pair, so he have 10+8 Duckm test tokens
+show $component2

@@ -1,0 +1,2 @@
+CALL_FUNCTION PackageAddress("${BASKET_PACKAGE}") "Fund" "new" "${NAME}" "${TOKEN_NAME}" "${TOKEN_SYMBOL}" ResourceAddress("${DENOMINATOR_TOKEN}") ${AUCTION_DELAY}u64 Decimal("${FEE_PERCENT}");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACCOUNT}") "deposit_batch";

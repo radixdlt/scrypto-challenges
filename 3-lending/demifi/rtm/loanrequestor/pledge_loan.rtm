@@ -1,0 +1,48 @@
+# A participant pledges funds towards a loan request
+#
+# Parameters:
+#
+# $component: address of the LoanRequestor instance to use
+#
+# $account: address of the user account running this transaction
+#
+# $participants_nft_addr: ResourceAddress of the Participants NFTs to use
+#
+# $token_resource: ResourceAddress of token to pledge
+#
+# $lender_nfid: NonFungibleId of the participant that pledges the loan
+#
+# $loanrequest_nfid: NonFungibleId of the loan request to pledge to
+#
+# $amount: Quantity of tokens to pledge
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${participants_nft_addr}");
+
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+    TreeSet<NonFungibleId>(NonFungibleId("${lender_nfid}"))
+    ResourceAddress("${participants_nft_addr}")
+    Proof("proof");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount"
+   Decimal("${amount}")
+   ResourceAddress("${token_resource}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("${amount}")
+   ResourceAddress("${token_resource}")
+   Bucket("pledge_bucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "pledge_loan"
+   Proof("proof")
+   NonFungibleId("${loanrequest_nfid}")
+   Bucket("pledge_bucket");
+
+CALL_METHOD_WITH_ALL_RESOURCES
+   ComponentAddress("${account}")
+   "deposit_batch";

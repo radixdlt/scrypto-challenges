@@ -1,0 +1,38 @@
+# The owner of account 3 wants to exchange some of the ADA that they own for some DOGE and wants to use RaDEX for this
+# swap. However, they can't find a direct pair for the swapping of ADA to DOGE.
+# 
+# Luckily, even though there does not exist a liquidity pool for ADA/DOGE, there does exist a path that can be taken to
+# swap ADA for DOGE tokens by going through a number of liquidity pools that connect these two tokens. The path of 
+# liquidity pools that will be taken to swap ADA for DOGE is as follows:
+# 
+# ADA -> ADA/XRD -> XRD/LTC -> LTC/BNB -> BNB/DOGE -> DOGE
+#
+# The swap can be even done in a single transaction using the RTM files to perform everything neatly and cleanly in a 
+# single transaction. In fact, performing the swap in a single transaction gives security to the owner of account 3 that
+# this swapping between different liquidity pools won't hinder on the amount of DOGE that they get at the end. If it 
+# affected it in a deeply negative way, then the assertion check at the end of the transaction file fails and everything
+# goes back to normal almost as if nothing had happened.
+
+# The owner of account 3 wishes to exchange 100 ADA for whatever amount of DOGE they can get. So, we withdraw 100 ADA 
+# into the transaction worktop and then into a bucket.
+CALL_METHOD ComponentAddress("<<<account3_address>>>") "withdraw_by_amount" Decimal("100.00") ResourceAddress("<<<cardano_resource_address>>>");
+TAKE_FROM_WORKTOP ResourceAddress("<<<cardano_resource_address>>>") Bucket("ADA_bucket");
+
+# Swapping ADA for XRD and then putting the XRD in a bucket
+CALL_METHOD ComponentAddress("<<<component_address>>>") "swap" Bucket("ADA_bucket") ResourceAddress("030000000000000000000000000000000000000000000000000004");
+TAKE_FROM_WORKTOP ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("XRD_bucket");
+
+# Swapping XRD for LTC and then putting the LTC in a bucket
+CALL_METHOD ComponentAddress("<<<component_address>>>") "swap" Bucket("XRD_bucket") ResourceAddress("<<<litecoin_resource_address>>>");
+TAKE_FROM_WORKTOP ResourceAddress("<<<litecoin_resource_address>>>") Bucket("LTC_bucket");
+
+# Swapping LTC for BNB and then putting the BNB in a bucket
+CALL_METHOD ComponentAddress("<<<component_address>>>") "swap" Bucket("LTC_bucket") ResourceAddress("<<<bnb_resource_address>>>");
+TAKE_FROM_WORKTOP ResourceAddress("<<<bnb_resource_address>>>") Bucket("BNB_bucket");
+
+# Swapping BNB for DOGE and asserting that we obtained at least 300 DOGE from this long swap. If the assertion goes 
+# through then we deposit everything in the transaction worktop into the account.
+CALL_METHOD ComponentAddress("<<<component_address>>>") "swap" Bucket("BNB_bucket") ResourceAddress("<<<doge_resource_address>>>");
+ASSERT_WORKTOP_CONTAINS_BY_AMOUNT Decimal("300") ResourceAddress("<<<doge_resource_address>>>");
+
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("<<<account3_address>>>") "deposit_batch";

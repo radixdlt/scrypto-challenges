@@ -1,0 +1,8 @@
+# Reads the ResourceAddress of the Loan NFTs for a LoanAcceptor
+#
+# Parameters:
+#
+# $component: address of the LoanAcceptor component to query
+CALL_METHOD
+   ComponentAddress("${component}")
+   "read_loan_nft_addr";

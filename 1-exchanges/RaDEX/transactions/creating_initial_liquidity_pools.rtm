@@ -1,0 +1,61 @@
+# In order for the trading on the DEX to begin, we first need to have liquidity in the DEX so that users can swap their
+# tokens for another tokens. In this RTM file, we are adding liquidity to the DEX from the account that created the 
+# test tokens.
+
+# Withdrawing the total amount of tokens from the account and into the transaction worktop.
+CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "withdraw" ResourceAddress("030000000000000000000000000000000000000000000000000004"); #Withdrawing XRD
+CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "withdraw" ResourceAddress("030baa629533524fd32c69b680a2d023930bf4ffdb2ea8b64c46d3"); #Withdrawing USDT
+CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "withdraw" ResourceAddress("03cd62a9db0197412158afc2c7ffaf7d1467d79be1fd76de030102"); #Withdrawing QNT
+CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "withdraw" ResourceAddress("03adad18349e8266c34e3d4aa3ee7a2e638c276b5f3055acf0c16c"); #Withdrawing ADA
+CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "withdraw" ResourceAddress("0397eed9dd1a3ca82e098f746a8d15cc0f74a6cd4f559433beac7e"); #Withdrawing BTC
+CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "withdraw" ResourceAddress("0379dfcc9d7c08acf52d8f9f61f3164b880a2019d2d372d1686a43"); #Withdrawing LTC
+CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "withdraw" ResourceAddress("0315ef51fae19677dd3b13bc352747c0c10bdabae12660221c4b3a"); #Withdrawing BNB
+CALL_METHOD ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "withdraw" ResourceAddress("035e45ed44cce6324816ec153d0548535c2bd5843e03a1b45a2d75"); #Withdrawing DOGE
+
+# Creating an XRD-USDT pool with: 14,000 USDT and 100,000 XRD.
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000.00") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("XRD_USDT_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("14000.00") ResourceAddress("030baa629533524fd32c69b680a2d023930bf4ffdb2ea8b64c46d3") Bucket("USDT_XRD_bucket");
+CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "add_liquidity" Bucket("USDT_XRD_bucket") Bucket("XRD_USDT_bucket");
+
+# Creating a QNT-USDT pool with: 100,000 USDT and 865.276 QNT.
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("865.276") ResourceAddress("03cd62a9db0197412158afc2c7ffaf7d1467d79be1fd76de030102") Bucket("QNT_USDT_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000.00") ResourceAddress("030baa629533524fd32c69b680a2d023930bf4ffdb2ea8b64c46d3") Bucket("USDT_QNT_bucket");
+CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "add_liquidity" Bucket("USDT_QNT_bucket") Bucket("QNT_USDT_bucket");
+
+# Creating a ADA-USDT pool with: 100,000 USDT and 105263.1578 ADA
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("105263.1578") ResourceAddress("03adad18349e8266c34e3d4aa3ee7a2e638c276b5f3055acf0c16c") Bucket("ADA_USDT_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100000.00") ResourceAddress("030baa629533524fd32c69b680a2d023930bf4ffdb2ea8b64c46d3") Bucket("USDT_ADA_bucket");
+CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "add_liquidity" Bucket("USDT_ADA_bucket") Bucket("ADA_USDT_bucket");
+
+# Creating a BTC-USDT pool with: 10,000,000 USDT tokens and 232.558 BTC
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("232.558") ResourceAddress("0397eed9dd1a3ca82e098f746a8d15cc0f74a6cd4f559433beac7e") Bucket("BTC_USDT_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("10000000.00") ResourceAddress("030baa629533524fd32c69b680a2d023930bf4ffdb2ea8b64c46d3") Bucket("USDT_BTC_bucket");
+CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "add_liquidity" Bucket("USDT_BTC_bucket") Bucket("BTC_USDT_bucket");
+
+# Creating an LTC-BTC pool with: 23.1835 BTC and 8720.6767 LTC
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("8720.6767") ResourceAddress("0379dfcc9d7c08acf52d8f9f61f3164b880a2019d2d372d1686a43") Bucket("LTC_BTC_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("23.1835") ResourceAddress("0397eed9dd1a3ca82e098f746a8d15cc0f74a6cd4f559433beac7e") Bucket("BTC_LTC_bucket");
+CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "add_liquidity" Bucket("LTC_BTC_bucket") Bucket("BTC_LTC_bucket");
+
+# Creating an ADA-XRD pool with: 19526.357 ADA and 67485 XRD.
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("67485") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("XRD_ADA_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("19526.357") ResourceAddress("03adad18349e8266c34e3d4aa3ee7a2e638c276b5f3055acf0c16c") Bucket("ADA_XRD_bucket");
+CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "add_liquidity" Bucket("XRD_ADA_bucket") Bucket("ADA_XRD_bucket");
+
+# Creating an LTC-XRD pool with: 88.67 LTC and 67485 XRD
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("67485") ResourceAddress("030000000000000000000000000000000000000000000000000004") Bucket("XRD_LTC_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("88.67") ResourceAddress("0379dfcc9d7c08acf52d8f9f61f3164b880a2019d2d372d1686a43") Bucket("LTC_XRD_bucket");
+CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "add_liquidity" Bucket("XRD_LTC_bucket") Bucket("LTC_XRD_bucket");
+
+# Creating an LTC-BNB pool with: 88.67 LTC and 24.2187 BNB
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("24.2187") ResourceAddress("0315ef51fae19677dd3b13bc352747c0c10bdabae12660221c4b3a") Bucket("BNB_LTC_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("88.67") ResourceAddress("0379dfcc9d7c08acf52d8f9f61f3164b880a2019d2d372d1686a43") Bucket("LTC_BNB_bucket");
+CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "add_liquidity" Bucket("BNB_LTC_bucket") Bucket("LTC_BNB_bucket");
+
+# Creating an BNB-DOGE pool with: 2481.57 BNB and 7692307.692 DOGE
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("2481.57") ResourceAddress("0315ef51fae19677dd3b13bc352747c0c10bdabae12660221c4b3a") Bucket("BNB_DOGE_bucket");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("7692307.692") ResourceAddress("035e45ed44cce6324816ec153d0548535c2bd5843e03a1b45a2d75") Bucket("DOGE_BNB_bucket");
+CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "add_liquidity" Bucket("BNB_DOGE_bucket") Bucket("DOGE_BNB_bucket");
+
+# Deposit the tracking tokens back into the account
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a") "deposit_batch";

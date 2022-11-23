@@ -1,0 +1,9 @@
+CALL_METHOD 
+    ComponentAddress("${seller_account_address}") 
+    "create_proof"
+    ResourceAddress("${seller_badge_resource_address}");
+
+CALL_METHOD 
+    ComponentAddress("${token_sale_component_address}") 
+    "change_price"
+    Decimal("50");

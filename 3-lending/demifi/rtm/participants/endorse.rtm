@@ -1,0 +1,29 @@
+# One Participant endorses another
+#
+# Parameters:
+#
+# $account: address of the account running this transaction, used to create proof
+#
+# $component: address of the Participants component to call
+#
+# $nft_address: The ResourceAddress of the Participant NFTs
+#
+# $endorser_nfid: NFT id of the Participent doing the endorsing. The transaction
+#                 needs to be able to create a Proof of this NFT.
+#
+# $endorse_target_nfid: NFT id of the Participant to endorse
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${nft_address}");
+
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+    TreeSet<NonFungibleId>(NonFungibleId("${endorser_nfid}"))
+    ResourceAddress("${nft_address}")
+    Proof("proof");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "endorse"
+   Proof("proof")
+   NonFungibleId("${endorse_target_nfid}");

@@ -1,0 +1,38 @@
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "withdraw_by_amount" Decimal("5000") ResourceAddress("${RADSH}");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "withdraw_by_amount" Decimal("15000") ResourceAddress("${BTC}");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "withdraw_by_amount" Decimal("15000") ResourceAddress("${DOGE}");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "withdraw_by_amount" Decimal("15000") ResourceAddress("${USD}");
+CALL_METHOD ComponentAddress("${ACC_ADDRESS2}") "withdraw_by_amount" Decimal("20000") ResourceAddress("${XRD}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${RADSH}") Bucket("bucket1");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${XRD}") Bucket("bucket2");
+
+
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${BTC}") Bucket("bucket3");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${USD}") Bucket("bucket4");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${BTC}") Bucket("bucket5");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${DOGE}") Bucket("bucket6");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${BTC}") Bucket("bucket7");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${XRD}") Bucket("bucket8");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${USD}") Bucket("bucket9");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${DOGE}") Bucket("bucket10");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${USD}") Bucket("bucket11");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${XRD}") Bucket("bucket12");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${DOGE}") Bucket("bucket13");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("5000") ResourceAddress("${XRD}") Bucket("bucket14");
+
+CALL_METHOD ComponentAddress("${RADEX}") "new_liquidity_pool" Bucket("bucket1") Bucket("bucket2");
+CALL_METHOD ComponentAddress("${RADEX}") "new_liquidity_pool" Bucket("bucket3") Bucket("bucket4");
+CALL_METHOD ComponentAddress("${RADEX}") "new_liquidity_pool" Bucket("bucket5") Bucket("bucket6");
+CALL_METHOD ComponentAddress("${RADEX}") "new_liquidity_pool" Bucket("bucket7") Bucket("bucket8");
+CALL_METHOD ComponentAddress("${RADEX}") "new_liquidity_pool" Bucket("bucket9") Bucket("bucket10");
+CALL_METHOD ComponentAddress("${RADEX}") "new_liquidity_pool" Bucket("bucket11") Bucket("bucket12");
+CALL_METHOD ComponentAddress("${RADEX}") "new_liquidity_pool" Bucket("bucket13") Bucket("bucket14");
+
+
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACC_ADDRESS2}") "deposit_batch";

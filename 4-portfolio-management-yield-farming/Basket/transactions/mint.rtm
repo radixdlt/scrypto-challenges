@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("${ACCOUNT}") "withdraw_by_amount" Decimal("${AMOUNT}") ResourceAddress("${XRD}");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("${AMOUNT}") ResourceAddress("${XRD}") Bucket("bucket1");
+CALL_METHOD ComponentAddress("${FUND}") "mint" Bucket("bucket1");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${ACCOUNT}") "deposit_batch";

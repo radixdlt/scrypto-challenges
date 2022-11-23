@@ -1,0 +1,12 @@
+# Reads the current value of the fund's coupons, measured against the
+# fund's token.
+#
+# Parameters:
+#
+# component: address of the Radfolio instance to use
+#
+# amount: Number of coupons to value, e.g. 100
+CALL_METHOD
+   ComponentAddress("${component}")
+   "value_of_coupons"
+   Decimal("${amount}");

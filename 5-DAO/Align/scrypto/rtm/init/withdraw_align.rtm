@@ -1,0 +1,7 @@
+# Just for testing, should not use in practice
+CALL_METHOD ComponentAddress("${caller}") "lock_fee" Decimal("100");
+
+CALL_METHOD ComponentAddress("${project_comp}") "withdraw" Decimal("${align_withdraw_amount}");
+
+CALL_METHOD ComponentAddress("${caller}") "deposit_batch" Expression("ENTIRE_WORKTOP");
+# CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${caller}") "deposit_batch";

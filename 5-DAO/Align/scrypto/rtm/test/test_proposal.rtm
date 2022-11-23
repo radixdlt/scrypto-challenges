@@ -1,0 +1,15 @@
+CALL_METHOD ComponentAddress("${caller}") "lock_fee" Decimal("100");
+
+CALL_METHOD ComponentAddress("${caller}") "create_proof" ResourceAddress("${member_sbt}");
+
+POP_FROM_AUTH_ZONE Proof("sbt");
+
+CALL_METHOD ComponentAddress("${dao_comp}") "new_proposal" 
+    Proof("sbt") 
+    Struct(Vec<Struct>(Struct(ComponentAddress("${component_address}"), "${method}", "${args}")))
+    Decimal("${fund_demand}")
+    ${time_delay}u64
+    Some(ResourceAddress("${resource}"));
+
+CALL_METHOD ComponentAddress("${caller}") "deposit_batch" Expression("ENTIRE_WORKTOP");
+# CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${caller}") "deposit_batch";

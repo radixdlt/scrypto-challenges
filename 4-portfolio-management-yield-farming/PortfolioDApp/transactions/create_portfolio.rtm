@@ -1,0 +1,2 @@
+CALL_FUNCTION PackageAddress("017045972dc31c4425bde71adf087ddedbf7b10adf56ec71a6ce1b") "Portfolio" "new" ResourceAddress("030000000000000000000000000000000000000000000000000004") ResourceAddress("${btc}") ResourceAddress("${eth}") ResourceAddress("${leo}") ComponentAddress("${lending}") ComponentAddress("${trading}") ResourceAddress("${lend_nft}") ResourceAddress("${borrow_nft}") ResourceAddress("${lnd}");
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

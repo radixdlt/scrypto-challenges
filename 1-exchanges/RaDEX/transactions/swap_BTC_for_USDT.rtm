@@ -1,0 +1,27 @@
+# Unfortunately, the owner of account 2 is in some kind of financial trouble and needs some USDT urgently. They have 
+# found that they need about $500,000 for the financial trouble that they are in. The owner of account 2 has decided to
+# sell some of the bitcoin that they own to help them with the financial issues that they have. They're not interested 
+# in selling more than what they need and they're only willing to sell any amount of bitcoin below or equal to 20 BTC
+# to help them with their financial issues.
+#
+# The owner of account 2 have decided to use RaDEX to sell some of their BTC for exactly $500,000. This RTM file contains
+# the instructions that would be carried out in order to sell enough BTC to cover the financial needs of the owner of 
+# account 2.
+
+# Withdrawing 20 BTC into the transaction worktop to exchange them for USDT
+CALL_METHOD ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3") "withdraw_by_amount" Decimal("20") ResourceAddress("0397eed9dd1a3ca82e098f746a8d15cc0f74a6cd4f559433beac7e");
+
+# Create a bucket from the 20 withdrawn BTC
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("20") ResourceAddress("0397eed9dd1a3ca82e098f746a8d15cc0f74a6cd4f559433beac7e") Bucket("btc_bucket");
+
+# Calling the `swap_tokens_for_exact_tokens` method on the RaDEX component to attempt to swap the 20 BTC for the 
+# $500,000 that they need.
+CALL_METHOD ComponentAddress("02298487c8c09a7aa4f04b900d5c642e117ad30e9e5cf761f93cec") "swap_tokens_for_exact_tokens" Bucket("btc_bucket") ResourceAddress("030baa629533524fd32c69b680a2d023930bf4ffdb2ea8b64c46d3") Decimal("500000");
+
+# Checking to ensure that after this method call, that $500,000 are present in the workop. If the 500,000 USDT tokens are
+# not present in the transaction worktop, then the transaction fails and the owner of account 2 gets back their BTC 
+# tokens. This is an extra check that's all. 
+ASSERT_WORKTOP_CONTAINS_BY_AMOUNT Decimal("500000") ResourceAddress("030baa629533524fd32c69b680a2d023930bf4ffdb2ea8b64c46d3");
+
+# If the above method call was successful, we deposit everything from the transaction worktop and back into the account
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d3") "deposit_batch";

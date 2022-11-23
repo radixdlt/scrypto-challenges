@@ -1,0 +1,26 @@
+# Changes the minimum deposit.
+#
+# Parameters:
+#
+# component: Address of the ArchDAO instance to use
+#
+# account: Account of the user performing the operation.
+#          We must be able to make a Proof of the admin badge from here.
+#
+# admin_badge: ResourceAddress of the component's admin badges
+#
+# minimum: New minimum deposit, e.g. 5000
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+    
+CALL_METHOD
+   ComponentAddress("${account}")
+   "create_proof"
+   ResourceAddress("${admin_badge}");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "set_minimum_deposit"
+   Decimal("${minimum}");
