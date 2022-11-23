@@ -6,7 +6,8 @@ Fraction is a platform where users can invest in assets, with the help of fracti
 
 ## User Journey
 
-User Connecting
+### User Connecting
+
 <img src="https://github.com/J-Son89/scrypto-challenges/blob/main/6-nfts-for-financial-applications/fond/app/images/landingPage.png" alt="drawing" width="500"/>
 
 The landing page, shows the user an overview of the website.
