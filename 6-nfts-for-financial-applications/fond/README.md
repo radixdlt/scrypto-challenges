@@ -49,6 +49,17 @@ Admins can
 - buy items with completed campaigns
 - sell items 
 
+#### Calling these methods
+To call these methods there are some Transaction Manifests defined in the codebase.
+
+instantiate.rtm is the method needed for an admin to instantiate the component.
+
+create-campaign.rtm is the method need for creating a campaign.
+
+buy.rtm and sell.rtm are both self explanatory.
+
+All of these manifests are using addresses etc on the Alphanet network but some details might need to be adjusted, such as the campaign index etc.
+
 ### User
 Users can
 - see available campaigns data
@@ -72,4 +83,6 @@ Creating a campaign can be difficult when finding high value items with good pot
 As the project grows, the requirement for Users to revoke their contribution from an investment will become more of a concern.
 Further, if for some reason an investment seems to have lost it's potential, admins will have the functionality to cancel a campaign in which case contributors will be able to retrieve their funds.
 
-
+## Admin panel
+At present, there is no admin panel. Everything is being done by Transaction Manifest in the browser extension.
+The intention is to build out a fully formed interactive admin page, where admins can handle all of the neccessary functionality needed.
