@@ -1,0 +1,7 @@
+CALL_METHOD ComponentAddress("system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs9fh54n") "lock_fee" Decimal("100");
+CALL_METHOD ComponentAddress("${account}") "withdraw_by_amount" Decimal("${total_compensation}") ResourceAddress("${radix}");
+TAKE_FROM_WORKTOP ResourceAddress("${radix}") Bucket("xrd_bucket");
+CALL_METHOD ComponentAddress("${account}") "create_proof_by_amount" Decimal("1") ResourceAddress("${client_badge}");
+POP_FROM_AUTH_ZONE Proof("client_proof");
+CALL_METHOD ComponentAddress("${work_component}") "create_new_work" Decimal("${total_compensation}") "${work_title}" "${work_description}" Vec<String>(${skills_required}) Bucket("xrd_bucket") Proof("client_proof");
+CALL_METHOD ComponentAddress("${account}") "deposit_batch" Expression("ENTIRE_WORKTOP");
