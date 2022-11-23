@@ -17,6 +17,7 @@
  
 
 N.B."Instructions" data tabs within Transactions output as well as other empty fields have been intentionally obmitted.
+
 -------------------------------------------------------------------------------------------
 # Index  
 -------------------------------------------------------------------------------------------	
@@ -153,9 +154,9 @@ Parcel 0202
 
 #
 ### Part_2 
-# Architect signup showing his own SBT as proof whom carry on his Study title degrees data info. Protocol mint an architect badge to allow
-# him to submit house buildings projects within protocol whom later can be purchased by other Neverland land owners wishing to build them up
-# within their land properties.
+## Architect signup showing his own SBT as proof whom carry on his Study title degrees data info. Protocol mint an architect badge to allow
+## him to submit house buildings projects within protocol whom later can be purchased by other Neverland land owners wishing to build them up
+## within their land properties.
 -------------------------------------------------------------------------------------------
 
 > Architect signup showing his own SBT as proof whom carry on his Study title degrees data info.
@@ -200,8 +201,8 @@ Logs: 0
 [Back Up](#index)
 #
 ### Part_3 
-# Neverland Land Asset NFT owner consult house project list within protocol and buy a house project  
-# to realize it within his property, protocol mint a House Project Asset NFT. 
+## Neverland Land Asset NFT owner consult house project list within protocol and buy a house project  
+## to realize it within his property, protocol mint a House Project Asset NFT. 
 -------------------------------------------------------------------------------------------
 
 > Neverland Land Asset NFT owner consult house project list within protocol
@@ -257,8 +258,8 @@ Logs: 2
 [Back Up](#index)
 #
 ### Part_4 
-# Architect evaluate his credit amount within protocol once his submitted house projec has been sold and claim then
-# providing his Arch Badge as proof.
+## Architect evaluate his credit amount within protocol once his submitted house projec has been sold and claim then
+## providing his Arch Badge as proof.
 -------------------------------------------------------------------------------------------
 
 > Architect evaluate his credit amount within protocol once his submitted house projec has been sold.
@@ -299,11 +300,11 @@ Cost Units: 100000000 limit, 1235706 consumed, 0.0000001 XRD per cost unit
 [Back Up](#index)
 #
 ### Part_5
-# Neverland Land Asset NFT owner submit a build call within protocol to find a contractor wishing to build up a house in his land property
-# following architect's house project.
-# Land owner needs to specify contract amount, duration, contract's URL pointer, deposit an amount in protocol's currency, deposit 
-# House Project NFT as well as Land Property AssetNFT and authenticate himself through SBT proof to testify land property ownership's correspondence.
-# General contractor consults build calls list within protocol.
+## Neverland Land Asset NFT owner submit a build call within protocol to find a contractor wishing to build up a house in his land property
+## following architect's house project.
+## Land owner needs to specify contract amount, duration, contract's URL pointer, deposit an amount in protocol's currency, deposit 
+## House Project NFT as well as Land Property AssetNFT and authenticate himself through SBT proof to testify land property ownership's correspondence.
+## General contractor consults build calls list within protocol.
 -------------------------------------------------------------------------------------------
 
 > Switch default account land owner
@@ -365,11 +366,11 @@ Logs: 19
 [Back Up](#index)
 #
 ### Part_6 
-# General Contractor submit a build call.
-# He needs to specify which build call he's subscribing, provide a bond in protocol 
-# currency, provide his study Degree data within SBT proof.
-# General Contractor deliver the building.
-# General Contractor check the building contract to verify data has been correctly updated.
+## General Contractor submit a build call.
+## He needs to specify which build call he's subscribing, provide a bond in protocol 
+## currency, provide his study Degree data within SBT proof.
+## General Contractor deliver the building.
+## General Contractor check the building contract to verify data has been correctly updated.
 -------------------------------------------------------------------------------------------
 
 > General Contractor submit a build call
@@ -468,8 +469,8 @@ Logs: 17
 [Back Up](#index)
 #
 ### Part_7 
-# Neverland Land Asset NFT owner check the buid call list to verify building contract has been executed,
-# approve building contract and performs a datacheck within his SBT and AssetNFTs to verify they've been succesfully updated.
+## Neverland Land Asset NFT owner check the buid call list to verify building contract has been executed,
+## approve building contract and performs a datacheck within his SBT and AssetNFTs to verify they've been succesfully updated.
 ----------------------------------------------------------------------------------------------------------------------
 
 > Verify building contract has been executed
