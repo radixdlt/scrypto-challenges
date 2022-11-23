@@ -1,54 +1,14 @@
-# Fond 
-A platform where users can invest in an asset proposed by the company. Once the users invest they get an NFT representing their share of the item. When the investment goal for an asset is reached, the platform buys the item. It can later sell a previously bought item and distributes the funds to their owners accordingly.
+# Fraction
 
-## Initialisation:
-Smart contract initiates the company.
-- This creates an Admin Badge for the account initialising the smart contract.
-- Creates a vault for the currently listed items (items that haven't reached their investment goal yet)
-- Creates a vault for the company's inventory (items that have been bought already)
-- Creates a structure to keep track of the funds that have been put into an item (e.g.: a HashMap<NonFungibleId, Vault>, where NonFungibleId is the ID of the listed asset and the Vault is where the funds are stored.)
+Fraction is a platform where users can invest in assets, with the help of fractional NFTs. We set the entry barrier for high value items very low and therefore allow a brought investor base to invest in an asset class, that wasn’t accessible for them beforehand.
 
-## User roles:
+ We research items with a high growth value and propose them on our website. Users can connect with their Radix wallet and buy fractions of the asset. One asset is represented by one NFT, which in turn is composed of multiple other NFTs. Those NFTs will verify the ownership of investors. Once a funding goal is reached, investors receive an NFT, representing their share and we will buy and store the item. When the asset increases in value according to our goals, we sell it and all holders share the profit. There is no risk if the funding goal is not reached, as users will get their money back immediately. 
 
-### Admin Badge holder 
-⬇️ 1. add admins
-  - creates a badge to give to that account
+![alt text] "https://github.com/J-Son89/scrypto-challenges/6-nfts-for-financial-applications/fond/app/images/landingPage.png"
 
-⚠️ 2. create a campaign to invest in a new item.
-- INITIALLY: accept RDX only
-- LATER: specify an accepted token per item
 
-⚠️ 3. buy an item
-- INITIALLY: keep it simple, mint an NFT object and burn the funds
-- add to company inventory vault
-- LATER: consider oracles for external data exchange
+## Frontend
+The frontend of this application is a basic React App.
 
-⚠️4. sell items owned by the company
- - this releases the item from the company inventory at a price (retrieved from external source - mocked in our case)
-- INITIALLY: we just fix a price (let's say for example it always sells for 10% more of the original price), and simulate selling it to an external source, i.e., we burn the asset and split the acquired funds with the investors of the campaign at amounts relative to their contribution
-- LATER: Oracles for external data sources and company taking a cut of the funds
+Initially install the dependencies with `npm i` and then run `npm start` to run the application.
 
-⬇️ 5. move funds from the company vaults to admin accounts
-6. can see available campaigns 
-7. can see inventory of company 
-can't really make my mind up on the last two
-### User
-⚠️ 1. can see available campaigns to invest in (get_campaigns)
-⚠️ 2. can invest in available campaigns (invest_in_campaign)
-⬇️ 3. can see inventory of company
-⬇️ 4. can go back on their decision and sell their ownership NFT (assuming the item is still listed), for the initial amount they invested
-
-## current script
-
-(First time)
-resim reset
-resim new-account
-export acc1=<account-address>
-
-(cd to /fond)
-resim publish . 
-export pkg=<package-address>
-
-resim call-function $pkg Fond instantiate_fond  
-export comp=<component-address>
-resim call-method $comp create_campaign "wine" "red" 6.0 
