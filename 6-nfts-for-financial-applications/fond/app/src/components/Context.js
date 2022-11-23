@@ -32,12 +32,12 @@ class BlockProvider extends Component {
         this.setState({address: (accountAddresses) ? accountAddresses[0].address : null})
     }
 
-    buy = async () => {
+    buy = async (amount) => {
         let manifest = new ManifestBuilder()
             .callMethod(this.state.address, "lock_fee", ['Decimal("100")'])
-            .withdrawFromAccountByAmount(this.state.address, 10, "resource_tdx_a_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqegh4k9")
-            .takeFromWorktopByAmount(10, "resource_tdx_a_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqegh4k9", "bucket1")
-            .callMethod(this.componentAddress, "buy_gumball", ['Bucket("bucket1")'])
+            .withdrawFromAccountByAmount(this.state.address, amount, "resource_tdx_a_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqegh4k9")
+            .takeFromWorktopByAmount(amount, "resource_tdx_a_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqegh4k9", "bucket1")
+            .callMethod(this.componentAddress, "invest_in_campaigns", ['Bucket("bucket1")', 'Decimal("0")'])
             .callMethod(this.state.address, "deposit_batch", ['Expression("ENTIRE_WORKTOP")'])
             .build()
             .toString();
@@ -55,7 +55,11 @@ class BlockProvider extends Component {
         const receipt = await this.transactionApi.transactionReceiptPost({
             v0CommittedTransactionRequest: { intent_hash: hash.value },
         })
+
+        console.log(receipt.committed.receipt.state_updates)
     }
+
+    async componentDidMount () {}
 
     render() {
         return (
