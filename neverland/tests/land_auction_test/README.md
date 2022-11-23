@@ -9,6 +9,7 @@ A share of auctions selling profit goes to the Academy component Vault, as contr
 
 
 N.B."Instructions" data tabs within Transactions output as well as other empty fields have been intentionally obmitted.
+
 -------------------------------------------------------------------------------------------
 # Index  
 -------------------------------------------------------------------------------------------	
