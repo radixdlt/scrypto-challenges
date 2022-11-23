@@ -1,8 +1,8 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-orange.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 
-![](./img/neverland_logo.jpg)
-[![Credit](https://img.shields.io/badge/Pic_Credit-Akshat_Soni-lightblue.svg)](https://www.pexels.com/@akshat-soni-1170605)	
+![](./img/neverland.jpg)
+[![Credit](https://img.shields.io/badge/Pic_Credit-Max_Bohme-red.svg)](https://unsplash.com/@max_thehuman)	
 
 -------------------------------------------------------------------------------------------
 ### Index  
@@ -34,18 +34,19 @@
 ----------------------------------------------------------------------- 
 
 Neverland concept aims to explore new ways to connect SBT and NFT virtual assets into Real Estate world.
+
 Surprisingly what results applicable to real estate's assets field is applicable as well to every society field including assets as proof 
 of individual property or individual identity, so future fields of application seem wide open.
 
 In Neverland environment whole data concerning registered user's assets are saved within a personal SBT perpetually stored within his personal
 account address.  
-User's SBT proof is normally required by protocols within Neverland to collect personal assets data and educational degrees data to respectively verify 
+User's SBT proof is normally required by protocols within Neverland to collect financial assets data as well as educational degrees data to respectively verify 
 ownership and titolarity, update data in case of assets mint, merge, buying and selling operations.
 
-Different types of minted NFT are basically used within every Neverland protocol components, from Academy when they're utilized to run an 
-exam, certified a passed test with the purpose of collect an achieved educational degree, to House building Hub component, when they are minted everytime 
-an architect's house project is acquired, a building contract is signed, a new house property is built. 
-Every succesfully auctioned parcel of land exterminate with a Land Asset NFT mint by AssetFarn component.  
+Different types of minted NFT are basically used within every Neverland protocol components, from Academy when they're utilized to authorize teachers to open 
+courses of study and publish tests, or by students to run an exam, certified a passed test with the purpose of collect an achieved educational degree, to House building Hub component, when they are minted everytime an architect's house project is acquired, a building contract is signed, a new house property is built. 
+
+Every succesfully auctioned parcel of land exterminate with a Land Asset NFT mint by AssetFarm component.  
 Within AssetSquare Blueprint, aka Neverland AssetNFT marketplace, buyers NFT are minted and tailored on specific selling instance type: normal buy proposal 
 mode, auction mode or raffle mode. In exchange of deposited asset NFT listed on sale within protocol, sellers receive a meta NFT perfectly traceable 
 to the deposited entity, even if different in terms of resource address and ID.
@@ -59,11 +60,11 @@ contracted debt.
 Neverthenless meta NFT asset concept can be used also in egame contests, or everywhere an asset proof of ownership is required to conduct operations.
 More thoughts on this argument below.  
 
-A mechanism of Academy share contribution has been implemented with some of the Neverland components so when a AssetNFT is mint, merge, or sold under 
-certain circumstances, a share of the profits goes directly to Academy contribution vault to substain his expenses and enhanced quality of his study offer.
+A mechanism of Academy fee contribution has been implemented with some of the Neverland components so when a AssetNFT is mint, merge, or sold under 
+certain circumstances, a share of the profits goes directly to Academy contribution vault to substain its expenses as well as to enhance quality of its study offer.
 
 A system of minted badge authorization is also implemented within environment components, allowing them to perform external component calls to invoke methods.
-This way once instantiate a Neverland clone using his package, you can interconnect Land Data, AssetSquare as well as Assetfarm with twins component 
+This way once instantiate a Neverland clone environment using its package, you can interconnect Land Data, AssetSquare as well as Assetfarm with twins component 
 and create a network of lands where citizens can buy and sell Land Asset Nft, maybe, in future implementations, barter them, or rent them,
 or borrow/lending other assets, possibilities are innumerable.  
  
@@ -74,6 +75,8 @@ or borrow/lending other assets, possibilities are innumerable.
 ### Part_2 
 # Land Data Blueprint overview description
 -----------------------------------------------------------------------
+![](./img/land_data.png)
+Fig.: A user receive a personal non withdrawable SBT once registered within LandData Component 
 
 Every Neverland wannabe resident has to register his account within Land Data protocol, whom returns him an unwithdrawable SBT.
 This SBT contains all references to assets owned by citizens within Neverland and within others implementable twin lands too.
@@ -89,6 +92,10 @@ consultation as well as for data update purpose by external Components previousl
 ### Part_3 
 # Academy Blueprint overview description
 ----------------------------------------------------------------------- 
+![](./img/academy.png)
+Fig.: On the left student receive his achieved DegreeNFT and has his related SBT data updated once provided right Test Certificate NFTs bundle to Academy Component,
+      on the right an authorized teacher use his Teacher NFT Badge as proof to open new study courses, publishing tests and evaluate them. 
+
 
 Every Neverland resident wishing to improve number and quality of his educational degrees can sign up to Neverland Academy courses of study, where he can 
 attempt to pass test exams published by teachers, tokenized within Test NFT where student data, test's assertions and answers remain immutable and are 
@@ -106,6 +113,9 @@ Teachers are accredited with a specific Teacher badge NFT once hired by Academy 
 ### Part_4 
 # HouseHub Blueprint overview description
 -----------------------------------------------------------------------
+![](./img/house_hub.png)
+Fig.: House Project AssetNFT workflow: an architect, accredited with an Arch NFT badge once provided his degree title achieved at Academy, lists a house project on sale within HouseHub component, a land owner, once provided proof of his owned land via SBT data check as well as the requested payment amount, buy the house project       and receive a House Project AssetNFT as proof of ownership, architect is then entitled to collect provided payment.
+
 
 Neverland land owner's citizens can enjoy services offered by accredited professional figures within HouseHub component, like architects and general
 contractors gratuated by Academy.
@@ -114,9 +124,15 @@ collect or pay penalty in case of overtaken deadlines.
 A feedback can also be saved on general contractor SBT under "values" field to reflect the quality of the provided work done.   
 Once house is built, they can approve the building contract, letting the contractor collect contract's payment amount, they receive a mint Building Property
 AssetNFT as proof of ownership and their Land property AssetNFT is upgraded as well as their personal SBT to reflect new asset ownership.
+
+![](./img/house_hub_1.png)
+Fig.: Building Property AssetNFT workflow: a land owner submit a build call providing a Land AssetNFT and his SBT proof, a House Project AssetNFT and a deposit.
+      a General Contractor, graduated at Academy, subscribe the build call providing a bond, a Building Contract NFT is minted.
+      Once delivered the built house he can collect his contract payment, upon client approvation and payment deposit, while the latter receive his Building Property         AssetNFT. 
+
+
 HouseHub component can also be used by Neverland land owner's citizens to merge their contiguous Land property AssetNFTs into a single one, allowing
 them to build bigger projects, malls, skyscrapers and so on. 
-  
   
 [Back Up](#index)  
   
@@ -124,6 +140,9 @@ them to build bigger projects, malls, skyscrapers and so on.
 ### Part_5
 # LandAuction Blueprint overview description
 ----------------------------------------------------------------------- 
+![](./img/land_auction.png)
+Fig.: Land Property AssetNFT minting process scheme triggered once winner bidder honours land auction payment
+
 
 Neverland administration wishing to sold some land parcels to registered citizens can assign them through auctioning method within this component.
 Land auctions follow the classical best bid winner method.
@@ -140,10 +159,9 @@ be minted within NFT.
 # AssetFarm Blueprint overview description
 -----------------------------------------------------------------------	
 ![](./img/workflow.jpg)
+Fig.: Two other Components are involved within minting NFT farm production chain: an external Oracle who provides minting/merging production codes and a NFT Database 
+      Component aimed to retrieve minting data(NFT asset description data, URL, URI, info, etc.) related to specific production codes given by Oracle.
 
-
-Two other Components are involved within minting NFT farm production chain: an external Oracle who provides minting/merging production codes and a NFT Database 
-Component aimed to retrieve minting data(NFT asset description data, URL, URI, info, etc.) related to specific production codes given by Oracle.
 
 Aside NFT upgrade process, which method is directly handled upon badge verification, mint as well as merge NFT process are handled by AssetFarm calling an external 
 Oracle Component to retrieve minting/merging production codes, as well as URL data if required.
@@ -160,12 +178,12 @@ let's think about Institutional certificates with necessity of different data re
 or maybe electoral pools results to be collected from different Institutional entities, or maybe a game series with different characters needing 
 to share same Resource address, be mergeable each other and upgradable upon request.
 
-![](./img/multi_data.jpg)
-Fig.:Example of NFT minting and NFT merging processes involving same AssetFarm and Oracle Components and different Data Components.
+![](./img/multi_data_2.jpg)
+Fig.:Example of NFT minting and NFT merging processes involving same AssetFarm and Oracle Components and different Data Components, as respectevely used by LandAuction
+     and HouseHub Components
 
-Pitia Oracle Component has four different methods callable to pass data, associate and retrieve related production code relevant to NFT minting or merging AssetFarm process,
-each of abovementioned methods can be specified during NFT minting and merging calls to AssetFarm method allowing, if needed, to mint NFT within same Series in different 
-ways: some randomly generated, some retrieving data from previously arranged code, some other passing directly minting codes.
+
+Pitia Oracle Component has four different methods callable to pass data, associate and retrieve related production code relevant to NFT minting or merging AssetFarm process, each of abovementioned methods can be specified during NFT minting and merging calls to AssetFarm method allowing, if needed, to mint NFT within same Series in different ways: some randomly generated, some retrieving data from previously arranged code, some other passing directly minting codes.
 
 Another goal, thinking in contests of art and gaming, is to enhance UX of tech unsavvy Creators wishing to instantiate their Component to mint their own NFT 
 series directly from Front-end UI, only required to provide some data traits and upload some links or some image files for rendering purpose, using some 
@@ -195,12 +213,7 @@ Neverland AssetSquare can manage single as well as bundle NFT sales.
 Sellers are entitled to change NFT price when a NFT is listed in Normal mode as well as restart an auction or a raffle when a previous auction or raffle 
 sale instance ended unsuccesfully.
 Obviously if a NFT item is listed in normal mode seller is also entitled to withdrawal it from sale instance at his convenience as long as it results unsolded. 
-         		
-AssetSquare Blueprint is designed to interconnect with other cloned AssetNFT marketplaces sharing same code and form a NFT sale network where shared NFT 
-listed can be purchased seamless from a marketplace or another with a related customizable fee/royalty system. Currencies conversions are automated handled 
-using DEX swap services. 
-
-	
+         			
 Seller who put a AssetNFT on sale stacking them within marketplace receive back as proof of ownership a meta AssetNFT carrying data of the provided 
 one as well as a tailored seller badge, the latter works as a tool to check seller various AssetNFT sale instances within protocol and retrieve seller's 
 sales history as his convenience as long as he provides same badge as id proof whenever he listed a new AssetNFT item within marketplace. 
@@ -223,24 +236,21 @@ AssetNFT listed can be purchased seamless from a marketplace or another with a r
 handled using DEX swap services. 
 
 ![](./img/from_rs_to_ext.jpg)
-
-Example scheme where a user buy a NFT on AssetSquare working as gateway while AssetNFT is stored within an external Beta marketplace.
-A royalty is withheld within Beta marketplace as well as NFT sale accrued amount at NFT seller disposal while a fee is transferred to Asset Square whom 
-started the sale. NFT is transferred to buyer account. 
+Fig.: Example scheme where a user buy a NFT on AssetSquare working as gateway while AssetNFT is stored within an external Beta marketplace.
+      A royalty is withheld within Beta marketplace as well as NFT sale accrued amount at NFT seller disposal while a fee is transferred to Asset Square whom 
+      started the sale. NFT is transferred to buyer account. 
 
 
 ![](./img/from_ext_to_rs.jpg)
-
-Example scheme where a user buy a AssetNFT on an external Alpha marketplace working as gateway while AssetNFT is stored within AssetSquare.
-A royalty is withheld within AssetSquare as well as NFT sale accrued amount at NFT seller disposal while a fee is transferred to Alpha marketplace whom 
-started the sale. AssetNFT is transferred to buyer account.
+Fig.: Example scheme where a user buy a AssetNFT on an external Alpha marketplace working as gateway while AssetNFT is stored within AssetSquare.
+      A royalty is withheld within AssetSquare as well as NFT sale accrued amount at NFT seller disposal while a fee is transferred to Alpha marketplace whom 
+      started the sale. AssetNFT is transferred to buyer account.
 
 
 ![](./img/from_ext_to_ext.jpg)
-
-Example scheme where a user buy a AssetNFT on an external Alpha marketplace working as gateway while AssetNFT is stored within an external Beta marketplace.
-A royalty is withheld within an external Beta marketplace as well as AssetNFT sale accrued amount at AssetNFT seller disposal while a fee is transferred to 
-Alpha marketplace whom started the sale. A royalty is transferred to Asset Square as well. NFT is transferred to buyer account.
+Fig.: Example scheme where a user buy a AssetNFT on an external Alpha marketplace working as gateway while AssetNFT is stored within an external Beta marketplace.
+      A royalty is withheld within an external Beta marketplace as well as AssetNFT sale accrued amount at AssetNFT seller disposal while a fee is transferred to 
+      Alpha marketplace whom started the sale. A royalty is transferred to Asset Square as well. NFT is transferred to buyer account.
 	
 
 [Back Up](#index)
@@ -255,13 +265,11 @@ operations within protocol he'll be required to pay DEX swap fee and as well he 
 Neverland AssetFarm utized DEX currency swap services too. 
 
 ![](./img/no_swap.jpg)
-
-Scheme of a NFT sale instance using $TKN native currency.
+Fig.: Scheme of a NFT sale instance using $TKN native currency.
 
 
 ![](./img/fx_swap.jpg)
-
-Scheme of a NFT sale instance using an alternative currency involving DEX swap.
+Fig.: Scheme of a NFT sale instance using an alternative currency involving DEX swap.
 
 
 [Back Up](#index)
@@ -276,21 +284,18 @@ or a raffle jackpot, sellers are required to return the meta NFT received.
 Meta NFT concept aims to mitigate capital inefficiency.
  
 ![](./img/play2earn.jpg)
-
-Example of scheme interaction with a play to earn game where seller, upon properly handled info exchange between involved protocols, is entitled to continue 
-his play experience providing his meta NFT as substitute of original NFT which he start playing with.
+Fig.: Example of scheme interaction with a play to earn game where seller, upon properly handled info exchange between involved protocols, is entitled to continue 
+      his play experience providing his meta NFT as substitute of original NFT which he start playing with.
 
 ![](./img/borrow_lending.jpg)	
-
-Example of scheme interaction with a borrow/lending external protocol.
-When a NFT is listed on sale in normal mode by a seller and a user interested to purchase it make a buy proposal, he's required to deposit 
-within protocol the full amount of his buy proposal for a certain time frame edged by a deadline. Upon properly handled info exchange between involved 
-protocols, seller is entitled to borrow a certain amount within a certain time frame being covered by buy proposal deposit on Asset Square.
+Fig.: Example of scheme interaction with a borrow/lending external protocol.
+      When a NFT is listed on sale in normal mode by a seller and a user interested to purchase it make a buy proposal, he's required to deposit 
+      within protocol the full amount of his buy proposal for a certain time frame edged by a deadline. Upon properly handled info exchange between involved 
+      protocols, seller is entitled to borrow a certain amount within a certain time frame being covered by buy proposal deposit on Asset Square.
 
 ![](./img/liquidation.jpg)
-
-Example of liquidation scheme involving a borrow/lending external protocol free to accept NFT buyer buy proposal and redeem deposited sum providing NFT 
-ownership through meta NFT, while buyer become NFT owner.
+Fig.: Example of liquidation scheme involving a borrow/lending external protocol free to accept NFT buyer buy proposal and redeem deposited sum providing NFT 
+      ownership through meta NFT, while buyer become NFT owner.
 
 	
   
