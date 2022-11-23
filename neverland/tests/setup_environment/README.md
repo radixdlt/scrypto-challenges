@@ -10,6 +10,7 @@ DemoTools Component allows tester to mint Asset NFs as well as update SBT data, 
 
 
 N.B."Instructions" data tabs within Transactions output as well as other empty fields have been intentionally obmitted.
+
 -------------------------------------------------------------------------------------------
 # Index  
 -------------------------------------------------------------------------------------------	
@@ -234,14 +235,14 @@ New Entities: 6
 [Back Up](#index)
 #
 ### Part_4 
-# Setup two LandData Components to mint two distinct SBT NFT resources referring to
-# two distinct lands: Neverland and Mahoroba.
-#
-# Register five account as Neverland users by storing a SBT on their account interacting 
-# with Neverland LandData Component method ```register_user```
-#
-# Register five account as Neverland users by storing a SBT on their account interacting 
-# with Mahoroba LandData Component method ```register_user```
+### Setup two LandData Components to mint two distinct SBT NFT resources referring to
+### two distinct lands: Neverland and Mahoroba.
+###
+### Register five account as Neverland users by storing a SBT on their account interacting 
+### with Neverland LandData Component method ```register_user```
+###
+### Register five account as Neverland users by storing a SBT on their account interacting 
+### with Mahoroba LandData Component method ```register_user```
 -------------------------------------------------------------------------------------------
 
 >cd instantiate_components_transaction_manifest
@@ -689,9 +690,9 @@ New Entities: 0
 [Back Up](#index)
 #
 ### Part_11 
-# Setup a Neverland HouseHub Component & insert Asset NFT merge data 
-# Mint a badge on AssetFarm to perform Land NFT upgrade when a new building project is realized within HouseHub Component
-# Mint a badge on AssetFarm to perform Land NFTs merge when related method is called by HouseHub Component
+### Setup a Neverland HouseHub Component & insert Asset NFT merge data 
+### Mint a badge on AssetFarm to perform Land NFT upgrade when a new building project is realized within HouseHub Component
+### Mint a badge on AssetFarm to perform Land NFTs merge when related method is called by HouseHub Component
 -------------------------------------------------------------------------------------------
 
 >cd instantiate_components_transaction_manifest
@@ -722,6 +723,7 @@ New Entities: 7
 >update data on ```insert_merge_data```		
 
 >```insert_merge_data.sh```
+```
 |
 Transaction Status: COMMITTED SUCCESS
 Transaction Fee: 0.0570704 XRD burned, 0.00285352 XRD tipped to validators
@@ -788,8 +790,8 @@ New Entities: 0
 [Back Up](#index)
 #
 ### Part_12 
-# Setup a MarketplaceVault component to deposit AssetSquare component accrued gains
-# (without incurring in unallowed reentrancy issues) 
+## Setup a MarketplaceVault component to deposit AssetSquare component accrued gains
+## (without incurring in unallowed reentrancy issues) 
 -------------------------------------------------------------------------------------------
 
 >cd instantiate_components_transaction_manifest
@@ -877,8 +879,8 @@ New Entities: 0
 [Back Up](#index)
 #
 ### Part_14
-# Setup two AssetSquare components, a Neverland one and a Mahoroba one, link them through 
-# Caller Badge storing allowing them to invoke each other's methods.
+## Setup two AssetSquare components, a Neverland one and a Mahoroba one, link them through 
+## Caller Badge storing allowing them to invoke each other's methods.
 -------------------------------------------------------------------------------------------
 
 >cd instantiate_components_transaction_manifest
@@ -1107,17 +1109,17 @@ on Mahoroba you need to set it up and update its MarketplaceVault component addr
 [Back Up](#index)
 #
 ### Part_15
-# Transfer SBT Updater Badge from LandData Component to others Neverland environment Components allowing them to update data 
-# of user's SBT. 
-#
-# List of Neverland Components able to update SBT data:
-# 
-# Academy, AssetSquare, House Hub, LandAuction, DemoTols, 
-# although the latter is only a test component to mint some Asset NFT and manipulate some data to 
-# perform some isolated tests without having to set up the entire environment.  
-# 
-# A SBT updater Badge is also sent to Mahoroba AssetSquare Component from Mahoroba AssetSquare LandData Component
-# to allow SBT data update on Mahoroba users who buy Asset NFTs on Neverland AssetSquare.
+### Transfer SBT Updater Badge from LandData Component to others Neverland environment Components allowing them to update data 
+### of user's SBT. 
+###
+### List of Neverland Components able to update SBT data:
+### 
+### Academy, AssetSquare, House Hub, LandAuction, DemoTols, 
+### although the latter is only a test component to mint some Asset NFT and manipulate some data to 
+### perform some isolated tests without having to set up the entire environment.  
+### 
+### A SBT updater Badge is also sent to Mahoroba AssetSquare Component from Mahoroba AssetSquare LandData Component
+### to allow SBT data update on Mahoroba users who buy Asset NFTs on Neverland AssetSquare.
 -------------------------------------------------------------------------------------------
 
 >cd land_data_transaction_manifest
@@ -1156,9 +1158,9 @@ New Entities: 0
 [Back Up](#index)
 #
 ### Part_16
-# Setup a DemoTools Component, not mandatory as unused within current test session, however useful if someone   
-# wish to test various methods through different Neverland enviroment Components without perform a complete setup,
-# as it allow tester to mint Asset NFs as well as update SBT data, once stored a SBT Updater Badge within his vault.
+## Setup a DemoTools Component, not mandatory as unused within current test session, however useful if someone   
+## wish to test various methods through different Neverland enviroment Components without perform a complete setup,
+## as it allow tester to mint Asset NFs as well as update SBT data, once stored a SBT Updater Badge within his vault.
 --------------------------------------------------------------------------------------------------------------------
 
 demo_tools_instantiate.sh
