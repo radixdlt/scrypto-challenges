@@ -1,0 +1,3 @@
+CALL_METHOD ComponentAddress("system_tdx_a_1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs2ufe42") "lock_fee" Decimal("100");
+CALL_METHOD ComponentAddress("component_tdx_a_1qfjxhdlla3w5hp6pgyjypuwuuuga4hh8sw6gutvyuc4sxentdx") "create_campaign" "MonaLisa" "You're an overrated piece of shit" Decimal("100");
+CALL_METHOD ComponentAddress("account_tdx_a_1qwdvy9jqgmqq7vw3mg2xzvxrzjwq3ykwp6u3l3qz6l4slwuurc") "deposit_batch" Expression("ENTIRE_WORKTOP");
