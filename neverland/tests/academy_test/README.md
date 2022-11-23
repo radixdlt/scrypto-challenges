@@ -8,6 +8,7 @@ first one will achieve a General Construction Degree while second one will achie
 Both Degrees title will be used later on HouseHub protocol to submit house projects and the build them up. 
 
 N.B."Instructions" data tabs within Transactions output as well as other empty fields have been intentionally obmitted.
+
 -------------------------------------------------------------------------------------------
 # Index  
 -------------------------------------------------------------------------------------------	
@@ -40,7 +41,7 @@ N.B."Instructions" data tabs within Transactions output as well as other empty f
 # Neverland Academy Component and resource addresses and active accounts list
 -------------------------------------------------------------------------------------------
 
->```Neverland Academy Component
+>```Neverland Academy Component```
 ```
 └─ Component: component_sim1qtfvyec6hzfuvfrzr08yyd3ts4j5tavzeuzl7u0sj9qsdpls0y		Neverland Academy Component address
 ├─ Resource: resource_sim1qrpkt9wlm08n4z00ffe65ku4a62j485g0nlxnna99jesdd46c2		Neverland Academy MinterBadge resource
@@ -93,11 +94,11 @@ Private key: 069704ddcdef50d6535fbb7b216f1bb64b97e072417654882ed6067a7dd2122c
 
 #
 ### Part_2 
-# Hire a teacher specifying his SBT credentials, his Study title degrees as well as his teaching subjects. Mint a teacher badge to allow
-# him to open new teaching courses, start new tests as well as evaluate them.
-# Withdrawal teacher badge providing right SBT credentials. 
-# Open first study course in General Construction.
-# Publish first test.
+## Hire a teacher specifying his SBT credentials, his Study title degrees as well as his teaching subjects. Mint a teacher badge to allow
+## him to open new teaching courses, start new tests as well as evaluate them.
+## Withdrawal teacher badge providing right SBT credentials. 
+## Open first study course in General Construction.
+## Publish first test.
 -------------------------------------------------------------------------------------------
 
 > Switch default account to protocol owner
@@ -208,8 +209,8 @@ Logs: 5
 [Back Up](#index)
 #
 ### Part_3 
-# Open courses & published Test list consultation. Student sign up.  
-# Student run first test and submit answers.  
+## Open courses & published Test list consultation. Student sign up.  
+## Student run first test and submit answers.  
 -------------------------------------------------------------------------------------------
 
 > Switch default account to general construction student account	
@@ -599,7 +600,7 @@ Cost Units: 100000000 limit, 2171223 consumed, 0.0000001 XRD per cost unit
 Logs: 2
 ├─ [INFO ]  Degree Certificate resource address: resource_sim1qpyc88dfmeuvly4vu5ssdqnwzrpyzqrcp0juettpvttqp25370	
 └─ [INFO ]  Degree Certificate id: 300710000000d379d1ad6cedb9c2e17e8a4263ba8bee
-
+```
 
 
 > Check collected Degree Certificate within student SBT 
@@ -624,7 +625,6 @@ Logs: 6
 	    user_sbt_id: 300710000000985f0bf0a4fbceed30b544a167858b01, user_name: "gamma.xrd", 
             degree_name: ["General Construction"], mint_date: 2002, 
 	    teaching_subject: [], grade_point_avg: 10, cum_laude: true }
-
 ```
 
 
@@ -850,7 +850,7 @@ Logs: 5
 
 [Back Up](#index)
 #
-### Part_6
+### Part_10
 # View test answers. View test result. Test list consultation. Student run second test and provide answers. 
 -------------------------------------------------------------------------------------------
 
@@ -980,7 +980,7 @@ Cost Units: 100000000 limit, 1954408 consumed, 0.0000001 XRD per cost unit
 
 [Back Up](#index)
 #
-### Part_10 
+### Part_11 
 # Teacher evaluate second test. Student views test answers. View test result. Collect Degree and check it within student SBT.
 -------------------------------------------------------------------------------------------
 
