@@ -13,6 +13,7 @@ user SBT.
 HouseHub Component is used to retrieve property ownership data within user SBT.
 
 N.B."Instructions" data tabs within Transactions output as well as other empty fields have been intentionally obmitted.
+
 -------------------------------------------------------------------------------------------
 # Index  
 -------------------------------------------------------------------------------------------
