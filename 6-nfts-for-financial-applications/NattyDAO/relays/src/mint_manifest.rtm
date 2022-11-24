@@ -1,0 +1,23 @@
+# This RTM is called when a new nature experience is added to the database
+
+# Need to get the admin_badge first, so we can show a proof before calling these functions
+
+# Create a proof of a badge on your account. 
+# The "create_proof" method returns a Proof to the authzone.
+# There's an authorization zone that contains the proofs that you create.
+CALL_METHOD 
+    ComponentAddress("[your_account_address]") "create_proof" 
+    ResourceAddress("[badge_address]");
+
+CALL_FUNCTION 
+    PackageAddress("...") 
+    "INattyOracle" 
+    "create_nft" 
+    "DATA...";
+
+CALL_FUNCTION 
+    PackageAddress("...") 
+    "INattyOracle" 
+    "update_nft" 
+    "DATA...";
+
