@@ -1,0 +1,29 @@
+# lock fees
+CALL_METHOD ComponentAddress("system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs9fh54n") "lock_fee" Decimal("100");
+
+# first nft to take to provide as proof and will burn
+CALL_METHOD ComponentAddress("{account_address}") "withdraw_by_amount" Decimal("1") ResourceAddress("{owner_badge_resource_address}");
+
+# puts that nft into a bucket
+TAKE_FROM_WORKTOP ResourceAddress("{owner_badge_resource_address}") Bucket("owner_nft_bucket");
+
+# create a proof from the bucket
+CREATE_PROOF_FROM_BUCKET
+    Bucket("owner_nft_bucket")
+    Proof("owner_nft_proof");
+
+# you can now pass this proof and bucket to a method/function
+CALL_METHOD ComponentAddress("{component_address}")
+    "claim_treasury_funds"
+    ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag")
+    Proof("owner_nft_proof");
+
+# return a bucket to worktop
+RETURN_TO_WORKTOP Bucket("owner_nft_bucket");
+
+# because we withdrew tokens from our account and they are still on the
+# worktop, we have to deposit them back into your account
+CALL_METHOD ComponentAddress     
+    ("{account_address}")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");
