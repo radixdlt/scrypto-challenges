@@ -1,0 +1,47 @@
+{
+  "name": "alphanet-demo",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "prepare": "npm run smui-theme-light && npm run smui-theme-dark",
+    "smui-theme-light": "smui-theme compile static/smui.css -i src/theme",
+    "smui-theme-dark": "smui-theme compile static/smui-dark.css -i src/theme/dark"
+  },
+  "devDependencies": {
+    "@fontsource/fira-mono": "^4.5.0",
+    "@neoconfetti/svelte": "^1.0.0",
+    "@radixdlt/alphanet-gateway-api-v0-sdk": "^0.1.5",
+    "@radixdlt/alphanet-walletextension-sdk": "^0.1.5",
+    "@smui/banner": "^7.0.0-beta.0",
+    "@smui/card": "^7.0.0-beta.0",
+    "@smui/chips": "^7.0.0-beta.0",
+    "@smui/circular-progress": "^7.0.0-beta.0",
+    "@smui/data-table": "^7.0.0-beta.0",
+    "@smui/dialog": "^7.0.0-beta.0",
+    "@smui/fab": "^7.0.0-beta.0",
+    "@smui/layout-grid": "^7.0.0-beta.0",
+    "@smui/paper": "^7.0.0-beta.0",
+    "@smui/snackbar": "^7.0.0-beta.0",
+    "@smui/textfield": "^7.0.0-beta.0",
+    "@sveltejs/adapter-auto": "next",
+    "@sveltejs/kit": "next",
+    "@types/cookie": "^0.5.1",
+    "smui-theme": "^7.0.0-beta.0",
+    "snarkdown": "^2.0.0",
+    "svelte": "^3.46.0",
+    "svelte-check": "^2.7.1",
+    "svelte-preprocess": "^4.10.6",
+    "tslib": "^2.3.1",
+    "typescript": "^4.7.4",
+    "vite": "^3.1.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "@types/uuid": "^8.3.4",
+    "uuid": "^9.0.0"
+  }
+}
