@@ -1,5 +1,7 @@
 # MoonWork - Decentralised Freelancer Platform
 
+![MoonWork Logo](./image.png "MoonWork")
+
 ## Whats The Problem and Usecase?
 Freelancer platforms have been very popular allowing people to work from anywhere and likewise for those that want work done quickly, freelancer platforms are a quick solution.
 Lets imagine some work was done for a project but in the end, the client refused to pay out.
