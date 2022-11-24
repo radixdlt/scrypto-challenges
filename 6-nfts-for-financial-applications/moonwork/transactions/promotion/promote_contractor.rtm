@@ -1,0 +1,9 @@
+CALL_METHOD ComponentAddress("system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs9fh54n") "lock_fee" Decimal("100");
+CALL_METHOD ComponentAddress("${account}") "create_proof_by_amount" Decimal("20") ResourceAddress("${completed_work_resource}");
+POP_FROM_AUTH_ZONE Proof("work_completed");
+CALL_METHOD ComponentAddress("${account}") "create_proof_by_amount" Decimal("3") ResourceAddress("${contractor_accolade_resource}");
+POP_FROM_AUTH_ZONE Proof("accolades");
+CALL_METHOD ComponentAddress("${account}") "create_proof_by_amount" Decimal("1") ResourceAddress("${contractor_badge}");
+POP_FROM_AUTH_ZONE Proof("contractor_proof");
+CALL_METHOD ComponentAddress("${promotion_component}") "promote_contractor" Proof("work_completed") Proof("accolades") Proof("contractor_proof");
+DROP_ALL_PROOFS;
