@@ -1,0 +1,4 @@
+CALL_METHOD ComponentAddress("system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs9fh54n") "lock_fee" Decimal("100");
+CALL_METHOD ComponentAddress("${account}") "create_proof_by_amount" Decimal("1") ResourceAddress("${service_admin_badge}");
+CALL_METHOD ComponentAddress("${promotion_component}") "remove_expired_promotions";
+DROP_ALL_PROOFS;

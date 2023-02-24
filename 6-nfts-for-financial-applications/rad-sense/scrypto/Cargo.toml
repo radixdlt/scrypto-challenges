@@ -1,0 +1,25 @@
+[package]
+name = "rad-sense"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "main" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "main" }
+derive-new = "0.5.9"
+
+[dev-dependencies]
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "main" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "main" }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "main" }
+
+[profile.release]
+opt-level = 's'        # Optimize for size.
+lto = true             # Enable Link Time Optimization.
+codegen-units = 1      # Reduce number of codegen units to increase optimizations.
+panic = 'abort'        # Abort on panic.
+strip = "debuginfo"    # Strip debug info.
+overflow-checks = true # Panic in the case of an overflow.
+
+[lib]
+crate-type = ["cdylib", "lib"]

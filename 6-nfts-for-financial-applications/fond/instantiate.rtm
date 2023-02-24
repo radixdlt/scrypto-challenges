@@ -1,0 +1,7 @@
+CALL_METHOD ComponentAddress("system_tdx_a_1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs2ufe42") "lock_fee" Decimal("100");
+CALL_METHOD ComponentAddress("account_tdx_a_1qwdvy9jqgmqq7vw3mg2xzvxrzjwq3ykwp6u3l3qz6l4slwuurc") "withdraw_by_amount" Decimal("100") ResourceAddress("resource_tdx_a_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqegh4k9");
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("100") ResourceAddress("resource_tdx_a_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqegh4k9") Bucket("bucket1");
+CALL_FUNCTION PackageAddress("package_tdx_a_1qymn9kdj28k7ske8uuur5r66gu8y9aanjr4agaztuhvq7ctd9w") "Fond" "instantiate_fond" Bucket("bucket1");
+CALL_METHOD ComponentAddress("account_tdx_a_1qwdvy9jqgmqq7vw3mg2xzvxrzjwq3ykwp6u3l3qz6l4slwuurc") "deposit_batch" Expression("ENTIRE_WORKTOP");
+
+
