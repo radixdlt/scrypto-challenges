@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "scrypto",
+			"path": "scrypto"
+		},
+		{
+			"name": "simulation",
+			"path": "simulation"
+		},
+		{
+			"name": "frontend",
+			"path": "frontend"
+		}
+	],
+	"settings": {}
+}
