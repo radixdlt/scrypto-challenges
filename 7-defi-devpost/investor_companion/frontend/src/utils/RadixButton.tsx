@@ -1,10 +1,21 @@
-import { RadixDappToolkit } from "@radixdlt/radix-dapp-toolkit";
+import { DappMetadata, RadixDappToolkit, State,RadixDappToolkitConfiguration, RequestData, SendTransaction } from "@radixdlt/radix-dapp-toolkit";
+
+type RadixDappToolkit = (
+  dAppMetadata: DappMetadata,
+  onConnect?: (requestData: RequestData) => void,
+  configuration?: RadixDappToolkitConfiguration
+) => {
+  requestData: RequestData
+  sendTransaction: SendTransaction
+  state$: State
+  destroy: () => void
+}
 
 const rdt = RadixDappToolkit(
   {
     dAppDefinitionAddress:
       "account_tdx_22_1pz7vywgwz4fq6e4v3aeeu8huamq0ctmsmzltay07vzpqm82mp5",
-    dAppName: "Name of your dApp",
+    dAppName: "Investor Companion",
   },
   (requestData) => {
     requestData({
