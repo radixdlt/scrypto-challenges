@@ -5,7 +5,7 @@
 
 #### Running on Simulator
 While in the 'scrilla_lending' directory, first change to the 'scrypto' directory:
-- `cd scrypto/` This will redirect you to the Scrypto folder so you can proceed with the following commands below...
+- `cd scrypto/`
 
 Then you can run any of the following commands:
 - `bash ./manifests/global1.sh` Global 1 focuses on testing liquidations, shield deposits, shield reward distributions
