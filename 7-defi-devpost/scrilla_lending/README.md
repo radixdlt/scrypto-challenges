@@ -8,6 +8,7 @@ While in the 'scrilla_lending' directory, run any of the following commands:
 - `bash ./scrypto/manifests/global1.sh` Global 1 focuses on testing liquidations, shield deposits, shield reward distributions
 - `bash ./scrypto/manifests/global2.sh` Global 2 focuses on testing and showcasing the redeem_usds method that allows any user who may or may not have a loan with the platform to redeem USDS for the going market rate of XRD.  This allows USDS to maintain a 1:1 peg with USD.
 - `bash ./scrypto/manifests/global3.sh` Global 3 focuses on testing scrilla staking and scrilla reward distribution of platform fees
+  
 These generic bash scripts cycle through methods for testing this dapp in various scenarios providing notes and tests about what is happening with each method.  These were created for testing purposes to make sure the math behind the methods is working, but they turned out to be a great way to showcase the functionality to whoever may be looking into this platform.  Some methods such as scrilla staking to earn platform fees require multiple accounts, many method calls, and liquidations to happen which is difficult to manage without these automated scripts.
 
 *All values here are a bit constrained since only 1000 XRD come with the resim wallets*
