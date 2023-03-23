@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "info": {
+    "singularName": "product",
+    "pluralName": "products",
+    "displayName": "product",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "raiseAmount": {
+      "type": "string"
+    },
+    "raisedAmount": {
+      "type": "string"
+    },
+    "componentId": {
+      "type": "string"
+    },
+    "ownerAddress": {
+      "type": "string"
+    },
+    "ownerResource": {
+      "type": "string"
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "image": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}
