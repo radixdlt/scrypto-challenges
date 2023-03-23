@@ -4,7 +4,8 @@
 ## How to Run
 
 #### Running on Simulator
-While in the 'scrilla_lending' directory, run any of the following commands: 
+While in the 'scrilla_lending' directory, run any of the following commands:
+- `cd scrypto/` This will redirect you to the Scrypto folder so you can proceed with the following commands below...
 - `bash ./scrypto/manifests/global1.sh` Global 1 focuses on testing liquidations, shield deposits, shield reward distributions
 - `bash ./scrypto/manifests/global2.sh` Global 2 focuses on testing and showcasing the redeem_usds method that allows any user who may or may not have a loan with the platform to redeem USDS for the going market rate of XRD.  This allows USDS to maintain a 1:1 peg with USD.
 - `bash ./scrypto/manifests/global3.sh` Global 3 focuses on testing scrilla staking and scrilla reward distribution of platform fees
