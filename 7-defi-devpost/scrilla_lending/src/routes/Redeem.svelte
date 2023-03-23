@@ -45,7 +45,7 @@
     <div class=" px-4 py-2 w-11/12 flex flex-col items-center rounded-lg transition-all ease-in-out duration-700 break-all">
         <input type="number" class="border-2 p-1 text-center w-full" placeholder="Amount USDS to Redeem" bind:value={amountToRedeem}/>
         <button class="border bg-gradient-to-b from-cyan-800 px-5 rounded-lg my-2 to-transparent" on:click={redeemUsds}>
-            Redeeem
+            Redeem
         </button>
         <h2 class="font-bold text-cyan-500">{status}</h2>
         <h2 class="font-bold text-red-500">{error}</h2>
