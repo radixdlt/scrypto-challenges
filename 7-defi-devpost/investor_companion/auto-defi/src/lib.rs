@@ -1,13 +1,13 @@
 use scrypto::prelude::*;
 
-#[scrypto(ScryptoCategorize, ScryptoEncode, ScryptoDecode, LegacyDescribe)]
+#[derive(ScryptoCategorize, ScryptoEncode, ScryptoDecode, LegacyDescribe)]
 pub enum RiskAppetite {
     Low,
     Medium,
     High,
 }
-#[scrypto(ScryptoCategorize, ScryptoEncode, ScryptoDecode, LegacyDescribe)]
-struct UserPreference {
+#[derive(ScryptoCategorize, ScryptoEncode, ScryptoDecode, LegacyDescribe)]
+pub struct UserPreference {
     // the financial goal of the user
     finance_goal: String,
     // the risk appetite of the user (low, medium, high)
@@ -42,35 +42,36 @@ mod companion {
             let admin_badge = ResourceBuilder::new_fungible()
                 .metadata("name", "Admin Badge")
                 .metadata("description", "Admin Badge")
-                .mint_initial_supply(1)
-                .divisibility(DIVISIBILITY_NONE);
+                .divisibility(DIVISIBILITY_NONE)
+                .mint_initial_supply(1);
+
             // Create an investor badge resource
             let investor_badge = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Investor Badge")
                 .metadata("description", "Investor Badge")
-                .create_with_no_initial_supply()
-                .divisibility(DIVISIBILITY_NONE);
+                .create_with_no_initial_supply();
 
             // create an access rule for the admin badge resource
-            let admin_badge_access_rule = AccessRule::new()
+            let admin_badge_access_rule = AccessRules::new()
                 .method(
                     "total_fees_collected",
-                    rule!(require(admin_badge)),
+                    rule!(require(admin_badge.resource_address())),
                     AccessRule::DenyAll,
                 )
                 .method(
                     "withdraw_fees",
-                    rule!(require(admin_badge)),
+                    rule!(require(admin_badge.resource_address())),
                     AccessRule::DenyAll,
                 )
                 .method(
                     "change_platform_fee",
-                    rule!(require(admin_badge)),
+                    rule!(require(admin_badge.resource_address())),
                     AccessRule::DenyAll,
                 )
                 .method(
                     "total_invested_amount",
-                    rule!(require(admin_badge)),
+                    rule!(require(admin_badge.resource_address())),
                     AccessRule::DenyAll,
                 )
                 .default(rule!(allow_all), AccessRule::DenyAll);
@@ -80,6 +81,7 @@ mod companion {
                 total_fees_collected: Vault::new(RADIX_TOKEN),
                 platform_fee,
                 auto_invest: false,
+                investor_badge,
             }
             .instantiate();
             component.add_access_check(admin_badge_access_rule);
@@ -89,22 +91,25 @@ mod companion {
         }
 
         // This function let user create  their investment preferences
-        pub fn create_preference(&mut self, preferences: UserPreference) -> Bucket{
-            let { finance_goal, risk_appetite, yield_duration, min_yield } = preferences;
+        pub fn create_preference(&self, preferences: UserPreference) -> Bucket {
+            let _newPreference = UserPreference { ..preferences };
+
+            // publish the user preferences to the web-2 database for the recommendation engine to use
+            print!("User preferences: {:?}", stringify!(newPreference));
 
             // mint the investor badge
-            let manager: ResourceManager = borrow_resource_manager!(self.investor_badge.resource_address());
-           let investor_badge : Bucket = manager.mint(self.investor_badge.resource_address(), 1);
+            let manager = borrow_resource_manager!(self.investor_badge);
+            let new_investor_badge: Bucket = manager.mint(1);
 
-        // return the investor badge into the user's vault
-        return investor_badge;
+            // return the investor badge into the user's vault
+            return new_investor_badge;
         }
 
         // This function let user invest in the vault
-        pub fn invest(&mut self, amount: Bucket) {
+        pub fn invest(&mut self, mut amount: Bucket) {
             // remove the platform fee from the total amount invested
-            let our_fee : Bucket = amount * self.platform_fee;
-            let remainder : Bucket = amount - our_fee;
+            let our_fee: Bucket = amount.take(amount.amount() * self.platform_fee);
+            let remainder: Bucket = amount.take(amount.amount() - our_fee.amount());
             self.total_fees_collected.put(our_fee);
 
             // add the amount invested to the total amount invested
@@ -114,29 +119,26 @@ mod companion {
         // This function let user to enable the system to invest on their behalf based on their preferences
         pub fn enable_auto_invest(&mut self) {
             // check if the user has created their preferences
-            require(self.investor_badge.resource_address(), "User has not created their preferences");
+            require(self.investor_badge);
             // else, enable auto invest
             self.auto_invest = true;
         }
 
         // This function let user withdraw their investment
-        pub fn withdraw(amount: Bucket) {
-
+        pub fn withdraw(&mut self, amount: Decimal) {
             // check if the user has an active investment
-            require(self.investor_badge.resource_address(), "User has not created their preferences");
+            require(self.investor_badge);
             // if not, throw an error
             // else, withdraw the investment
             self.total_invested_amount.take(amount);
-
-
         }
 
         // This function let user to disable the system to invest on their behalf based on their preferences
-        pub fn disable_auto_invest() {
+        pub fn disable_auto_invest(&mut self) {
             // check if the user has created their preferences
-            require(self.investor_badge.resource_address(), "User has not created their preferences");
+            require(self.investor_badge);
             // if not, throw an error
-            // else, disable auto invest
+            // else, disable auto invet
             self.auto_invest = false;
         }
 
@@ -154,7 +156,7 @@ mod companion {
         pub fn change_platform_fee(&mut self, platform_fee: Decimal) {
             // check if the platform fee is between 0 and 1
             // if not, throw an error
-             if platform_fee < 0 || platform_fee > 1 {
+            if platform_fee < dec!("0") || platform_fee > dec!("1") {
                 panic!("Platform fee must be between 0 and 1");
             }
             // else, change the platform fee
