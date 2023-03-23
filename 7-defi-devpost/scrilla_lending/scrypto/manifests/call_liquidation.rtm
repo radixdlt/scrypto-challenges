@@ -1,0 +1,17 @@
+
+
+# lock fees
+CALL_METHOD
+    ComponentAddress("component_sim1qgehpqdhhr62xh76wh6gppnyn88a0uau68epljprvj3sxknsqr")
+    "lock_fee"
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("{scrilla_component_address}")
+    "call_liquidation"
+    NonFungibleLocalId("{user_id}");
+
+CALL_METHOD
+    ComponentAddress("{account}")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");

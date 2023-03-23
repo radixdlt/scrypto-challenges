@@ -1,0 +1,49 @@
+# lock fees
+CALL_METHOD
+    ComponentAddress("component_sim1qgehpqdhhr62xh76wh6gppnyn88a0uau68epljprvj3sxknsqr")
+    "lock_fee"
+    Decimal("100");
+
+# first nft to take to provide as proof and will burn
+CALL_METHOD 
+    ComponentAddress("{account}") 
+    "withdraw_by_amount" 
+    Decimal("1") 
+    ResourceAddress("{scrilla_user_nft_address}");
+
+# puts that nft into a bucket
+TAKE_FROM_WORKTOP 
+    ResourceAddress("{scrilla_user_nft_address}") 
+    Bucket("user_nft_bucket");
+
+# create a proof from the bucket
+CREATE_PROOF_FROM_BUCKET
+    Bucket("user_nft_bucket")
+    Proof("user_nft_proof");
+
+CALL_METHOD 
+    ComponentAddress("{account}") 
+    "withdraw_by_amount" 
+    Decimal("{amount_to_deposit}") 
+    ResourceAddress("{usds_address}");
+
+TAKE_FROM_WORKTOP 
+    ResourceAddress("{usds_address}") 
+    Bucket("usds_bucket");
+
+CALL_METHOD
+    ComponentAddress("{scrilla_component_address}")
+    "deposit_to_shield_pool"
+    Bucket("usds_bucket")
+    Proof("user_nft_proof");
+
+# return a bucket to worktop
+RETURN_TO_WORKTOP 
+    Bucket("user_nft_bucket");
+
+# because we withdrew tokens from our account and they are still on the
+# worktop, we have to deposit them back into your account
+CALL_METHOD
+    ComponentAddress("{account}")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");

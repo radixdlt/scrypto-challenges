@@ -1,0 +1,21 @@
+CALL_METHOD
+    ComponentAddress("component_sim1qgehpqdhhr62xh76wh6gppnyn88a0uau68epljprvj3sxknsqr")
+    "lock_fee"
+    Decimal("100");
+CALL_METHOD
+    ComponentAddress("{account}")
+    "withdraw_by_amount"
+    Decimal("{amount_to_redeem}")
+    ResourceAddress("{usds_address}");
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("{amount_to_redeem}")
+    ResourceAddress("{usds_address}")
+    Bucket("bucket1");
+CALL_METHOD
+    ComponentAddress("{scrilla_component_address}")
+    "redeem_usds"
+    Bucket("bucket1");
+CALL_METHOD
+    ComponentAddress("{account}")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");
