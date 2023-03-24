@@ -1,0 +1,26 @@
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"lock_fee"
+	Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${caller_address}")
+    "withdraw_by_ids"
+    Array<NonFungibleLocalId>(${nf_ids})
+    ResourceAddress("${position_address}");
+
+TAKE_FROM_WORKTOP_BY_IDS
+    Array<NonFungibleLocalId>(${nf_ids})
+    ResourceAddress("${position_address}")
+    Bucket("0");
+
+CALL_METHOD
+	ComponentAddress("${component_address}")
+	"lock_positions"
+	Bucket("0")
+	None;
+
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"deposit_batch"
+	Expression("ENTIRE_WORKTOP");

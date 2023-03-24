@@ -1,0 +1,13 @@
+[package]
+name = "stoichiometric-dao"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.8.0" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.8.0" }
+stoichiometric-dex = { path = "../dex" }
+stoichiometric-stablecoin = { path = "../stablecoin" }
+
+[lib]
+crate-type = ["cdylib", "lib"]

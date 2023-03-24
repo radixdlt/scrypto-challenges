@@ -1,0 +1,52 @@
+CALL_METHOD
+    ComponentAddress("${caller_address}")
+    "lock_fee"
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${caller_address}")
+    "withdraw_by_amount"
+    Decimal("${token_a_amount}")
+    ResourceAddress("${token_a_address}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("${token_a_amount}")
+    ResourceAddress("${token_a_address}")
+    Bucket("0");
+
+CALL_METHOD
+    ComponentAddress("${caller_address}")
+    "withdraw_by_amount"
+    Decimal("${token_b_amount}")
+    ResourceAddress("${token_b_address}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("${token_b_amount}")
+    ResourceAddress("${token_b_address}")
+    Bucket("1");
+
+CALL_METHOD
+    ComponentAddress("${caller_address}")
+    "create_proof_by_ids"
+    Array<NonFungibleLocalId>(NonFungibleLocalId("${position_id}"))
+    ResourceAddress("${position_address}");
+
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+    Array<NonFungibleLocalId>(NonFungibleLocalId("${position_id}"))
+    ResourceAddress("${position_address}")
+    Proof("2");
+
+CALL_METHOD
+    ComponentAddress("${component_address}")
+	"add_liquidity_at_step"
+	Bucket("0")
+	Bucket("1")
+	${step}u16
+    Some(Proof("2"));
+
+DROP_ALL_PROOFS;
+
+CALL_METHOD
+    ComponentAddress("${caller_address}")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");

@@ -1,0 +1,27 @@
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"lock_fee"
+	Decimal("100");
+
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"create_proof_by_ids"
+	Array<NonFungibleLocalId>(${arg_0_ids})
+	ResourceAddress("${arg_0_resource}");
+
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+	Array<NonFungibleLocalId>(${arg_0_ids})
+	ResourceAddress("${arg_0_resource}")
+	Proof("0");
+
+CALL_METHOD
+	ComponentAddress("${component_address}")
+	"claim_fees"
+	Proof("0");
+
+DROP_ALL_PROOFS;
+
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"deposit_batch"
+	Expression("ENTIRE_WORKTOP");

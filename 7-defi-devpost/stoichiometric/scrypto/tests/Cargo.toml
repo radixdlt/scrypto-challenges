@@ -1,0 +1,16 @@
+[package]
+name = "stoichiometric-tests"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.8.0" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.8.0" }
+sqrt = { git = "https://github.com/PointSquare/sqrt", branch = "stoichiometric_needs" }
+regex = "1"
+lazy_static = "1.4.0"
+
+
+

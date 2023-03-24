@@ -1,0 +1,25 @@
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"lock_fee"
+	Decimal("100");
+
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"withdraw_by_amount"
+	Decimal("${arg_0_amount}")
+	ResourceAddress("${arg_0_resource}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+	Decimal("${arg_0_amount}")
+	ResourceAddress("${arg_0_resource}")
+	Bucket("0");
+
+CALL_METHOD
+	ComponentAddress("${component_address}")
+	"put_in_reserves"
+	Bucket("0");
+
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"deposit_batch"
+	Expression("ENTIRE_WORKTOP");

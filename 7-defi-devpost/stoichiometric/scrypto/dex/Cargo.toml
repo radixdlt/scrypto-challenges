@@ -1,0 +1,12 @@
+[package]
+name = "stoichiometric-dex"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.8.0" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.8.0" }
+
+
+[lib]
+crate-type = ["cdylib", "lib"]

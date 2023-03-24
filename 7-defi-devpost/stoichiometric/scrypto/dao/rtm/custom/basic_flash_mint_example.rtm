@@ -1,0 +1,40 @@
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"lock_fee"
+	Decimal("100");
+
+# =====================================================
+# Take flash mint and check that everything went well
+# =====================================================
+CALL_METHOD
+	ComponentAddress("${component_address}")
+	"flash_mint"
+	Decimal("${amount_to_mint}");
+
+ASSERT_WORKTOP_CONTAINS_BY_AMOUNT
+    Decimal("${amount_to_mint}")
+    ResourceAddress("${stablecoin_address}");
+
+ASSERT_WORKTOP_CONTAINS_BY_AMOUNT
+    Decimal("1")
+    ResourceAddress("${flash_mint_address}");
+
+
+# =====================================================
+# Repay flash mint
+# =====================================================
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+	Decimal("${amount_to_mint}")
+	ResourceAddress("${stablecoin_address}")
+	Bucket("0");
+
+TAKE_FROM_WORKTOP
+	ResourceAddress("${flash_loan_address}")
+	Bucket("1");
+
+CALL_METHOD
+	ComponentAddress("${component_address}")
+	"repay_loan"
+	Bucket("0")
+	Bucket("1");
