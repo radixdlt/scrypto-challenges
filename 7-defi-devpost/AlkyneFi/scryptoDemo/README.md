@@ -20,7 +20,6 @@ At any point `resim run rtm/trader/show_lending_balance.rtm` and `resim run rtm/
 
 A regular cronjob of `resim run rtm/poll_all_traders_health.rtm` ensures noone's investment goes below threshold.
 
-
 ## Deployed addresses on testnet
 
 ```
@@ -34,5 +33,5 @@ A regular cronjob of `resim run rtm/poll_all_traders_health.rtm` ensures noone's
  xrd=resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp
  secondToken=resource_tdx_b_1qzdqwhlkmsxlw5qmpdz95rv7ve74e48v44ha4f53puzq5wv38h
  radiswapPool1=component_tdx_b_1qfkudyf9uwxs9fd7j37qla0k99zug7q5ryxkrlglc6usjjr8z2
-export radiSwapPackage=package_tdx_b_1q8ga7qqs2kgyg9hqd6upr72zexhzy522zwrtc85lfs0scdjwdh
+ radiSwapPackage=package_tdx_b_1q8ga7qqs2kgyg9hqd6upr72zexhzy522zwrtc85lfs0scdjwdh
 ```
