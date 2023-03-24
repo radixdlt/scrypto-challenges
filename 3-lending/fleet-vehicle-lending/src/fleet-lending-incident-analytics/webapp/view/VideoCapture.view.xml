@@ -1,0 +1,43 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.VideoCapture"
+	xmlns:html="http://www.w3.org/1999/xhtml">
+	<App>
+		<pages>
+			<Page class="pageStyles" title="Live Video Capture" showNavButton="true" navButtonPress="onNavBack">
+				<content>
+					<VBox>
+						<Panel width="100%" id="videoPanel" class="panelStyle" busy="true">
+							<html:video id='liveStreamVideo' src='video/liveVideoCapture.mp4' width='70%' height='60%' autoplay="true" class="videoPadding"></html:video>
+						</Panel>
+						<VBox width="100%">
+							<List id="idProductList" items="{path: '/Offences'}" visible="false">
+								<headerToolbar>
+									<Toolbar>
+										<content>
+											<Title text="Offence Notifications" level="H2"/>
+											<ToolbarSpacer/>
+										</content>
+									</Toolbar>
+								</headerToolbar>
+								<CustomListItem>
+									<HBox>
+										<VBox width="25%" class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
+											<Image height="5rem" width="5rem" src="{icon}"/>
+										</VBox>
+										<VBox width="40%" class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
+											<Label text="{name}"/>
+											<Text text="{desc}"/>
+										</VBox>
+										<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
+											<core:Icon size="1rem" src="sap-icon://create-form" class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom" press="handleIncidentCreate"
+												tooltip="Create an incident"/>
+										</VBox>
+									</HBox>
+								</CustomListItem>
+							</List>
+						</VBox>
+					</VBox>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

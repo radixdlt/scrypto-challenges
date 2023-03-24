@@ -1,0 +1,9 @@
+<mvc:View controllerName="com.sap.Aviation.controller.Blockchain" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="sap.ui.core.mvc"
+	xmlns:l="sap.ui.layout" xmlns="sap.m">
+	<Page class="pageStyles"  title="SOS" showNavButton="true" navButtonPress="onNavBack">
+		<VBox class="sapUiSmallMargin">
+		<Text text="Emergeny incident created and current location shared successfully" />
+	</VBox>
+				
+	</Page>
+</mvc:View>

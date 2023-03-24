@@ -1,0 +1,86 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.FlightDetails"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:smartForm="sap.ui.comp.smartform" xmlns:smartField="sap.ui.comp.smartfield"
+	xmlns:l="sap.ui.layout" xmlns:f="sap.ui.layout.form">
+	<App>
+		<pages>
+			<Page showHeader="false" enableScrolling="false" class="flightdetailscontent">
+				<content>
+					<!--<Panel class="flightdetailscontent">-->
+					<HBox class="hboxflightdetails">
+						<Image height="100px" width="100px" src="image/emiratesLogo/emirates.PNG"></Image>
+						<Panel class="flightdetailspanel" backgroundDesign="Transparent">
+						<HBox>
+						<Label id="flightId" class="flightid"></Label>
+						<VBox class="margin">
+							<Label text="DXB" class="flightstart"></Label>
+							<Label text="DUBAI" class="flightend"></Label>
+						</VBox>
+						<Image height="100px" width="100px" src="image/emiratesLogo/flight.png"></Image>
+						<VBox class="margin">
+							<Label text="BKK" class="flightstart"></Label>
+							<Label text="BANGKOK" class="flightend"></Label>
+						</VBox>
+						<VBox class="margin">
+							<Label text="181 KM" class="flightstart"></Label>
+							<Label text="00:17 AGO" class="flightend"></Label>
+						</VBox>
+						<Image height="50px" width="50px" src="image/emiratesLogo/flightLine.png"></Image>
+						<VBox class="margin">
+							<Label text="4723 KM" class="flightstart"></Label>
+							<Label text="IN 05:23" class="flightend"></Label>
+						</VBox>
+						<VBox class="margin">
+							<Label text="Elseco exposure: " class="flightdetailslabel"></Label>
+							<Label text="Profitability: " class="flightdetailslabel"></Label>
+							<Label text="Elseco results: " class="flightdetailslabel"></Label>
+						</VBox>
+						</HBox>
+						</Panel>
+					</HBox>
+					<smartForm:SmartForm id="smartFormFlightData" class="flightdetailsform">
+						<smartForm:Group label="Flight data">
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Departure" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Arrival" value="{PolicyNumber}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Flight duration" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Flight lenght" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Delays" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+						</smartForm:Group>
+						<smartForm:Group label="Destination Airport">
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Departure" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Arrival" value="{PolicyNumber}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Flight duration" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Flight lenght" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Delays" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+						</smartForm:Group>
+					</smartForm:SmartForm>
+					<Panel class="flightdetailstiles" backgroundDesign="Transparent">
+					<StandardTile class="flightdetailstile" icon="sap-icon://flight" number="A380-861" numberUnit="A6-EDB" title="Aircraft" press="onFlighDetailTilePress"/>
+					<StandardTile class="flightdetailstile" icon="sap-icon://pie-chart" title="Analytics-simulation" press="onFlighDetailTilePress"/>
+					<StandardTile class="flightdetailstile" icon="sap-icon://building" number="Emirates" title="Operator" press="onFlighDetailTilePress"/>
+					</Panel>
+					<!--</Panel>-->
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

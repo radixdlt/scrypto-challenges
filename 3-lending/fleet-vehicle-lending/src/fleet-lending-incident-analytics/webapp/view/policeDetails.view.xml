@@ -1,0 +1,160 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns:m="sap.m" controllerName="com.sap.Aviation.controller.policeDetails"
+	xmlns="sap.uxap" xmlns:layout="sap.ui.layout" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:l="sap.ui.layout" xmlns:f="sap.ui.layout.form">
+	<m:App>
+		<m:pages>
+			<m:Page class="pageStyles"  title="Officer Details" showNavButton="true" navButtonPress="onNavBack">
+				<m:content class="pageStyles">
+					<ObjectPageLayout class="pageStyles" id="ObjectPageLayout" enableLazyLoading="false" showTitleInHeaderContent="true">
+						<headerTitle>
+							<ObjectPageHeader class="pageStyles" objectImageURI="image/dubaiPoliceOfficer.jpg" objectTitle="Prabal Kumar " objectImageShape="Circle" objectSubtitle="Senior Inspector">
+							</ObjectPageHeader>
+						</headerTitle>
+						<headerContent class="pageStyles">
+							<layout:VerticalLayout>
+								<m:Link text="+91 8197425091"/>
+								<m:Link text="prabal@delhipolice.com"/>
+									<m:Link text="Delhi, India"/>
+							</layout:VerticalLayout>
+							<!--<layout:HorizontalLayout>-->
+							<!--	<m:Image src="https://sapui5.hana.ondemand.com/test-resources/sap/uxap/images/linkedin.png"></m:Image>-->
+							<!--	<m:Image src="https://sapui5.hana.ondemand.com/test-resources/sap/uxap/images/Twitter.png"></m:Image>-->
+							<!--</layout:HorizontalLayout>-->
+							<layout:VerticalLayout>
+								<m:VBox height="63px">
+									<m:Label text="Fitness Level"/>
+									<m:ProgressIndicator percentValue="80" displayValue="80%" showValue="true" state="None"/>
+								</m:VBox>
+							</layout:VerticalLayout>
+							<!--<layout:VerticalLayout>-->
+							<!--	<m:Label text="Dubai, UAE"/>-->
+							<!--</layout:VerticalLayout>-->
+						</headerContent>
+						<sections>
+							<ObjectPageSection class="pageStyles" title="Personal">
+								<subSections>
+									<ObjectPageSubSection title="">
+										<f:SimpleForm id="idPersonalInfoForm" editable="false" layout="ResponsiveGridLayout" title="Address" labelSpanXL="4" labelSpanL="4"
+											labelSpanM="4" labelSpanS="12" adjustLabelSpan="false" emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0" columnsXL="3"
+											columnsL="2" columnsM="2" singleContainerFullSize="false">
+											<f:content>
+												<core:Title text="Office"/>
+												<m:Label text="Name"/>
+												<m:Text text="Prabal Kumar"/>
+												<m:Label text="Street/No."/>
+												<m:Text text="Janakpuri East"/>
+												<m:Label text="Area/City"/>
+												<m:Text text="New Delhi"/>
+												<m:Label text="Country"/>
+												<m:Text text="India"/>
+												<core:Title text="Online"/>
+												<!--<m:Label text="Web"/>-->
+												<!--<m:Text text="https://www.dubaipolice.com"/>-->
+												<!--<m:Label text="Twitter"/>-->
+												<!--<m:Text text="https://twitter.com/DubaiPoliceHQ"/>-->
+												<m:Label text="Email"/>
+												<m:Text text="prabal@delhipolice.com"/>
+												<m:Label text="Tel."/>
+												<m:Text text="+91 8165446190"/>
+											</f:content>
+										</f:SimpleForm>
+									</ObjectPageSubSection>
+								</subSections>
+							</ObjectPageSection>
+							<ObjectPageSection class="pageStyles" title="Health">
+								<subSections>
+									<ObjectPageSubSection title="">
+										<f:SimpleForm id="idHealthForm" editable="false" layout="ResponsiveGridLayout" title="Health" labelSpanXL="4" labelSpanL="4" labelSpanM="4"
+											labelSpanS="12" adjustLabelSpan="false" emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0" columnsXL="3" columnsL="2" columnsM="2"
+											singleContainerFullSize="false">
+											<f:content>
+												<core:Title text="General Information"/>
+												<m:Label text="Age"/>
+												<m:Text text="46 years"/>
+												<m:Label text="Weight"/>
+												<m:Text text="75kg"/>
+												<m:Label text="Blood Group"/>
+												<m:Text text="O +ve"/>
+												<core:Title text="Medical Records"/>
+												<m:Label text="Allergies"/>
+												<m:Text text="NA"/>
+												<m:Label text="Diabetic"/>
+												<m:Text text="No"/>
+												<m:Label text="Smoker"/>
+												<m:Text text="Yes"/>
+											</f:content>
+										</f:SimpleForm>
+									</ObjectPageSubSection>
+								</subSections>
+							</ObjectPageSection>
+							<ObjectPageSection class="pageStyles" title="Trainings">
+								<subSections>
+									<ObjectPageSubSection title="Completed">
+										<m:Table id="idCompletedTable" inset="false" items="{trainings>/completed}">
+											<m:columns>
+												<m:Column minScreenWidth="Tablet" demandPopin="true">
+													<m:Text text="Training ID"/>
+												</m:Column>
+												<m:Column minScreenWidth="Tablet" demandPopin="true">
+													<m:Text text="Training Name"/>
+												</m:Column>
+												<m:Column minScreenWidth="Desktop" demandPopin="true" hAlign="End">
+													<m:Text text="Type"/>
+												</m:Column>
+												<m:Column minScreenWidth="Desktop" demandPopin="true" hAlign="End">
+													<m:Text text="Duration"/>
+												</m:Column>
+											</m:columns>
+											<m:items>
+												<m:ColumnListItem>
+													<m:cells>
+														<m:Text text="{trainings>TrainingID}"/>
+														<m:Text text="{trainings>TrainingName}"/>
+														<m:Text text="{trainings>Type}"/>
+														<m:Text text="{trainings>Duration}"/>
+													</m:cells>
+												</m:ColumnListItem>
+											</m:items>
+										</m:Table>
+									</ObjectPageSubSection>
+									<ObjectPageSubSection class="pageStyles" title="Recommended">
+										<m:Table id="idRecommendedTable" inset="false" items="{trainings>/recommended}">
+											<m:columns>
+												<m:Column minScreenWidth="Tablet" demandPopin="true">
+													<m:Text text="Training ID"/>
+												</m:Column>
+												<m:Column minScreenWidth="Tablet" demandPopin="true">
+													<m:Text text="Training Name"/>
+												</m:Column>
+												<m:Column minScreenWidth="Desktop" demandPopin="true" hAlign="End">
+													<m:Text text="Type"/>
+												</m:Column>
+												<m:Column minScreenWidth="Desktop" demandPopin="true" hAlign="End">
+													<m:Text text="Duration"/>
+												</m:Column>
+												<m:Column minScreenWidth="Desktop" demandPopin="true" hAlign="End">
+													<m:Text text="Enroll"/>
+												</m:Column>
+											</m:columns>
+											<m:items>
+												<m:ColumnListItem>
+													<m:cells>
+														<m:Text text="{trainings>TrainingID}"/>
+														<m:Text text="{trainings>TrainingName}"/>
+														<m:Text text="{trainings>Type}"/>
+														<m:Text text="{trainings>Duration}"/>
+														<m:Button text="Enroll" press="onEnrollTraining"/>
+													</m:cells>
+												</m:ColumnListItem>
+											</m:items>
+										</m:Table>
+									</ObjectPageSubSection>
+									<!--	<ObjectPageSubSection title="Recommended"></ObjectPageSubSection>-->
+								</subSections>
+							</ObjectPageSection>
+						</sections>
+					</ObjectPageLayout>
+				</m:content>
+			</m:Page>
+		</m:pages>
+	</m:App>
+</mvc:View>

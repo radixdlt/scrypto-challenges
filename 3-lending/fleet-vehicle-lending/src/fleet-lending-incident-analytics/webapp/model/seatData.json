@@ -1,0 +1,20 @@
+{
+	"seatCollection" : [
+		      {
+		      	"class" : "Businnes",
+		      	"specs" : {
+		      				 "pitch" : "48/70-79",
+		      				"width" : "18.5",
+		      				"seating" : "58 flat bed seats"
+		      	          }
+		      },
+		      {
+		      	"class" : "Economy",
+		      	"specs" : {
+		      		    	 "pitch" : "32-34",
+		      				"width" : "17.5",
+		      				"seating" : "557 standard seats"
+		               	}
+		      }
+  		]
+}

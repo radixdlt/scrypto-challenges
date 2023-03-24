@@ -1,0 +1,158 @@
+{
+	"IncidentCollection": [{
+		"lat": 28.6387293,
+		"long": 77.0853497,
+		"address": "Tilak Nagar, Delhi",
+		"eventNum": 332913,
+		"category": "Assisting The Public",
+		"type": "Accident",
+		"date": "Jan 13 2018",
+		"time": "3:00 pm",
+		"comments": "Traffic Congestion",
+		"priority": 3,
+		"status": "Closed",
+		"ambulanceNeeded": false,
+		"fireTruckNeeded": true,
+		"policeAssigned": false,
+		"officerInCharge": "Mr. Pradeep Singh",
+		"officers": [],
+		"ChatCollection": [{
+			"Author": "Mr. Aman Verma",
+			"AuthorPicUrl": "",
+			"Type": "Request",
+			"Date": "Jan 13 2018",
+			"Text": "Huge Traffic congestion near Hard Rock Cafe. Two vehicle collided"
+
+		}, {
+			"Author": "Delhi Traffic Police",
+			"AuthorPicUrl": "com/sap/Aviation/image/dubai-police.png",
+			"Type": "Reply",
+			"Date": "Jan 13 2018",
+			"Text": "Thanks for the update. We are on our way"
+		}]
+	}, {
+		"lat": 28.6294796,
+		"long": 77.0233186,
+		"address": "Inox JanakPalace",
+		"eventNum": 151392,
+		"category": "Fire",
+		"type": "Accident",
+		"date": "14/01/2018",
+		"time": "8:00 pm",
+		"comments": "Fire at a Apartment",
+		"priority": 1,
+		"status": "Pending",
+		"ambulanceNeeded": false,
+		"fireTruckNeeded": false,
+		"policeAssigned": false,
+		"officerInCharge": "Mr. Pradeep Singh",
+		"officers": [],
+		"ChatCollection": [{
+			"Author": "Mr. Shamrath Yadav",
+			"AuthorPicUrl": "",
+			"Type": "Request",
+			"Date": "Jan 13 2018",
+			"Text": "Santro collided with the heavy duty truck on main road"
+
+		}, {
+			"Author": "Delhi Traffic Police",
+			"AuthorPicUrl": "com/sap/Aviation/image/dubai-police.png",
+			"Type": "Reply",
+			"Date": "Jan 13 2018",
+			"Text": "Thanks for the update. We are on our way"
+		}]
+	}, {
+		"lat": 28.6810769,
+		"long": 76.9999138,
+		"address": "Mundaka Village",
+		"eventNum": 998102,
+		"category": "Property Crime/Theft",
+		"type": "Accident",
+		"date": "14/01/2018",
+		"time": "5:00 pm",
+		"comments": "Car Stolen",
+		"priority": 2,
+		"status": "New",
+		"ambulanceNeeded": false,
+		"fireTruckNeeded": false,
+		"policeAssigned": false,
+		"officerInCharge": "Mr. Pradeep Singh",
+		"officers": [],
+		"ChatCollection": [{
+			"Author": "Mr. Parnav Kumar",
+			"AuthorPicUrl": "",
+			"Type": "Request",
+			"Date": "Jan 13 2018",
+			"Text": "Car parked outside the mall got stolen"
+
+		}, {
+			"Author": "Delhi Traffic Police",
+			"AuthorPicUrl": "com/sap/Aviation/image/dubai-police.png",
+			"Type": "Reply",
+			"Date": "Jan 13 2018",
+			"Text": "Thanks for the update. We are on our way"
+		}]
+	}, {
+		"lat": 28.6498738,
+		"long": 77.0864573,
+		"address": "Lakxmi Vihar",
+		"eventNum": 991202,
+		"category": "Fire",
+		"type": "Accident",
+		"date": "16/01/2018",
+		"time": "1:00 pm",
+		"comments": "Fire at Mall",
+		"priority": 5,
+		"status": "New",
+		"ambulanceNeeded": true,
+		"fireTruckNeeded": true,
+		"policeAssigned": false,
+		"officerInCharge": "Mr. Pradeep Singh",
+		"officers": [],
+		"ChatCollection": [{
+			"Author": "Mr. Kalyan Chaudhary",
+			"AuthorPicUrl": "",
+			"Type": "Request",
+			"Date": "Jan 13 2018",
+			"Text": "Major accident of 2 car. Need ambulance"
+
+		}, {
+			"Author": "Delhi Traffic Police",
+			"AuthorPicUrl": "com/sap/Aviation/image/dubai-police.png",
+			"Type": "Reply",
+			"Date": "Jan 13 2018",
+			"Text": "Thanks for the update. We are on our way"
+		}]
+	}, {
+		"lat": 28.6636961,
+		"long": 77.1195832,
+		"address": "Punjabi Bagh",
+		"eventNum": 531642,
+		"category": "Accident",
+		"type": "Accident",
+		"date": "20/01/2018",
+		"time": "3:15 pm",
+		"comments": "Vehicle Collision",
+		"priority": 5,
+		"status": "Pending",
+		"ambulanceNeeded": true,
+		"fireTruckNeeded": true,
+		"policeAssigned": false,
+		"officerInCharge": "Mr. Pradeep Singh",
+		"officers": [],
+		"ChatCollection": [{
+			"Author": "Mr. Kapil Gir",
+			"AuthorPicUrl": "",
+			"Type": "Request",
+			"Date": "Jan 13 2018",
+			"Text": "A car collided with a truck near punjabi bagh"
+
+		}, {
+			"Author": "Delhi Traffic Police",
+			"AuthorPicUrl": "com/sap/Aviation/image/dubai-police.png",
+			"Type": "Reply",
+			"Date": "Jan 13 2018",
+			"Text": "Thanks for the update. We are on our way"
+		}]
+	}]
+}

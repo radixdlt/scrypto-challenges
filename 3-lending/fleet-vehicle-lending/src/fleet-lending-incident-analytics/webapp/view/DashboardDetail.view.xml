@@ -1,0 +1,85 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:form="sap.ui.layout.form" xmlns:l="sap.ui.layout"
+	controllerName="com.sap.Aviation.controller.DashboardDetail" xmlns:html="http://www.w3.org/1999/xhtml" id="dashboardDetailID">
+	<App> 
+		<pages>
+			<Page class="dashboardDetailStyles" showHeader="false">
+				<content>
+					<l:BlockLayout id="BlockLayout">
+						<l:BlockLayoutRow accentCells="Accent1" class="blockRow2Style" visible="{= ${currentRoleModel>/CurrentRole}==='Admin'?true:false}">
+							<l:BlockLayoutCell class="dashboardCellStyle">
+								<l:HorizontalLayout>
+									<l:content>
+										<Label text="HOME" class="dashboardLabelStyle"></Label>
+									</l:content>
+								</l:HorizontalLayout>
+								<l:HorizontalLayout class="tilesLayout">
+									<l:content>
+										<StandardTile icon="sap-icon://jam" title="Social Media Sentiments" class="tileStyle"
+											press="dashboardTilePress"/>
+										<!--<StandardTile icon="sap-icon://alert" title="ICM Tickets" number="0" numberUnit="New Tickets" class="tileStyle" press="dashboardTilePress"/>-->
+										<StandardTile icon="sap-icon://stethoscope" title="Health Summary" class="tileStyle" press="dashboardTilePress"/>
+										<StandardTile icon="sap-icon://incident" title="Incidents Analysis" class="tileStyle" press="dashboardTilePress"/>
+											<StandardTile icon="sap-icon://along-stacked-chart" title="Analytics" class="tileStyle" press="dashboardTilePress"/>
+										<!--<StandardTile icon="sap-icon://chart-axis" title="Incident Analysis" class="tileStyle" press="dashboardTilePress"/>-->
+									</l:content>
+								</l:HorizontalLayout>
+							</l:BlockLayoutCell>
+						</l:BlockLayoutRow>
+						<l:BlockLayoutRow accentCells="Accent1" class="blockRow2Style" visible="{= ${currentRoleModel>/CurrentRole}==='Citizen'?true:false}">
+							<l:BlockLayoutCell class="dashboardCellStyle">
+								<l:HorizontalLayout>
+									<l:content>
+										<Label text="Report Incident" class="dashboardLabelStyle"></Label>
+									</l:content>
+								</l:HorizontalLayout>
+								<l:HorizontalLayout class="tilesLayout">
+									<l:content>
+										<StandardTile icon="sap-icon://alert" title="SOS" class="tileStyle" press="dashboardTilePress"/>
+										<StandardTile icon="sap-icon://create" title="Create Incident" class="tileStyle"
+											press="dashboardTilePress"/>
+										<StandardTile icon="sap-icon://history" title="My Incidents History" class="tileStyle" press="dashboardTilePress"/>
+									</l:content>
+								</l:HorizontalLayout>
+							</l:BlockLayoutCell>
+						</l:BlockLayoutRow>
+						<l:BlockLayoutRow accentCells="Accent1" class="blockRow2Style" visible="{= ${currentRoleModel>/CurrentRole}==='Dispatcher'?true:false}">
+							<l:BlockLayoutCell class="dashboardCellStyle">
+								<l:HorizontalLayout>
+									<l:content>
+										<Label text="Navigate Incident" class="dashboardLabelStyle"></Label>
+									</l:content>
+								</l:HorizontalLayout>
+								<l:HorizontalLayout class="tilesLayout">
+									<l:content>
+										<StandardTile icon="sap-icon://locate-me" title="Navigate Incidents" class="tileStyle" press="dashboardTilePress"/>
+									</l:content>
+								</l:HorizontalLayout>
+							</l:BlockLayoutCell>
+						</l:BlockLayoutRow>
+						<l:BlockLayoutRow accentCells="Accent1" class="blockRow2Style" visible="{= ${currentRoleModel>/CurrentRole}==='Police Officer'?true:false}">
+							<l:BlockLayoutCell class="dashboardCellStyle">
+								<l:HorizontalLayout>
+									<l:content>
+										<Label text="Incidents" class="dashboardLabelStyle"></Label>
+									</l:content>
+								</l:HorizontalLayout>
+								<l:HorizontalLayout class="tilesLayout">
+									<l:content>
+										<StandardTile icon="sap-icon://incident" title="Incidents" class="tileStyle" press="dashboardTilePress"/>
+									</l:content>
+								</l:HorizontalLayout>
+							</l:BlockLayoutCell>
+						</l:BlockLayoutRow>
+					</l:BlockLayout>
+					<Panel id="videoPanel" width="70%" class="sapUiResponsiveMargin" accessibleRole="Region" visible="false">
+						<headerToolbar>
+							<Toolbar height="3rem">
+								<Title text="Live Video Streaming"/>
+							</Toolbar>
+						</headerToolbar>
+					</Panel>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

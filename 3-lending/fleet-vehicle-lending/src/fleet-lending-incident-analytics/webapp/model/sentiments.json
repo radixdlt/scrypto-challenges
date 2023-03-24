@@ -1,0 +1,43 @@
+{
+	"sentiments": [{
+			"POST_ID": "1",
+			"POST_MESSAGE": "#TrafficUpdate‬ ‪An #accident causes traffic #congestion on clock roundabout , be extra cautious & take alternative ways.‬",
+			"POST_TIMESTAMP": "",
+			"COMMENT_ID": "1",
+			"COMMENT_MESSAGE": "Good to to inform public",
+			"COMMENT_TIMESTAMP": "",
+			"SENTIMENT": "POSITIVE"
+		}, {
+			"POST_ID": "1",
+			"POST_MESSAGE": "#TrafficUpdate‬ ‪An #accident causes traffic #congestion on clock roundabout , be extra cautious & take alternative ways.‬",
+			"POST_TIMESTAMP": "",
+			"COMMENT_ID": "2",
+			"COMMENT_MESSAGE": "Thank you for information",
+			"COMMENT_TIMESTAMP": "",
+			"SENTIMENT": "POSITIVE"
+
+		}, {
+			"POST_ID": "2",
+			"POST_MESSAGE": "Our children are important. We should watch over them, so they won't engage with gang mobs in order to protect them from using or falling victims to white weapons.",
+			"POST_TIMESTAMP": "",
+			"COMMENT_ID": "1",
+			"COMMENT_MESSAGE": "Thank you for information",
+			"COMMENT_TIMESTAMP": "",
+			"SENTIMENT": "NEUTRAL"
+
+		},
+
+		{
+
+			"POST_ID": "2",
+			"POST_MESSAGE": "Our children are important. We should watch over them, so they won't engage with gang mobs in order to protect them from using or falling victims to white weapons.",
+			"POST_TIMESTAMP": "",
+			"COMMENT_ID": "2",
+			"COMMENT_MESSAGE": "Good to to inform public",
+			"COMMENT_TIMESTAMP": "",
+			"SENTIMENT": "POSITIVE"
+
+		}
+	
+	]
+}

@@ -1,0 +1,117 @@
+{
+	"PoliceOfficerCollection": [{
+		"Id": "P1",
+		"Name": "Mr Sonu Yadav",
+		"Age": "46",
+		"Gender": "Male",
+		"BaseLocation": "Dubai",
+		"Rank": "Corporal"
+
+	}, {
+		"Id": "P2",
+		"Name": "Veer Singh",
+		"Age": "49",
+		"Gender": "Male",
+		"BaseLocation": "Dubai",
+		"Rank": "Corporal"
+	}, {
+		"Id": "P3",
+		"Name": "Prabal Kumar",
+		"Age": "51",
+		"Gender": "Male",
+		"BaseLocation": "Dubai",
+		"Rank": "Sergeant"
+	}, {
+		"Id": "P4",
+		"Name": "Ravindra Chaudhary",
+		"Age": "49",
+		"Gender": "Male",
+		"BaseLocation": "Dubai",
+		"Rank": "Sergeant"
+	}],
+	"HealthMeasure": [{
+		"ID": "1",
+		"Text": "Hear Rate Details"
+	}, {
+		"ID": "2",
+		"Text": "Cholestrol Level"
+	}],
+		"CholestrolChart": [{
+		"Category": "Good",
+		"TCholestrol": "Less than 200",
+		"LCholestrol": "Less than 100"
+	}, {
+		"Category": "Borderline",
+		"TCholestrol": "200-239",
+		"LCholestrol": "130-159"
+	}, {
+		"Category": "High",
+		"TCholestrol": "240 or higher",
+		"LCholestrol": "160 or higher"
+	}, {
+		"Category": "Low",
+		"TCholestrol": "n/a",
+		"LCholestrol": "n/a"
+	}],
+	"HeartRateChart": [{
+		"BPMLevel": "Athlete",
+		"Officer": "10"
+	}, {
+		"BPMLevel": "Excellent",
+		"Officer": "6"
+	}, {
+		"BPMLevel": "Good",
+		"Officer": "5"
+	}, {
+		"BPMLevel": "Above Average",
+		"Officer": "10"
+	}, {
+		"BPMLevel": "Average",
+		"Officer": "4"
+	}, {
+		"BPMLevel": "Below Average",
+		"Officer": "2"
+	}, {
+		"BPMLevel": "Poor",
+		"Officer": "2"
+	}],
+
+	"HearRateDetails": [{
+			"Category": "Athlete",
+			"Range": "49-55"
+		}, {
+			"Category": "Excellent",
+			"Range": "56-61"
+		}, {
+			"Category": "Good",
+			"Range": "62-65"
+		}, {
+			"Category": "Above Average",
+			"Range": "66-70"
+		}, {
+			"Category": "Average",
+			"Range": "70-73"
+		}, {
+			"Category": "Below Average",
+			"Range": "74-81"
+		},{
+			"Category": "Poor",
+			"Range": "82+"
+		}
+
+	],
+	"Cholestrol": [
+	{
+		"Choles": "Good (Less than 200 )",
+		"Officer": "2"
+	}, {
+		"Choles": "BorderLine ( 200–239 )",
+		"Officer": "6"
+	}, {
+		"Choles": "High ( 240 or higher )",
+		"Officer": "10"
+	}, {
+		"Choles": "Low ( n/a )",
+		"Officer": "10"
+	}]
+}

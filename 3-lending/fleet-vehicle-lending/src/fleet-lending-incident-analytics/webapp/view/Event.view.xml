@@ -1,0 +1,60 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.Event"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:smartForm="sap.ui.comp.smartform" xmlns:smartField="sap.ui.comp.smartfield"
+	xmlns:l="sap.ui.layout" xmlns:f="sap.ui.layout.form">
+	<App>
+		<pages>
+				<Page showHeader="false">
+				<content>
+					<ObjectHeader id="id1" 	class="sapUiResponsiveMargin">
+						<attributes>
+							<ObjectAttribute id="eventAttr1"/>
+							<ObjectAttribute id="eventAttr2"/>
+						</attributes>
+					</ObjectHeader>
+					<IconTabBar class="sapUiResponsiveMargin">
+						<items>
+							<IconTabFilter id="eventIconTabFilt1" icon="sap-icon://hint">
+								<f:SimpleForm editable="false" layout="ResponsiveGridLayout" labelSpanL="4" labelSpanM="12"
+									adjustLabelSpan="false" emptySpanL="0" emptySpanM="0" columnsL="2" columnsM="2" singleContainerFullSize="false">
+									<f:content>
+										<core:Title text="Event Information"/>
+										<Label text="Date of Event"/>
+										<Text id="form1"/>
+										<Label text="Reg No"/>
+										<Text id="form2"/>
+										<Label text="Location"/>
+										<Text id="form3"/>
+										<Label text="Crew OnBoard"/>
+										<Text id="form4"/>
+										<Label text="Passengers OnBoard"/>
+										<Text id="form5"/>
+										<Label text="Crew Fatalities"/>
+										<Text id="form6"/>
+										<Label text="Passenger Fatalities"/>
+										<Text id="form7"/>
+									</f:content>
+								</f:SimpleForm>
+							</IconTabFilter>
+							<IconTabFilter id="eventIconTabFilt2" icon="sap-icon://customer-financial-fact-sheet">
+								<f:SimpleForm  editable="false" layout="ResponsiveGridLayout" labelSpanL="4" labelSpanM="12"
+									adjustLabelSpan="false" emptySpanL="0" emptySpanM="0" columnsL="2" columnsM="2" singleContainerFullSize="false">
+									<f:content>
+										<core:Title text="Financial Information"/>
+										<Label text="Total Hull Paid"/>
+										<Text id="form8"/>
+										<Label text="Total Hull Outstanding"/>
+										<Text id="form9"/>
+										<Label text="Total Liab Paid"/>
+										<Text id="form10"/>
+										<Label text="Total Liab Outstanding"/>
+										<Text id="form11"/>
+									</f:content>
+								</f:SimpleForm>
+							</IconTabFilter>
+						</items>
+					</IconTabBar>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

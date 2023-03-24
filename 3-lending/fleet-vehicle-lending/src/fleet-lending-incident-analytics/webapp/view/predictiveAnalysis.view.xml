@@ -1,0 +1,93 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:l="sap.ui.layout"
+	controllerName="com.sap.Aviation.controller.predictiveAnalysis" xmlns:html="http://www.w3.org/1999/xhtml"
+	xmlns:micro="sap.suite.ui.microchart">
+	<App>
+		<pages>
+			<Page title="Predictive Analysis" showNavButton="true" navButtonPress="onNavBack">
+				<content>
+					<Panel>
+						<l:BlockLayout id="BlockLayout2" background="Default" class="blockstyle">
+							<l:BlockLayoutRow>
+								<l:BlockLayoutCell title="Incidents Predictive Analysis">
+									<!--<VBox>-->
+									<!--	<HBox>-->
+									<!--		<Label text="Area :" width="90px" class="graphSlide"></Label>-->
+									<!--		<ComboBox id="cbArea" items="{ path: 'areas>/areas' }" value="{areas>/name}" selectedKey="Bur Dubai">-->
+									<!--			<core:Item key="{areas>name}" text="{areas>name}"/>-->
+									<!--		</ComboBox>-->
+									<!--	</HBox>-->
+									<!--	<HBox>-->
+									<!--		<Label text="Incident Type :" class="graphSlide"></Label>-->
+									<!--		<ComboBox id="cbIncident" items="{ path: 'areas>/incident' }" selectedKey="Accident">-->
+									<!--			<core:Item key="{areas>name}" text="{areas>name}"/>-->
+									<!--		</ComboBox>-->
+									<!--	</HBox>-->
+									<!--</VBox>-->
+									<VBox>
+										<Text text="Crime Rate"/>
+										<Slider id="idSCR" value="15" min="0" max="100" showAdvancedTooltip="true" showHandleTooltip="false" liveChange="onCrimeRateSliderChange"/>
+										<!--<Text text="Severity"/>-->
+										<!--<Slider id="idS2" value="10" min="0" max="100" showAdvancedTooltip="true" showHandleTooltip="false" liveChange="onSliderChange"/>-->
+										<Text text="Happiness Index"/>
+										<Slider id="idSHI" value="83" min="0" max="100" showAdvancedTooltip="true" showHandleTooltip="false"
+											liveChange="onHappinessIndexSliderChange"/>
+										<!--<Text text="Crime Rate :"/>-->
+										<!--<Text id="idCrimeRate" text="" class="crimeStat"/>-->
+									</VBox>
+								</l:BlockLayoutCell>
+							</l:BlockLayoutRow>
+							<l:BlockLayoutRow title="Root Causes">
+								<l:BlockLayoutCell title="Root Causes for Crime Rate">
+									<VBox>
+										<HBox>
+											<micro:RadialMicroChart id="cromeMicroChart" size="M" percentage="0" press="press" class="sapUiSmallMargin"></micro:RadialMicroChart>
+										</HBox>
+										<HBox>
+											<Text text="Street Lightning"/>
+											<Text id="idSL"  class="crimeStat"/>
+										</HBox>
+										<HBox>
+											<Text text="Patroling Cars"/>
+											<Text id="idPC"  class="crimeStat"/>
+										</HBox>
+										<HBox>
+											<Text text="New Resident Influx"/>
+											<Text id="idNRI"  class="crimeStat"/>
+										</HBox>
+										<!--<HBox>-->
+										<!--	<Text text="awareness campaigns"/>-->
+										<!--	<Text id="idAWC" text="(-20%)" class="crimeStat"/>-->
+										<!--</HBox>-->
+									</VBox>
+								</l:BlockLayoutCell>
+								<l:BlockLayoutCell title="Root Causes for Happiness Index">
+									<VBox>
+										<HBox>
+											<micro:RadialMicroChart id="HappinessMicroChart" size="M" percentage="0" press="press" class="sapUiSmallMargin"></micro:RadialMicroChart>
+										</HBox>
+										<HBox>
+											<Text text="Traffic"/>
+											<Text id="idtraffic"  class="crimeStat"/>
+										</HBox>
+										<HBox>
+											<Text text="Accident"/>
+											<Text id="idACC"  class="crimeStat"/>
+										</HBox>
+										<HBox>
+											<Text text="Increased Fine Costs"/>
+											<Text id="idIFC" class="crimeStat"/>
+										</HBox>
+										<!--<HBox>-->
+										<!--	<Text text="Cost of Living"/>-->
+										<!--	<Text id="idCL" text="(+20%)" class="crimeStat"/>-->
+										<!--</HBox>-->
+									</VBox>
+								</l:BlockLayoutCell>
+							</l:BlockLayoutRow>
+						</l:BlockLayout>
+					</Panel>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

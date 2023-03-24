@@ -1,0 +1,19 @@
+{
+	"analyticsEventCollection" : [
+		{
+		   "month" : "Healthy",
+		   "event" :  40,
+		   "cost"  : 10
+		},
+		{
+			"month" : "Active",
+		   "event" :  70,
+		   "cost"  : 20
+		},
+		{
+			"month" : "Sick",
+		   "event" :  10,
+		      "cost"  : 10
+		}
+		]
+}

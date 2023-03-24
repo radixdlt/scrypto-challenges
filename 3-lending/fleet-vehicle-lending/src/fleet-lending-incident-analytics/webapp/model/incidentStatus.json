@@ -1,0 +1,16 @@
+{
+	"status":[
+		      {
+		      	"name" : "New",
+		      	"type" : "Active"
+		      },
+		      {
+		      	"name" : "In Process",
+		      	"type" : "Warning"
+		      },
+		      {
+		      	"name" : "Closed",
+		      	"type" : "None" 
+		      }
+		]
+}

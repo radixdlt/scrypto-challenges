@@ -1,0 +1,34 @@
+{
+	"incidentCollection":[
+		      {
+		      	"type" : "Fight"
+		      },
+		      {
+		      	"type" : "Drug & Vice"
+		      },
+		      {
+		      	"type" : "Theft"
+		      },
+		      {
+		      	"type" : "Fire"
+		      },
+		      {
+		      	"type" : "Accident"
+		      },
+		      {
+		      	"type" : "Kidnapping"
+		      },
+		      {
+		      	"type" : "Traffic"
+		      },
+		      {
+		      	"type" : "Blast"
+		      },
+		      {
+		      	"type" : "Earthquake"
+		      },
+		      {
+		      	"type" : "Others"
+		      }
+		]
+}

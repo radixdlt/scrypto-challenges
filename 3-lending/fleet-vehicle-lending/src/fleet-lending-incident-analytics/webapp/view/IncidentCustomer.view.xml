@@ -1,0 +1,120 @@
+<core:View xmlns:core="sap.ui.core" xmlns="sap.uxap" xmlns:layout="sap.ui.layout" xmlns:m="sap.m" xmlns:f="sap.ui.layout.form"
+	controllerName="com.sap.Aviation.controller.IncidentCustomer" height="100%">
+		<m:App>
+		<m:pages>
+			<m:Page class="pageStyles"  id="incidentCustomer" title="Reported Incidents" showNavButton="true" navButtonPress="onNavBack">
+				<m:content  class="pageStyles">
+	<ObjectPageLayout id="ObjectPageLayout"  class="pageStyles" enableLazyLoading="false" showNavButton="true" navButtonPress="onNavBack" subSectionLayout="TitleOnLeft" showTitleInHeaderContent="true"
+		showHeaderContent="true" xmlns:l="sap.ui.layout">
+		<headerTitle>
+			<ObjectPageHeader  class="pageStyles"  objectTitle="{test>/type}"
+			 id="ObjectPageLayoutHeaderTitle" isObjectIconAlwaysVisible="false" isObjectTitleAlwaysVisible="false"
+				isObjectSubtitleAlwaysVisible="false" isActionAreaAlwaysVisible="true" showPlaceholder="true">
+				<actions>
+				</actions>
+				<m:Button text="Edit"
+						press="onEditIncident"/> 
+					<m:Button text="Save" id="saveIncident"
+						press="onSaveSubmit"  enabled = "false"/> 
+				<m:Button text="Give Review"
+						press="onChangeStatusPress"/> 
+			</ObjectPageHeader>
+		</headerTitle>
+		<headerContent  class="pageStyles">
+			<layout:VerticalLayout>
+				<m:Label text="{test>/comments}"/>
+			</layout:VerticalLayout>
+				<m:ObjectStatus text="{test>/status}" state="{path:'test>/status', formatter:'com.sap.aviation.analyticspricemterics.utils.formatter.formatDate'}"/>
+		</headerContent>
+		<sections>
+					<ObjectPageSection  class="pageStyles" title="Comments">
+				<subSections>
+					<ObjectPageSubSection class = "moveLeft" title="Chat History">
+						<blocks>
+								<l:VerticalLayout width="100%" class="sapUiContentPadding">
+									<l:content>
+										<m:TextArea id="chatHistory" width="100%" visible="false" liveChange="onchatActions"></m:TextArea>
+										<m:List items="{test>/ChatCollection}">
+											<m:FeedListItem sender="{test>Author}" iconDensityAware="false" info="{test>Type}"
+												timestamp="{test>Date}" text="{test>Text}"/>
+										</m:List>
+									</l:content>
+								</l:VerticalLayout>
+								<!--<m:Label text="John (Citizen): Its a huge Fire!!!"></m:Label>
+								<m:Label text="Katy (Dispatcher): Fire Truck on its way. Ambulance and neaby hospitals have been informed "></m:Label>-->
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+			<ObjectPageSection  class="pageStyles" title="Information">
+				<subSections>
+					<ObjectPageSubSection title="Incident Summary">
+						<blocks>
+							<m:VBox class="sapUiSmallMargin">
+								<f:Form id="FormIncident" editable="false">
+									<f:layout>
+										<f:ResponsiveGridLayout labelSpanXL="3" labelSpanL="3" labelSpanM="3" labelSpanS="12" adjustLabelSpan="false" emptySpanXL="4" emptySpanL="4"
+											emptySpanM="4" emptySpanS="0" columnsXL="1" columnsL="1" columnsM="1" singleContainerFullSize="false"/>
+									</f:layout>
+									<f:formContainers>
+										<f:FormContainer>
+											<f:formElements>
+												<f:FormElement label="Incident">
+													<f:fields>
+														<m:Text text="{test>/comments}"/>
+													</f:fields>
+												</f:FormElement>
+												<f:FormElement label="Location">
+													<f:fields>
+														<m:Text text="{test>/address}" id="locText"/>
+													</f:fields>
+												</f:FormElement>
+												<f:FormElement label="Type">
+													<f:fields>
+														<m:Text text="{test>/type}"/>
+													</f:fields>
+												</f:FormElement>
+												<f:FormElement label="Emergency">
+													<f:fields>
+														<m:Text text="Yes"/>
+													</f:fields>
+												</f:FormElement>
+												<f:FormElement label="Reported Date">
+													<f:fields>
+														<m:Text text="{test>/date}"/>
+													</f:fields>
+												</f:FormElement>
+												<f:FormElement label="Reported Time">
+													<f:fields>
+														<m:Text text="{test>/time}"/>
+													</f:fields>
+												</f:FormElement>
+											</f:formElements>
+										</f:FormContainer>
+									</f:formContainers>
+								</f:Form>
+							</m:VBox>
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+			<ObjectPageSection   class="pageStyles" title="Attachments">
+				<subSections>
+					<ObjectPageSubSection   class="pageStyles" title="Evidences">
+						<blocks>
+							<m:HBox width="100%" id="__hbox1">
+								<m:Image width="100px" height="100px" id="myImage1" backgroundPosition="center" src="image/traffic_congestion.jpg" alt="ImageView"/>
+								<m:Image width="100px" height="100px" id="myImage2" backgroundPosition="center" src="image/fire_building.jpg" alt="ImageView"/>
+							</m:HBox>
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+	
+		</sections>
+	</ObjectPageLayout>
+		</m:content>
+			</m:Page>
+				</m:pages>
+					</m:App>
+</core:View>

@@ -1,0 +1,47 @@
+{
+	"operatorCollection": [{
+		"operator": "Fleet size",
+		"value1": 240,
+		"value2": 232
+	}, {
+		"operator": "Destinations",
+		"value1": 141,
+		"value2": 139
+	}, {
+		"operator": "Flights",
+		"value1": 175200,
+		"value2": 169300
+	}, {
+		"operator": "Accidents",
+		"value1": 0,
+		"value2": 2
+	},{
+		"operator": "Accidents rate",
+		"value1": 0,
+		"value2": 0.0002
+	}, {
+		"operator": "Accidents cost",
+		"value1": 0,
+		"value2": "200000$"
+	}, {
+		"operator": "% of fatality",
+		"value1": 0,
+		"value2": 0
+	}, {
+		"operator": "Fatality cost",
+		"value1": 0,
+		"value2": 0
+	}, {
+		"operator": "Claims",
+		"value1": 0,
+		"value2": 2
+	}, {
+		"operator": "Delays",
+		"value1": 34,
+		"value2": 1473
+	}, {
+		"operator": "Average time of delay",
+		"value1": "0:30",
+		"value2": "1:20"
+	}]
+}

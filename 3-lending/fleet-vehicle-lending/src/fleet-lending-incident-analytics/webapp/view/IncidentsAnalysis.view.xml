@@ -1,0 +1,13 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.IncidentsAnalysis"
+	xmlns:html="http://www.w3.org/1999/xhtml" height = "95%">
+	<App>
+		<pages>
+			<Page class="pageStyles"  title="Incidents Analysis" showNavButton="true" navButtonPress="onNavBack">
+				<content>
+					<HBox id="map_canvas" fitContainer="true" justifyContent="Center" alignItems="Center"/>
+					<html:div id ="legend" class = "legend1"><html:h3>Legend</html:h3></html:div>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

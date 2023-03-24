@@ -1,0 +1,54 @@
+{
+	"areas": [{
+		"name": "Janakpuri West"
+	}, {
+		"name": "Tilak Nagar"
+	}, {
+		"name": "Karol Bagh"
+	}, {
+		"name": "Rajouri Garden"
+	}, {
+		"name": "Suhbash Chowk"
+	}, {
+		"name": "Uttam Nagar East"
+	}],
+	"incident": [{
+		"name": "Accident"
+	}, {
+		"name": "Traffic"
+	}, {
+		"name": "Traffic Violation"
+	}, {
+		"name": "Theft"
+	}, {
+		"name": "Fire"
+	}, {
+		"name": "Kidnapping"
+	}],
+	"survArea": [{
+		"name": "drone",
+		"lat": 28.6387293,
+		"long": 77.0853497
+	}, {
+		"name": "vehicle",
+		"lat": 28.6656487,
+		"long": 77.0465663
+	}, {
+		"name": "drone",
+		"lat": 28.6568674,
+		"long": 77.0679813
+	}, {
+		"name": "autonomous",
+		"lat": 28.6810769,
+		"long": 76.9999138
+	}, {
+		"name": "drone",
+		"lat": 28.6387293,
+		"long": 77.0853497
+	}, {
+		"name": "drone",
+		"lat": 28.6210495,
+		"long": 77.0555099
+	}]
+
+}

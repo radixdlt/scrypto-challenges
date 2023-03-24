@@ -1,0 +1,34 @@
+{
+	"aircraftCollection":[
+		      {
+		      	"revenue" : 430000,
+		      	"cost"    : 111122,
+		      	"week"    : 3
+		      },
+		      {
+		      	"revenue" : 730000,
+		      	"cost"    : 123132,
+		      	"week"    : 8
+		      },
+		      {
+		      	"revenue" : 130000,
+		      	"cost"    : 663132,
+		      	"week"    : 11
+		      },
+		      {
+		      	"revenue" : 220000,
+		      	"cost"    : 83132,
+		      	"week"    : 16
+		      },
+		      {
+		      	"revenue" : 830000,
+		      	"cost"    : 883132,
+		      	"week"    : 19
+		      },
+		      {
+		      	"revenue" : 660000,
+		      	"cost"    : 123132,
+		      	"week"    : 22
+		      }
+		]
+}

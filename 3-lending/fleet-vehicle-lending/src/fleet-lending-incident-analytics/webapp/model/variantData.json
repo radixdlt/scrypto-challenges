@@ -1,0 +1,130 @@
+{
+  "variantCollection":[
+  	{
+  		"propertyType":"Cockpit crew",
+  	  "propertyValue":"Two"
+  	},
+  	{
+  		"propertyType":"Typical Seating",
+  	  "propertyValue":"544 (4-class)"
+  	},
+  	{
+  		"propertyType":"Exit Limit",
+  	  "propertyValue":"868"
+  	},
+  	{
+  		"propertyType":"Length overall",
+  	  "propertyValue":"72.72m (238 ft 7 in)"
+  	},
+  	{
+  		"propertyType":"Wingspan",
+  	  "propertyValue":"79.75 m (261 ft 8 in)"
+  	},
+  	{
+  		"propertyType":"Height",
+  	  "propertyValue":"24.09 m (79 ft 0 in)"
+  	},
+  	{
+  		"propertyType":"Wheelbase",
+  	  "propertyValue":"31.88 m ( 104 ft 7 in)"
+  	},
+  	{
+  		"propertyType":"Wheel track",
+  	  "propertyValue":"12.46 m ( 40 ft 11 in), 14.34 (47 ft 1 in) total width"
+  	},
+  	{
+  		"propertyType":"Outside fuselage dimensions",
+  	  "propertyValue":"Width: 7.14 m (23 ft 5 in) \n Height:8.42 m (27 ft 7 in)"
+  	},
+  	{
+  		"propertyType":"Maximum cabin width",
+  	  "propertyValue":"6.50 m (21 ft 4 in) main deck \n 5.80 m (19 ft 0 in) upper deck"
+  	
+  	},
+  	{
+  		"propertyType":"Cabin length",
+  	  "propertyValue":"49.9 m (163 ft 9 in) main deck \n 44.93 m (147 ft 5 in) upper deck"
+  	
+  	},
+  	{
+  		"propertyType":"Wing area",
+  	  "propertyValue":"845 sq m (9,100 sq ft)"
+  	},
+  	{
+  		"propertyType":"Aspect ratio",
+  	  "propertyValue":"7.53"
+  	},
+  	{
+  		"propertyType":"Wing sweep",
+  	  "propertyValue":"33.5 degree"
+  	},
+  	{
+  		"propertyType":"Maximum ramp weight",
+  	  "propertyValue":"577 t (1,272,000 lb)"
+  	},
+  	{
+  		"propertyType":"Maximum take-off weight",
+  	  "propertyValue":"575 t (1,268,000 lb)"
+  	},
+  	{
+  		"propertyType":"Max. landing weight",
+  	  "propertyValue":"394 t (869,000 lb)"
+  	},
+  	{
+  		"propertyType":"Max. zero fuel weight",
+  	  "propertyValue":"369 t (814,000 lb)"
+  	},
+  	{
+  		"propertyType":"Operating empty weight",
+  	  "propertyValue":"276.8 t (610,000 lb)"
+  	},
+  	{
+  		"propertyType":"Max. structural payload",
+  	  "propertyValue":"84 t (185,000 lb)"
+  	},
+  	{
+  		"propertyType":"Maximum cargo volume",
+  	  "propertyValue":"184 cu m (6,500 cu ft)"
+  	},
+  	{
+  		"propertyType":"Maximum operating speed",
+  	  "propertyValue":"Mach 0.89 (945 km/h; 511 kn)"
+  	},
+  	{
+  		"propertyType":"Maximum design speed",
+  	  "propertyValue":"Mach 0.96 (1,020 km/h; 551 kn)"
+  	},
+  	{
+  		"propertyType":"Cruise speed",
+  	  "propertyValue":"Mach 0.85 (903 km/h; 488 kn)"
+  	},
+  	{
+  		"propertyType":"Take off (MTOW, SL, ISA)",
+  	  "propertyValue":"3,000 m (9,800 ft)"
+  	},
+  	{
+  		"propertyType":"Landing speed",
+  	  "propertyValue":"130 kn (240 km/h)"
+  	},
+  	{
+  		"propertyType":"Range",
+  	  "propertyValue":"15,200 km / 8,200 nmi"
+  	},
+  	{
+  		"propertyType":"Service ceiling",
+  	  "propertyValue":"13,100 m (43,000 ft)"
+  	},
+  	{
+  		"propertyType":"Max. fuel capacity",
+  	  "propertyValue":"320,000 L / 84,600 USgal"
+  	},
+  	{
+  		"propertyType":"Engines (4 x)",
+  	  "propertyValue":"Engine Alliance GP7200 / Rolls-Royce Trent 900"
+  	},
+  	{
+  		"propertyType":"Thrust ( 4 x)",
+  	  "propertyValue":"311 knN (70,000 lbf)"
+  	}
+  	]
+   }

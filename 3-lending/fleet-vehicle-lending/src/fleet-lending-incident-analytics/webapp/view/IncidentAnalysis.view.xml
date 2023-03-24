@@ -1,0 +1,111 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:semantic="sap.m.semantic" displayBlock="true"
+	controllerName="com.sap.Aviation.controller.IncidentAnalysis" height="95%" xmlns:viz="sap.viz.ui5.controls"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds" xmlns:viz.data="sap.viz.ui5.data"
+	xmlns:l="sap.ui.layout">
+	<App>
+		<pages>
+			<Page class="pageStylesT" title="Incidents Overview and Assignment" showNavButton="true" navButtonPress="onNavBack">
+				<content>
+					<VBox>
+						<l:BlockLayout id="BlockLayout2" background="Default" class="blockstyle">
+							<l:BlockLayoutRow>
+								<l:BlockLayoutCell>
+									<viz:VizFrame id="idVizFrameColumn" vizType='column' selectData="columnfunc"/>
+								</l:BlockLayoutCell>
+								<l:BlockLayoutCell>
+									<viz:VizFrame id="idVizFrameLine" vizType='line'>
+										<viz:dataset>
+											<viz.data:FlattenedDataset data="{/}">
+												<viz.data:dimensions>
+													<viz.data:DimensionDefinition name="Year" value="{Year}"/>
+												</viz.data:dimensions>
+												<viz.data:measures>
+													<viz.data:MeasureDefinition name="Cases" value="{Cases}"/>
+												</viz.data:measures>
+											</viz.data:FlattenedDataset>
+										</viz:dataset>
+										<viz:feeds>
+											<viz.feeds:FeedItem id='valueAxisFeed' uid="valueAxis" type="Measure" values="Cases"/>
+											<viz.feeds:FeedItem id='categoryAxisFeed' uid="categoryAxis" type="Dimension" values="Year"/>
+										</viz:feeds>
+									</viz:VizFrame>
+								</l:BlockLayoutCell>
+							</l:BlockLayoutRow>
+							<l:BlockLayoutRow>
+								<l:BlockLayoutCell>
+									<viz:VizFrame id="idVizFrameColumn1" vizType='column'>
+										<viz:dataset>
+											<viz.data:FlattenedDataset data="{/}">
+												<viz.data:dimensions>
+													<viz.data:DimensionDefinition name="Area" value="{Area}"/>
+												</viz.data:dimensions>
+												<viz.data:measures>
+													<viz.data:MeasureDefinition name="Cases" value="{Cases}"/>
+												</viz.data:measures>
+											</viz.data:FlattenedDataset>
+										</viz:dataset>
+										<viz:feeds>
+											<viz.feeds:FeedItem id='valueAxisFeed1' uid="valueAxis" type="Measure" values="Cases"/>
+											<viz.feeds:FeedItem id='categoryAxisFeed1' uid="categoryAxis" type="Dimension" values="Area"/>
+										</viz:feeds>
+									</viz:VizFrame>
+								</l:BlockLayoutCell>
+							</l:BlockLayoutRow>
+							<l:BlockLayoutRow>
+								<l:BlockLayoutCell>
+									<viz:VizFrame id="idVizFrameBubble" vizType='bubble' width="550px">
+										<viz:dataset>
+											<viz.data:FlattenedDataset data="{/Theft}">
+												<viz.data:dimensions>
+													<viz.data:DimensionDefinition name="Area" value="{Area}"/>
+													<viz.data:DimensionDefinition name="Resolved By" value="{Resolved By}"/>
+												</viz.data:dimensions>
+												<viz.data:measures>
+													<viz.data:MeasureDefinition name="Resolution(days)" value="{Resolution(days)}"/>
+													<viz.data:MeasureDefinition name="Severity" value="{Severity}"/>
+												</viz.data:measures>
+											</viz.data:FlattenedDataset>
+										</viz:dataset>
+										<viz:feeds>
+											<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Resolution(days)"/>
+											<viz.feeds:FeedItem uid="valueAxis2" type="Measure" values="Severity"/>
+											<viz.feeds:FeedItem uid="bubbleWidth" type="Measure" values="Severity"/>
+											<viz.feeds:FeedItem uid="color" type="Dimension" values="Area"/>
+										</viz:feeds>
+									</viz:VizFrame>
+								</l:BlockLayoutCell>
+								<l:BlockLayoutCell>
+									<Table id="idTable" inset="false" items="{/vTable}" width="60%" class="chartTable">
+										<headerToolbar>
+											<Toolbar>
+												<content>
+													<Title text="Severity Index" level="H2"/>
+												</content>
+											</Toolbar>
+										</headerToolbar>
+										<columns>
+											<Column>
+												<Text text="Severity Index"/>
+											</Column>
+											<Column minScreenWidth="Tablet" demandPopin="true">
+												<Text text="Severity"/>
+											</Column>
+										</columns>
+										<items>
+											<ColumnListItem>
+												<cells>
+													<Text text="{Key}"/>
+													<Text text="{Severity}"/>
+												</cells>
+											</ColumnListItem>
+										</items>
+									</Table>
+								</l:BlockLayoutCell>
+							</l:BlockLayoutRow>
+						</l:BlockLayout>
+					</VBox>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

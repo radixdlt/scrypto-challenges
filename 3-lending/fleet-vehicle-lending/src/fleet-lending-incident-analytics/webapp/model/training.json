@@ -1,0 +1,30 @@
+{
+	"completed":[
+		{"TrainingID":"19217",
+		 "TrainingName":"Core Strength Development",
+		 "Type": "Physical Fitness",
+		 "Duration": "30 Days"
+		},
+		{"TrainingID":"18317",
+		 "TrainingName":"Endurance Building",
+		 "Type": "Physical Fitness",
+		 "Duration": "15 Days"
+		}],
+		
+		"recommended":[
+		{"TrainingID":"20165",
+		 "TrainingName":"Yoga Fitness",
+		 "Type": "Physical And Mental Fitness",
+		 "Duration": "30 Days"
+		},
+		{"TrainingID":"27651",
+		 "TrainingName":"Athletic Workouts",
+		 "Type": "Work Training",
+		 "Duration": "45 Days"
+		},
+		{"TrainingID":"29251",
+		 "TrainingName":"Anti Smoking Rehabilitation",
+		 "Type": "Health Training",
+		 "Duration": "30 Days"
+		}]
+}

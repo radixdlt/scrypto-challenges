@@ -1,0 +1,142 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:f="sap.ui.layout.form" xmlns:core="sap.ui.core" height="93%"
+	controllerName="com.sap.Aviation.controller.createIncident">
+	<Page class="pageStyles" title="Create Incident" showNavButton="true" showHeader="true" showFooter="true" navButtonPress="onNavBack">
+		<content>
+				<VBox class="incidentTypeStyle" alignItems="Center" justifyContent="Center" layout="ResponsiveGridLayout" labelSpanXL="3" labelSpanL="3" labelSpanM="3" labelSpanS="12" adjustLabelSpan="false" emptySpanXL="4" emptySpanL="4" emptySpanM="4" emptySpanS="0" columnsXL="1" columnsL="1" columnsM="1" singleContainerFullSize="false" alignContent="Center" direction="Inherit" renderType="List" displayInline="true">
+			<items>
+				<VBox direction="Column" id="__vbox1" alignContent="Center">
+							<items>
+								<Image id="0" src="image/emergency/fight.png" width="50px" height="50px" class="sapUiSmallMarginEnd" decorative="false" press="handleImagePress"/>
+								<Text id="Fight" text="Fight" textAlign="Center"/>
+							</items>
+						</VBox>
+						<VBox direction="Column" id="__vbox2" alignContent="Center">
+							<items>
+								<Image id="1" src="image/emergency/drugs.png" width="50px" height="50px" class="sapUiSmallMarginEnd" decorative="false" press="handleImagePress"/>
+								<Text id="Vice" text="Vice" textAlign="Center"/>
+							</items>
+						</VBox>
+						<VBox direction="Column" id="__vbox3" alignContent="Center">
+							<items>
+								<Image id="2" src="image/emergency/theft.png" width="50px" height="50px" class="sapUiSmallMarginEnd" decorative="false" press="handleImagePress"/>
+								<Text id="Theft" text="Theft" textAlign="Center"/>
+							</items>
+						</VBox>
+							<VBox direction="Column" id="__vbox4" alignContent="Center">
+							<items>
+								<Image id="3" src="image/emergency/fire.png" width="50px" height="50px" class="sapUiSmallMarginEnd" decorative="false" press="handleImagePress"/>
+								<Text id="Fire" text="Fire" textAlign="Center"/>
+							</items>
+						</VBox>
+						<VBox direction="Column" id="__vbox5" alignContent="Center">
+							<items>
+								<Image id="4" src="image/emergency/accident.png" width="50px" height="50px" class="sapUiSmallMarginEnd" decorative="false" press="handleImagePress"/>
+								<Text id="Accident" text="Accident" textAlign="Center"/>
+							</items>
+						</VBox>
+						<VBox direction="Column" id="__vbox6" alignContent="Center">
+							<items>
+								<Image id="5" src="image/emergency/kidnapping.png" width="50px" height="50px" class="sapUiSmallMarginEnd" decorative="false" press="handleImagePress"/>
+								<Text id="Kidnapping" text="Kidnapping" textAlign="Center"/>
+							</items>
+						</VBox>
+						<VBox direction="Column" id="__vbox7" alignContent="Center">
+							<items>
+								<Image id="6" src="image/emergency/traffic.png" width="50px" height="50px" class="sapUiSmallMarginEnd" decorative="false" press="handleImagePress"/>
+								<Text id="Traffic" text="Traffic" textAlign="Center"/>
+							</items>
+						</VBox>
+						<VBox direction="Column" id="__vbox8" alignContent="Center">
+							<items>
+								<Image id="7" src="image/emergency/blast.png" width="50px" height="50px" class="sapUiSmallMarginEnd" decorative="false" press="handleImagePress"/>
+								<Text id="Blast" text="Blast" textAlign="Center"/>
+							</items>
+						</VBox>
+						<VBox direction="Column" id="__vbox9">
+							<items>
+								<Image id="8" src="image/emergency/earthquake.png" width="50px" height="50px" class="sapUiSmallMarginEnd" decorative="false" press="handleImagePress" tooltip="Earthquake"/>
+								<Text id="Earthquake" text="Earthquake" textAlign="Center"/>
+							</items>
+						</VBox>
+						<VBox direction="Column" id="__vbox10">
+							<items>
+								<Image id="9" src="image/emergency/other.png" width="50px" height="50px" class="sapUiSmallMarginEnd" decorative="false" press="handleImagePress"/>
+								<Text id="Others" text="Others" textAlign="Center"/>
+							</items>
+						</VBox>
+			</items>
+				</VBox>
+			<f:SimpleForm id="SimpleFormDisplay354" editable="true" layout="ResponsiveGridLayout" labelSpanXL="3" labelSpanL="3" labelSpanM="3"
+				labelSpanS="12" adjustLabelSpan="false" emptySpanXL="4" emptySpanL="4" emptySpanM="4" emptySpanS="0" columnsXL="1" columnsL="1" columnsM="1"
+				singleContainerFullSize="false">
+				<f:content>
+					<Label text="Picture" labelFor="picture"/>
+					<HBox width="100%" id="__hbox1">
+						<Image width="100px" height="100px" id="myImage" backgroundPosition="center" alt="ImageView"/>
+						<Button id="__button0" press="capturePhoto" activeIcon="sap-icon://add-photo" icon="sap-icon://add-photo" type="Transparent"/>
+						<!--<Button id="__button1" press="getPhoto" type="Transparent" icon="sap-icon://camera"/>-->
+					</HBox>
+					<Label text="Location" labelFor="location"/>
+					<HBox width="100%" id="__hbox2">
+						<Text id="txtLatitude" visible="false"/>
+						<Text text=", " visible="false"/>
+						<Text id="txtLongitude" visible="false"/>
+						<Panel id="currentLocation" width="500px" height="200px"/>
+					</HBox>
+					<Label text="Emergency" labelFor="emergencyState"/>
+					<CheckBox id="emergencyState" selected="{incidentModel>/emergency}"/>
+					<Label text="Type"/>
+					<!--<RadioButtonGroup columns="3" width="100%" class="sapUiMediumMarginBottom">-->
+					<!--	<buttons>-->
+					<!--		<RadioButton id="RB1-1" text="Long Option Number 1" icon = "image/police_icon">-->
+								<!--<Image src = "image/policeman.png"/>-->
+					<!--		</RadioButton>-->
+					<!--		<RadioButton id="RB1-2" src ="image/policeman.png" text="Option 2"/>-->
+					<!--		<RadioButton id="RB1-3" text="Nr. 3"/>-->
+					<!--		<RadioButton id="RB1-4" text="Long Option 4"/>-->
+					<!--		<RadioButton id="RB1-5" text="Option 5"/>-->
+					<!--		<RadioButton id="RB1-6" text="Nr. 6"/>-->
+					<!--		<RadioButton id="RB1-7" text="RB7"/>-->
+					<!--		<RadioButton id="RB1-8" text="RB8"/>-->
+					<!--		<RadioButton id="RB1-9" text="RB9"/>-->
+					<!--	</buttons>-->
+					<!--</RadioButtonGroup>-->
+					<ComboBox id = "cbIncident" items="{ path: 'incidentData>/incidentCollection' }" selectedKey="{incidentData>/type}" value="{incidentData>/type}" selectionChange="updateType">
+						<core:Item key="{incidentData>type}" text="{incidentData>type}"/>
+					</ComboBox>
+					<Label text="Date" labelFor="DP1"/>
+					<DatePicker id="DP1" placeholder="Enter Date ..." change="handleChange" class="sapUiSmallMarginBottom" value="{incidentModel>/date}"/>
+					<Label text="Time" labelFor="TP1"/>
+					<TimePicker id="TP1" width="100%" placeholder="Enter Time ..." class="sapUiSmallMarginBottom" value="{incidentModel>/time}"/>
+					<Label text="Comments" labelFor="TA1"/>
+					<TextArea id="TA1" width="100%" placeholder="Comments ..." class="sapUiSmallMarginBottom" value="{incidentModel>/comments}"/>
+				</f:content>
+			</f:SimpleForm>
+		</content>
+		<!--<footer>-->
+		<!--	<Bar>-->
+		<!--		<contentRight>-->
+		<!--			<Button id="edit" text="Edit" press="handleEditPress"/>-->
+		<!--			<Button id="save" text="Save" type="Emphasized" press="handleSavePress"/>-->
+		<!--			<Button id="cancel" text="Cancel" press="handleCancelPress"/>-->
+		<!--		</contentRight>-->
+		<!--	</Bar>-->
+		<!--</footer>-->
+		<footer>
+			<OverflowToolbar id="otbFooter">
+				<ToolbarSpacer/>
+				<Button type="Accept" text="Create" press="onCreate">
+					<layoutData><OverflowToolbarLayoutData moveToOverflow="false"/></layoutData>
+				</Button>
+				<Button type="Reject" text="Cancel" press="onNavBack">
+					<layoutData><OverflowToolbarLayoutData moveToOverflow="false"/></layoutData>
+				</Button>
+				<!--<OverflowToolbarButton text="Create" icon="sap-icon://create"/>-->
+				<!--<OverflowToolbarButton text="Cancel" icon="sap-icon://cancel"/>-->
+			</OverflowToolbar>
+		</footer>
+		<!--	<headerContent>
+	    <Button text="History" width="70px" id="history" press="onHistoryPress" type="Emphasized"/>
+	</headerContent>-->
+	</Page>
+</mvc:View>

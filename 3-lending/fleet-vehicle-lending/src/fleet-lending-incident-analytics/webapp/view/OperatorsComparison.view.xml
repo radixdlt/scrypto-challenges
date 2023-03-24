@@ -1,0 +1,63 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m"
+	controllerName="com.sap.Aviation.controller.OperatorsComparison" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:l="sap.ui.layout">
+	<App>
+		<pages>
+			<Page title="Title" showHeader="false">
+				<content>
+					<l:Grid defaultSpan="L2 M6 S6" class="sapUiSmallMarginTop">
+						<l:content>
+							<!-- Third / Half width items -->
+							<Panel class="operatorfinancialdatapanel1" backgroundDesign="Transparent">
+								<Label class="operatorfinancialdatalabel" text="Operator comparison"></Label>
+								<layoutData>
+									<l:GridData span="L12 M12 S12"/>
+								</layoutData>
+							</Panel>
+							<Panel backgroundDesign="Transparent">
+								<Table id="idProductsTable" inset="false" items="{testmodel>/operatorCollection}">
+									<columns>
+										<Column>
+											<Label text=""/>
+										</Column>
+										<Column>
+											<Label id="columnHeader1" design="Bold"/>
+											<!--<html:select>-->
+											<!--	<html:option value="Emirates">Emirates-->
+											<!--	</html:option>-->
+											<!--	<html:option value="Lufthansa">Lufthansa</html:option>-->
+											<!--	<html:option value="Qatar">-->
+											<!--		Qatar</html:option>-->
+											<!--</html:select>-->
+										</Column>
+										<Column >
+											<Label id="columnHeader2" design="Bold"/>
+											<!--<html:select>-->
+											<!--	<html:option value="Qatar">-->
+											<!--		Qatar</html:option>-->
+											<!--	<html:option value="Lufthansa">Lufthansa</html:option>-->
+											<!--	<html:option value="Emirates">Emirates-->
+											<!--	</html:option>-->
+											<!--</html:select>-->
+										</Column>
+									</columns>
+									<items>
+										<ColumnListItem>
+											<cells>
+												<Text text="{testmodel>operator}"/>
+												<Text text="{testmodel>value1}"/>
+												<Text text="{testmodel>value2}"/>
+											</cells>
+										</ColumnListItem>
+									</items>
+								</Table>
+								<layoutData>
+									<l:GridData span="L8 M12 S12"/>
+								</layoutData>
+							</Panel>
+						</l:content>
+					</l:Grid>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

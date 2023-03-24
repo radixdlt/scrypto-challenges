@@ -1,0 +1,322 @@
+{	
+		"Regions": 
+			[
+		        {
+		            "county": "Alabama",
+		            "code": "US-AL",
+		            "birth2013": "15.1",
+		            "birth2006": "17.09"
+		        },
+		        {
+		            "county": "Arizona",
+		            "code": "US-AZ",
+		            "birth2013": "11.64",
+		            "birth2006": "13.19"
+		        },
+		        {
+		            "county": "Arkansas",
+		            "code": "US-AR",
+		            "birth2013": "12.71",
+		            "birth2006": "13.73"
+		        },
+		        {
+		            "county": "California",
+		            "code": "US-CA",
+		            "birth2013": "8.83",
+		            "birth2006": "10.66"
+		        },
+		        {
+		            "county": "Colorado",
+		            "code": "US-CO",
+		            "birth2013": "10.26",
+		            "birth2006": "12.15"
+		        },
+		        {
+		            "county": "Connecticut",
+		            "code": "US-CT",
+		            "birth2013": "9.83",
+		            "birth2006": "10.42"
+		        },
+		        {
+		            "county": "Delaware",
+		            "code": "US-DE",
+		            "birth2013": "12.41",
+		            "birth2006": "13.7"
+		        },
+		        {
+		            "county": "DistrictofColumbia",
+		            "code": "US-DC",
+		            "birth2013": "13.32",
+		            "birth2006": "16"
+		        },
+		        {
+		            "county": "Florida",
+		            "code": "US-FL",
+		            "birth2013": "13.55",
+		            "birth2006": "13.79"
+		        },
+		        {
+		            "county": "Georgia",
+		            "code": "US-GA",
+		            "birth2013": "12.71",
+		            "birth2006": "14.13"
+		        },
+		        {
+		            "county": "Idaho",
+		            "code": "US-ID",
+		            "birth2013": "10.46",
+		            "birth2006": "11.58"
+		        },
+		        {
+		            "county": "Illinois",
+		            "code": "US-IL",
+		            "birth2013": "11.75",
+		            "birth2006": "13.29"
+		        },
+		        {
+		            "county": "Indiana",
+		            "code": "US-IN",
+		            "birth2013": "10.99",
+		            "birth2006": "13.24"
+		        },
+		        {
+		            "county": "Iowa",
+		            "code": "US-IA",
+		            "birth2013": "11.06",
+		            "birth2006": "11.57"
+		        },
+		        {
+		            "county": "Kansas",
+		            "code": "US-KS",
+		            "birth2013": "10.81",
+		            "birth2006": "11.8"
+		        },
+		        {
+		            "county": "Kentucky",
+		            "code": "US-KY",
+		            "birth2013": "12.63",
+		            "birth2006": "15.1"
+		        },
+		        {
+		            "county": "Louisiana",
+		            "code": "US-LA",
+		            "birth2013": "15.1",
+		            "birth2006": "16.36"
+		        },
+		        {
+		            "county": "Maine",
+		            "code": "US-ME",
+		            "birth2013": "9.32",
+		            "birth2006": "11.09"
+		        },
+		        {
+		            "county": "Maryland",
+		            "code": "US-MD",
+		            "birth2013": "11.88",
+		            "birth2006": "13.52"
+		        },
+		        {
+		            "county": "Massachusetts",
+		            "code": "US-MA",
+		            "birth2013": "10.01",
+		            "birth2006": "11.29"
+		        },
+		        {
+		            "county": "Michigan",
+		            "code": "US-MI",
+		            "birth2013": "11.65",
+		            "birth2006": "12.52"
+		        },
+		        {
+		            "county": "Minnesota",
+		            "code": "US-MN",
+		            "birth2013": "9.85",
+		            "birth2006": "10.51"
+		        },
+		        {
+		            "county": "Mississippi",
+		            "code": "US-MS",
+		            "birth2013": "16.57",
+		            "birth2006": "18.77"
+		        },
+		        {
+		            "county": "Missouri",
+		            "code": "US-MO",
+		            "birth2013": "11.33",
+		            "birth2006": "12.8"
+		        },
+		        {
+		            "county": "Montana",
+		            "code": "US-MT",
+		            "birth2013": "10.55",
+		            "birth2006": "11.93"
+		        },
+		        {
+		            "county": "Nebraska",
+		            "code": "US-NE",
+		            "birth2013": "10.57",
+		            "birth2006": "12.5"
+		        },
+		        {
+		            "county": "Nevada",
+		            "code": "US-NV",
+		            "birth2013": "12.6",
+		            "birth2006": "14.4"
+		        },
+		        {
+		            "county": "NewHampshire",
+		            "code": "US-NH",
+		            "birth2013": "9.01",
+		            "birth2006": "10.38"
+		        },
+		        {
+		            "county": "NewJersey",
+		            "code": "US-NJ",
+		            "birth2013": "11.51",
+		            "birth2006": "12.92"
+		        },
+		        {
+		            "county": "NewMexico",
+		            "code": "US-NM",
+		            "birth2013": "11.63",
+		            "birth2006": "14.09"
+		        },
+		        {
+		            "county": "NewYork",
+		            "code": "US-NY",
+		            "birth2013": "10.72",
+		            "birth2006": "12.38"
+		        },
+		        {
+		            "county": "NorthCarolina",
+		            "code": "US-NC",
+		            "birth2013": "12.01",
+		            "birth2006": "13.59"
+		        },
+		        {
+		            "county": "NorthDakota",
+		            "code": "US-ND",
+		            "birth2013": "9.9",
+		            "birth2006": "12.15"
+		        },
+		        {
+		            "county": "Ohio",
+		            "code": "US-OH",
+		            "birth2013": "12.06",
+		            "birth2006": "13.32"
+		        },
+		        {
+		            "county": "Oklahoma",
+		            "code": "US-OK",
+		            "birth2013": "12.79",
+		            "birth2006": "13.88"
+		        },
+		        {
+		            "county": "Oregon",
+		            "code": "US-OR",
+		            "birth2013": "9.33",
+		            "birth2006": "10.27"
+		        },
+		        {
+		            "county": "Pennsylvania",
+		            "code": "US-PA",
+		            "birth2013": "10.71",
+		            "birth2006": "11.85"
+		        },
+		        {
+		            "county": "RhodeIsland",
+		            "code": "US-RI",
+		            "birth2013": "10.2",
+		            "birth2006": "12.56"
+		        },
+		        {
+		            "county": "SouthCarolina",
+		            "code": "US-SC",
+		            "birth2013": "13.75",
+		            "birth2006": "15.4"
+		        },
+		        {
+		            "county": "SouthDakota",
+		            "code": "US-SD",
+		            "birth2013": "10.82",
+		            "birth2006": "12.68"
+		        },
+		        {
+		            "county": "Tennessee",
+		            "code": "US-TN",
+		            "birth2013": "12.61",
+		            "birth2006": "14.82"
+		        },
+		        {
+		            "county": "Texas",
+		            "code": "US-TX",
+		            "birth2013": "12.29",
+		            "birth2006": "13.67"
+		        },
+		        {
+		            "county": "Utah",
+		            "code": "US-UT",
+		            "birth2013": "10.17",
+		            "birth2006": "11.45"
+		        },
+		        {
+		            "county": "Vermont",
+		            "code": "US-VT",
+		            "birth2013": "8.12",
+		            "birth2006": "9.56"
+		        },
+		        {
+		            "county": "Virginia",
+		            "code": "US-VA",
+		            "birth2013": "11.02",
+		            "birth2006": "11.96"
+		        },
+		        {
+		            "county": "Washington",
+		            "code": "US-WA",
+		            "birth2013": "9.72",
+		            "birth2006": "10.99"
+		        },
+		        {
+		            "county": "WestVirginia",
+		            "code": "US-WV",
+		            "birth2013": "12.48",
+		            "birth2006": "13.99"
+		        },
+		        {
+		            "county": "Wisconsin",
+		            "code": "US-WI",
+		            "birth2013": "10.37",
+		            "birth2006": "11.38"
+		        },
+		        {
+		            "county": "Wyoming",
+		            "code": "US-WY",
+		            "birth2013": "11.57",
+		            "birth2006": "12.8"
+		        }
+		    ],
+			"Legend": 
+				[
+					{
+						"text": "No change",
+						"color": "rgb(171,219,242)"
+					},
+					{
+						"text": "1% - 4%",
+						"color": "rgb(132,202,236)"
+					},
+					{
+						"text": "5% - 9%",
+						"color": "rgb(92,186,229)"
+					},
+					{
+						"text": "10% - 14%",
+						"color": "rgb(39,163,221)"
+					},
+					{
+						"text": "15% or more decline",
+						"color": "rgb(27,126,172)"
+					}
+				]
+	}

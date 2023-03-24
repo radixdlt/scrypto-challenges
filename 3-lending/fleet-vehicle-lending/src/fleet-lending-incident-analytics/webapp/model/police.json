@@ -1,0 +1,58 @@
+{
+	"PoliceList": [
+		{
+			"lat":28.6387293,
+			"long":77.0853497,
+			"name":"Vijay Chauhan",
+			"badgeNum":499013,
+			"healthStatus":"fit",
+			"assignedTo":"",
+			"isAssigned": false
+		},
+		{
+			"lat":28.6447483,
+			"long":77.0893887,
+			"name": "Sonu Yadav",
+			"healthStatus":"fit",
+			"badgeNum":785619,
+			"assignedTo":"",
+			"isAssigned": false
+		},
+		{
+			"lat":28.6331308,
+			"long":77.0517014,
+			"badgeNum":335612,
+			"healthStatus":"fit",
+			"name": "Parnav Singh",
+			"assignedTo":"",
+			"isAssigned": false
+		},
+		{
+			"lat":28.6568674,
+			"long":77.0679813,
+			"badgeNum":200815,
+			"healthStatus":"unfit",
+			"name": "Narender Hartala",
+			"assignedTo":"",
+			"isAssigned": false
+		},
+		{
+			"lat":28.6656487,
+			"long":77.0465663,
+			"badgeNum":100173,
+			"healthStatus":"unfit",
+			"name": "Shantanu Gir",
+			"assignedTo":"",
+			"isAssigned": false
+		},
+		{
+			"lat":28.6810769,
+			"long":76.9999138,
+			"badgeNum":300291,
+			"healthStatus":"fit",
+			"name": "Krishna Kumar Singh",
+			"assignedTo":"",
+			"isAssigned": false
+		}
+	]
+}

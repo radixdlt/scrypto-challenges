@@ -1,0 +1,105 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.IncidentsMainApp"
+	xmlns:html="http://www.w3.org/1999/xhtml" id="incidents">
+	<SplitApp id="incidentsSplitApp" class="hoo">
+			<masterPages id="masterPage">
+				<Page class="pageStyles"  showHeader="false" title="Incident List">
+					<content>
+						<List id="incidentsList" class="incidentMasterStyle" items="{IncidentsData>/IncidentsReported}">
+							<items>
+							<ObjectListItem title="{IncidentsData>incident}" 
+							 intro="{IncidentsData>incident}" press="onIncidentItemPress" type="Active">
+								<firstStatus>
+									<ObjectStatus text="{IncidentsData>incident}" ></ObjectStatus>
+								</firstStatus>
+								</ObjectListItem>
+							</items>
+						</List>
+						<!--<Text text="master"></Text>-->
+					</content>
+				</Page>
+			</masterPages>
+			<detailPages id="IncidentsDetailPage">
+				<Page class="pageStyles"  showHeader="false">
+				<content>
+					<ObjectHeader id="objectHeader" title="Incident Description" number="{Price}" numberUnit="{CurrencyCode}" icon="images/development_other.jpg"></ObjectHeader>
+					<IconTabBar id="iconTabBar">
+						<items>
+							<IconTabFilter text="BASIC DETAIL" icon="sap-icon://supplier">
+								<List id="list_id" updateFinished="onListFinish" growingScrollToLoad="true"
+									mode="{= ${device>/system/phone} ? 'None' : 'SingleSelectMaster'}">
+									<items>
+										<CustomListItem>
+												<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
+													<Label class="textStyle" text="Location:"/>
+												</VBox>
+										</CustomListItem>
+										
+										<CustomListItem>
+												<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
+													<Label class="textStyle" text="Type:"/>
+												</VBox>
+										</CustomListItem>
+										
+										<CustomListItem>
+												<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
+													<Label class="textStyle" text="Emergency:"/>
+												</VBox>
+										</CustomListItem>
+										
+										<CustomListItem>
+												<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
+													<Label class="textStyle" text="Date:"/>
+												</VBox>
+										</CustomListItem>
+										
+										<CustomListItem>
+												<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
+													<Label class="textStyle" text="Time:"/>
+												</VBox>
+										</CustomListItem>
+										
+										<CustomListItem>
+												<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom">
+													<Label class="textStyle" text="Comments by Reporter:"/>
+												</VBox>
+										</CustomListItem>
+									</items>
+								</List>
+							</IconTabFilter>
+							<IconTabFilter text="ATTACHMENTS" icon="sap-icon://dimension">
+								<VBox>
+									<HBox>
+										<Label text="Weigth : "/>
+										<Label text="{WeightMeasure} {WeightUnit}"/>
+									</HBox>
+									<HBox>
+										<Label text="Dimensions : "/>
+										<Label text="{Height} X {Depth} X {Width} {DimUnit}"/>
+									</HBox>
+								</VBox>
+							</IconTabFilter>
+							<IconTabFilter text="NOTES" icon="sap-icon://world">
+								<VBox>
+									<HBox>
+										<Label text="Weigth : "/>
+										<Label text="{WeightMeasure} {WeightUnit}"/>
+									</HBox>
+									<HBox>
+										<Label text="Dimensions : "/>
+										<Label text="{Height} X {Depth} X {Width} {DimUnit}"/>
+									</HBox>
+								</VBox>
+							</IconTabFilter>
+						</items>
+					</IconTabBar>
+				</content>
+				<footer>
+					<Toolbar>
+						<ToolbarSpacer/>
+						<Button text="Edit" press="onEditProduct"></Button>
+					</Toolbar>
+				</footer>
+			</Page>
+			</detailPages>
+		</SplitApp>
+</mvc:View>

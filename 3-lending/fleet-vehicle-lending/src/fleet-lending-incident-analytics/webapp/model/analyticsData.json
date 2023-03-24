@@ -1,0 +1,24 @@
+{
+	"analyticsCollection" : [
+		    {
+		    	"company" : "Emirates",
+		    	"revenue" : 522131
+		    },
+		    {
+		    	"company" : "Lufthansa",
+		    	"revenue" : 822131
+		    },
+		    {
+		    	"company" : "Qatar",
+		    	"revenue" : 1322131
+		    },
+		    {
+		    	"company" : "Air Asia",
+		    	"revenue" : 322131
+		    },
+		    {
+		    	"company" : "British Airways",
+		    	"revenue" : 522131
+		    }
+		]
+}

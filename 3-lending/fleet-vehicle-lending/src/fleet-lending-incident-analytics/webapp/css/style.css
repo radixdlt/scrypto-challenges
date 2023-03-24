@@ -1,0 +1,761 @@
+/* Master Page */
+
+.sapMSplitContainerMaster {
+    width: 8%;
+}
+
+.blockRow2Style {
+    height: 310px;
+    padding: 0rem !important;
+}
+
+.pieChartClass {
+    width: auto !important;
+    background: transparent !important;
+}
+
+.blockRow2Style.sapUiBlockCellContent {
+    padding: 10rem !important;
+}
+
+.dashboardLabelStyle {
+    font-weight: bold;
+    font-size: 1rem;
+    padding-left: 0.4rem;
+    color: black !important;
+}
+
+.blockRow1Style {
+    height: 40px;
+}
+
+.floatRightStyle {
+    float: right;
+}
+
+.bgcolorblue {
+    background-color: #ADD8E6 !important;
+}
+
+.dashboardCellStyle>.sapUiBlockCellContent {
+    padding-bottom: 0.1rem !important;
+    height: 320px !important;
+}
+
+.tileStyle {
+    width: "80%";
+    height: "80%";
+}
+
+
+/* Enter your custom styles here */
+
+
+/*Portfolio*/
+
+
+/* Enter your custom styles here */
+
+.label_myportfolio {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    margin-left: 1rem;
+}
+
+.button_analytics {
+    float: right;
+    margin-top: 0.6rem;
+    margin-right: 1rem;
+}
+
+.button_compare {
+    float: right;
+    margin-right: 1rem;
+}
+
+.smartfilter_style {
+    margin-top: 1.5rem;
+}
+
+.viewStyle {
+    padding: 0.5rem !important;
+}
+
+.flightid {
+    font-family: "Arial";
+    font-size: 36px;
+}
+
+.flightstart {
+    font-family: "Arial";
+    font-size: 30px;
+    border-bottom: solid;
+}
+
+.flightend {
+    font-family: "Arial";
+    font-size: 10px;
+}
+
+.hboxflightdetails {
+    margin: 2rem;
+}
+
+.flightdetailslabel {
+    font-weight: bold;
+}
+
+.flightdetailsform {
+    margin: 2rem;
+}
+
+.flightdetailstiles {
+    margin: 2rem;
+    padding-left: 15rem;
+}
+
+.flightdetailstile {
+    background-color: #EDEBE9;
+}
+
+.margin {
+    margin: 0.5rem;
+}
+
+.flightdetailscontent {
+    background-color: white;
+}
+
+.flightdetailspanel {
+    background-color: #EDEBE9;
+}
+
+.flightdetailsform {
+    background-color: #EDEBE9;
+}
+
+.blockRowStyle1 {
+    height: 23rem;
+    margin: 10px;
+    padding: 10px;
+}
+
+.blockRowStyle {
+    margin: 10px;
+    padding: 10px;
+}
+
+.blockCellStyle {
+    background-color: #EDEBE9;
+    margin: 10px;
+    /* padding-left: 0.5rem !important;*/
+    /*padding-right: 1rem !important;*/
+    /*padding-top: 1rem !important;*/
+    /*padding-bottom: 1rem !important;*/
+    /*background-color: #d3d3d3;*/
+}
+
+.tiles {
+    background-color: #EDEBE9;
+}
+
+.operatorfinancialdatapanel1 {
+    background-color: #EDEBE9;
+}
+
+.operatorfinancialdatalabel {
+    font-family: Arial;
+    font-size: 24px;
+}
+
+.operatorfinancialdatapanel2 {
+    background-image: url("../image/financial_highlights.png");
+    height: 50rem !important;
+}
+
+.operatorfinancialdatapanel3>.sapMPanelBGTransparent.sapMPanelContent {
+    margin-left: 39rem !important;
+}
+
+.financialDetailsPage {
+    background-color: #FFFFFF;
+}
+
+.operatorAnalyticsTile {
+    background-color: #FFFFFF;
+    margin-top: 0.5rem;
+    border: 1px solid transparent;
+    box-shadow: 0 0 0.125rem 0 rgba(0, 0, 0, 0.3);
+}
+
+.operatoranalyticslabel {
+    padding-top: 5rem;
+    padding-left: 5rem;
+}
+
+.operatoranalyticsicon {
+    padding-top: 6.5rem;
+}
+
+.operatorpanel {
+    height: 10rem;
+}
+
+.operatorgrid1 {
+    width: 13rem !important;
+}
+
+.flighticon {
+    transform: rotate(45deg);
+    padding-top: 1rem;
+}
+
+.tileCSS {
+    background-color: #d1e1e1;
+}
+
+.tileCont {
+    padding-left: "0rem";
+}
+
+.cust {
+    width: 30rem !important;
+    height: 16rem !important;
+}
+
+.smartTab {
+    margin-left: 3rem !important;
+    margin-right: 3rem !important;
+}
+
+.searchLabel {
+    font-style: italic;
+}
+
+.button_analytics {
+    float: right;
+    margin-top: 0.6rem;
+    margin-right: 1rem;
+}
+
+.VBox_class {
+    float: right;
+    margin-top: 0.6rem;
+    margin-right: 1rem;
+}
+
+.Pan {
+    background-color: #404040;
+}
+
+.panHeader {
+    background-color: #e6e6e6;
+}
+
+.txt {
+    color: white;
+}
+
+.header {
+    font-size: 23px !important;
+}
+
+.aircraft_label {
+    margin-top: 3.5rem;
+    margin-left: 1rem;
+    font-size: 1.5rem;
+}
+
+
+/* Enter your custom styles here */
+
+.spacerTop {
+    margin-top: 2rem;
+}
+
+.sap-tablet .sapMDialog,
+.sap-desktop .sapMDialog {
+    min-width: 18rem;
+}
+
+.sapMMessageDialog {
+    width: 18rem;
+}
+
+
+/* Enter your custom styles here */
+
+.airlineDetailLayout {
+    width: calc(100% - 44px);
+    margin: 22px;
+    height: 68px;
+    padding: 0px;
+    background: #f8f9fa;
+}
+
+.flightId {
+    font-size: 2rem;
+    font-weight: 700;
+    padding: 8px 10px;
+}
+
+.flightInfoLayout {
+    padding: 8px 32px;
+}
+
+.flightToFrom {
+    font-size: 2rem;
+    font-weight: 700;
+    border-bottom: 1px solid #000;
+    min-width: 70px;
+    text-align: center !important;
+}
+
+.flightToFromFull {
+    color: #b0b0b0;
+    text-align: center !important;
+    width: 100%;
+    font-size: 0.7rem;
+}
+
+.airLineLogo {
+    background: #fff;
+    padding: 5px 10px 5px 0px;
+}
+
+#oPage {
+    background: #fff;
+}
+
+.flightsIcon {
+    font-size: 2.9rem !important;
+    transform: rotateZ(45deg);
+    margin: 2px 18px 0 15px;
+    color: #999;
+}
+
+.claimsAnalyticsLayout {
+    width: calc(100% - 44px);
+    margin: 0px 22px 18px 22px;
+    height: auto;
+    padding: 0px;
+}
+
+.plTitle {
+    text-transform: uppercase;
+    font-weight: bold;
+    margin: 0 0 12px;
+    font-size: 1rem;
+}
+
+.claimsAnalyticsContent {
+    width: 100%;
+    background: #ebebeb;
+    padding-top: 22px;
+}
+
+.aircraftRiskAnalysislayout,
+.weatherRiskLayout {
+    width: calc(100% - 44px);
+    margin: 32px 22px 18px 22px;
+    height: 358px;
+    padding: 0px;
+}
+
+.aircraftRiskAnalysisContent,
+.weatherRiskContent {
+    width: 100%;
+    background: #ebebeb;
+    padding: 22px 16px;
+}
+
+.araTitle {
+    color: #000;
+    font-size: 1.25em;
+}
+
+.aRaContentForm {
+    margin: 8px 0 20px 0;
+    height: 175px;
+}
+
+.aRaContentResultText {
+    width: 143px;
+}
+
+.aRaContentResultValue {
+    margin-left: 24px;
+}
+
+.aRaContentRightForm .aRaContentResultText {
+    width: 164px;
+}
+
+.aRaContentFormResultBox {
+    background: #b8b8b8;
+    width: 280px;
+    height: 35px;
+    padding-top: 15px;
+}
+
+.aRaContentAnalysisText {
+    width: 182px;
+    text-align: right;
+    margin-right: 5px;
+    font-size: 1.25rem;
+}
+
+.claimHistoryDetailsForm .aRaContentResultText {
+    min-width: 230px;
+}
+
+.aRaContentAnalysisValue {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.aRaContentRightFormResultBox .aRaContentAnalysisText {
+    width: 212px;
+}
+
+.aRaContentForm .sapUiHLayout {
+    line-height: 24px;
+}
+
+.claimHistoryDetailsForm .sapUiHLayout {
+    line-height: 24px;
+}
+
+.pls_separate_row {
+    margin-top: 12px;
+}
+
+.pls_bold_row span {
+    font-weight: bold;
+}
+
+.wra-map {
+    display: block;
+    width: 400px ! important;
+    height: 250px !important;
+}
+
+.wra-map {
+    background: #58B;
+}
+
+.overViewMap {
+    background: #58B;
+    width: 100%;
+    height: calc(100% - 96px)!important;
+    display: block;
+    position: relative;
+}
+
+.aviationmapTile .overViewMap {
+    background: #58B;
+    width: 65%;
+    height: 91% !important;
+    display: inline-block;
+    top: -87%;
+    float: left;
+}
+
+.flightDetailContainer {
+    width: 355px;
+    height: 130px;
+}
+
+.flightDetailContainerLeft {
+    width: 40%;
+    float: left;
+    height: 100%;
+}
+
+.flightDetailContainerRight {
+    width: 60%;
+    float: left;
+    height: 100%;
+    background: #dadada;
+    display: inline-block;
+}
+
+.flightDetailContainerLeft1 {
+    width: 60%;
+    float: left;
+    height: 100%;
+}
+
+.flightDetailContainerRight1 {
+    width: 40%;
+    float: left;
+    height: 100%;
+    background: #dadada;
+    display: inline-block;
+    margin-bottom: 50px;
+}
+
+.fdc_to_cont,
+.fdc_from_cont {
+    width: 26px;
+    float: left;
+}
+
+.fdc_to_short,
+.fdc_from_short {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    font-weight: bold;
+}
+
+.fdc_to_full,
+.fdc_from_full {
+    font-size: 7px;
+    text-align: center;
+    border-top: 1px solid #ccc;
+}
+
+.fdc-icon-flight {
+    font-family: SAP-icons;
+    font-size: 1.2rem;
+    float: left;
+    margin: 0 7px 0 4px;
+    transform: rotateZ(45deg);
+    color: #666;
+    position: relative;
+    top: 5px;
+}
+
+.fdc_To_FromCont {
+    height: 36px;
+    margin-top: 8px;
+}
+
+.fdc_aircraft_TypeCont {
+    background: #dadada;
+    width: 90%;
+    padding: 4px;
+    color: #999;
+    height: 36px;
+    padding-top: 10px;
+}
+
+.fdc_aircraft_Type_short {
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.fdc_aircraft_Type_short>span {
+    margin-left: 6px;
+    color: #777;
+}
+
+.fdc_aircraftType_fullInfo {
+    margin-top: 4px;
+    font-size: 14px;
+    color: #666;
+    font-weight: bold;
+}
+
+.fdcFlightNo {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.fdcFlightOPName {
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+span.fdc_ref_icon:after {
+    font-family: SAP-icons;
+    content: "\e199";
+    font-size: 1rem;
+    color: #333;
+    margin: 0 5px;
+    position: relative;
+    top: 1px;
+    font-weight: bold;
+}
+
+font-s {}
+
+span.fdc_ref_text {
+    font-size: 14px;
+    text-decoration: none;
+    color: #333;
+    font-family: arial;
+    margin-left: 2px;
+}
+
+a.fdc_ref {
+    text-decoration: none;
+}
+
+.fdc_link {
+    margin: 4px;
+    margin-top: 10px;
+    padding-left: 8px;
+    height: 24px;
+    padding-top: 6px;
+}
+
+.fdc_ref_icon.fdc_ref_icon_aircraft:after {
+    content: "\e075";
+}
+
+.fdc_ref_icon.fdc_ref_icon_flight_details:AFTER {
+    content: "\e1d8";
+}
+
+.fdc_link:hover {
+    background: #ccc;
+}
+
+.sapMCustomTileContent .gmnoprint {
+    display: none;
+}
+
+.cTile1 {
+    width: 23.5rem;
+    background: #bababa;
+    height: 14rem;
+    margin: 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    box-shadow: 0 0 0.125rem 0 rgba(0, 0, 0, 0.3);
+    background-color: #ffffff;
+}
+
+.aviationmapTile {
+    width: 100%;
+    height: 100%;
+}
+
+.aviationmapTile>div:first-child {
+    height: 100%;
+    width: 32%;
+    float: left;
+}
+
+.aviationmapTile>div:first-child>div:first-child {
+    color: #666;
+    margin: 9px 17px;
+    height: 42%;
+}
+
+.aviationmapTile>div:first-child>div:nth-child(2) {
+    color: #666;
+    margin: 78px 20px;
+}
+
+.avs-icon:after {
+    font-family: SAP-icons;
+    content: "\e152";
+    font-size: 1.5rem;
+    color: #666;
+}
+
+.olay {
+    background: rgba(161, 166, 160, 0) !important;
+    position: relative !important;
+    z-index: 5;
+    top: 10px !important;
+}
+
+.tilesLayout {
+    width: 100%;
+}
+
+.incidentMasterStyle {
+    width: 100px;
+}
+
+.hoo > .sapMSplitContainerMaster {
+    width: 25% !important;
+}
+
+.textStyle {
+    font-size: 1.5rem;
+}
+
+.unassign {
+    visibility: hidden;
+}
+
+.moveLeft {
+    /*position: fixed;*/
+    /*left: 50px;*/
+}
+
+.legend1 {
+    font-family: Arial, sans-serif;
+    background: #fff;
+    padding: 10px;
+    margin: 10px;
+    border: 3px solid #000;
+}
+
+.legend1 h3 {
+    margin-top: 0;
+}
+
+.legend1 img {
+    vertical-align: middle;
+}
+
+.panelContentHeight>div {
+    height: 100% !important;
+}
+
+.panelStyle div {
+    border-bottom: 0px !important;
+    background-color: #dcebef !important;
+    background:url(../image/image6.jpg) !important;  
+}
+
+.blockStyle {
+    height: 30% !important;
+    width: 60% !important;
+}
+
+.dashboardDetailStyles {
+    background: url(../image/police.jpg) !important;
+}
+
+.pageStyles{
+	background:url(../image/image6.jpg) !important;  	
+}
+
+.pageStylesT{
+	background:url(../image/image6.jpg) !important;  	
+}
+.viz-plot-background,
+.v-bound {
+    fill: transparent !important
+}
+
+.incidentTypeStyle {
+    margin-left: 40% !important;
+    height: 100px !important;
+    width: 200px !important;
+}
+
+.graphSlide {
+	padding-top: 13px;
+}
+
+.crimeStat
+{
+	    font-style: oblique;
+    font-weight: bold;
+    color: red;
+}
+.crimeGraph{
+	 height: 580px;
+}
+.chartTable{
+	padding-left: 7rem;
+}

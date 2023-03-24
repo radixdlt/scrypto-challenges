@@ -1,0 +1,49 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.Social"
+	xmlns:html="http://www.w3.org/1999/xhtml">
+	<App>
+		<pages>
+			<Page class="pageStyles"  showHeader="false">
+				<content>
+					<SearchField id="searchId" search="onSearch" class="sapUiResponsiveMargin" width="auto" />
+					<Label id="searchLabel" class="sapUiSmallMarginBegin searchLabel" width="auto"/>
+					<Table id="searchFullTable" items="{socialFullSearchModel>/d/results}" growing="true"  growingScrollToLoad="true"
+						class="sapUiResponsiveMargin" width="auto">
+						<columns>
+							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="Details"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="Accident Date"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="Narative"/></Column>
+						
+						</columns>
+						<items>
+							<ColumnListItem>
+								<cells>
+									<Link text="{socialFullSearchModel>Details}" href="https://aviation-safety.net{socialSearchModel>eventv2/Details}"/>
+									<Text text="{socialFullSearchModel>AccidentDate}"/>
+									<Text text="{socialFullSearchModel>Narative}"/>
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+					<Table id="searchTable" items="{socialSearchModel>/d/results}" growing="true"  growingScrollToLoad="true"
+						class="sapUiResponsiveMargin" width="auto">
+						<columns>
+							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="Details"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="Accident Date"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="Narative"/></Column>
+						
+						</columns>
+						<items>
+							<ColumnListItem>
+								<cells>
+									<Link text="{socialSearchModel>eventv2/Details}" href="https://aviation-safety.net{socialSearchModel>eventv2/Details}"/>
+									<Text text="{socialSearchModel>eventv2/AccidentDate}"/>
+									<Text text="{socialSearchModel>eventv2/Narative}"/>
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

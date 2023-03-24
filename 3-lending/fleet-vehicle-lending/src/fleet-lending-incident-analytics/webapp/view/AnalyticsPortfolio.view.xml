@@ -1,0 +1,68 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:form="sap.ui.layout.form"
+	xmlns:l="sap.ui.layout"  xmlns:html="http://www.w3.org/1999/xhtml"
+	xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds" xmlns:viz.data="sap.viz.ui5.data" xmlns:viz="sap.viz.ui5.controls"
+	xmlns:smartFilterBar="sap.ui.comp.smartfilterbar" xmlns:smartTable="sap.ui.comp.smarttable" xmlns:vbm="sap.ui.vbm" controllerName="com.sap.Aviation.controller.AnalyticsPortfolio"
+	xmlns:html="http://www.w3.org/1999/xhtml">
+	<App>
+		<pages>
+			<Page class="pageStyles" showHeader="false">
+				<content>
+					<Panel>
+						<l:BlockLayout id="BlockLayout" class="sapUiNoPanPadding">
+							<l:BlockLayoutRow class="blockRowStyle sapUiNoPanPadding" height="100%">
+								<l:BlockLayoutCell title="RENEWAL TYPE">
+									
+										<l:FixFlex>
+											<l:flexContent>
+												<vbm:AnalyticMap id="vbi" width="100%" xmlns:l="sap.ui.layout" height="100%" initialPosition="77.837451;35.49401;0" regionClick="onRegionClick" initialZoom="1"
+													regionContextMenu="onRegionContextMenu">
+													<vbm:regions>
+														<vbm:Region code="{analyticsPortfolioData>code}" color="{analyticsPortfolioData>color}" tooltip="{analyticsPortfolioData>county}"/>
+													</vbm:regions>
+													<!---98;30;0
+												     initialZoom="4"
+												      initialPosition="0;10;0"
+												    <vbm:legend>
+														<vbm:Legend id="legend" caption="Decline in birth rate" items="{analyticsPortfolioData>/Legend}">
+															<vbm:LegendItem text="{analyticsPortfolioData>text}" color="{analyticsPortfolioData>color}"/>
+														</vbm:Legend>
+													</vbm:legend>-->
+												</vbm:AnalyticMap>
+											</l:flexContent>
+										</l:FixFlex>
+									
+								</l:BlockLayoutCell>
+								<l:BlockLayoutCell title="ACTIVITY TYPE">
+									<CustomTile class="cust">
+										<l:FixFlex>
+											<l:flexContent>
+												<viz:Popover id="idPopOver2"></viz:Popover>
+												<viz:VizFrame id="idVizFrame2" uiConfig="{applicationSet:'fiori'}" height='80%' width="100%" vizType='pie'
+													vizProperties="{ title: {text : 'Michael', visible : false}}">
+													<viz:dataset>
+														<viz.data:FlattenedDataset data="{analyticsData>/analyticsCollection}">
+															<viz.data:dimensions>
+																<viz.data:DimensionDefinition name="Company" value="{analyticsData>company}"/>
+															</viz.data:dimensions>
+															<viz.data:measures>
+																<viz.data:MeasureDefinition name="Revenue" value="{analyticsData>revenue}"/>
+															</viz.data:measures>
+														</viz.data:FlattenedDataset>
+													</viz:dataset>
+													<viz:feeds>
+														<viz.feeds:FeedItem uid="size" type="Measure" values="Revenue"/>
+														<viz.feeds:FeedItem uid="color" type="Dimension" values="Company"/>
+													</viz:feeds>
+												</viz:VizFrame>
+											</l:flexContent>
+										</l:FixFlex>
+									</CustomTile>
+								</l:BlockLayoutCell>
+							</l:BlockLayoutRow>
+						</l:BlockLayout>
+					</Panel>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

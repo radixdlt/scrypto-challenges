@@ -1,0 +1,985 @@
+{
+	"_version": "1.5.0",
+	"sap.app": {
+		"id": "com.sap.Aviation1",
+		"type": "application",
+		"i18n": "i18n/i18n.properties",
+		"applicationVersion": {
+			"version": "1.0.0"
+		},
+		"dataSources": {
+			"mainService": {
+				"uri": "/destinations/Planner/Aviation/aviationservices.xsodata/",
+				"type": "OData",
+				"settings": {
+					"odataVersion": "2.0",
+					"localUri": "localService/metadata.xml",
+					"annotations": [
+						"tableAnnotation"
+					]
+				}
+			},
+			"tableAnnotation": {
+				"type": "ODataAnnotation",
+				"uri": "localService/tableAnnotation.xml",
+				"settings": {
+					"localUri": "localService/tableAnnotation.xml"
+				}
+			}
+		},
+		"title": "{{appTitle}}",
+		"description": "{{appDescription}}",
+		"sourceTemplate": {
+			"id": "ui5template.basicSAPUI5ApplicationProject",
+			"version": "1.40.12"
+		}
+	},
+	"sap.ui": {
+		"technology": "UI5",
+		"icons": {
+			"icon": "",
+			"favIcon": "",
+			"phone": "",
+			"phone@2": "",
+			"tablet": "",
+			"tablet@2": ""
+		},
+		"deviceTypes": {
+			"desktop": true,
+			"tablet": true,
+			"phone": true
+		},
+		"supportedThemes": [
+			"sap_hcb",
+			"sap_belize"
+		]
+	},
+	"sap.ui5": {
+		"rootView": {
+			"viewName": "com.sap.Aviation.view.App",
+			"type": "XML"
+		},
+		"dependencies": {
+			"minUI5Version": "1.30.0",
+			"libs": {
+				"sap.ui.core": {},
+				"sap.m": {},
+				"sap.ui.layout": {},
+				"sap.f": {},
+				"sap.ushell": {},
+				"sap.collaboration": {},
+				"sap.ui.comp": {},
+				"sap.uxap": {}
+			}
+		},
+		"contentDensities": {
+			"compact": true,
+			"cozy": true
+		},
+		"routing": {
+			"config": {
+				"routerClass": "sap.m.routing.Router",
+				"viewPath": "com.sap.Aviation.view",
+				"controlAggregation": "pages",
+				"clearTarget": false
+			},
+			"routes": [
+				{
+					"name": "splitApp",
+					"pattern": "",
+					"target": [
+						"splitApp"
+					],
+					"subroutes": [
+						{
+							"name": "dashboardDetail",
+							"pattern": "",
+							"target": [
+								"dashboardDetail"
+							]
+						}
+					]
+				},
+				{
+					"name": "dashboardEnergy",
+					"pattern": "Energy",
+					"target": [
+						"dashboardEnergy"
+					],
+					"subroutes": [
+						{
+							"name": "dashboardEnergyMaster",
+							"pattern": "Energy",
+							"target": [
+								"dashboardEnergyMaster"
+							]
+						}
+					]
+				},
+				{
+					"name": "dashboardSpace",
+					"pattern": "Space",
+					"target": [
+						"dashboardSpace"
+					],
+					"subroutes": [
+						{
+							"name": "dashboardSpaceMaster",
+							"pattern": "Space",
+							"target": [
+								"dashboardSpaceMaster"
+							]
+						}
+					]
+				},
+				{
+					"name": "portfolio",
+					"pattern": "portfolio",
+					"target": [
+						"portfolio"
+					]
+				},
+				{
+					"name": "policy",
+					"pattern": "policy={policyTitle}",
+					"target": [
+						"policy"
+					]
+				},
+				{
+					"name": "risks",
+					"pattern": "risks",
+					"target": [
+						"risks"
+					]
+				},
+				{
+					"name": "claims",
+					"pattern": "claims",
+					"target": [
+						"claims"
+					]
+				},
+				{
+					"name": "incidents",
+					"pattern": "incidents",
+					"target": [
+						"incidents"
+					]
+				},
+				{
+					"name": "incidentsanalysis",
+					"pattern": "incidentsanalysis",
+					"target": [
+						"incidentsanalysis"
+					]
+				},
+				{
+					"name": "incidentanalysis",
+					"pattern": "incidentanalysis",
+					"target": [
+						"incidentanalysis"
+					]
+				},
+				{
+					"name": "incidentDetails",
+					"pattern": "incidentId={incidentId}",
+					"targets": [
+						"incidentDetails"
+					]
+				},
+				{
+					"name": "create",
+					"pattern": "create",
+					"target": [
+						"create"
+					]
+				},
+				{
+					"name": "incidentStatus",
+					"pattern": "incidentStatus",
+					"target": [
+						"incidentStatus"
+					]
+				},
+				{
+					"name": "sos",
+					"pattern": "sos",
+					"target": [
+						"sos"
+					]
+				},
+				{
+					"name": "navigate",
+					"pattern": "navigate",
+					"target": [
+						"navigate"
+					]
+				},
+				{
+					"name": "incident",
+					"pattern": "incident",
+					"target": [
+						"incident"
+					]
+				},
+				{
+					"name": "claimDetail",
+					"pattern": "claimDetail={claimMasterRef}",
+					"target": [
+						"claimDetail"
+					]
+				},
+				{
+					"name": "flights",
+					"pattern": "flights/:operatorID:",
+					"target": [
+						"flights"
+					]
+				},
+				{
+					"name": "flightDetails",
+					"pattern": "flightDetails={flightID}",
+					"target": [
+						"flightDetails"
+					]
+				},
+				{
+					"name": "events",
+					"pattern": "events/:operatorID:",
+					"target": [
+						"events"
+					]
+				},
+				{
+					"name": "eventDetails",
+					"pattern": "event={eventId}",
+					"target": [
+						"eventDetails"
+					]
+				},
+				{
+					"name": "aircraft",
+					"pattern": "aircraftDetail={aircraftId}",
+					"target": [
+						"aircraft"
+					]
+				},
+				{
+					"name": "aircraftSeat",
+					"pattern": "aircraftSeatDetail={aircraftId}",
+					"target": [
+						"aircraftSeat"
+					]
+				},
+				{
+					"name": "aircraftTechnicalParameter",
+					"pattern": "aircraftTechnicalParameterDetail={aircraftId}",
+					"target": [
+						"aircraftTechnicalParameter"
+					]
+				},
+				{
+					"name": "aircraftType",
+					"pattern": "aircraftTypeDetail={aircraftId}",
+					"target": [
+						"aircraftType"
+					]
+				},
+				{
+					"name": "analytics",
+					"pattern": "analytics",
+					"target": [
+						"analytics"
+					]
+				},
+				{
+					"name": "analyticsAircraft",
+					"pattern": "analyticsAircraft",
+					"target": [
+						"analyticsAircraft"
+					]
+				},
+				{
+					"name": "sentiments",
+					"pattern": "sentiments",
+					"target": [
+						"sentiments"
+					]
+				},
+				{
+					"name": "sentimentDetails",
+					"pattern": "sentimentDetails",
+					"target": [
+						"sentimentDetails"
+					]
+				},
+				{
+					"name": "social",
+					"pattern": "social",
+					"target": [
+						"social"
+					]
+				},
+				{
+					"name": "analyticsEvent",
+					"pattern": "analyticsEvent",
+					"target": [
+						"analyticsEvent"
+					]
+				},
+				{
+					"name": "analyticsPortfolio",
+					"pattern": "analyticsPortfolio",
+					"target": [
+						"analyticsPortfolio"
+					]
+				},
+				{
+					"name": "operator",
+					"pattern": "operator={operatorID}",
+					"target": [
+						"operator"
+					]
+				},
+				{
+					"name": "operators",
+					"pattern": "operators",
+					"target": [
+						"operators"
+					]
+				},
+				{
+					"name": "operatorHistoricalData",
+					"pattern": "operatorHistoricalData",
+					"target": [
+						"operatorHistoricalData"
+					]
+				},
+				{
+					"name": "operatorDelays",
+					"pattern": "operatorDelays={operatorID}",
+					"target": [
+						"operatorDelays"
+					]
+				},
+				{
+					"name": "operatorFinancialData",
+					"pattern": "operatorFinancialData={operatorID}",
+					"target": [
+						"operatorFinancialData"
+					]
+				},
+				{
+					"name": "operatorYearlyDataComparison",
+					"pattern": "operatorYearlyDataComparison",
+					"target": [
+						"operatorYearlyDataComparison"
+					]
+				},
+				{
+					"name": "operatorsComparison",
+					"pattern": "operatorsComparison={operatorCode}",
+					"target": [
+						"operatorsComparison"
+					]
+				},
+				{
+					"name": "aircraftsComparison",
+					"pattern": "aircraftsComparison",
+					"target": [
+						"aircraftsComparison"
+					]
+				},
+				{
+					"name": "aircrafts",
+					"pattern": "aircrafts",
+					"target": [
+						"aircrafts"
+					]
+				},
+				{
+					"name": "overview",
+					"pattern": "overview/industry={industryOverview}",
+					"target": [
+						"overview"
+					]
+				},
+				{
+					"name": "priceCrashCost",
+					"pattern": "priceCrashCost",
+					"target": [
+						"priceCrashCost"
+					]
+				},
+				{
+					"name": "priceMetrics",
+					"pattern": "priceMetrics",
+					"target": [
+						"priceMetrics"
+					]
+				},
+				{
+					"name": "tabPage",
+					"pattern": "tabPage/{eventNum}",
+					"target": [
+						"tabPage"
+					]
+				},
+				{
+					"name": "live",
+					"pattern": "live",
+					"target": [
+						"live"
+					]
+				},
+				{
+					"name": "videoCapture",
+					"pattern": "videoCapture",
+					"target": [
+						"videoCapture"
+					]
+				},
+				{
+					"name": "incidentCustomer",
+					"pattern": "incidentCustomer/{incident}/{eventId}",
+					"target": [
+						"incidentCustomer"
+					]
+				},
+				{
+					"name": "policeDetails",
+					"pattern": "policeDetails/{policeId}",
+					"target": [
+						"policeDetails"
+					]
+				},
+				{
+					"name": "predictiveAnalysis",
+					"pattern": "predictiveAnalysis",
+					"target": [
+						"predictiveAnalysis"
+					]
+				}
+			],
+			"targets": {
+				"splitApp": {
+					"viewType": "XML",
+					"viewName": "SplitApp",
+					"viewId": "splitapp",
+					"controlAggregation": "pages",
+					"controlId": "mainApp"
+				},
+				"incidentDetails": {
+					"viewType": "XML",
+					"viewName": "IncidentDetails",
+					"targetControl": "detailPages",
+					"viewLevel": 3,
+					"controlId": "incidentsSplitApp",
+					"parent": "incidentsSplitApp"
+				},
+				"sentiments": {
+					"viewType": "XML",
+					"viewName": "SentimentAnalysis",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"sentimentDetails": {
+					"viewType": "XML",
+					"viewName": "sentiments",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"dashboardDetail": {
+					"viewName": "DashboardDetail",
+					"viewType": "XML",
+					"viewLevel": 1,
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"portfolio": {
+					"viewName": "Portfolio",
+					"viewType": "XML",
+					"viewId": "portfolioID",
+					"viewLevel": 2,
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"policy": {
+					"viewName": "PortfolioPolicy",
+					"viewType": "XML",
+					"viewId": "portfolioPolicyID",
+					"viewLevel": 3,
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"risks": {
+					"viewType": "XML",
+					"viewName": "Risks",
+					"viewId": "risks",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"claims": {
+					"viewType": "XML",
+					"viewName": "Claims",
+					"viewId": "claims",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"incidents": {
+					"viewType": "XML",
+					"viewName": "IncidentsMainApp",
+					"viewId": "incidents",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"incidentsanalysis": {
+					"viewType": "XML",
+					"viewName": "IncidentsAnalysis",
+					"viewId": "incidentsanalysis",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"incidentanalysis": {
+					"viewType": "XML",
+					"viewName": "IncidentAnalysis",
+					"viewId": "incidentanalysis",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"claimDetail": {
+					"viewType": "XML",
+					"viewName": "ClaimDetail",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"flights": {
+					"viewType": "XML",
+					"viewName": "Flights",
+					"viewId": "flights",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"flightDetails": {
+					"viewType": "XML",
+					"viewName": "FlightDetails",
+					"viewId": "flightDetails",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"events": {
+					"viewType": "XML",
+					"viewName": "Events",
+					"viewId": "events",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"eventDetails": {
+					"viewType": "XML",
+					"viewName": "Event",
+					"viewId": "event",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"aircraft": {
+					"viewType": "XML",
+					"viewName": "Aircraft",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"social": {
+					"viewType": "XML",
+					"viewName": "Social",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"aircraftSeat": {
+					"viewType": "XML",
+					"viewName": "AircraftSeat",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"aircraftTechnicalParameter": {
+					"viewType": "XML",
+					"viewName": "AircraftTechnicalParameter",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"aircraftType": {
+					"viewType": "XML",
+					"viewName": "AircraftType",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"analytics": {
+					"viewType": "XML",
+					"viewName": "Analytics",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"analyticsAircraft": {
+					"viewType": "XML",
+					"viewName": "AnalyticsAircraft",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"analyticsEvent": {
+					"viewType": "XML",
+					"viewName": "AnalyticsEvent",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"analyticsPortfolio": {
+					"viewType": "XML",
+					"viewName": "AnalyticsPortfolio",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"operators": {
+					"viewType": "XML",
+					"viewName": "Operators",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"operator": {
+					"viewType": "XML",
+					"viewName": "Operator",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"operatorHistoricalData": {
+					"viewType": "XML",
+					"viewName": "OperatorHistoricalData",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"operatorDelays": {
+					"viewType": "XML",
+					"viewName": "OperatorDelays",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"operatorFinancialData": {
+					"viewType": "XML",
+					"viewName": "OperatorFinancialData",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"operatorYearlyDataComparison": {
+					"viewType": "XML",
+					"viewName": "OperatorYearlyDataComparison",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"dashboardSpace": {
+					"viewType": "XML",
+					"viewName": "DashboardSpace",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"dashboardSpaceMaster": {
+					"viewType": "XML",
+					"viewName": "spaceMaster",
+					"controlAggregation": "masterPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"dashboardEnergy": {
+					"viewType": "XML",
+					"viewName": "DashboardEnergy",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"dashboardEnergyMaster": {
+					"viewType": "XML",
+					"viewName": "energyMaster",
+					"controlAggregation": "masterPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"aircrafts": {
+					"viewType": "XML",
+					"viewName": "Aircrafts",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"overview": {
+					"viewType": "XML",
+					"viewName": "overviewPage",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"priceCrashCost": {
+					"viewType": "JS",
+					"viewName": "priceCrashCost",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"priceMetrics": {
+					"viewType": "JS",
+					"viewName": "priceMetrics",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"operatorsComparison": {
+					"viewType": "XML",
+					"viewName": "OperatorsComparison",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"aircraftsComparison": {
+					"viewType": "XML",
+					"viewName": "AircraftsComparison",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"create": {
+					"viewType": "XML",
+					"viewName": "createIncident",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"incidentStatus": {
+					"viewType": "XML",
+					"viewName": "incidentStatus",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"sos": {
+					"viewType": "XML",
+					"viewName": "Blockchain",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"navigate": {
+					"viewType": "XML",
+					"viewName": "Navigate",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"incident": {
+					"viewType": "XML",
+					"viewName": "Incident",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"tabPage": {
+					"viewType": "XML",
+					"viewName": "IncidentDetailView",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"live": {
+					"viewType": "XML",
+					"viewName": "LiveStream",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"videoCapture": {
+					"viewType": "XML",
+					"viewName": "VideoCapture",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"incidentCustomer": {
+					"viewType": "XML",
+					"viewName": "IncidentCustomer",
+					"controlAggregation": "detailPages",
+					"controlId": "splitApp",
+					"parent": "splitApp"
+				},
+				"policeDetails": {
+					"viewType": "XML",
+					"viewName": "policeDetails",
+					"viewId": "policeDetails",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				},
+				"predictiveAnalysis": {
+					"viewType": "XML",
+					"viewName": "predictiveAnalysis",
+					"viewId": "predictiveAnalysis",
+					"controlAggregation": "detailPages",
+					"parent": "splitApp",
+					"controlId": "splitApp"
+				}
+			}
+		},
+		"models": {
+			"i18n": {
+				"type": "sap.ui.model.resource.ResourceModel",
+				"settings": {
+					"bundleName": "com.sap.Aviation.i18n.i18n"
+				}
+			},
+			"dashboardTiles": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/dashboardTiles.json"
+			},
+			"sideNav": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/sideNav.json"
+			},
+			"eventDetailsTiles": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/eventDetailsTiles.json"
+			},
+			"variantData": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/variantData.json"
+			},
+			"seatData": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/seatData.json"
+			},
+			"aircraftData": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/aircraftData.json"
+			},
+			"smartData": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/smartData.json"
+			},
+			"airlineData": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/airlineData.json"
+			},
+			"analyticsData": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/analyticsData.json"
+			},
+			"analyticsEventData": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/analyticsEventData.json"
+			},
+			"analyticsHullData": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/analyticsHullData.json"
+			},
+			"analyticsPortfolioData": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/analyticsPortfolioData.json"
+			},
+			"financialData": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/financialData.json"
+			},
+			"operatorYearlyData": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/operatorYearlyData.json"
+			},
+			"operatorsComparison": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/operatorsComparison.json"
+			},
+			"aircraftsComparison": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/aircraftsComparison.json"
+			},
+			"triangulation": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/triangulation.json"
+			},
+			"": {
+				"dataSource": "mainService",
+				"settings": {
+					"metadataUrlParams": {
+						"sap-documentation": "heading"
+					}
+				}
+			},
+			"@i18n": {
+				"type": "sap.ui.model.resource.ResourceModel",
+				"uri": "i18n/i18n.properties"
+			},
+			"claims": {
+				"type": "sap.ui.model.json.JSONModel",
+				"settings": {},
+				"uri": "model/ClaimsDetails.json",
+				"preload": false
+			},
+			"IncidentsData": {
+				"type": "sap.ui.model.json.JSONModel",
+				"settings": {},
+				"uri": "model/IncidentsData.json",
+				"preload": false
+			},
+			"aircraftType": {
+				"type": "sap.ui.model.json.JSONModel",
+				"settings": {},
+				"uri": "model/aircraftTypes.json",
+				"preload": true
+			},
+			"taModel": {
+				"type": "sap.ui.model.json.JSONModel",
+				"settings": {},
+				"uri": "model/taModel.json",
+				"preload": true
+			},
+			"incidentCollection": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "model/incidentCollection.json",
+				"preload": true
+			}
+		},
+		"resources": {
+			"css": [
+				{
+					"uri": "css/style.css"
+				}
+			]
+		}
+	},
+	"sap.platform.hcp": {
+		"uri": "webapp",
+		"_version": "1.1.0"
+	}
+}
