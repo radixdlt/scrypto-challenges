@@ -1,0 +1,6 @@
+edition = "2021"
+use_small_heuristics = "Default"
+fn_args_layout = "Tall"
+max_width = 120
+
+

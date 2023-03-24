@@ -1,0 +1,15 @@
+CALL_METHOD 
+    ComponentAddress("${account1}") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${account1}") 
+    "withdraw_by_ids" 
+    Set<NonFungibleId>(NonFungibleId("0902000000"))
+    ResourceAddress("${obligation_nft}");
+
+CALL_METHOD 
+    ComponentAddress("${account2}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");

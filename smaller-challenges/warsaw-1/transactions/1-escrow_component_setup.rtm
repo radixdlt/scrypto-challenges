@@ -1,0 +1,16 @@
+CALL_METHOD 
+    ComponentAddress("account_sim1q0r0d2ccs5ljd9zd8fdy9g7exkufav2zmpey6085gxpqdsglw3") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_FUNCTION
+    PackageAddress("package_sim1q9j9s4gsqezv7sr23qu2ky9g56rsq0kjhulysmluylrsccrtf6")
+    "Escrow"
+    "instantiate_escrow"
+    Enum("Fungible", ResourceAddress("resource_sim1qzpgmax3xd7ke93dwqcjf8p7544jfxpemfeul8jkc3rs5dvwmr"), Decimal("20"))
+    Enum("Fungible", ResourceAddress("resource_sim1qzu4e7wszl56skp5cyvn23f5t5tsf9pxhe20r8dp35uqxeatl8"), Decimal("300"));
+
+CALL_METHOD
+    ComponentAddress("account_sim1q0r0d2ccs5ljd9zd8fdy9g7exkufav2zmpey6085gxpqdsglw3") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");

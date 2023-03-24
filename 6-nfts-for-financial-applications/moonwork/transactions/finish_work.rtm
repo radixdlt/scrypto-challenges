@@ -1,0 +1,9 @@
+CALL_METHOD ComponentAddress("system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs9fh54n") "lock_fee" Decimal("100");
+CALL_METHOD ComponentAddress("${client}") "create_proof_by_amount" Decimal("1") ResourceAddress("${client_badge}");
+POP_FROM_AUTH_ZONE Proof("client_proof");
+CALL_METHOD ComponentAddress("${contractor}") "create_proof_by_amount" Decimal("1") ResourceAddress("${contractor_badge}");
+POP_FROM_AUTH_ZONE Proof("contractor_proof");
+CALL_METHOD ComponentAddress("${client}") "create_proof" ResourceAddress("${work_resource}");
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS Set<NonFungibleId>(NonFungibleId("${work_id}")) ResourceAddress("${work_resource}") Proof("work_proof");
+CALL_METHOD ComponentAddress("${work_component}") "finish_work" Proof("work_proof") Proof("client_proof") Proof("contractor_proof");
+DROP_ALL_PROOFS;

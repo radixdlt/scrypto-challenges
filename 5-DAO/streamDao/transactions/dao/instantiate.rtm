@@ -1,0 +1,14 @@
+CALL_METHOD 
+  ComponentAddress("system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs9fh54n") 
+  "lock_fee" 
+  Decimal("100");
+
+CALL_FUNCTION 
+  PackageAddress("package_sim1qxm2a0c9s8cc4ml3ujp8920ny4cw2tyap4srt8dn4sjqmua5xx") 
+  "Dao" 
+  "new";
+
+CALL_METHOD 
+  ComponentAddress("account_sim1qwl2c5xm2zd7w06ramul40wh7a7wujtc4g2pv7f9d8jsjg46ty") 
+  "deposit_batch" 
+  Expression("ENTIRE_WORKTOP");

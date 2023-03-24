@@ -1,0 +1,38 @@
+# Gifts assets to the DAO
+#
+# Parameters:
+#
+# dao: address of the dao component
+#
+# account: address of the user account that wants to gift assets
+#
+# asset : the address of asset you want to gift
+#
+# amount : the amount of asset you want to gift
+#
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "lock_fee" 
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${account}")
+    "withdraw_by_amount"
+    Decimal("${amount}")
+    ResourceAddress("${asset}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("${amount}")
+    ResourceAddress("${asset}")
+    Bucket("Gift");
+  
+CALL_METHOD
+   ComponentAddress("${dao}")
+   "gift_asset"
+   Bucket("Gift");
+
+CALL_METHOD 
+    ComponentAddress("${account}") 
+    "deposit_batch" 
+    Expression("ENTIRE_WORKTOP");

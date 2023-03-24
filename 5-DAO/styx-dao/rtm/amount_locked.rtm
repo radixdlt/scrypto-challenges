@@ -1,0 +1,22 @@
+# Gets the amount of DAO tokens locked on the contract
+#
+# Parameters:
+#
+# dao: address of the Styx Component
+#
+# account: address of the user calling the Component
+
+CALL_METHOD
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("100");
+
+CALL_METHOD
+   ComponentAddress("${dao}")
+   "amount_locked";
+
+CALL_METHOD
+    ComponentAddress("${account}")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");
+

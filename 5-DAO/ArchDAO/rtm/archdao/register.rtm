@@ -1,0 +1,41 @@
+# Register to the Dao, sending tokens ang getting back vote tokens.
+#
+# Parameters:
+#
+# component: ComponentAddress of the published package containing the
+#            ArchDAO component.
+#
+# account: ComponentAddress of the user account from which funds to
+#          register to the Dao will be get, and vote tokens will be put.
+#
+# amount: Number of tokens.
+#
+# token: ResourceAddress of token.
+#
+# TODO
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount"
+   Decimal("${amount}")
+   ResourceAddress("${token}");
+   
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("${amount}")
+   ResourceAddress("${token}")
+   Bucket("fundsbucket");
+
+CALL_METHOD
+   ComponentAddress("${component}")
+   "register"
+   Bucket("fundsbucket");
+
+DROP_ALL_PROOFS;
+CALL_METHOD
+   ComponentAddress("${account}")
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");   

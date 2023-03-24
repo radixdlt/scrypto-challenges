@@ -1,0 +1,10 @@
+CALL_METHOD ComponentAddress("${caller}") "lock_fee" Decimal("100");
+
+CALL_METHOD ComponentAddress("${caller}") "create_proof" ResourceAddress("${member_sbt}");
+
+POP_FROM_AUTH_ZONE Proof("member_sbt");
+
+CALL_METHOD ComponentAddress("${dao_comp}") "become_representative" Proof("member_sbt") "${name}" Decimal("${tax_percent}");
+
+CALL_METHOD ComponentAddress("${caller}") "deposit_batch" Expression("ENTIRE_WORKTOP");
+# CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${caller}") "deposit_batch";

@@ -62,7 +62,7 @@ blueprint! {
                 .method("update_interest_rate", rule!(require(admin_badge.resource_address())))
                 .default(rule!(allow_all));
 
-            let component = Self {
+            let mut component = Self {
                 pooled_collateral_vault: Vault::new(RADIX_TOKEN),
                 positions: HashMap::new(),
                 position_resource: position_resource,
@@ -72,12 +72,11 @@ blueprint! {
                 positions_counter: 0,
                 is_insolvent: false,
                 oracle_address: oracle
-            }
-            .instantiate()
-            .add_access_check(rules)
-            .globalize();
+            }.instantiate();
+
+            component.add_access_check(rules);
             
-            (component, admin_badge)
+            (component.globalize(), admin_badge)
         }
 
         // Callable by user - deposit collateral into vault, and mint new position badge and store position info.
@@ -120,17 +119,15 @@ blueprint! {
                 self.is_insolvent == false,
                 "Protocol Insolvent - locked from opening/closing positions and minting/burning RAI"
             );
-            assert!(
-                position_badge.resource_address() == self.position_resource,
-                "The position_badge bucket does not contain a position badge NFT"
-            );
-            assert!(
-                position_badge.amount() == Decimal::one(),
-                "The position_badge bucket must contain exactly one position badge NFT"
-            );
+            let position_id = position_badge
+                .validate_proof(ProofValidationMode::ValidateContainsAmount(
+                    self.position_resource,
+                    dec!(1)
+                ))
+                .expect("unauthorized access")
+                .non_fungible_id();                                
 
             let required_collateral_xrd_amount = RaiTest::calc_required_collateral_xrd_amount(requested_rai, self.get_xrd_price());
-            let position_id = position_badge.non_fungible::<PositionData>().id();
             let position = self.positions.get_mut(&position_id).unwrap();
 
             // If collateral is available in position, allow mint.
@@ -141,7 +138,7 @@ blueprint! {
             position.start_epoch = Runtime::current_epoch();
 
             let minted_rai = self.minter.authorize(|| {
-                let rai_manager: &ResourceManager = borrow_resource_manager!(self.rai_resource);
+                let rai_manager: &mut ResourceManager = borrow_resource_manager!(self.rai_resource);
                 rai_manager.mint(requested_rai)
             });
 
@@ -152,23 +149,29 @@ blueprint! {
 
         // Callable by user - provide position id and paydown RAI loan
         pub fn paydown(&mut self, position_badge: Proof, rai_payment: Bucket) -> Bucket {
+            trace!("paydown!");
             assert!(
                 self.is_insolvent == false,
                 "Protocol Insolvent - locked from opening/closing positions and minting/burning RAI"
             );
             assert!(
-                position_badge.resource_address() == self.position_resource,
-                "The position_badge bucket does not contain a position badge NFT"
-            );
-            assert!(
                 rai_payment.resource_address() == self.rai_resource,
                 "The rai_payment bucket does not contain RAI resource"
             );
+            let position_id = position_badge
+                .validate_proof(ProofValidationMode::ValidateContainsAmount(
+                    self.position_resource,
+                    dec!(1)
+                ))
+                .expect("unauthorized access")
+                .non_fungible_id();                                
+            trace!("position_id validated!");
 
             // Calculate loan principal + interest of position, and apply payment.
-            let position_id = position_badge.non_fungible::<PositionData>().id();
             let position = self.positions.get_mut(&position_id).unwrap();
             let principal_and_interest = RaiTest::calc_principal_and_interest(position.loan_amount, self.interest_rate, position.start_epoch);
+
+            info!("Paydown - Position ID {} {:?}, P&I {} RAI", position_id, position, principal_and_interest);
 
             // If payment amount exceeds loan balance, paydown complete loan principal and interest.
             let payment_amount = if rai_payment.amount() < principal_and_interest {
@@ -176,9 +179,6 @@ blueprint! {
             } else {
                 principal_and_interest
             };
-
-            info!("Paydown - Position ID {} {:?}, P&I {} RAI", position_id, position, principal_and_interest);
-
             // Update position after loan payment.
             position.loan_amount = principal_and_interest - payment_amount;
             position.start_epoch = Runtime::current_epoch();
@@ -205,7 +205,7 @@ blueprint! {
             info!("Close Position - position id - {} {:?}", position_id, position);
 
             assert!(
-                position.loan_amount == Decimal(0),
+                position.loan_amount == dec!(0),
                 "Position loan balance above 0 - please close position with payment"
             );
 
@@ -269,15 +269,18 @@ blueprint! {
         // Callable by user - take position badge proof and additional collateral, adds it to position
         pub fn add_collateral(&mut self, position_badge: Proof, additional_collateral: Bucket) {
             assert!(
-                position_badge.resource_address() == self.position_resource,
-                "The position_badge bucket does not contain a position badge NFT"
-            );
-            assert!(
                 additional_collateral.resource_address() == RADIX_TOKEN,
                 "The additional_collateral bucket does not contain XRD"
             );
 
-            let position_id = &position_badge.non_fungible::<PositionData>().id();
+            let position_id = position_badge
+                .validate_proof(ProofValidationMode::ValidateContainsAmount(
+                    self.position_resource,
+                    dec!(1)
+                ))
+                .expect("unauthorized access")
+                .non_fungible_id();                                
+
             let position = self.positions.get_mut(&position_id).unwrap();
 
             info!("Add additional collateral {} XRD", additional_collateral.amount());
@@ -288,14 +291,15 @@ blueprint! {
 
         // Callable by user - withdraw collateral, allowed withdrawal until minimum collateral ratio
         pub fn partial_withdraw_collateral(&mut self, position_badge: Proof, requested_withdrawal: Decimal) -> Bucket {
-            assert!(
-                position_badge.resource_address() == self.position_resource,
-                "The position_badge bucket does not contain a position badge NFT"
-            );
+            let position_id = position_badge
+                .validate_proof(ProofValidationMode::ValidateContainsAmount(
+                    self.position_resource,
+                    dec!(1)
+                ))
+                .expect("unauthorized access")
+                .non_fungible_id();                                
 
             let xrd_price = self.get_xrd_price();
-
-            let position_id = &position_badge.non_fungible::<PositionData>().id();
             let position = self.positions.get_mut(&position_id).unwrap();
             let principal_and_interest = RaiTest::calc_principal_and_interest(position.loan_amount, self.interest_rate, position.start_epoch);
 
@@ -413,7 +417,7 @@ blueprint! {
         }
 
         // Normally, liquidators would be expected to run bots to subscribe to new `open_position` `draw` `paydown` `close_position`
-        // events and maintain an off-ledger system for identifying which vaults are undercollateralized, and call liquidate on
+        // events and maintain an off-ledger database for identifying which vaults are undercollateralized, and call liquidate on
         // the corresponding undercollateralized positions. However since subscription events are not yet available in Babylon,
         // provide this convenience function to print the all outstanding positions and identify if any vaults are available for
         // liquidation and allow manual inspection for liquidation.
@@ -422,10 +426,15 @@ blueprint! {
             info!("xrd price ${}", xrd_price);
             for position_id in self.positions.keys() {
                 let position = self.positions.get(position_id).unwrap();
+                trace!("a");
                 let principal_and_interest = RaiTest::calc_principal_and_interest(position.loan_amount, self.interest_rate, position.start_epoch);
+                trace!("b");
                 let required_collateral_amount = RaiTest::calc_required_collateral_xrd_amount(principal_and_interest, self.get_xrd_price());
+                trace!("c");
                 let required_collateral_value = required_collateral_amount * xrd_price;
+                trace!("d");
                 let undercollateralized = if position.collateral_amount < required_collateral_amount { true } else { false } ;
+                trace!("e");
                 let collateral_value = self.calc_xrd_value(position.collateral_amount);
                 info!(
                     "position_id {} {:?}, P&I {} RAI, collateral_value ${}, required_collateral_value ${}, required_collateral_amount {} XRD",
@@ -468,9 +477,17 @@ blueprint! {
         }
 
         fn calc_principal_and_interest(loan_amount: Decimal, interest_rate: Decimal, start_epoch: u64) -> Decimal {
-            let loan_factor = decimal_pow(dec!(1) + interest_rate/EPOCHS_PER_YEAR, Runtime::current_epoch() - start_epoch);
+            trace!("calc_principal_and_interest! {loan_amount} {interest_rate} {start_epoch}");
+            let interest_rate_per_epoch = interest_rate / EPOCHS_PER_YEAR;
+            let loan_factor = dec!(1) + interest_rate_per_epoch;
+            trace!("before number_of_epochs");
+            let number_of_epochs = (Runtime::current_epoch() - start_epoch).try_into().expect("error converting epochs u64 to i64");
+            trace!("loan_factor {loan_factor}, number_of_epochs {number_of_epochs}");
+            let loan_factor = loan_factor.powi(number_of_epochs);
+            trace!("loan_factor {loan_factor}!");
             let principal_and_interest = loan_amount * loan_factor;
 
+            trace!("{principal_and_interest}");
             principal_and_interest
         }
 
@@ -486,58 +503,92 @@ blueprint! {
     }
 }
 
-// TODO - move to utils/math crate?
-fn decimal_pow(base: Decimal, mut power: u64) -> Decimal {
-    // TODO - Time O(log(power)) gas efficient power function
-    let mut result = dec!(1);
-    while power > 0 {
-        result *= base;
-        power -= 1;
-    }
-
-    result
-}
-
 import! { r#"
 {
-    "package_address": "0125ec60daa5880cadf3c8f591ed1040bddd0bc572b3c0ae5b67e8",
+    "package_address": "package_sim1qy49wq0lyfvq6wn8vhq6fvxfp3rhf5phsnalj0yefnvsy86pq6",
     "blueprint_name": "OraclePlaceholder",
-    "functions": [
-        {
-        "name": "new",
-        "inputs": [],
-        "output": {
-            "type": "Custom",
-            "name": "ComponentAddress",
-            "generics": []
+    "abi": {
+      "structure": {
+        "type": "Struct",
+        "name": "OraclePlaceholder",
+        "fields": {
+          "type": "Named",
+          "named": [
+            [
+              "xrd_price",
+              {
+                "type": "Custom",
+                "type_id": 161,
+                "generics": []
+              }
+            ]
+          ]
         }
-        }
-    ],
-    "methods": [
+      },
+      "fns": [
         {
-        "name": "set_price",
-        "mutability": "Mutable",
-        "inputs": [
-            {
-            "type": "Custom",
-            "name": "Decimal",
-            "generics": []
+          "ident": "new",
+          "mutability": null,
+          "input": {
+            "type": "Struct",
+            "name": "OraclePlaceholder_new_Input",
+            "fields": {
+              "type": "Named",
+              "named": []
             }
-        ],
-        "output": {
-            "type": "Unit"
-        }
+          },
+          "output": {
+            "type": "Custom",
+            "type_id": 129,
+            "generics": []
+          },
+          "export_name": "OraclePlaceholder_new"
         },
         {
-        "name": "get_price",
-        "mutability": "Immutable",
-        "inputs": [],
-        "output": {
+          "ident": "set_price",
+          "mutability": "Mutable",
+          "input": {
+            "type": "Struct",
+            "name": "OraclePlaceholder_set_price_Input",
+            "fields": {
+              "type": "Named",
+              "named": [
+                [
+                  "arg0",
+                  {
+                    "type": "Custom",
+                    "type_id": 161,
+                    "generics": []
+                  }
+                ]
+              ]
+            }
+          },
+          "output": {
+            "type": "Unit"
+          },
+          "export_name": "OraclePlaceholder_set_price"
+        },
+        {
+          "ident": "get_price",
+          "mutability": "Immutable",
+          "input": {
+            "type": "Struct",
+            "name": "OraclePlaceholder_get_price_Input",
+            "fields": {
+              "type": "Named",
+              "named": []
+            }
+          },
+          "output": {
             "type": "Custom",
-            "name": "Decimal",
+            "type_id": 161,
             "generics": []
+          },
+          "export_name": "OraclePlaceholder_get_price"
         }
-        }
-    ]
-}"# 
+      ]
+    }
+  }
+"# 
 }

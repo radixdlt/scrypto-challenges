@@ -1,0 +1,34 @@
+# Instantiates a new InterestBearingMock.
+#
+# THIS IS FOR TESTING
+#
+CALL_METHOD 
+    ComponentAddress("${account}")
+    "lock_fee"
+    Decimal("10");
+
+CALL_METHOD
+   ComponentAddress("${account}")
+   "withdraw_by_amount"
+   Decimal("${treasury}")
+   ResourceAddress("${funding_token}");
+   
+TAKE_FROM_WORKTOP_BY_AMOUNT
+   Decimal("${treasury}")
+   ResourceAddress("${funding_token}")
+   Bucket("treasurybucket");
+
+CALL_FUNCTION
+   PackageAddress("${package}")
+   "ArchProposalMock"
+   "instantiate_proposal_mock"
+   "${proposal_description}"
+   Bucket("treasurybucket")
+   ResourceAddress("${vote_token}")
+   ResourceAddress("${admin_badge}");
+
+DROP_ALL_PROOFS;
+CALL_METHOD
+   ComponentAddress("${account}")
+   "deposit_batch"
+   Expression("ENTIRE_WORKTOP");
