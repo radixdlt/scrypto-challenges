@@ -40,6 +40,8 @@ This project is build using Scrypto and [Radix dApp Toolkit](https://github.com/
 
 ## Screenshots
 
+
+
 <img width="1654" alt="1" src="https://user-images.githubusercontent.com/5363211/227626500-537be6c5-a81b-4de1-9eeb-771396d15970.png">
 
 <img width="1680" alt="2" src="https://user-images.githubusercontent.com/5363211/227626514-ddb7bafa-8281-4d63-aabe-db12e785e614.png">
@@ -59,6 +61,7 @@ This project is build using Scrypto and [Radix dApp Toolkit](https://github.com/
 
 <img width="1382" alt="8" src="https://user-images.githubusercontent.com/5363211/227626664-581b5b49-0d8d-4805-9fee-2eec66874573.png">
 
+<img width="655" alt="Screenshot 2023-03-25 at 3 01 25 AM" src="https://user-images.githubusercontent.com/5363211/227645549-c968ac2d-123d-4048-a2c8-5cf362c535e8.png">
 
 
 
