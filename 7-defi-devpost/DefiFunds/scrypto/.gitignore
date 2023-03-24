@@ -1,0 +1,25 @@
+#vscode
+.vscode
+
+#ignore cit
+.vscode
+
+# macOS folder attributes
+.DS_Store
+
+# Rust auto-generated
+target/
+Cargo.lock
+**/*.rs.bk
+
+# Flamegraph profiles
+flamegraph.svg
+
+# IntelliJ
+.idea/
+
+# Emacs
+*~
+
+#Rusty-tags
+*.vi

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+  <title>Betanet Wallet SDK Example</title>
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <script type="module" src="/dist/index.js"></script>
+  <div class="connectBtn">
+    <radix-connect-button />
+  </div>
+  <br><br>
+
+  <div class="container">
+    <p>Account Name:
+    <pre id="accountName"></pre>
+    </p>
+    <p>Account Address:
+    <pre id="accountAddress"></pre>
+    </p>
+  </div>
+  <br>
+  <a href="https://www.figma.com/file/dxSKJUxvfyQ3e2wKqYOtJT/Tobias_eth?node-id=0%3A1&t=imOUxtVIg1waaQtM-1">Link to UI design</a>
+  <br><br>
+  <p><button id="test">get ledger and price data (see console)</button></p>
+  <br><br>
+  <h1>DefiFunds</h1>
+
+
+  <h3>Instantiate DefiFunds</h3>
+  <p>The DefiFunds Component is already instantiatted, so you can skip calling this function, but if you want to do it anyway you can use the to addresses below. </p>
+  <p>pkg = 
+    package_tdx_b_1qyl4v736f3s0fqgg9wzq2cq90csgcwag6uxkaw3v2j2qrmzvu4<br>
+    beakerfi addresses =
+    component_tdx_b_1qt7c7ws0a4f3wd3mwtcj4acvn87w4as9zyvkx3wwq8lskwe5zm<br>
+  
+  </p>
+
+  <input type="text" placeholder="Package address" id="packageAddress" />
+  <input type="text" placeholder="Dex Component Address" id="dexComponentAddress">
+  <p><button id="instantiateDefiFunds">Instantiate DefiFunds</button></p>
+  
+  <div class="container">
+    <p>DefiFunds Component Address: <span id="DefiFundsComponentAddress"></span></p>
+    <p>DefiFunds Admin Badge: <span id="DefiFundsAdminBadge"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+
+  <h2>Methods for everyone</h2>
+  <h3>New Fund</h3>
+  <input type="text" placeholder="Fund name" id="inpNewFundName">
+  <input type="number" placeholder="initial suppyly share tokens (you will depost the same xrd amount as you set as inital supply)" id="inpNewFundInitialSupply" min="0" max="10000000000">
+  <input type="number" placeholder="deposit fee (0-5)" id="inpNewFundDepositFee">
+  <input type="text" placeholder="description" id="inpNewFundDescription">
+  <input type="text" placeholder="imagelink" id="inpNewFundImageLink">
+  <input type="text" placeholder="websitelink" id="inpNewFundWebsiteLink">
+  <p><button id="btnNewFund">Create Fund</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusNewFund"></span></p>
+    <p>Fund Component Address: <span id="FundComponentAddressNewFund"></span></p>
+    <p>Fund Manager Badge: <span id="FundManagerBadgeNewFund"></span></p>
+    <p>Share Token Address: <span id="ShareTokenAddressNewFund"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+
+  <h2>Methods for DefifundsAdmin</h2>
+  <h3>New pool to whitelist</h3>
+  <p>BUSD/XRD: component_tdx_b_1q2nfsu5yu2zf7u88gc45upctysdxl4lugst8vdvt7v5s6yxm58<br>
+    WETH/XRD: component_tdx_b_1q2v66h9yuj0kygjrgyjajsg000p05p6k64caaahumy2se7mvrh <br>
+    WBTC/XRD: component_tdx_b_1qfzunlarnzxq34q4ycqlwp9m0flsr2l5vmnvhlencjrq9m44k8</p>
+  <input type="text" placeholder="pool" id="inpNewPoolAddress">
+  <p><button id="btnNewPoolToWhitelist">Add pool</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusNewPoolToWhitelist"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+  <h3>Remove pool from whitelist</h3>
+  <input type="text" placeholder="pool" id="inpRemovePoolAddress">
+  <p><button id="btnRemovePoolFromWhitelist">Remove pool</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusRemovePoolFromWhitelist"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+  <h3>Change deposit fee defifunds</h3>
+  <input type="text" placeholder="new fee (0-5)" id="inpChangeDepositFeeDefifunds">
+  <p><button id="btnChangeDepositFeeDefifunds">Change deposit feee</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusChangeDepositFeeDefifunds"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+  <h3>Withdraw collected fee defifunds</h3>
+  <input type="text" placeholder="address" id="inpWithdrawCollectedFeeDefifunds">
+  <p><button id="btnWithdrawCollectedFeeDefifunds">Withdraw</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusWithdrawCollectedFeeDefifunds"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+  <h3>Withdraw collected fee defifunds all</h3>
+  <p><button id="btnWithdrawCollectedFeeDefifundsAll">Withdraw</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusWithdrawCollectedFeeDefifundsAll"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+  <h1>Fund</h1>
+  <h3>NB! You need to set fund, fundmangerbadge and shartoken before calling methods on the fund blueprint</h3>
+  <br>
+  <h3>Get Funds in DefiFunds</h3>
+  <p><button id="btnGetFundAddresses">Get</button></p>
+  <div class="container">
+    <p>(Fund, FundManagerBadge, ShareToken) <br><br><span id="rcptFunds"></span></p>
+  </div>
+  <br>
+  <h3>Set Fund, FundManager and ShareToken</h3>
+  <input type="text" placeholder="Fund" id="inpSetFundAddress">
+  <input type="text" placeholder="FundManagerBadge" id="inpSetFundManagerBadge">
+  <input type="text" placeholder="ShareToken" id="inpSetShareToken">
+  <p><button id="btnSetFundAddress">Set</button></p>
+  <br>
+
+  <h3>Get pool info (see console)</h3>
+  <select id="selGetPoolInfo">
+    <option value="resource_tdx_b_1qpev6f8v2su68ak5p2fswd6gqml3u7q0lkrtfx99c4ts3zxlah,resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp">BUSD/XRD</option>
+    <option value="resource_tdx_b_1qps68awewmwmz0az7cxd86l7xhq6v3pez355wq8gra3qw2v7kp,resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp">WETH/XRD</option>
+    <option value="resource_tdx_b_1qre9sv98scqut4k9g3j6kxuvscczv0lzumefwgwhuf6qdu4c3r,resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp">WBTC/XRD</option>
+  </select>
+  <p><button id="btnGetPoolInfo">Get</button></p>
+
+  <br><br>
+  <h2>Methods for everyone</h2>
+  <h3>Deposit tokens to fund</h3>
+  <p>Combines the "swap token for tokens" method and the "deposit tokens to fund" method </p>
+  <input type="number" placeholder="amount" id="inpDepositFromNumber">
+  <select id="selDepositFromAddress">
+    <option value="resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp">XRD</option>
+    <option value="resource_tdx_b_1qpev6f8v2su68ak5p2fswd6gqml3u7q0lkrtfx99c4ts3zxlah">BUSD</option>
+    <option value="resource_tdx_b_1qps68awewmwmz0az7cxd86l7xhq6v3pez355wq8gra3qw2v7kp">WETH</option>
+    <option value="resource_tdx_b_1qre9sv98scqut4k9g3j6kxuvscczv0lzumefwgwhuf6qdu4c3r">WBTC</option>
+  </select>
+  <p><button id="btnDeposit">Buy</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusDeposit"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+  <h3>Whitdraw tokens from fund</h3>
+  <p>Combines the "Withdraw tokens from fund" method and "swap tokens for token"</p>
+  <input type="number" placeholder="amount of sharetokens" id="inpWithdrawFromNumber">
+  <select id="selWithdrawToAddress">
+    <option value="resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp">XRD</option>
+    <option value="resource_tdx_b_1qpev6f8v2su68ak5p2fswd6gqml3u7q0lkrtfx99c4ts3zxlah">BUSD</option>
+    <option value="resource_tdx_b_1qps68awewmwmz0az7cxd86l7xhq6v3pez355wq8gra3qw2v7kp">WETH</option>
+    <option value="resource_tdx_b_1qre9sv98scqut4k9g3j6kxuvscczv0lzumefwgwhuf6qdu4c3r">WBTC</option>
+  </select>
+  <p><button id="btnWithdraw">Sell</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusWithdraw"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+
+  <h2>Methods for fund manager</h2>
+
+  <h3>Withdraw collected fee fund manager</h3>
+  <p><button id="btnWithdrawCollectedFeeFundManager">Withdraw</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusWithdrawCollectedFeeFundManager"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+  <h3>Change deposit fund manager</h3>
+  <input type="text" placeholder="new fee" id="inpChangeDepositFundManager">
+  <p><button id="btnChangeDepositFeeFundManager">Change deposit feee</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusChangeDepositFeeFundManager"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+  <h3>Trade Beakerfi</h3>
+  <p>Make sure that the pools are whitelisted before you try to trade with them</p>
+  <input type="number" placeholder="amount" id="inpTradeAmount">
+  <select id="selTradeFromAddress">
+    <option value="resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp">XRD</option>
+    <option value="resource_tdx_b_1qpev6f8v2su68ak5p2fswd6gqml3u7q0lkrtfx99c4ts3zxlah">BUSD</option>
+    <option value="resource_tdx_b_1qps68awewmwmz0az7cxd86l7xhq6v3pez355wq8gra3qw2v7kp">WETH</option>
+    <option value="resource_tdx_b_1qre9sv98scqut4k9g3j6kxuvscczv0lzumefwgwhuf6qdu4c3r">WBTC</option>
+  </select>
+
+  <select id="selTradeComponentAddress">
+    <option value="component_tdx_b_1q2nfsu5yu2zf7u88gc45upctysdxl4lugst8vdvt7v5s6yxm58">BUSD/XRD</option>
+    <option value="component_tdx_b_1q2v66h9yuj0kygjrgyjajsg000p05p6k64caaahumy2se7mvrh">WETH/XRD</option>
+    <option value="component_tdx_b_1qfzunlarnzxq34q4ycqlwp9m0flsr2l5vmnvhlencjrq9m44k8">WBTC/XRD</option>
+  </select>
+  <p><button id="btnTrade">Trade</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusTrade"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+  <h3>Change description </h3>
+  <input type="text" placeholder="description" id="inpChangeDescription">
+  <p><button id="btnChangeDescription">Change description</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusChangeDescription"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+  <h3>Change image </h3>
+  <input type="text" placeholder="description" id="inpChangeImage">
+  <p><button id="btnChangeImage">Change image</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusChangeImage"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+  <h3>Change website </h3>
+  <input type="text" placeholder="description" id="inpChangeWebsite">
+  <p><button id="btnChangeWebsite">Change website</button></p>
+  <div class="container">
+    <p>Status on transaction: <span id="StatusChangeWebsite"></span></p>
+  </div>
+  <br><br><br><br><br>
+
+</body>
+
+</html>
