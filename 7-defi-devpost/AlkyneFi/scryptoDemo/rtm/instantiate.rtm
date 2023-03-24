@@ -1,0 +1,25 @@
+CALL_METHOD
+    ComponentAddress("component_sim1qgehpqdhhr62xh76wh6gppnyn88a0uau68epljprvj3sxknsqr")
+    "lock_fee"
+    Decimal("100"); 
+CALL_FUNCTION
+    PackageAddress("${package}")
+    "TradeX"
+    "instantiate_tradex"
+    Array<Bucket>(
+    )
+    Array<ComponentAddress>(
+    )
+    Decimal("0.05")
+    ResourceAddress("${xrd}")
+    Array<ResourceAddress>(
+    )
+    Array<ResourceAddress>(
+    )
+    Array<ComponentAddress>(
+    )
+    ;
+CALL_METHOD
+    ComponentAddress("${account}")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");
