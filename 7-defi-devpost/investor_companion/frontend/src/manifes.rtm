@@ -1,0 +1,13 @@
+CALL_METHOD
+    ComponentAddress("component_sim1qgehpqdhhr62xh76wh6gppnyn88a0uau68epljprvj3sxknsqr")
+    "lock_fee"
+    Decimal("100");
+CALL_FUNCTION
+    PackageAddress("package_sim1qygw3gt308cn2h9vmjqrmg2gw93qknpk3xkx30kms3qq0692xm")
+    "Companion"
+    "instantiate"
+    Decimal("0.01");
+CALL_METHOD
+    ComponentAddress("account_sim1qw24s9xf6kqndhj5xc8qrgpjl4gxuya7xskcl0x0u8ps52twte")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");

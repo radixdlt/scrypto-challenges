@@ -14,12 +14,14 @@ pub struct UserPreference {
     risk_appetite: RiskAppetite,
     // the minimum range of time (in Days) the user is willing to invest
     yield_duration: u64,
-    // the minimum yield the user is willing to accept
-    min_yield: u64,
+    // the minimum yield (APY) the user is willing to accept
+    min_yield: Decimal,
 }
 
 #[blueprint]
 mod companion {
+    use std::ptr::null;
+
     struct Companion {
         // Total amount of XRD  tokens invested by users in the vault
         total_invested_amount: Vault,
@@ -107,6 +109,8 @@ mod companion {
 
         // This function let user invest in the vault
         pub fn invest(&mut self, mut amount: Bucket) {
+            // check if the user has created their preferences
+            require(self.investor_badge);
             // remove the platform fee from the total amount invested
             let our_fee: Bucket = amount.take(amount.amount() * self.platform_fee);
             let remainder: Bucket = amount.take(amount.amount() - our_fee.amount());
@@ -143,8 +147,9 @@ mod companion {
         }
 
         // this platform let admin see the total amount of fees collected
-        pub fn total_fees_collected(&mut self) {
-            self.total_fees_collected.amount();
+        pub fn total_fees_collected(&mut self) -> Decimal {
+            let total_fees =self.total_fees_collected.amount();
+            return total_fees;
         }
 
         // this function let admin to withdraw the fees collected
@@ -156,9 +161,7 @@ mod companion {
         pub fn change_platform_fee(&mut self, platform_fee: Decimal) {
             // check if the platform fee is between 0 and 1
             // if not, throw an error
-            if platform_fee < dec!("0") || platform_fee > dec!("1") {
-                panic!("Platform fee must be between 0 and 1");
-            }
+            assert!(platform_fee >= dec!("0") && platform_fee <= dec!("1"), "Platform fee must be between 0 and 1");
             // else, change the platform fee
             self.platform_fee = platform_fee;
         }
