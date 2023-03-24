@@ -43,7 +43,7 @@ void (async function () {
 
     await create_lending_pool(_.btc_pool, "BTC", "Bitcoin", 21000, 0.7);
     await create_lending_pool(_.eth_pool, "ETH", "Ethereum", 1600, 0.6);
-    await create_lending_pool(_.usdc_pool, "USDC", "Circle_USD", 1, 0.05);
+    await create_lending_pool(_.usdc_pool, "USDC", "Circle_USD", 1, 0.4);
     await create_lending_pool(_.usdt_pool, "USDT", "Tether_USD", 1.001, 0);
 
 
@@ -51,7 +51,7 @@ void (async function () {
 
 async function create_lending_pool(
     pool_name: string, symbol: string, name: string, initial_price: number, liquidation_threshold: number,
-    flashloan_fee_rate: number = 0.005, liquidation_spread: number = 0.05, liquidation_closing_factor: number = 0.5
+    flashloan_fee_rate: number = 0.005, liquidation_spread: number = 0.05, liquidation_closing_factor: number = 1
 ) {
     let output = await exe($`resim call-method $${_.faucet_component} create_resource "${symbol}" "${name}" "" ${initial_price} --proofs 1,$${_.faucet_admin_badge}`);
     set(symbol, output[0]);

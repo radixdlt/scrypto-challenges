@@ -7,20 +7,24 @@ use scrypto::prelude::*;
 #[derive(LegacyDescribe, ScryptoEncode, ScryptoDecode, ScryptoCategorize, Debug, Copy, Clone)]
 pub struct CollateralPostion {
     pub position_id: u128,
-    pub resource_address: ResourceAddress,
+    pub pool_resource_address: ResourceAddress,
     pub pool_share_resource_address: ResourceAddress,
+    pub pool_component_address: ComponentAddress,
     pub pool_share: Decimal,
 }
 
 #[derive(LegacyDescribe, ScryptoEncode, ScryptoDecode, ScryptoCategorize, Debug, Clone)]
 pub struct DebtPostion {
     pub position_id: u128,
-    pub resource_address: ResourceAddress,
+    pub pool_resource_address: ResourceAddress,
+    pub pool_component_address: ComponentAddress,
     pub loan_share: Decimal,
     pub interest_type: u8,
 }
 
-#[derive(NonFungibleData, Debug, Clone)]
+#[derive(
+    NonFungibleData, LegacyDescribe, ScryptoEncode, ScryptoDecode, ScryptoCategorize, Debug, Clone,
+)]
 pub struct CollaterizedDebtPositionData {
     #[mutable]
     pub delegator_id: Option<NonFungibleLocalId>,
@@ -60,7 +64,9 @@ external_component! {
         fn insurance_deposit(&mut self, tokens: Bucket) ;
 
         fn insurance_withdraw(&mut self, amount: Decimal) -> Bucket;
+
     }
+
 }
 
 #[blueprint]
@@ -80,6 +86,9 @@ mod _lending_pool_manager {
         cdp_position_counter: u64,
 
         admin_badge_resource_address: ResourceAddress,
+
+        // ! Store User CDP DATA for easy Access Only for tests purpose
+        cdp_data_lookup: HashMap<NonFungibleLocalId, CollaterizedDebtPositionData>,
     }
 
     impl LendingPoolManager {
@@ -95,13 +104,18 @@ mod _lending_pool_manager {
             // Create an NFT  for the lending market admin badge and mint an initial supply of 1.
             let pool_admin_badge = ResourceBuilder::new_uuid_non_fungible()
                 .metadata("internal_tag", "lendind_market_admin_badge")
-                .metadata("name", "LendingPoolManager Admin badge")
+                .metadata("name", "KLP Admin Badge")
+                .metadata("description", "KL Protocol administrator authority badge")
                 .mint_initial_supply([(AuthBadgeData {})]);
 
             // Create an integer non-fungible resource for the collaterized debt position (CDP), mintable and burnable only by the CDP admin badge, and updateable only by the same badge.
             let cdp_resource_address = ResourceBuilder::new_integer_non_fungible()
                 .metadata("internal_tag", "cdp_resource")
-                .metadata("name", "LendingPoolManager Collaterized Debt Position")
+                .metadata("name", "KL Protocol CDP")
+                .metadata(
+                    "description",
+                    "Represente a KL Protocole Collaterized Debt Position",
+                )
                 .mintable(
                     rule!(require(lending_market_component_badge.resource_address())),
                     LOCKED,
@@ -146,6 +160,11 @@ mod _lending_pool_manager {
                 .method("create_lending_pool", admin_rule.clone(), LOCKED)
                 .method("auto_liquidate", admin_rule.clone(), LOCKED)
                 .method("remove_collected_fees", admin_rule.clone(), LOCKED)
+                .method("insurance_deposit", admin_rule.clone(), LOCKED)
+                // ! maybe a debat here - but make sens to lock them to the compenent badge for now
+                // .method("add_collected_fees", admin_rule.clone(), LOCKED)
+                // .method("insurance_withdraw", admin_rule.clone(), LOCKED)
+                //
                 // Lock all method by default for internal or cross component calls
                 .default(component_manager_rule.clone(), LOCKED);
 
@@ -163,14 +182,20 @@ mod _lending_pool_manager {
                 cdp_position_counter: 0u64,
 
                 admin_badge_resource_address: pool_admin_badge.resource_address(),
+
+                cdp_data_lookup: HashMap::new(),
             }
             .instantiate();
 
             // Add the access rules to the component.
             component.add_access_check(access_rules);
 
+            let component_address = component.globalize();
+
+            // LendingPoolComponentTarget::at(component_address).get_pool_state(true);
+
             // Return the globalized ComponentAddress and the lending market admin badge.
-            (component.globalize(), pool_admin_badge)
+            (component_address, pool_admin_badge)
         }
 
         pub fn create_lending_pool(
@@ -231,15 +256,17 @@ mod _lending_pool_manager {
 
             // Mint a new CDP using the CDP admin badge
             self.lending_market_component_badge.authorize(|| {
-                cdp_resource_manager.mint_non_fungible(
-                    &cdp_local_id,
-                    CollaterizedDebtPositionData {
-                        delegator_id: None,
-                        delegated_ids: [].to_vec(),
-                        debts: HashMap::new(),
-                        collaterals: HashMap::new(),
-                    },
-                )
+                let cdp_data = CollaterizedDebtPositionData {
+                    delegator_id: None,
+                    delegated_ids: [].to_vec(),
+                    debts: HashMap::new(),
+                    collaterals: HashMap::new(),
+                };
+
+                self.cdp_data_lookup
+                    .insert(cdp_local_id.clone(), cdp_data.clone());
+
+                cdp_resource_manager.mint_non_fungible(&cdp_local_id, cdp_data)
             })
         }
 
@@ -248,11 +275,19 @@ mod _lending_pool_manager {
 
             let cdp_resource_manager = borrow_resource_manager!(self.cdp_resource_address);
 
-            let cdp_local_id = NonFungibleLocalId::Integer(self.get_new_cdp_id().into());
-
             let mut delegator_cdp_data: CollaterizedDebtPositionData =
                 cdp_resource_manager.get_non_fungible_data(&delegator_cdp_id);
-            delegator_cdp_data.delegated_ids.push(cdp_local_id.clone());
+
+            assert!(
+                delegator_cdp_data.delegator_id.is_none(),
+                "Delegated CDP can not create delegated CDP",
+            );
+
+            let delegated_cdp_id = NonFungibleLocalId::Integer(self.get_new_cdp_id().into());
+
+            delegator_cdp_data
+                .delegated_ids
+                .push(delegated_cdp_id.clone());
 
             let delegated_cdp_data = CollaterizedDebtPositionData {
                 delegator_id: Some(delegator_cdp_id.clone()),
@@ -261,10 +296,16 @@ mod _lending_pool_manager {
                 collaterals: HashMap::new(),
             };
 
+            self.cdp_data_lookup
+                .insert(delegator_cdp_id.clone(), delegator_cdp_data.clone());
+
+            self.cdp_data_lookup
+                .insert(delegated_cdp_id.clone(), delegated_cdp_data.clone());
+
             self.lending_market_component_badge.authorize(|| {
                 cdp_resource_manager
                     .update_non_fungible_data(&delegator_cdp_id, delegator_cdp_data);
-                cdp_resource_manager.mint_non_fungible(&cdp_local_id, delegated_cdp_data)
+                cdp_resource_manager.mint_non_fungible(&delegated_cdp_id, delegated_cdp_data)
             })
         }
 
@@ -364,12 +405,26 @@ mod _lending_pool_manager {
         //
         // Create a new Collateral position and provision it
         pub fn new_collateral(&mut self, cdp_proof: Proof, assets: Bucket) {
+            let (ra, pool_shre_ra) = self
+                .lending_pool_registry
+                .get_resource_address(assets.resource_address());
+
+            let component_ra = self
+                .lending_pool_registry
+                .get_component_address(assets.resource_address());
+
             let mut extended_cdp = self._get_extended_cdp(self._validate_cdp_proof(cdp_proof));
 
-            let new_position_id = self.get_new_collateral_id();
+            let new_collateral_position = CollateralPostion {
+                position_id: self.get_new_collateral_id(),
+                pool_resource_address: ra,
+                pool_share_resource_address: pool_shre_ra,
+                pool_component_address: component_ra,
+                pool_share: dec!(0),
+            };
 
             self.lending_market_component_badge.authorize(|| {
-                extended_cdp.new_collateral(assets, new_position_id);
+                extended_cdp.new_collateral(assets, new_collateral_position);
             });
 
             self._save_cdp(extended_cdp);
@@ -422,11 +477,21 @@ mod _lending_pool_manager {
 
             extended_cdp.chek_health_factor(true);
 
-            let new_position_id = self.get_debt_new_id();
+            let component_ra = self
+                .lending_pool_registry
+                .get_component_address(resource_address);
 
-            let loan = self.lending_market_component_badge.authorize(|| {
-                extended_cdp.borrow(resource_address, interest_type, amount, new_position_id)
-            });
+            let new_debt_position = DebtPostion {
+                position_id: self.get_debt_new_id(),
+                pool_resource_address: resource_address,
+                pool_component_address: component_ra,
+                interest_type,
+                loan_share: dec!(0),
+            };
+
+            let loan = self
+                .lending_market_component_badge
+                .authorize(|| extended_cdp.borrow(interest_type, amount, new_debt_position));
 
             extended_cdp.chek_health_factor(true);
 
@@ -585,6 +650,8 @@ mod _lending_pool_manager {
             let debt = &extended_cdp.clone().debt_positions;
             let collaterals = &extended_cdp.clone().collateral_positions;
 
+            // debug!("debts:{}, collateral:{}", debt.len(), collaterals.len());
+
             for (_, dp) in debt {
                 let mut n: u64 = (dec!(1) / dp.pool_state.liquidation_close_factor)
                     .floor()
@@ -599,7 +666,7 @@ mod _lending_pool_manager {
                 let max_loan_value = dp.loan_value * dp.pool_state.liquidation_close_factor;
 
                 while i < n {
-                    for (cp_res, cp) in collaterals {
+                    for (collateral_position_id, cp) in collaterals {
                         let liquidated_collateral_value = std::cmp::min(
                             cp.collateral_solvency_value,
                             std::cmp::min(max_loan_value, liquidation_value),
@@ -616,8 +683,8 @@ mod _lending_pool_manager {
                         ComponentAuthZone::push(self.lending_market_component_badge.create_proof());
 
                         let mut liquidated_collaterals = extended_cdp.remove_collateral(
-                            *cp_res,
-                            liquidated_collateral_amount,
+                            *collateral_position_id,
+                            liquidated_collateral_amount * cp.get_pool_share_ratio(),
                             false,
                         );
 
@@ -627,7 +694,7 @@ mod _lending_pool_manager {
                         //
 
                         let remainer = extended_cdp.repay(
-                            exchange.swap(liquidated_collaterals, dp.resource_address),
+                            exchange.swap(liquidated_collaterals, dp.pool_resource_address),
                             dp.position_id,
                         );
 
@@ -656,6 +723,8 @@ mod _lending_pool_manager {
                     break;
                 }
             }
+
+            debug!("{:?}", extended_cdp);
 
             self._save_cdp(extended_cdp);
         }
@@ -713,11 +782,19 @@ mod _lending_pool_manager {
         }
 
         // Get a dry CDP NFT data a store it on leager
-        fn _save_cdp(&self, mut extended_cdp: ExtendedCollaterizedDebtPosition) {
-            self.lending_market_component_badge.authorize(|| {
-                borrow_resource_manager!(self.cdp_resource_address)
-                    .update_non_fungible_data(&extended_cdp.clone().cdp_id, extended_cdp.get_cdp());
-            });
+        fn _save_cdp(&mut self, mut extended_cdp: ExtendedCollaterizedDebtPosition) {
+            // let cdp_id = extended_cdp.clone().cdp_id;
+            let cdps = extended_cdp.get_cdps();
+
+            for (cdp_id, cdp_data) in cdps {
+                self.lending_market_component_badge.authorize(|| {
+                    borrow_resource_manager!(self.cdp_resource_address)
+                        .update_non_fungible_data(&cdp_id, cdp_data.clone());
+                });
+
+                // !
+                self.cdp_data_lookup.insert(cdp_id, cdp_data);
+            }
         }
     }
 }

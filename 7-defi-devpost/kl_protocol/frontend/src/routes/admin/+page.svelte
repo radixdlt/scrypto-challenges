@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { dapp_data, price_changes } from '$lib/data';
-	// import type { PoolInfo } from '$lib/models';
 	import {
 		Button,
 		Card,
 		Container,
+		Divider,
 		Grid,
 		Group,
 		Loader,
@@ -29,11 +28,28 @@
 	} from '$lib/transactions/admin';
 	import ComponentCard from './components/ComponentCard.svelte';
 	import LendingPool from './components/LendingPool.svelte';
-	import { lending_pools, resources } from '$lib/state/pool_state';
-	import type { PoolState, ResourceMetadata } from '$lib/state/types';
+
+	import { dapp_state, price_changes, reset_update } from '$lib/state/dapp';
+	import { lending_pools, type PoolState } from '$lib/state/lending_pools';
+	import type { ResourceMetadata } from '$lib/state/resources';
+	import { resources } from '$lib/state/resources';
+	import { get_pool_state } from '$lib/transactions/admin';
 	import type { ResourceAddressString } from '@radixdlt/radix-dapp-toolkit';
 
 	let isBusy = false;
+
+	$: can_instantiate_faucet = $dapp_state.faucetComponentAddress == '';
+	$: can_instantiate_pool_manager =
+		!can_instantiate_faucet && $dapp_state.lendingMarketComponentAddress == '';
+	$: can_create_resources =
+		!can_instantiate_faucet && !can_instantiate_pool_manager && Object.keys($resources).length <= 1;
+	$: can_create_lending_pools =
+		!can_instantiate_faucet &&
+		!can_instantiate_pool_manager &&
+		!can_create_resources &&
+		Object.values($lending_pools).length == 0;
+
+	$: price_has_change = apdate_price_change($price_changes, $lending_pools);
 
 	// $: sorted_lending_pools = $lending_pools.sort((a, b) =>
 	// 	a.pool_resource_address > b.pool_resource_address ? -1 : 1
@@ -41,7 +57,7 @@
 
 	function apdate_price_change(
 		x: { [x: string]: number },
-		y: Record<`resource_${string}`, ResourceMetadata>
+		y: Record<`resource_${string}`, PoolState>
 	): boolean {
 		let _p = true;
 
@@ -51,8 +67,6 @@
 
 		return !_p;
 	}
-
-	$: price_has_change = apdate_price_change($price_changes, $resources);
 
 	async function launch_action(action: (param: any) => Promise<void>, param: any) {
 		try {
@@ -88,7 +102,7 @@
 	}
 
 	async function save_packge_adress(packageAddress: string) {
-		dapp_data.set({ ...get(dapp_data), packageAddress: packageAddress });
+		dapp_state.set({ ...get(dapp_state), packageAddress: packageAddress });
 	}
 
 	// Form
@@ -105,8 +119,6 @@
 	let isModalOpened = false;
 
 	let submit_form = async () => {
-		console.log($address.value);
-
 		await formData.formAction($address.value);
 
 		closeModal();
@@ -133,10 +145,9 @@
 
 <Container>
 	<Card shadow="lg" padding="lg">
-		<!-- <Group direction="column" align="start" grow> -->
-		<Group>
-			<AddressText label="Package address" address={$dapp_data.packageAddress} />
+		<AddressText label="Package address" address={$dapp_state.packageAddress} />
 
+		<Group>
 			<Button
 				variant="subtle"
 				on:click={() =>
@@ -148,6 +159,9 @@
 			>
 				New Package Address</Button
 			>
+
+			<Container fluid />
+			<Button variant="subtle" color="red" on:click={() => reset_update()}>Reset the DApp</Button>
 		</Group>
 	</Card>
 
@@ -156,9 +170,10 @@
 	<Grid align="stretch">
 		<Grid.Col span={6}>
 			<ComponentCard
+				can_instantiate={can_instantiate_faucet}
 				componentName="Faucet Component"
-				creationTxHash={$dapp_data.faucetCreationTxHash}
-				componentAddress={$dapp_data.faucetComponentAddress}
+				creationTxHash={$dapp_state.faucetCreationTxHash}
+				componentAddress={$dapp_state.faucetComponentAddress}
 				launch_instaciate={launch_instaciate_faucet}
 				load_receipt={() =>
 					openForm({
@@ -170,9 +185,10 @@
 		</Grid.Col>
 		<Grid.Col span={6}>
 			<ComponentCard
+				can_instantiate={can_instantiate_pool_manager}
 				componentName="KL Protocol Compoment"
-				creationTxHash={$dapp_data.lendingMarketCreationTxHash}
-				componentAddress={$dapp_data.lendingMarketComponentAddress}
+				creationTxHash={$dapp_state.lendingMarketCreationTxHash}
+				componentAddress={$dapp_state.lendingMarketComponentAddress}
 				launch_instaciate={launch_instantiate_lending_market}
 				load_receipt={() =>
 					openForm({
@@ -191,34 +207,37 @@
 	</Group>
 
 	<Card shadow="lg" padding="lg">
-		<Text>Resources</Text>
-		<Space h="md" />
 		<Group direction="row">
-			<!-- <AddressText truncated address={$persited_data.assetsCreationTxHash} /> -->
+			<Text>Resources</Text>
+			<Space h="md" />
+			<Text color="blue">{Object.keys($resources).length}</Text>
 			<Container fluid />
-			<Button on:click={() => create_resources()}>Create</Button>
-			<!-- <Button
-				on:click={() =>
-					openForm({
-						label: 'Resources creation tx hash',
-						placeholder: 'Resources creation tx hash',
-						formAction: (txhash) => launch_action(load_resource_creation_receipt, txhash)
-					})}
-			>
-				Load tx hash
-			</Button> -->
+
+			<Button on:click={() => create_resources()} disabled={!can_create_resources}>Create</Button>
 		</Group>
 	</Card>
 
 	<Space h="xl" />
 
 	<Card shadow="lg" padding="lg">
-		<Text>Lending pools</Text>
-		<Space h="md" />
 		<Group direction="row">
+			<Text>Lending pools</Text>
+			<Space h="md" />
 			<!-- <AddressText truncated address={$persited_data.poolsCreationTxHash} /> -->
 			<Container fluid />
-			<Button on:click={() => create_lending_pools()}>Create</Button>
+
+			{#if Object.values($lending_pools).length > 0}
+				<Button variant="outline" color="green" on:click={() => get_pool_state()}
+					>Update pool state</Button
+				>
+			{/if}
+			{#if price_has_change}
+				<Button on:click={() => change_prices()}>Commit price changes</Button>
+			{/if}
+
+			<Button on:click={() => create_lending_pools()} disabled={!can_create_lending_pools}
+				>Create</Button
+			>
 			<!-- <Button
 				on:click={() =>
 					openForm({
@@ -230,27 +249,18 @@
 				Load tx hash
 			</Button> -->
 		</Group>
+
+		<Divider />
+
+		{#each Object.values($lending_pools) as item}
+			<LendingPool market={item} />
+			<Space h="xs" />
+		{:else}
+			No pools
+		{/each}
 	</Card>
 
 	<Space h="xl" />
-
-	<Group direction="row" px="xl">
-		<Text>Lending Pools</Text>
-		<Space h={36} />
-		<Container fluid />
-
-		{#if price_has_change}
-			<Button on:click={() => change_prices()}>Commit price changes</Button>
-		{/if}
-	</Group>
-	<Space h="xl" />
-
-	{#each $lending_pools as item}
-		<LendingPool market={item} />
-		<Space h="xs" />
-	{:else}
-		No resource
-	{/each}
 </Container>
 
 <Modal opened={isModalOpened} on:close={closeModal} target={'body'}>

@@ -15,6 +15,7 @@ mod faucet_blueprint {
             let faucet_admin_bage = ResourceBuilder::new_uuid_non_fungible()
                 .metadata("internal_tag", "faucet_admin_bage")
                 .metadata("name", "Faucet Admin badge")
+                .metadata("description", "A Faucet Admin badge needed to mint/burn test resource and update price of the embeded test oracle")
                 .mint_initial_supply([(AuthBadgeData {})]);
 
             let resource_creation_authority_bage = Vault::with_bucket(
@@ -166,7 +167,7 @@ mod faucet_blueprint {
             // Linear interest rate from 5 to 20%
             if interest_type == 1u8 {
                 let min_interest_rate = dec!("0.05");
-                let max_interest_rate = dec!("0.20");
+                let max_interest_rate = dec!("0.50");
 
                 let interest_rate =
                     min_interest_rate + pool_utilization * (max_interest_rate - min_interest_rate);
@@ -177,7 +178,7 @@ mod faucet_blueprint {
             // Stage intereste rate from 7% to 15%
             if interest_type == 2u8 {
                 let min_interest_rate = dec!("0.07");
-                let max_interest_rate = dec!("0.15");
+                let max_interest_rate = dec!("0.21");
 
                 return if pool_utilization < dec!("0.5") {
                     min_interest_rate

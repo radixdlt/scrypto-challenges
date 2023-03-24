@@ -82,3 +82,42 @@ Another feature made available by the LendingPoolManager is liquidation. Liquida
   
 
 There are two types of liquidation: The manual liquidation, that is available to any user and auto_liquidation that is reserved to admin batch liquidation. Both have different mechanics. Manual liquidation targets a specific collateral that the liquidator wants and provides required loan payment to get the liquidation to happen. On the other end, auto_liquidation analyzes the whole CDP and performs direct asset sales to improve the health factor.
+
+nter image description here](https://res.cloudinary.com/daisvxhyu/image/upload/v1679682535/action_flow_fxh6v4.png)
+
+## Testing
+
+KL Protocol is shipped with a fully function App available to try feature like lending and borrowing. Not all feature from the blueprint are implemented like multiple interns rate scheme. and flash loan to swap debit or collateral. For a compete test of all feature, we create some resim tests script written in Javascript using google ZX library. testing script are in the /simulation forder and can be run using the command:
+
+    cd simulation
+    npm i
+    npm start
+
+The user interface is a Sveltkit project using the Radix Developper Toolkit to interact with the Radix Betanet.
+To get started, navigate to the /frontend folder and run 
+
+    cd frontend
+    npm i
+    nmp run dev
+
+This will spin p a dev server and you will get and home page with tree menu option. Cliec the admin menu this will give you the Dap setup page as show bellow:
+
+![Admin menu for setting app KL Protocol](https://res.cloudinary.com/daisvxhyu/image/upload/v1679684371/Radix/ui_setup.png)
+
+Once the setup complete the admin app will look like the picture bellow. the admin screen also make possible to change price of Faucet asset to help simulate variation on loan heal factors.
+
+![Setup completed](https://res.cloudinary.com/daisvxhyu/image/upload/v1679684371/Radix/ui_setup_completed.png)
+
+From there you can go to the Faucet menu to get some test resources:
+
+![Faucet for test resources](https://res.cloudinary.com/daisvxhyu/image/upload/v1679684370/Radix/faucet.png)
+
+Now we can go to the App menu and start playing with the protocol. For the borrowing feature, you will need to mint a CDP NFT :
+
+![CDP NFT Is required for borring](https://res.cloudinary.com/daisvxhyu/image/upload/v1679684370/Radix/borrowing_first_pages.png)
+
+Some screenshot of the DAPP:
+
+![The BORROW page](https://res.cloudinary.com/daisvxhyu/image/upload/v1679684370/Radix/borrowing.png)
+
+![The LENDING page](https://res.cloudinary.com/daisvxhyu/image/upload/v1679684372/Radix/lending.png)

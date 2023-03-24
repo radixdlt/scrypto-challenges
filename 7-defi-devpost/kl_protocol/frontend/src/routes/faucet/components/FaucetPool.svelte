@@ -1,6 +1,7 @@
 <script lang="ts">
 	import AddressText from '$lib/components/AddressText.svelte';
-	import { resources, type PoolState } from '$lib/state/pool_state';
+	import type { PoolState } from '$lib/state/lending_pools';
+	import { resources } from '$lib/state/resources';
 	import { get_resources } from '$lib/transactions/faucet';
 	import { Button, Card, Container, Group, Image, Space, Text } from '@svelteuidev/core';
 

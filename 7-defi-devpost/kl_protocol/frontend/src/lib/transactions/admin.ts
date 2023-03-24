@@ -1,33 +1,24 @@
+
+import { load_faucet_state1 as load_faucet_state, resources } from "$lib/state/resources"
 import type { TransactionCommittedDetailsResponse } from "@radixdlt/babylon-gateway-api-sdk"
 import { ComponentAddress, Decimal, Expression, ManifestBuilder, ResourceAddress, String, type ComponentAddressString, type PackageAddressString, type ResourceAddressString } from "@radixdlt/radix-dapp-toolkit"
 import { get } from "svelte/store"
-import { rdt, stateApi, transactionApi } from "../api/rdt"
-import { default_asset_list, dapp_data, type PoolInfo, price_changes } from "../data"
-import { lending_pools, load_faucet_state, load_manager_pool_state, resources } from "$lib/state/pool_state"
-import type { PoolState } from "$lib/state/types"
+import { rdt, stateApi, transactionApi, update_dapp_state } from "../api/rdt"
+import { default_asset_list, XRD, } from "../../data"
+import { dapp_state, price_changes } from "$lib/state/dapp"
+import { lending_pools } from "$lib/state/lending_pools"
 
-export const XRD = 'resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp'
-
-export async function init_test_data() {
-
-    await instantiate_faucet();
-
-    await instantiate_lending_market()
-
-    await create_resources()
-
-    await create_lending_pools()
-
-}
 
 export async function instantiate_faucet() {
-    let data = get(dapp_data)
+    let data = get(dapp_state)
 
     let txManifest = new ManifestBuilder()
         .callMethod(data.accountAddress as ComponentAddressString, 'create_proof', [
             ResourceAddress(XRD)
         ])
-        .callFunction(data.packageAddress as PackageAddressString, 'Faucet', 'new', [])
+        .callFunction(data.packageAddress as PackageAddressString, 'Faucet', 'new', [
+            // Decimal(TIME_FACTOR)
+        ])
         .callMethod(data.accountAddress as ComponentAddressString, 'deposit_batch', [
             Expression('ENTIRE_WORKTOP')
         ])
@@ -59,21 +50,18 @@ export async function load_faucet_receipt(transactionIntentHash: string) {
     let addresses = (await get_entity_addresses(receipt, ['faucet_admin_bage']))
     faucet_admin_badge = addresses['faucet_admin_bage']
 
-    dapp_data.set({
-        ...get(dapp_data),
+    dapp_state.set({
+        ...get(dapp_state),
         faucetComponentAddress: faucet_comp,
         faucetAdminBadgeAddress: faucet_admin_badge,
         faucetCreationTxHash: transactionIntentHash,
     })
 
-    setTimeout(() => {
-        load_faucet_state()
-        load_manager_pool_state()
-    }, 2000);
+    update_dapp_state()
 }
 
 export async function instantiate_lending_market() {
-    let data = get(dapp_data)
+    let data = get(dapp_state)
 
     let txManifest = new ManifestBuilder()
         .callMethod(data.accountAddress as ComponentAddressString, 'create_proof', [
@@ -113,22 +101,19 @@ export async function load_lending_market_receipt(transactionIntentHash: string)
     let admin_badge = addresses['lendind_market_admin_badge']
     let cdp = addresses['cdp_resource']
 
-    dapp_data.set({
-        ...get(dapp_data),
+    dapp_state.set({
+        ...get(dapp_state),
         lendingMarketComponentAddress: comp,
         lendingMarketAdminBadgeAddress: admin_badge,
         lendingMarketCreationTxHash: transactionIntentHash,
     })
 
-    setTimeout(() => {
-        load_faucet_state()
-        load_manager_pool_state()
-    }, 2000);
+    update_dapp_state()
 }
 
 export async function create_resources() {
 
-    let data = get(dapp_data)
+    let data = get(dapp_state)
 
     let txManifestString = ''
     let txManifest = new ManifestBuilder()
@@ -172,22 +157,22 @@ export async function create_resources() {
 
     if (result.isErr()) throw result.error
 
-    setTimeout(() => {
-        load_faucet_state()
-        load_manager_pool_state()
-    }, 2000);
+
+    await load_faucet_state()
+
+    update_dapp_state()
 
 }
 
 export async function create_lending_pools() {
-    let data = get(dapp_data)
+    let data = get(dapp_state)
 
-    let asset_list: PoolInfo[] = default_asset_list
+    default_asset_list
 
     let txManifest = new ManifestBuilder()
         .createProofFromAccount(data.accountAddress as ComponentAddressString, data.lendingMarketAdminBadgeAddress as ResourceAddressString)
 
-    asset_list.forEach((asset_details) => {
+    default_asset_list.forEach((asset_details) => {
 
         let resource_address = asset_details.resource_address ?? Object.values(get(resources)).find(x => x.symbol === asset_details.symbol)?.address
 
@@ -230,10 +215,7 @@ export async function create_lending_pools() {
     if (result.isErr()) throw result.error
 
 
-    setTimeout(() => {
-        load_faucet_state()
-        load_manager_pool_state()
-    }, 2000);
+    update_dapp_state()
 
 
 }
@@ -244,7 +226,7 @@ export async function create_lending_pools() {
 //
 
 export async function change_prices() {
-    let data = get(dapp_data)
+    let data = get(dapp_state)
 
 
     let asset_list = get(price_changes)
@@ -281,34 +263,47 @@ export async function change_prices() {
 
     if (result.isErr()) throw result.error
 
-    setTimeout(() => {
-        load_faucet_state()
-        load_manager_pool_state()
-    }, 2000);
+
+
+    update_dapp_state()
 
 }
 
-export async function get_pool_state(component_address: string) {
-    let data = get(dapp_data)
+export async function get_pool_state() {
+    let data = get(dapp_state)
+    let pools = get(lending_pools)
+
+
+
 
     let txManifest = new ManifestBuilder()
-        .callMethod(component_address as ComponentAddressString, 'get_pool_state', [])
-        .callMethod(data.accountAddress as ComponentAddressString, 'deposit_batch', [
-            Expression('ENTIRE_WORKTOP')
+
+    txManifest
+        .callMethod(data.accountAddress as ComponentAddressString, 'create_proof', [
+            ResourceAddress(XRD)
         ])
-        .build()
-        .toString()
+    Object.values(pools).forEach((pool) => {
+        txManifest
+            .callMethod(pool.$component_address as ComponentAddressString, 'update_price', [])
+        // .callMethod(pool.$component_address as ComponentAddressString, 'update_all_interest', [])
+
+    })
+
+    let transactionManifest = txManifest.build().toString()
 
     console.log(txManifest)
 
     let result = await rdt.sendTransaction({
-        transactionManifest: txManifest,
+        transactionManifest,
         version: 1
     })
 
     console.log(result)
 
     if (result.isErr()) throw result.error
+
+    update_dapp_state()
+
 }
 
 //

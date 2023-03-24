@@ -2,6 +2,7 @@ use crate::{_comon::*, _lending_pool::*, _lending_pool_manager::*};
 use scrypto::prelude::*;
 use std::cmp::min;
 
+// Reference to a lending pool. will be use for method calls from the Extended CDP
 external_component! {
     LendingPoolComponentTarget {
 
@@ -13,7 +14,7 @@ external_component! {
 
         fn repay(&mut self,  payment: Bucket, interest_type:u8) -> (Bucket, Decimal);
 
-        fn add_collateral(&mut self, assets: Bucket) -> (Decimal, ResourceAddress);
+        fn add_collateral(&mut self, assets: Bucket) -> Decimal;
 
         fn remove_collateral(&mut self, amount: Decimal, get_pool_share: bool) -> Bucket;
 
@@ -28,17 +29,17 @@ external_component! {
     }
 }
 
+// Extends the CollateraPosition with necessery information for the CDP health check and call method of the related lending pool
 #[derive(LegacyDescribe, ScryptoEncode, ScryptoDecode, ScryptoCategorize, Debug, Clone)]
 pub struct ExtendendCollateralPostion {
     pub position_id: u128,
-    pub resource_address: ResourceAddress,
+    pub pool_resource_address: ResourceAddress,
     pub pool_share_resource_address: ResourceAddress,
+    pub pool_component_address: ComponentAddress,
     pub pool_share: Decimal,
 
-    //
+    // As multiple CDP cant mi combinedd in one extended CDP, we need to track the cdp each position billong
     pub cdp_id: NonFungibleLocalId,
-
-    pub pool_component_address: ComponentAddress,
 
     pub pool_state: LendingPoolState,
 
@@ -55,17 +56,17 @@ impl ExtendendCollateralPostion {
     }
 }
 
+// Extends the DebtPosition with necessery information for the CDP health check and call method of the related lending pool
 #[derive(LegacyDescribe, ScryptoEncode, ScryptoDecode, ScryptoCategorize, Debug, Clone)]
 pub struct ExtendedDebtPostion {
     pub position_id: u128,
-    pub resource_address: ResourceAddress,
+    pub pool_resource_address: ResourceAddress,
+    pub pool_component_address: ComponentAddress,
     pub loan_share: Decimal,
     pub interest_type: u8,
 
-    //
+    // As multiple CDP cant mi combinedd in one extended CDP, we need to track the cdp each position billong
     pub cdp_id: NonFungibleLocalId,
-
-    pub pool_component_address: ComponentAddress,
 
     pub pool_state: LendingPoolState,
 
@@ -81,11 +82,14 @@ impl ExtendedDebtPostion {
     }
 }
 
+// Extends the CDP with necessery information for the CDP health check and call method of the related lending pool
+// In addition the Extended CDP can combine mulitiple CDP and perform health check on the batch. this is usefull for delegated CDP
 #[derive(LegacyDescribe, ScryptoEncode, ScryptoDecode, ScryptoCategorize, Debug, Clone)]
 pub struct ExtendedCollaterizedDebtPosition {
+    /// As multiple CDP cant mi combinedd in one extended CDP, we need to track the cdp each position billong to and save all "non-combinable" infos in
+    /// a the header field
+    pub header: HashMap<NonFungibleLocalId, (Option<NonFungibleLocalId>, Vec<NonFungibleLocalId>)>,
     pub cdp_id: NonFungibleLocalId,
-    pub delegator_id: Option<NonFungibleLocalId>,
-    pub delegated_ids: Vec<NonFungibleLocalId>,
 
     pub health_factor: Decimal,
     pub solvency_factor: Decimal,
@@ -99,10 +103,12 @@ pub struct ExtendedCollaterizedDebtPosition {
 
     //
     cdp_resource_address: ResourceAddress,
-    lending_pool_registry: ComponentAddressRegistery,
 }
 
 impl ExtendedCollaterizedDebtPosition {
+    /// This function create an ExtendedCDP based on the provided CDP localId. the function startby analysing the cdp data. if we have a cdp with several
+    /// delegated CDP, We load alson all the delegated CDP. on the other hand if the provided CDP is a delegated CDP, We load the delegator. the presented CDP will
+    /// certainly be load during the delagator loading.
     pub fn create_extended_cdp(
         cdp_id: NonFungibleLocalId,
         cdp_resource_address: ResourceAddress,
@@ -115,13 +121,11 @@ impl ExtendedCollaterizedDebtPosition {
 
         if cdp_data.delegator_id.is_none() {
             extended_cdp = ExtendedCollaterizedDebtPosition {
-                cdp_id: cdp_id.clone(),
+                header: HashMap::new(),
+
                 cdp_resource_address,
-                lending_pool_registry,
 
-                delegator_id: cdp_data.clone().delegator_id,
-                delegated_ids: cdp_data.clone().delegated_ids,
-
+                cdp_id: cdp_id.clone(),
                 health_factor: Decimal::MAX,
                 solvency_factor: Decimal::MAX,
                 total_loan_value: Decimal::ZERO,
@@ -131,10 +135,10 @@ impl ExtendedCollaterizedDebtPosition {
                 collateral_positions: HashMap::new(),
                 debt_positions: HashMap::new(),
             };
-            extended_cdp.hydrate(cdp_id, Some(cdp_data));
+            extended_cdp.extend(cdp_id, Some(cdp_data.clone()));
 
-            for delegated_cdp_id in extended_cdp.clone().delegated_ids.iter() {
-                extended_cdp.hydrate(delegated_cdp_id.clone(), None);
+            for delegated_cdp_id in cdp_data.clone().delegated_ids.iter() {
+                extended_cdp.extend(delegated_cdp_id.clone(), None);
             }
         } else {
             extended_cdp = match cdp_data.delegator_id.clone() {
@@ -146,16 +150,15 @@ impl ExtendedCollaterizedDebtPosition {
                 None => panic!("CDP ID Note found"),
             };
 
-            // Restore parameters of presented CDP NFT
+            // Restore parameters of presented CDP_ID
             extended_cdp.cdp_id = cdp_id;
-            extended_cdp.delegator_id = cdp_data.clone().delegator_id;
-            extended_cdp.delegated_ids = cdp_data.clone().delegated_ids;
         }
 
         extended_cdp
     }
 
-    pub fn hydrate(
+    /// This is where each position is extend and load in the ExtendedCDP. not combined details are stor in the header
+    fn extend(
         &mut self,
         cdp_id: NonFungibleLocalId,
         cdp_data: Option<CollaterizedDebtPositionData>,
@@ -166,6 +169,11 @@ impl ExtendedCollaterizedDebtPosition {
                 borrow_resource_manager!(self.cdp_resource_address).get_non_fungible_data(&cdp_id)
             }
         };
+
+        self.header.insert(
+            cdp_id.clone(),
+            (_cdp_data.delegator_id, _cdp_data.delegated_ids),
+        );
 
         for (_, debpt_position) in _cdp_data.debts.clone() {
             self._new_debt_position(cdp_id.clone(), debpt_position);
@@ -181,24 +189,14 @@ impl ExtendedCollaterizedDebtPosition {
     pub fn chek_health_factor(&self, assert_health_factor: bool) -> bool {
         let debt_state = self.health_factor > Decimal::ONE;
 
-        debug!(
-            "Loan value {}, health_factor {}, solvency_collateral_value {}",
-            self.total_loan_value, self.health_factor, self.solvency_factor
-        );
-
         if assert_health_factor {
-            assert!(debt_state, "Health factor need to be lower than 1");
+            assert!(debt_state, "Health factor need to be higher than 1");
         }
 
         debt_state
     }
 
     pub fn can_be_liquidated(&self) {
-        debug!(
-            "Loan value {}, health_factor {}, solvency_collateral_value {}",
-            self.total_loan_value, self.health_factor, self.solvency_factor
-        );
-
         assert!(
             self.health_factor <= Decimal::ONE && self.solvency_factor >= Decimal::ONE,
             "Can not liquidate this CDP: factor need to be lower than 1"
@@ -208,85 +206,109 @@ impl ExtendedCollaterizedDebtPosition {
     pub fn can_be_auto_liquidated(&self) {
         let debt_state = self.health_factor <= Decimal::ONE || self.solvency_factor <= Decimal::ONE;
 
-        debug!(
-            "Loan value {}, health_factor {}, solvency_collateral_value {}",
-            self.total_loan_value, self.health_factor, self.solvency_factor
-        );
-
         assert!(
             debt_state,
             "Can no liquidate this CDP: Health factor need to be lower than 1"
         );
     }
 
-    pub fn get_cdp(&mut self) -> CollaterizedDebtPositionData {
-        let mut cdp = CollaterizedDebtPositionData {
-            delegator_id: self.delegator_id.clone(),
-            delegated_ids: self.delegated_ids.clone(),
-            collaterals: HashMap::new(),
-            debts: HashMap::new(),
-        };
+    /// Return ALL CDP loaded during the CDP extention with updated data. in most cases, it will contain one CDP but for delegated CDP, all delegated CDP
+    /// Will be returned allong the delagator.
 
-        for item in &self.debt_positions {
-            let (_, dp) = item;
+    pub fn get_cdps(&mut self) -> HashMap<NonFungibleLocalId, CollaterizedDebtPositionData> {
+        let mut cdps: HashMap<NonFungibleLocalId, CollaterizedDebtPositionData> = HashMap::new();
 
-            if dp.cdp_id != self.cdp_id {
-                continue;
-            }
+        for (_, dp) in &self.debt_positions {
+            let cdp_id = dp.cdp_id.clone();
 
-            cdp.debts.insert(
+            let mut _current_cdp = match cdps.remove(&cdp_id) {
+                Some(_c) => _c,
+                None => {
+                    let (delegator_id, delegated_ids) = match self.header.remove(&cdp_id) {
+                        Some(_d) => _d,
+                        None => panic!("CDP Header not found"),
+                    };
+
+                    CollaterizedDebtPositionData {
+                        delegator_id,
+                        delegated_ids,
+                        collaterals: HashMap::new(),
+                        debts: HashMap::new(),
+                    }
+                }
+            };
+
+            _current_cdp.debts.insert(
                 dp.position_id,
                 DebtPostion {
                     position_id: dp.position_id,
-                    resource_address: dp.resource_address,
+                    pool_resource_address: dp.pool_resource_address,
+                    pool_component_address: dp.pool_component_address,
                     loan_share: dp.loan_share,
                     interest_type: dp.interest_type,
                 },
             );
+
+            cdps.insert(cdp_id, _current_cdp);
         }
 
-        for item in &self.collateral_positions {
-            let (res, cp) = item;
+        for (res, cp) in &self.collateral_positions {
+            let cdp_id = cp.cdp_id.clone();
 
-            if cp.cdp_id != self.cdp_id {
-                continue;
-            }
+            let mut _current_cdp = match cdps.remove(&cdp_id) {
+                Some(_c) => _c,
+                None => {
+                    let (delegator_id, delegated_ids) = match self.header.remove(&cdp_id) {
+                        Some(_d) => _d,
+                        None => panic!("CDP Header not found"),
+                    };
 
-            cdp.collaterals.insert(
+                    CollaterizedDebtPositionData {
+                        delegator_id,
+                        delegated_ids,
+                        collaterals: HashMap::new(),
+                        debts: HashMap::new(),
+                    }
+                }
+            };
+
+            _current_cdp.collaterals.insert(
                 *res,
                 CollateralPostion {
                     position_id: cp.position_id,
                     pool_share: cp.pool_share,
-                    resource_address: cp.resource_address,
+                    pool_resource_address: cp.pool_resource_address,
+                    pool_component_address: cp.pool_component_address,
                     pool_share_resource_address: cp.pool_share_resource_address,
                 },
             );
+
+            cdps.insert(cdp_id, _current_cdp);
         }
 
-        cdp
+        cdps
     }
 
-    pub fn new_collateral(&mut self, assets: Bucket, new_position_id: u128) -> Decimal {
-        let (ra, pool_share_ra) = self
-            .lending_pool_registry
-            .get_resource_address(assets.resource_address());
+    /*
 
-        let (pool_share_amount, _) = self
-            ._get_pool(
-                self.lending_pool_registry
-                    .get_component_address(pool_share_ra),
-            )
+        PROXY METHODS TO UNDERLYING LENDING POOL
+    The role of the extended CDP is to performe all user related verification an also all update on the CDP data. once done, it call the methods from the liquidity pool
+    for asset related action and takes input from the result.
+
+         */
+
+    pub fn new_collateral(
+        &mut self,
+        assets: Bucket,
+        mut new_collateral_position: CollateralPostion,
+    ) -> Decimal {
+        let pool_share_amount = self
+            ._get_pool(new_collateral_position.pool_component_address)
             .add_collateral(assets);
 
-        self._new_collateral_position(
-            self.cdp_id.clone(),
-            CollateralPostion {
-                position_id: new_position_id,
-                resource_address: ra,
-                pool_share_resource_address: pool_share_ra,
-                pool_share: pool_share_amount,
-            },
-        );
+        new_collateral_position.pool_share = pool_share_amount;
+
+        self._new_collateral_position(self.cdp_id.clone(), new_collateral_position);
 
         self._update();
 
@@ -296,11 +318,12 @@ impl ExtendedCollaterizedDebtPosition {
     pub fn add_collateral(&mut self, assets: Bucket, position_id: u128) -> Decimal {
         let mut cp = self._remove_cp(position_id);
 
-        let (pool_share_amount, _) = self
+        let pool_share_amount = self
             ._get_pool(cp.pool_component_address)
             .add_collateral(assets);
 
         cp.pool_share += pool_share_amount;
+
         self.collateral_positions.insert(position_id, cp);
 
         self._update();
@@ -311,48 +334,39 @@ impl ExtendedCollaterizedDebtPosition {
     pub fn remove_collateral(
         &mut self,
         position_id: u128,
-        pool_shares_amount: Decimal,
+        pool_share_amount: Decimal,
         get_pool_share: bool,
     ) -> Bucket {
         let mut cp = self._remove_cp(position_id);
 
-        cp.pool_share -= pool_shares_amount;
+        let max_pool_share_amount = min(pool_share_amount, cp.pool_share);
 
-        let lp_tokens = self
+        let pool_shares = self
             ._get_pool(cp.pool_component_address)
-            .remove_collateral(pool_shares_amount, get_pool_share);
+            .remove_collateral(max_pool_share_amount, get_pool_share);
+
+        cp.pool_share -= max_pool_share_amount;
 
         self.collateral_positions.insert(position_id, cp);
 
         self._update();
 
-        lp_tokens
+        pool_shares
     }
 
     pub fn borrow(
         &mut self,
-        resource_address: ResourceAddress,
         interest_type: u8,
         amount: Decimal,
-        new_position_id: u128,
+        mut new_debt_position: DebtPostion,
     ) -> Bucket {
-        let (_, pool_share_ra) = self
-            .lending_pool_registry
-            .get_resource_address(resource_address);
-
         let (borrowed_assets, loan_share) = self
-            ._get_pool(self._get_pool_address(pool_share_ra))
+            ._get_pool(new_debt_position.pool_component_address)
             .borrow(amount, interest_type);
 
-        self._new_debt_position(
-            self.cdp_id.clone(),
-            DebtPostion {
-                position_id: new_position_id,
-                resource_address,
-                loan_share,
-                interest_type,
-            },
-        );
+        new_debt_position.loan_share = loan_share;
+
+        self._new_debt_position(self.cdp_id.clone(), new_debt_position);
 
         self._update();
 
@@ -362,12 +376,8 @@ impl ExtendedCollaterizedDebtPosition {
     pub fn borrow_more(&mut self, amount: Decimal, position_id: u128) -> Bucket {
         let mut debt = self._remove_dp(position_id);
 
-        let (_, pool_share_ra) = self
-            .lending_pool_registry
-            .get_resource_address(debt.resource_address);
-
         let (borrowed_assets, loan_share) = self
-            ._get_pool(self._get_pool_address(pool_share_ra))
+            ._get_pool(debt.pool_component_address)
             .borrow(amount, debt.interest_type);
 
         debt.loan_share += loan_share;
@@ -429,13 +439,13 @@ impl ExtendedCollaterizedDebtPosition {
         cdp_id: NonFungibleLocalId,
         collateral_position: CollateralPostion,
     ) -> &ExtendendCollateralPostion {
-        let pool_component_address =
-            self._get_pool_address(collateral_position.pool_share_resource_address);
-        let pool_state = self._get_pool(pool_component_address).get_pool_state();
+        let pool_state = self
+            ._get_pool(collateral_position.pool_component_address)
+            .get_pool_state();
 
         let cp = ExtendendCollateralPostion {
             position_id: collateral_position.position_id,
-            resource_address: collateral_position.resource_address,
+            pool_resource_address: collateral_position.pool_resource_address,
             pool_share_resource_address: collateral_position.pool_share_resource_address,
             pool_share: collateral_position.pool_share,
 
@@ -445,8 +455,7 @@ impl ExtendedCollaterizedDebtPosition {
             collateral_amount: Decimal::ZERO,
             collateral_solvency_value: Decimal::ZERO,
             collateral_healthy_value: Decimal::ZERO,
-            pool_component_address: self
-                ._get_pool_address(collateral_position.pool_share_resource_address),
+            pool_component_address: collateral_position.pool_component_address,
         };
 
         self.collateral_positions
@@ -466,8 +475,7 @@ impl ExtendedCollaterizedDebtPosition {
         cdp_id: NonFungibleLocalId,
         debt_position: DebtPostion,
     ) -> &ExtendedDebtPostion {
-        let pool_component_address = self._get_pool_address(debt_position.resource_address);
-        let mut pool_component = self._get_pool(pool_component_address);
+        let mut pool_component = self._get_pool(debt_position.pool_component_address);
 
         pool_component.update_interest(debt_position.interest_type);
 
@@ -475,19 +483,17 @@ impl ExtendedCollaterizedDebtPosition {
 
         let dp = ExtendedDebtPostion {
             cdp_id,
-            resource_address: debt_position.resource_address,
+            pool_resource_address: debt_position.pool_resource_address,
             loan_share: debt_position.loan_share,
             interest_type: debt_position.interest_type,
             position_id: debt_position.position_id,
 
             //
-            pool_component_address: self._get_pool_address(debt_position.resource_address),
+            pool_component_address: debt_position.pool_component_address,
             pool_state,
             loan_amount: Decimal::ZERO,
             loan_value: Decimal::ZERO,
         };
-
-        debug!("position_id: {}", debt_position.position_id);
 
         self.debt_positions.insert(debt_position.position_id, dp);
 
@@ -564,10 +570,5 @@ impl ExtendedCollaterizedDebtPosition {
 
     fn _get_pool(&self, component_address: ComponentAddress) -> LendingPoolComponentTarget {
         LendingPoolComponentTarget::at(component_address)
-    }
-
-    fn _get_pool_address(&self, resource_address: ResourceAddress) -> ComponentAddress {
-        self.lending_pool_registry
-            .get_component_address(resource_address)
     }
 }

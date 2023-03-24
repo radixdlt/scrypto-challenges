@@ -1,5 +1,5 @@
 use scrypto::prelude::*;
-use std::cmp::max;
+use std::cmp::*;
 
 #[derive(LegacyDescribe, ScryptoEncode, ScryptoDecode, ScryptoCategorize, Debug, Copy, Clone)]
 pub struct InterestTypeState {
@@ -86,9 +86,12 @@ mod lending_pool {
         liquidation_spread: Decimal,
 
         liquidation_close_factor: Decimal,
-        // last_available_liquidity: Decimal,
 
-        // last_collateral_amount: Decimal,
+        last_available_liquidity: Decimal,
+
+        last_pool_share_supply: Decimal,
+
+        last_collateral_amount: Decimal,
     }
 
     impl LendingPool {
@@ -140,9 +143,10 @@ mod lending_pool {
             // Define a "transient" resource which can never be deposited once created, only burned
             let flashloan_term_resource_address = ResourceBuilder::new_uuid_non_fungible()
                 .metadata("internal_tag", format!("{}_flashloan_term", internal_tag))
+                .metadata("name", "KLP Flashoan terme")
                 .metadata(
-                    "name",
-                    "Promise token for BasicFlashLoan - must be returned to be burned!",
+                    "description",
+                    "Promise NFT for KL Protocol Flashloans - must be returned to be burned!",
                 )
                 .mintable(
                     rule!(require(pool_component_badge.resource_address())),
@@ -212,8 +216,9 @@ mod lending_pool {
                 oracle_address,
                 last_price: Decimal::zero(),
                 last_price_update: 0,
-                // last_available_liquidity: Decimal::zero(),
-                // last_collateral_amount: Decimal::zero(),
+                last_available_liquidity: Decimal::zero(),
+                last_collateral_amount: Decimal::zero(),
+                last_pool_share_supply: Decimal::zero(),
             }
             .instantiate();
 
@@ -231,6 +236,8 @@ mod lending_pool {
                 .method("get_pool_share_ratio", AccessRule::AllowAll, LOCKED)
                 .method("get_loan_share_ratio", AccessRule::AllowAll, LOCKED)
                 .method("get_pool_state", AccessRule::AllowAll, LOCKED)
+                .method("update_price", AccessRule::AllowAll, LOCKED)
+                .method("update_all_interest", AccessRule::AllowAll, LOCKED)
                 // All methods are lock by default
                 .default(admin_rule.clone(), LOCKED);
 
@@ -255,36 +262,46 @@ mod lending_pool {
 
             let tokens_amount = assets.amount();
 
-            let supply_to_mint = (tokens_amount) * self.get_pool_share_ratio();
+            let supply_to_mint = tokens_amount * self.get_pool_share_ratio();
 
             self.liquidity.put(assets);
 
-            let bucket = self.pool_component_badge.authorize(|| {
+            let pool_shares = self.pool_component_badge.authorize(|| {
                 let lp_resource_manager =
                     borrow_resource_manager!(self.pool_share_resource_address);
-                return lp_resource_manager.mint(supply_to_mint);
+
+                let pool_shares = lp_resource_manager.mint(supply_to_mint);
+
+                pool_shares
             });
 
-            bucket
+            //
+            self._update_state();
+
+            pool_shares
         }
 
         pub fn remove_liquidity(&mut self, pool_shares: Bucket) -> Bucket {
             self.update_all_interest();
 
-            // We need to add total amount of loan for an accurate calulation of liquidity provided by lenders
-            let pool_amount = (self.liquidity.amount()) + self._total_loan_amount();
+            // We need to add total amount of loan for an accurate calulation of liquidity provided and earned by lenders.
+            // Total Loan represent what hadbeen borrow + accrued interest
+            let pool_amount = self.liquidity.amount() + self._total_loan_amount();
 
-            let to_remove = std::cmp::min(
-                (pool_shares.amount()) / self.get_pool_share_ratio(),
+            let to_remove = min(
+                pool_shares.amount() / self.get_pool_share_ratio(),
                 pool_amount,
             );
-            let removed = self.liquidity.take(to_remove);
+            let removed_assets = self.liquidity.take(to_remove);
 
             self.pool_component_badge.authorize(|| {
                 pool_shares.burn();
             });
 
-            removed
+            //
+            self._update_state();
+
+            removed_assets
         }
 
         pub fn take_flash_loan(&mut self, loan_amount: Decimal) -> (Bucket, Bucket) {
@@ -334,11 +351,11 @@ mod lending_pool {
 
         INFORMATION INQUERY
 
-        Follwing methods ars also publicly available. the expose to over component pool_share_ratio, the loan_share_ratio and other usefull state information
+        Following methods ars also publicly available. the expose to over component pool_share_ratio, the loan_share_ratio and other usefull state information
 
         */
 
-        // Get the most recent pool_share_ration
+        // Get the most recent pool_share_ratio
         pub fn get_pool_share_ratio(&self) -> Decimal {
             let pool_amount = self.liquidity.amount() + self._total_loan_amount();
 
@@ -350,7 +367,7 @@ mod lending_pool {
             }
         }
 
-        // Get the most recent loan_share_ration  for a specific
+        // Get the most recent loan_share_ratio  for a specific
         pub fn get_loan_share_ratio(&self, interest_type: u8) -> Decimal {
             let interest_type_state = self._get_interest_type_state(interest_type);
 
@@ -363,7 +380,7 @@ mod lending_pool {
 
         // Get the pool state including
         pub fn get_pool_state(&mut self) -> LendingPoolState {
-            self._get_asset_price();
+            self.update_price();
 
             let state = LendingPoolState {
                 liquidation_threshold: self.liquidation_threshold,
@@ -386,7 +403,7 @@ mod lending_pool {
 
         // Handle request to increase polled  collateral.
         // The methode expect pool_share but if supply tokens are pool main resources, it call add_liquidity to get pool_share then provision pool_shares as collateral
-        pub fn add_collateral(&mut self, assets: Bucket) -> (Decimal, ResourceAddress) {
+        pub fn add_collateral(&mut self, assets: Bucket) -> Decimal {
             let pool_shares: Bucket;
             if assets.resource_address() == self.pool_share_resource_address {
                 pool_shares = assets;
@@ -398,61 +415,89 @@ mod lending_pool {
 
             self.collaterals.put(pool_shares);
 
-            (pool_share_amount, self.pool_share_resource_address)
+            //
+            self._update_state();
+
+            pool_share_amount
         }
 
         // Handle request to decrease polled collateral.
         // if get_pool_share is set to true, it return pool_share otherwise it will also call remove_liquidity
-        pub fn remove_collateral(&mut self, amount: Decimal, get_pool_share: bool) -> Bucket {
-            let available_collateral = self.collaterals.amount();
+        pub fn remove_collateral(
+            &mut self,
+            pool_share_amount: Decimal,
+            get_pool_share: bool,
+        ) -> Bucket {
+            // let mut pool_shares_amount = if get_pool_share {
+            //     amount
+            // } else {
+            //     amount * self.get_pool_share_ratio()
+            // };
 
-            let pool_shares_amount = if get_pool_share {
-                amount
-            } else {
-                amount * self.get_pool_share_ratio()
-            };
+            let max_pool_share_amount = min(self.collaterals.amount(), pool_share_amount);
 
-            let mut resturned_assts = self
-                .collaterals
-                .take(std::cmp::min(available_collateral, pool_shares_amount));
+            let mut removed_assets = self.collaterals.take(max_pool_share_amount);
 
             if !get_pool_share {
-                resturned_assts = self.remove_liquidity(resturned_assts);
+                removed_assets = self.remove_liquidity(removed_assets);
             }
 
-            resturned_assts
+            //
+            self._update_state();
+
+            removed_assets
         }
 
         // Handle request to increse borowed amount.
         // it remove request liquidity and updated the pool loan state per interest type base
         pub fn borrow(&mut self, amount: Decimal, interest_type: u8) -> (Bucket, Decimal) {
-            let loan_share = self._update_loan_share(interest_type, amount);
+            // as collateral are pool shares, we should  be able to be withdraw at any time
+            // so we deduct they value from the liquidity pool
+            let borrow_limit = min(
+                amount,
+                self.liquidity.amount() - self.collaterals.amount() / self.get_pool_share_ratio(),
+            );
 
-            (self.liquidity.take(amount), loan_share)
+            let (actual_amount, loan_share) = self._update_loan_share(interest_type, borrow_limit);
+
+            let loan = self.liquidity.take(actual_amount);
+
+            //
+            self._update_state();
+
+            (loan, loan_share)
         }
 
         // Handle request to decrese borowed amount.
         // it add back liquidity comming from repayments and updated the pool loan state per interest type base
         pub fn repay(&mut self, mut payment: Bucket, interest_type: u8) -> (Bucket, Decimal) {
-            let interest_type_state = self._get_interest_type_state(interest_type);
+            let (actual_amount, loan_share) =
+                self._update_loan_share(interest_type, -payment.amount());
 
-            // Making sur that supplied assets are not more that what had been borrowed
+            // returned actual_amount and loan_shares should be negative or 0
+            self.liquidity.put(payment.take(-actual_amount));
 
-            let payment_loan_share = std::cmp::min(
-                payment.amount() * self.get_loan_share_ratio(interest_type),
-                interest_type_state.total_loan_share,
-            );
+            //
+            self._update_state();
 
-            let payment_amount = std::cmp::min(
-                payment.amount(),
-                payment_loan_share / self.get_loan_share_ratio(interest_type),
-            );
+            // Send back positive loan_share to evoid confusion at higher level in the stack
+            (payment, loan_share.abs())
+        }
 
-            self._update_loan_share(interest_type, -payment_loan_share);
-
-            self.liquidity.put(payment.take(payment_amount));
-
-            (payment, payment_loan_share)
+        // Each interest_type is track by it's own set of total_loan and loan_shares.
+        // so changing the interest rate is achive by repaying one loan and borrowing the equivelent amount with the new interest rate.
+        // i practice we only update loan and loan shares of both interest rate
+        pub fn move_loan_share(
+            &mut self,
+            from_interest_type: u8,
+            interest_type_dest: u8,
+            amount: Decimal,
+        ) {
+            if from_interest_type == interest_type_dest {
+                return;
+            }
+            self._update_loan_share(from_interest_type, -amount);
+            self._update_loan_share(interest_type_dest, amount);
         }
 
         /*
@@ -479,32 +524,28 @@ mod lending_pool {
             self.insurance_reserve.take(amount)
         }
 
-        pub fn move_loan_share(
-            &mut self,
-            from_interest_type: u8,
-            interest_type_dest: u8,
-            amount: Decimal,
-        ) {
-            if from_interest_type == interest_type_dest {
-                return;
+        pub fn update_price(&mut self) -> Decimal {
+            let before = self.last_price_update;
+            let now: i64 = Clock::current_time(TimePrecision::Minute).seconds_since_unix_epoch;
+
+            let period_in_minute = (now - before) / 60;
+
+            // debonce interest update up to a minute
+            if period_in_minute == 0 && before != 0 {
+                return self.last_price;
             }
-            self._update_loan_share(from_interest_type, -amount);
-            self._update_loan_share(interest_type_dest, amount);
-        }
 
-        fn _update_loan_share(&mut self, interest_type: u8, loan_share: Decimal) -> Decimal {
-            let mut interest_type_state = self._get_interest_type_state(interest_type);
+            let price = match PriceOracleComponentTarget::at(self.oracle_address)
+                .get_price(self.pool_resource_address)
+            {
+                Some(p) => p,
+                None => panic!("Missing price"),
+            };
 
-            let amount = loan_share / self.get_loan_share_ratio(interest_type);
+            self.last_price = price;
+            self.last_price_update = now;
 
-            interest_type_state.total_loan = max(dec!(0), interest_type_state.total_loan + amount);
-            interest_type_state.total_loan_share =
-                max(dec!(0), interest_type_state.total_loan_share + loan_share);
-
-            self.loan_state_lookup
-                .insert(interest_type, interest_type_state);
-
-            loan_share
+            price
         }
 
         pub fn update_interest(&mut self, interest_type: u8) {
@@ -529,6 +570,7 @@ mod lending_pool {
             interest_type_state.interest_rate = interest_rate;
             interest_type_state.interest_updated_at = now;
 
+            // this is to speedup the time for test perpose: 1 year -> 1 week
             interest_type_state.total_loan = interest_type_state.total_loan
                 * (dec!(1) + (interest_rate / 525600)).powi(period_in_minute);
 
@@ -543,6 +585,30 @@ mod lending_pool {
         }
 
         /* UTILITY METHODS */
+
+        fn _update_loan_share(&mut self, interest_type: u8, amount: Decimal) -> (Decimal, Decimal) {
+            let mut interest_type_state = self._get_interest_type_state(interest_type);
+
+            // Making sur that supplied assets are not more that what had been borrowed
+
+            let actual_amount = if (interest_type_state.total_loan + amount) < dec!(0) {
+                -interest_type_state.total_loan
+            } else {
+                amount
+            };
+
+            let loan_share = actual_amount * self.get_loan_share_ratio(interest_type);
+
+            interest_type_state.total_loan = interest_type_state.total_loan + actual_amount;
+
+            interest_type_state.total_loan_share =
+                interest_type_state.total_loan_share + loan_share;
+
+            self.loan_state_lookup
+                .insert(interest_type, interest_type_state);
+
+            (actual_amount, loan_share)
+        }
 
         fn _get_interest_type_state(&self, interest_type: u8) -> InterestTypeState {
             let interest_type_state = match self.loan_state_lookup.clone().remove(&interest_type) {
@@ -563,28 +629,11 @@ mod lending_pool {
             total_loan
         }
 
-        fn _get_asset_price(&mut self) -> Decimal {
-            let before = self.last_price_update;
-            let now: i64 = Clock::current_time(TimePrecision::Minute).seconds_since_unix_epoch;
-
-            let period_in_minute = (now - before) / 60;
-
-            // debonce interest update up to a minute
-            if period_in_minute == 0 && before != 0 {
-                return self.last_price;
-            }
-
-            let price = match PriceOracleComponentTarget::at(self.oracle_address)
-                .get_price(self.pool_resource_address)
-            {
-                Some(p) => p,
-                None => panic!("Missing price"),
-            };
-
-            self.last_price = price;
-            self.last_price_update = now;
-
-            price
+        fn _update_state(&mut self) {
+            self.last_available_liquidity = self.liquidity.amount();
+            self.last_collateral_amount = self.collaterals.amount();
+            self.last_pool_share_supply =
+                borrow_resource_manager!(self.pool_share_resource_address).total_supply();
         }
     }
 }

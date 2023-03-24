@@ -1,4 +1,6 @@
-import { load_faucet_state, load_manager_pool_state } from '$lib/state/pool_state';
+import { loan_user_resources } from '$lib/state/account';
+import { dapp_state } from '$lib/state/dapp';
+import { load_manager_pool_state, } from '$lib/state/lending_pool_manager';
 import {
     StateApi,
     StatusApi,
@@ -7,7 +9,6 @@ import {
 } from '@radixdlt/babylon-gateway-api-sdk';
 import { RadixDappToolkit } from "@radixdlt/radix-dapp-toolkit";
 import { get } from 'svelte/store';
-import { dapp_data } from '../data';
 
 
 export const dAppId = 'account_tdx_b_1pqwzpeqv8mph3u80g5zch24gtpky3wy3demlg6ta6q4qhkdpd8'
@@ -29,14 +30,17 @@ export const rdt = RadixDappToolkit(
         }).map(({ data: { accounts } }) => {
             console.log(accounts)
             if (accounts == undefined) return
-            dapp_data.set({ ...get(dapp_data), accountAddress: (accounts.length >= 1 ? accounts[0].address : '') })
+            dapp_state.set({ ...get(dapp_state), accountAddress: (accounts.length >= 1 ? accounts[0].address : '') })
 
+            update_dapp_state(0)
         });
+
+
     },
     {
         networkId: 11,
         onDisconnect: () => {
-            dapp_data.set({ ...get(dapp_data), accountAddress: '' })
+            dapp_state.set({ ...get(dapp_state), accountAddress: '' })
         },
         onInit: async (data) => {
 
@@ -45,18 +49,20 @@ export const rdt = RadixDappToolkit(
             let accounts = data.accounts
 
             if (accounts == undefined || accounts.length === 0) {
-                dapp_data.set({ ...get(dapp_data), accountAddress: '' })
+                dapp_state.set({ ...get(dapp_state), accountAddress: '' })
             } else {
-                dapp_data.set({ ...get(dapp_data), accountAddress: (accounts.length >= 1 ? accounts[0].address : '') })
-
-                let state = await stateApi.entityResources({ entityResourcesRequest: { address: accounts[0].address } })
-
-                console.log(state)
-
-                await load_faucet_state()
-                await load_manager_pool_state()
+                dapp_state.set({ ...get(dapp_state), accountAddress: (accounts.length >= 1 ? accounts[0].address : '') })
             }
 
+            update_dapp_state(0)
         }
     }
 );
+
+
+export function update_dapp_state(waiting_time = 1000) {
+    setTimeout(async () => {
+        await load_manager_pool_state()
+        await loan_user_resources()
+    }, waiting_time);
+}

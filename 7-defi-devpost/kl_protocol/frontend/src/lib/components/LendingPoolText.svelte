@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Card, Container, Group, Space, Text, Image } from '@svelteuidev/core';
-	import type { PoolInfo } from '../models';
 
 	export let name: string;
 	export let value: number | undefined;

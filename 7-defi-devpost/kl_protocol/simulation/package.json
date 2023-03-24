@@ -12,9 +12,8 @@
     "zx": "^7.2.1"
   },
   "scripts": {
-    "start": "npm run faucet && npm run lend_borrow",
+    "start": "npm run faucet && npm run cdp",
     "faucet": "ts-node --esm ./run_faucet.ts",
-    "cdp": "ts-node --esm ./run_cdp.ts",
-    "lend_borrow": "ts-node --esm ./run_lend_borrow.ts"
+    "cdp": "ts-node --esm ./run_cdp.ts"
   }
 }

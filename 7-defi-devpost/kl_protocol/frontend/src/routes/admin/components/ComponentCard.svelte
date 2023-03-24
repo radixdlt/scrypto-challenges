@@ -3,6 +3,7 @@
 	import { truncate } from '$lib/utils';
 	import { Button, Card, Container, Divider, Group, Space, Text } from '@svelteuidev/core';
 
+	export let can_instantiate: boolean;
 	export let componentName: string;
 	export let creationTxHash: string;
 	export let componentAddress: string;
@@ -26,7 +27,7 @@
 	<Divider />
 	<Group direction="row">
 		<Container fluid />
-		<Button on:click={launch_instaciate}>Instatiate</Button>
+		<Button on:click={launch_instaciate} disabled={!can_instantiate}>Instatiate</Button>
 		<Button on:click={load_receipt}>Load tx hash</Button>
 	</Group>
 </Card>

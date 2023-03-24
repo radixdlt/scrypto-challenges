@@ -37,3 +37,14 @@ export function clipboard(node: any, { trigger = "click", text = "" } = {}) {
     },
   };
 }
+
+export function format_number(input: number, notation: "standard" | "scientific" | "engineering" | "compact" | undefined = undefined, default_value = '') {
+
+  if (input === undefined) return default_value
+
+  return input.toLocaleString('en', {
+    notation: notation,
+    compactDisplay: 'short'
+  })
+
+}

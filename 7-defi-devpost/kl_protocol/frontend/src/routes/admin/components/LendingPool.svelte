@@ -12,12 +12,12 @@
 	} from '@svelteuidev/core';
 
 	import AddressText from '$lib/components/AddressText.svelte';
-	import { resources } from '$lib/state/pool_state';
-	import type { PoolState } from '$lib/state/types';
 	import { get_pool_state } from '$lib/transactions/admin';
 	import { get } from 'svelte/store';
-	import { price_changes } from '$lib/data';
 	import { Reload } from 'radix-icons-svelte';
+	import type { PoolState } from '$lib/state/lending_pools';
+	import { price_changes } from '$lib/state/dapp';
+	import { resources } from '$lib/state/resources';
 
 	let timer: number | undefined;
 	const debounce = (v: any) => {
@@ -45,9 +45,7 @@
 <Card shadow="sm" padding="lg">
 	{#if resource_metadata !== undefined}
 		<Group>
-			<!-- ASSET -->
 			<Group>
-				<!-- <Avatar src={market.icon} height="32" width="32" alt={market.asset_symbol} /> -->
 				{#if resource_metadata.icon !== ''}
 					<Image width={32} height={32} fit="contain" src={resource_metadata.icon} />
 				{/if}
@@ -63,25 +61,26 @@
 				bind:value={new_price}
 				precision={2}
 				step={0.5}
-				error={resource_metadata.price === new_price
-					? ''
-					: 'On-chain price: ' + resource_metadata.price}
-			/>
-
-			<ActionIcon on:click={() => (new_price = resource_metadata?.price)}><Reload /></ActionIcon>
+				error={market.price === new_price ? '' : 'On-chain price: ' + market.price}
+			/><ActionIcon on:click={() => (new_price = market?.price)}><Reload /></ActionIcon>
 		</Group>
 
 		<Divider />
 
 		<Group direction="row">
 			<AddressText truncated address={market.$component_address ?? ''} />
+
 			<Container fluid />
 
-			<Button
-				variant="outline"
-				color="green"
-				on:click={() => get_pool_state(market.$component_address ?? '')}>Get pool state</Button
-			>
+			<AddressText label="resource: " truncated address={market.pool_resource_address ?? ''} />
+
+			<Container fluid />
+
+			<AddressText
+				label="pool share: "
+				truncated
+				address={market.pool_share_resource_address ?? ''}
+			/>
 		</Group>
 	{/if}
 </Card>

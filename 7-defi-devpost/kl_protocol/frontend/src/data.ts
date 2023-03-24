@@ -1,5 +1,11 @@
-import { persisted } from "svelte-local-storage-store";
-import { XRD } from "./transactions/admin";
+
+
+
+// export const TIME_FACTOR = 32
+export const INTEREST_RATE_TYPE = 1
+export const XRD = 'resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp'
+export const DAPP_ID = ''
+export const PACKAGE_ADDRESS = ''
 
 export type PoolInfo = {
     //
@@ -18,36 +24,18 @@ export type PoolInfo = {
     liquidation_closing_factor: number;
 }
 
-let _price_chages: Record<string, number> = {}
-
-export const price_changes = persisted('price_changes', _price_chages)
-
-export const dapp_data = persisted('persited_data', {
-    accountAddress: '',
-    dAppId: 'account_tdx_b_1pqwzpeqv8mph3u80g5zch24gtpky3wy3demlg6ta6q4qhkdpd8',
-    packageAddress: 'package_tdx_b_1qy8fdtykc2m0kuprfqy6cxk88r938rr4ty8zyxlcdfxq9srfny',
-
-    faucetComponentAddress: '',
-    faucetAdminBadgeAddress: '',
-    faucetCreationTxHash: '',
-
-    lendingMarketCreationTxHash: '',
-    lendingMarketComponentAddress: '',
-    lendingMarketAdminBadgeAddress: '',
-})
-
 export const default_asset_list: PoolInfo[] = [
-    {
-        resource_address: XRD,
-        symbol: 'XRD',
-        name: 'Radix',
-        icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11948.png',
-        initial_price: 250,
-        liquidation_threshold: 0.7,
-        liquidation_closing_factor: 0.5,
-        liquidation_spread: 0.05,
-        flashloan_fee_rate: 0.05
-    },
+    // {
+    //     resource_address: XRD,
+    //     symbol: 'XRD',
+    //     name: 'Radix',
+    //     icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11948.png',
+    //     initial_price: 250,
+    //     liquidation_threshold: 0.7,
+    //     liquidation_closing_factor: 0.5,
+    //     liquidation_spread: 0.05,
+    //     flashloan_fee_rate: 0.05
+    // },
     {
         symbol: 'BTC',
         name: 'Bitcoin',
