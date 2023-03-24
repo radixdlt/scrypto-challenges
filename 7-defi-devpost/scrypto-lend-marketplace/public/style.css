@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+button {
+    padding: 1rem;
+    background-color: #052CC0;
+    border-radius: 33rem;
+    border: none;
+    font-size: x-large;
+    color: #FF43CA;
+    min-width: 33%;
+}
+
+input {
+    padding: 1.33rem;
+    border-radius: .33rem;
+    width: 66%;
+    margin-bottom: 1.33rem;
+    display: block;
+    border: none;
+}
+
+.container {
+    background-color: #F4F5F9;
+    color: #414141;
+    max-width: 100%;
+    padding: 1rem;
+    overflow-x: scroll;
+    border-radius: .33rem;
+}
