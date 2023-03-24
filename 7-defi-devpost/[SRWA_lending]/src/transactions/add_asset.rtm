@@ -1,0 +1,33 @@
+# Locking the fee 
+#CALL_METHOD ComponentAddress("<ACCOUNT_ADDRESS>") "lock_fee" Decimal("10");
+
+# Withdrawing the admin badge from the admin account.
+CALL_METHOD
+    ComponentAddress("<ACCOUNT_ADDRESS>")
+    "create_proof"
+    ResourceAddress("<ADMIN_BADGE>");
+
+# Creating a Proof from the badge in the auth zone.
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("<ADMIN_BADGE>")
+    Proof("admin_badge");
+
+# Calling the `add_new_asset` function to add a new asset to the liquidity pool
+# Also adding the asset parameters
+CALL_METHOD
+    ComponentAddress("<COMPONENT_ADDRESS>")
+    "add_new_asset"
+    # Resource address
+    ResourceAddress("<ASSET_RESOURCE_ADDRESS>")
+    # LTV Ratio - must be between 0 and 1
+    Decimal("0.80")
+    # Multiplier - must be greater than 0
+    Decimal("0.10")
+    # Base multiplier - must be greater than Multiplier
+    Decimal("3")
+    # Base - must be greater or equal to 0
+    Decimal("2")
+    # Reserve factor - must be between 0 and 1 (0 for now)
+    Decimal("0")
+    # KINK - must be between 0 and 100
+    Decimal("90");

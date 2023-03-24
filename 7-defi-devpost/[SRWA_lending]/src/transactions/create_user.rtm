@@ -1,0 +1,11 @@
+# Locking the fee 
+CALL_METHOD ComponentAddress("<ACCOUNT_ADDRESS>") "lock_fee" Decimal("10");
+
+# Calling the create_new_user function to add a new user
+CALL_METHOD
+    ComponentAddress("<COMPONENT_ADDRESS>")
+    "create_new_user";
+
+# Taking the user badge and putting it in the user account
+CALL_METHOD ComponentAddress("<ACCOUNT_ADDRESS>") "deposit_batch" Expression("ENTIRE_WORKTOP");
+    

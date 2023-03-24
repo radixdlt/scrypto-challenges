@@ -1,0 +1,30 @@
+# Withdrawing the user badge from the user account.
+CALL_METHOD
+    ComponentAddress("<ACCOUNT_ADDRESS>")
+    "create_proof"
+    ResourceAddress("<USER_BADGE>");
+
+# Creating a Proof from the badge in the auth zone.
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("<USER_BADGE>")
+    Proof("user_badge");
+
+CALL_METHOD 
+    ComponentAddress("<ACCOUNT_ADDRESS>") 
+    "withdraw_by_amount" 
+    Decimal("10000000") 
+    ResourceAddress("<SR_TOKEN_RESOURCE_ADDRESS>");
+TAKE_FROM_WORKTOP 
+    ResourceAddress("<SR_TOKEN_RESOURCE_ADDRESS>") 
+    Bucket("sr_token");
+
+# Calling the withdraw function, passing the proof and bucket with the amount that user wants to witdraw
+CALL_METHOD 
+    ComponentAddress("component_sim1qfj658xwxjps2vuw744nq586z8asqjzdvp5j4m653x4sum5t78") 
+    "withdraw" 
+    ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety")
+    Bucket("sr_token")
+    Proof("user_badge");
+
+# Taking the withdrawn amount and putting it in the users account
+CALL_METHOD ComponentAddress("account_sim1qdsl5mj3rpxkgra3y2jw2dgrz8zm6ugg6tjnrx8gduvsallnyz") "deposit_batch" Expression("ENTIRE_WORKTOP");
