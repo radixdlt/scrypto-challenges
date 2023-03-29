@@ -9,7 +9,10 @@
 #
 # $proposal_duration: Duration of proposals in epochs, e.g. 10
 #
-# $quorum: Quorum to use, e.g. Any
+# $quorum: Quorum to use, e.g. 
+#          "Percent",Decimal("35")
+#          "Fixed",Decimal("10000")
+#          "Any"
 #
 # $vote_token: Token to use for voting with, e.g. resource_sim1qqqq...yag
 #              (even if the XRD token isn't really recommended).
@@ -30,7 +33,7 @@ CALL_FUNCTION
    "SmorgasDao"
    "instantiate_smorgasdao"
    ${proposal_duration}u64
-   Enum("${quorum}")
+   Enum(${quorum})
    ResourceAddress("${vote_token}")
    ${id_token}
    Enum("${vote_tally}")

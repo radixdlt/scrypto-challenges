@@ -80,8 +80,8 @@
 //! complication here as the intermediary cannot call the DAO back
 //! directly (this would be an invalid re-entrant call) but instead it
 //! must store the admin token awaiting a second call from the
-//! transaction manifest which then calls the DAO. Finally, a third
-//! call must be made to return the Admin token to the DAO component.
+//! transaction manifest which then calls the DAO to do the
+//! configuration change, before returning the admin badge to the DAO.
 //!
 //! Note that the current DAO implementation only offers a single
 //! configuration method, for the `proposal_duration` option, but of
@@ -359,6 +359,11 @@ pub struct Proposal {
     /// For an executive proposal, this amount of XRD will be sent to
     /// the call being made. The XRD is taken out of DAO funds.
     target_funding: Option<Decimal>,
+}
+
+fn blah() {
+    let _f: PreciseDecimal;
+    let _a = dec!("28");
 }
 
 blueprint! {
@@ -684,6 +689,9 @@ blueprint! {
         /// You will be returned a receipt NFT which you will need
         /// later to recover your voting tokens.
         ///
+        /// Also returns the ResourceAddress and NonFungibleId of the
+        /// receipt NFT.
+        ///
         /// ---
         ///
         /// **Access control:** If the DAO is configured to require an
@@ -695,7 +703,8 @@ blueprint! {
         #[doc = include_str!("../rtm/smorgasdao/vote_with_receipt.rtm")]
         /// ```
         pub fn vote_with_receipt(&mut self,
-                                 proposal: u64, tokens: Bucket, vote_for: usize) -> Bucket {
+                                 proposal: u64, tokens: Bucket, vote_for: usize)
+                                 -> (Bucket, ResourceAddress, NonFungibleId) {
             assert!(self.id_token.is_none(),
                     "We only accept votes with an id NFT");
 
@@ -722,11 +731,11 @@ blueprint! {
             }
 
             // Record votes
-            proposal.votes_cast.insert(receipt_nfaddr, VotesCast {
+            proposal.votes_cast.insert(receipt_nfaddr.clone(), VotesCast {
                 option: vote_for,
                 votes: Vault::with_bucket(tokens) });
 
-            receipt_nft
+            (receipt_nft, receipt_nfaddr.resource_address(), receipt_nfaddr.non_fungible_id())
         }
 
         /// Call this to pull out your votes from a proposal when you
@@ -747,8 +756,11 @@ blueprint! {
         /// **Access control:** If the DAO is configured to require an
         /// id, no one can call this method.
         ///
-        /// **Transaction manifest:** This method is not in the test
-        /// suite and does not yet have a transaction manifest.
+        /// **Transaction manifest:** 
+        /// `rtm/smorgasdao/withdraw_votes_with_receipt.rtm`
+        /// ```text
+        #[doc = include_str!("../rtm/smorgasdao/withdraw_votes_with_receipt.rtm")]
+        /// ```
         pub fn withdraw_votes_with_receipt(&mut self,
                                            proposal: u64,
                                            id: Bucket) -> Bucket {
@@ -766,7 +778,7 @@ blueprint! {
                 "This proposal does not exist");
 
             let removed_votes =
-                proposal.votes_cast.remove(&id_nfaddr);
+                proposal.votes_cast.get_mut(&id_nfaddr);
             
             // burn the temporary id NFT
             self.id_mint_badge.authorize(|| id.burn());
@@ -775,8 +787,8 @@ blueprint! {
             removed_votes.unwrap().votes.take_all()
         }
 
-        /// Call this method to vote on a DAO that identity NFTs when
-        /// voting.
+        /// Call this method to vote on a DAO that uses identity NFTs
+        /// when voting.
         ///
         /// Provide the unique id of the proposal to vote on, a proof
         /// of your identity, the bucket of tokens you want to bind up
@@ -1128,10 +1140,13 @@ blueprint! {
             // already take tally type into account
             let mut result = vec![Decimal::ZERO; proposal.options.len()];
 
-            // We use PreciseDecimal here and further down because
-            // we're multiplying Decimals together and want to prevent
-            // overflow when we do so.
-            let mut tokens_cast = PreciseDecimal::ZERO;
+            // We should use PreciseDecimal here and further down
+            // because we're multiplying Decimals together and want to
+            // prevent overflow when we do so. We don't do so yet
+            // because Decimal and PreciseDecimal don't seem to play
+            // nice together, you get strange results when you add a
+            // Decimal to a PreciseDecimal.
+            let mut tokens_cast = Decimal::ZERO;
 
             for voter in proposal.votes_cast.values() {
                 result[voter.option] +=
@@ -1172,12 +1187,12 @@ blueprint! {
             match self.quorum {
                 Quorum::Percent(p) => {
                     let cmgr: &ResourceManager = borrow_resource_manager!(self.vote_token);
-                    let supply: PreciseDecimal = cmgr.total_supply().into();
+                    let supply: Decimal = cmgr.total_supply().into();
                     if supply.is_zero() {
                         // Avoid divide by zero
                         meets_quorum = p.is_zero();
                     } else {
-                        let attendance = PreciseDecimal::from("100") * tokens_cast / supply;
+                        let attendance = Decimal::from("100") * tokens_cast / supply;
                         meets_quorum = attendance >= p.into();
                     }
                 },

@@ -18,8 +18,8 @@
 //! and then the [intermediary module] to gain a good understanding of
 //! how the Radfolio functions.
 //!
-//! [radfolio module]: crate::smorgasdao
-//! [investment vehicle module]: crate::intermediary
+//! [intermediary module]: crate::intermediary
+//! [smorgasdao module]: crate::smorgasdao
 //!
 //! In a nutshell, the `SmorgasDAO` component stores admin badges for
 //! other components and calls them as its administrators would, but
