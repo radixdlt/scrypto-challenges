@@ -1,0 +1,20 @@
+# Locking the fee 
+CALL_METHOD ComponentAddress("<ACCOUNT_ADDRESS>") "lock_fee" Decimal("10");
+
+# Withdrawing the user badge from the user account.
+CALL_METHOD
+    ComponentAddress("<ACCOUNT_ADDRESS>")
+    "create_proof"
+    ResourceAddress("<USER_BADGE>");
+
+# Creating a Proof from the badge in the auth zone.
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("<USER_BADGE>")
+    Proof("user_badge");
+
+# Calling the function get_users_deposit_balance to get the amount of resources that is deposited
+CALL_METHOD 
+    ComponentAddress("<COMPONENT_ADDRESS>") 
+    "get_users_deposit_balance" 
+    ResourceAddress("<RESOURCE_ADDRESS>")
+    Proof("user_badge");

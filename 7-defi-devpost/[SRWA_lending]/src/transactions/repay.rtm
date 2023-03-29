@@ -1,0 +1,34 @@
+# Locking the fee 
+CALL_METHOD ComponentAddress("<ACCOUNT_ADDRESS>") "lock_fee" Decimal("10");
+
+# Withdrawing the user badge from the user account.
+CALL_METHOD
+    ComponentAddress("<ACCOUNT_ADDRESS>")
+    "create_proof"
+    ResourceAddress("<USER_BADGE>");
+
+# Creating a Proof from the badge in the auth zone.
+CREATE_PROOF_FROM_AUTH_ZONE
+    ResourceAddress("<USER_BADGE>")
+    Proof("user_badge");
+
+# Taking the amount of assets from users account and putting it in the bucket
+CALL_METHOD 
+    ComponentAddress("<ACCOUNT_ADDRESS>") 
+    "withdraw_by_amount" 
+    Decimal("5") 
+    ResourceAddress("<RESOURCE_ADDRESS>");
+TAKE_FROM_WORKTOP 
+    ResourceAddress("<RESOURCE_ADDRESS>") 
+    Bucket("repay");
+    
+
+# Calling the function repay to and passing the bucket with assets to repay what is borrowed
+CALL_METHOD 
+    ComponentAddress("COMPONENT_ADDRESS") 
+    "repay" 
+    Bucket("repay")
+    Proof("user_badge");
+
+# In case there's a change, taking it and putting in users account
+CALL_METHOD ComponentAddress("ACCOUNT_ADDRESS") "deposit_batch" Expression("ENTIRE_WORKTOP");
