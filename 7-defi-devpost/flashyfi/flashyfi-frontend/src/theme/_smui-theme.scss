@@ -1,0 +1,28 @@
+@use 'sass:color';
+
+@use '@material/theme/color-palette';
+
+// Svelte Colors!
+@use '@material/theme/index' as theme with (
+  $primary: #2a7fbf,
+  $secondary: #676778,
+  $surface: #fff,
+  $background: #F4F5F9,
+  $error: #9f3046
+);
+
+@use '@material/theme/styles';
+
+html,
+body {
+  background-color: theme.$surface;
+  color: theme.$on-surface;
+  font-family: "IBM Plex Sans", sans-serif;
+}
+
+a {
+  color: #40b3ff;
+}
+a:visited {
+  color: color.scale(#40b3ff, $lightness: -35%);
+}
