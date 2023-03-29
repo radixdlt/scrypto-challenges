@@ -1,0 +1,77 @@
+<div class="container">
+  <form style="padding: 30px" (ngSubmit)="onSubmit()" #createForm="ngForm">
+    <div class="grid">
+      <label for="name">
+        Name <span style="color: red">*</span>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="name"
+          required
+          [(ngModel)]="policyInfo.name"
+        />
+      </label>
+      <label for="amount">
+        Initial amount (xrd) <span style="color: red">*</span>
+        <input
+          type="number"
+          id="amount"
+          name="amount"
+          placeholder="amount"
+          required
+          [(ngModel)]="policyInfo.amount"
+        />
+      </label>
+      <label>
+        Insurer reward percent rate % <span style="color: red">*</span>
+        <input
+          type="number"
+          id="insurerRewardPercentRate"
+          name="insurerRewardPercentRate"
+          placeholder="Insurer reward percent Rate"
+          required
+          [(ngModel)]="policyInfo.insurerRewardPercentRate"
+        />
+      </label>
+    </div>
+
+    <label for="description"
+      >Description <span style="color: red">*</span></label
+    >
+    <textarea
+      type="text"
+      id="description"
+      name="description"
+      placeholder="Description"
+      required
+      [(ngModel)]="policyInfo.description"
+    ></textarea>
+    <button
+      type="submit"
+      [disabled]="!createForm.form.valid"
+      *ngIf="!isLoading; else loadingButton"
+    >
+      Submit
+    </button>
+    <ng-template #loadingButton>
+      <button aria-busy="true" type="submit" [disabled]="true">
+        submitting
+      </button>
+    </ng-template>
+
+    <div *ngIf="showInfo">
+      <ng-container *ngIf="showError; else success">
+        <article style="border: 5px solid red">
+          <h6>fail to create policy</h6>
+          <h6>Message error : {{ showMessage }}</h6>
+        </article>
+      </ng-container>
+      <ng-template #success>
+        <article style="border: 5px solid green">
+          <h6>Policy created : {{ showMessage }}</h6>
+        </article>
+      </ng-template>
+    </div>
+  </form>
+</div>

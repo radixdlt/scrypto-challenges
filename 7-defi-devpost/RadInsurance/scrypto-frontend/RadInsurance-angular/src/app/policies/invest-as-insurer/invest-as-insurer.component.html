@@ -1,0 +1,87 @@
+<div class="container" style="margin-top: 40px">
+  <figure>
+    <table>
+      <thead>
+        <mark style="background-color: azure"> Policy info</mark>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Id</strong></td>
+          <td><strong>Policy name</strong></td>
+          <td><strong>Policy description</strong></td>
+          <td><strong>Total Insured Cover amount</strong></td>
+          <td><strong>Total Insurers invest amount</strong></td>
+        </tr>
+        <tr>
+          <td>
+            <kbd>{{ policyInfo.id }}</kbd>
+          </td>
+          <td>
+            <kbd>{{ policyInfo.name }}</kbd>
+          </td>
+          <td>
+            <kbd>{{ policyInfo.description }}</kbd>
+          </td>
+          <td>
+            <kbd>{{ policyInfo.totalInsuredsCoverAmount }} XRD</kbd>
+          </td>
+          <td>
+            <kbd
+              >Total Insurers invest amount
+              {{ policyInfo.totalInsurersAmount }} XRD</kbd
+            >
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </figure>
+  <kbd style="background-color: bisque"
+    >Service fees : {{ policyInfo.serviceFees }} XRD</kbd
+  >
+  <form style="padding: 30px" (ngSubmit)="onSubmit()" #investForm="ngForm">
+    <div class="grid">
+      <label for="amountToInvest">
+        Amount to Invest
+        <input
+          type="number"
+          id="amountToInvest"
+          name="amountToInvest"
+          placeholder="amountToInvest"
+          max="{{ maxAmountToInvest }}"
+          required
+          [(ngModel)]="investAsInsurer.amountToInvest"
+        />
+      </label>
+      <label *ngIf="displayAmountError">Amount to Invest must be > 0</label>
+    </div>
+    <button
+      type="submit"
+      [disabled]="!investForm.form.valid"
+      *ngIf="!isLoading; else loadingButton"
+    >
+      Submit
+    </button>
+    <ng-template #loadingButton>
+      <button aria-busy="true" type="submit" [disabled]="true">
+        submitting
+      </button>
+    </ng-template>
+
+    <div *ngIf="showInfo">
+      <ng-container *ngIf="showError; else success">
+        <article style="border: 5px solid red">
+          <h6>fail to create policy</h6>
+          <h6>this is error message :{{ showMessage }}</h6>
+        </article>
+      </ng-container>
+      <ng-template #success>
+        <article style="border: 5px solid green">
+          <h6>
+            Congratilation, you are invest: {{ investAsInsurer.amountToInvest }}
+          </h6>
+          <h6>your transaction hash: {{ this.showMessage }}</h6>
+        </article>
+      </ng-template>
+    </div>
+  </form>
+</div>

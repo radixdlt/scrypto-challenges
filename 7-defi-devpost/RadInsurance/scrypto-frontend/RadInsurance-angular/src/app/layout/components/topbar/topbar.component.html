@@ -1,0 +1,31 @@
+<nav>
+  <ul>
+    <li style="width: 120px; border-radius: 50%">
+      <a [routerLink]="['/user/bob']">
+        <img src="/assets/RadInsurance.png" />
+      </a>
+    </li>
+  </ul>
+  <ul>
+    <li style="width: 120px; border-radius: 50%">
+      <a [routerLink]="['/user/bob']" [state]="{ tracingId: 123 }"> home </a>
+    </li>
+    <li>
+      <button *ngIf="isAdmin" (click)="createPolicy()">Create Policy</button>
+    </li>
+    <li>
+      <button
+        class="contrast"
+        (click)="generateComponentAdress()"
+        data-target="modal-example"
+      >
+        Generate New RadInsurance Component Address
+      </button>
+    </li>
+  </ul>
+  <ul>
+    <li>
+      <app-connection-button></app-connection-button>
+    </li>
+  </ul>
+</nav>

@@ -1,0 +1,16 @@
+<div class="grid">
+  <div *ngFor="let p of policies">
+    <article>
+      <header>
+        <h5>{{ p.name }} - {{p.id}}</h5>
+        <p>{{ p.description }}</p>
+      </header>
+      <div class="grid">
+        <div>{{ p.tokenCoveredCount }}</div>
+      </div>
+      <div>
+          <button (click)="onInvestAsInsurer(p.id)">Invest as Insurer</button>
+      </div>
+    </article>
+  </div>
+</div>

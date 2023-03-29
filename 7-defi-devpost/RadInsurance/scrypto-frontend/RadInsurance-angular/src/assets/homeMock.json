@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Olympus",
+    "description": "smart contract integrity",
+    "price": "1.22% / year",
+    "nbTokenCovered": 10000,
+    "withdrawDate": "2022-03-23T18:25:43.511Z"
+  },
+  {
+    "name": "Solv Protocol",
+    "description": "smart contract integrity",
+    "price": "2.45% / year",
+    "nbTokenCovered": 800000,
+    "withdrawDate": "2012-04-15T18:25:43.511Z"
+  },
+  {
+    "name": "Neutrino",
+    "description": "smart contract integrity",
+    "price": "0.12% / year",
+    "nbTokenCovered": 1000,
+    "withdrawDate": "1995-09-12T18:25:43.511Z"
+  }
+]
