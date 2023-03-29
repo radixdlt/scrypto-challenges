@@ -1,0 +1,99 @@
+body {
+    /* background-image: url("./BackgroundGradient.png"); */
+    background-color: #394252;
+    color: #FFFFFF;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    padding-left: 1.33rem;
+    padding-right: 1.33rem;
+    margin-bottom: 3.33rem;
+}
+
+button {
+    cursor: pointer;
+    padding: 1rem;
+    border: none;
+    font-size: x-large;
+    color: #000000;
+    min-width: 33%;
+}
+
+button:active {
+    -webkit-filter: brightness(70%);
+}
+
+.expo > .exch-feed {
+    width: 60%;
+}
+
+.feeds {
+    display: flex;
+    justify-content: center;
+}
+
+.exch-feed {
+    width: 23%;
+    text-align: center;
+    font-size: x-large;
+}
+
+.target-swap {
+    background-color: #252424;
+    width: 500px;
+    display: table;
+    font-size: x-large;
+    padding: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 3.2rem;
+}
+
+.target-swap-b {
+    padding: 1rem;
+    position: relative;
+    bottom: 1.8rem;
+}
+
+.target-swap-t {
+    display: table-cell;
+    width: 90%;
+}
+
+.target-swap-t > input[type="number"] {
+    text-align: center;
+    width: 50%;
+    padding: 0.8rem;
+    padding-bottom: 1.1rem;
+    padding-top: 1.2rem;
+    font-size: x-large;
+}
+
+.target-swap > button {
+    background-color: #c9e431;
+    padding: 1.2rem;
+}
+
+button.short {
+    background-color: #c00b05;
+}
+
+button.long {
+    background-color: #05c034;
+}
+
+.connectBtn {
+    background-color: transparent;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.connectBtn > h1 {
+    width: 90%;
+}
+
+.connectBtn > div {
+    margin-top: 1.2%;
+}

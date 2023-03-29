@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+  <title>CupPerps demo</title>
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <script type="module" src="/dist/index.js"></script>
+  <div class="connectBtn">
+    <h1>Cup Perps</h1>
+    <div>
+      <radix-connect-button />
+    </div>
+    
+  </div>
+
+  <center>
+
+  <p>Account Address:
+  <pre id="accountAddress"></pre>
+  </p>
+
+  <h2>Your Current Exposure:</h2>
+  <div class="expo"">
+    <pre class="exch-feed" id="exposure"></pre>
+    <pre class="exch-feed" id="value"></pre>
+  </div>
+  <!--
+  <h2>Instantiate Cup Perps (not needed)</h2>
+  <input type="text" placeholder="Initial Exchange Rate" id="exch">
+  <p><button id="instantiateComponent">Instantiate component</button></p>
+  <div class="container">
+    <p>Component Address: <span id="componentAddress"></span></p>
+  </div>
+-->
+  
+  <h2>5x RAND/USD Market Status:</h2>
+  <div class="feeds">
+    <pre class="exch-feed" id="exch-feed"></pre>
+    <pre class="exch-feed" id="bucket-feed">0 XRD Long<br>0 XRD Short</pre>
+  </div>
+
+  <div class="target-swap">
+    <div class="target-swap-b">
+      Target Net Exposure
+    </div>
+    <div class="target-swap-t">
+      <input type="number" placeholder="10, -10" id="target-exposure-xrd">
+    </div>
+    
+    <button id="target-swap-xrd">Rebalance</button>
+  </div>
+
+  <div class="target-swap">
+    <div class="target-swap-b">
+      Modify Long Exposure
+    </div>
+    <div class="target-swap-t">
+      <input type="number" placeholder="10, -10" id="target-exposure-long">
+    </div>
+    
+    <button id="target-swap-long">Rebalance</button>
+  </div>
+
+  <div class="target-swap">
+    <div class="target-swap-b">
+      Modify Short Exposure
+    </div>
+    <div class="target-swap-t">
+      <input type="number" placeholder="10, -10" id="target-exposure-short">
+    </div>
+    
+    <button id="target-swap-short">Rebalance</button>
+  </div>
+
+  <p>
+    <button class="long" id="long-deposit">10 XRD Long</button>
+    <button class="short" id="short-deposit">10 XRD Short</button>
+  </p>
+  <button id="pass-time">Update Oracle</button>
+  </center>
+
+  <!--
+  <div class="container">
+    <p>Receipt:<br>
+    <pre id="receipt"></pre>
+    </p>
+  </div>
+  -->
+</body>
+
+</html>
