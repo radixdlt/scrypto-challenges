@@ -1,0 +1,27 @@
+CALL_METHOD
+    ComponentAddress("${account}")
+    "create_proof_by_amount"
+    Decimal("1")
+    ResourceAddress("${tradeXOwnerBadge}");
+CALL_METHOD
+    ComponentAddress("component_sim1qgehpqdhhr62xh76wh6gppnyn88a0uau68epljprvj3sxknsqr")
+    "lock_fee"
+    Decimal("100")
+    ;  
+CALL_METHOD
+    ComponentAddress("${component}")
+    "get_tradex_wallet_value_in_xrd"
+    ResourceAddress("${secondToken}")
+    Decimal("32.53371615091428366")
+    ;
+# CALL_METHOD
+#     ComponentAddress("${component}")
+#     "add_standard_radiswap_pool"
+#     ComponentAddress("${radiswapPool1}")
+#     ResourceAddress("${secondToken}")
+#     ResourceAddress("${xrd}")
+#     ;    
+CALL_METHOD
+    ComponentAddress("${account}")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");

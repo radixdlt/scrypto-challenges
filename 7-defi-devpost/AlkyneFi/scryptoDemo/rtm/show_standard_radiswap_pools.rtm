@@ -1,0 +1,15 @@
+CALL_METHOD
+    ComponentAddress("component_sim1qgehpqdhhr62xh76wh6gppnyn88a0uau68epljprvj3sxknsqr")
+    "lock_fee"
+    Decimal("100")
+    ;  
+CALL_METHOD
+    ComponentAddress("${component}")
+    "show_standard_radiswap_pools"
+    ResourceAddress("${secondToken}")
+    ResourceAddress("${xrd}")
+    ;
+CALL_METHOD
+    ComponentAddress("${account}")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");
