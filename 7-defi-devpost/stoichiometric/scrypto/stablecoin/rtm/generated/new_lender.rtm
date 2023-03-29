@@ -1,0 +1,24 @@
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"lock_fee"
+	Decimal("100");
+
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"create_proof"
+	ResourceAddress("${badge_address}");
+
+CALL_METHOD
+	ComponentAddress("${component_address}")
+	"new_lender"
+	ResourceAddress("${arg_0}")
+	Decimal("${arg_1}")
+	Decimal("${arg_2}")
+	Decimal("${arg_3}")
+	Decimal("${arg_4}")
+	ComponentAddress("${arg_5}");
+
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"deposit_batch"
+	Expression("ENTIRE_WORKTOP");

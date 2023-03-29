@@ -1,0 +1,39 @@
+CALL_METHOD
+    ComponentAddress("${caller_address}")
+    "lock_fee"
+    Decimal("100");
+
+CALL_METHOD
+    ComponentAddress("${caller_address}")
+    "withdraw_by_amount"
+    Decimal("${stablecoin_amount}")
+    ResourceAddress("${stablecoin_address}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("${stablecoin_amount}")
+    ResourceAddress("${stablecoin_address}")
+    Bucket("0");
+
+CALL_METHOD
+    ComponentAddress("${caller_address}")
+    "withdraw_by_amount"
+    Decimal("${other_token_amount}")
+    ResourceAddress("${other_token}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+    Decimal("${other_token_amount}")
+    ResourceAddress("${other_token}")
+    Bucket("1");
+
+CALL_METHOD
+    ComponentAddress("${component_address}")
+    "add_liquidity_at_steps"
+    Bucket("0")
+    Bucket("1")
+    Array<Tuple>(${steps_string})
+    None;
+
+CALL_METHOD
+    ComponentAddress("${caller_address}")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");

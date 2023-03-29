@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "target": "es2017",
+        "outDir": "dist",
+        "module": "es2022",
+        "noEmitOnError": true,
+        "strict": true,
+        "declaration": true,
+        "moduleResolution": "node",
+        "noUncheckedIndexedAccess": true,
+        "forceConsistentCasingInFileNames": true,
+    },
+    "files": [
+        "src/server/server.ts"
+    ]
+}

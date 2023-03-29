@@ -1,0 +1,26 @@
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"lock_fee"
+	Decimal("100");
+
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"withdraw_by_amount"
+	Decimal("${stablecoin_amount}")
+	ResourceAddress("${stablecoin_address}");
+
+TAKE_FROM_WORKTOP_BY_AMOUNT
+	Decimal("${stablecoin_amount}")
+	ResourceAddress("${stablecoin_address}")
+	Bucket("0");
+
+CALL_METHOD
+	ComponentAddress("${component_address}")
+	"lock_stablecoins"
+	Bucket("0")
+	None;
+
+CALL_METHOD
+	ComponentAddress("${caller_address}")
+	"deposit_batch"
+	Expression("ENTIRE_WORKTOP");

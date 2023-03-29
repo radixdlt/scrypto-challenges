@@ -1,0 +1,10 @@
+{
+    "name": "stoichiometric-backend",
+    "version": "1.0.0",
+    "description": "",
+    "type": "module",
+    "main": "dist/server.js",
+    "devDependencies": {
+        "@types/node": "^18.15.6"
+    }
+}
