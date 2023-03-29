@@ -1,0 +1,7 @@
+CALL_METHOD ComponentAddress("account_sim1qdnehgqqhdmfwa66sgesnf89j7zzh0ck44nx2ae2zvns50gvlg") "lock_fee" Decimal("10");
+CALL_METHOD ComponentAddress("account_sim1qdnehgqqhdmfwa66sgesnf89j7zzh0ck44nx2ae2zvns50gvlg") "create_proof_by_ids" Array<NonFungibleLocalId>(NonFungibleLocalId("#1#")) ResourceAddress("resource_sim1qrwmal5esdh7tpfthgjc9lqu9dry79e8zg8mlu4lp9js5xt60h");
+CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS Array<NonFungibleLocalId>(NonFungibleLocalId("#1#")) ResourceAddress("resource_sim1qrwmal5esdh7tpfthgjc9lqu9dry79e8zg8mlu4lp9js5xt60h") Proof("delegator_cdp_proof");
+CALL_METHOD ComponentAddress("component_sim1q2ahwy9xmet9mvyurham9c9ehfm6th23pzjcj7ddnz9s78ftgg") "create_delegated_cdp" Proof("delegator_cdp_proof");
+TAKE_FROM_WORKTOP ResourceAddress("resource_sim1qrwmal5esdh7tpfthgjc9lqu9dry79e8zg8mlu4lp9js5xt60h") Bucket("delegated_cdp");
+CALL_METHOD ComponentAddress("account_sim1qdsa72lkzc5yju8p49pe6tmj7ldes69x3xlfydduw28q5739c6") "deposit" Bucket("delegated_cdp");
+CALL_METHOD ComponentAddress("account_sim1qdnehgqqhdmfwa66sgesnf89j7zzh0ck44nx2ae2zvns50gvlg") "deposit_batch" Expression("ENTIRE_WORKTOP");
