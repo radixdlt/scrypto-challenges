@@ -1,0 +1,15 @@
+CALL_METHOD 
+ComponentAddress("account_sim1qv3ud3gt5lhuu0538mkgkas6gm4l45fhsgqlnel3zy9qvs42qk") 
+"lock_fee" 
+Decimal("10");
+CALL_METHOD 
+    ComponentAddress("account_sim1qv3ud3gt5lhuu0538mkgkas6gm4l45fhsgqlnel3zy9qvs42qk")
+    "create_proof"
+    ResourceAddress("resource_sim1qr9eypdu6qtxemaamrh5expcxn79dgje2lmrjp60vu3snhh7vg");
+CALL_METHOD
+    ComponentAddress("component_sim1qt9eypdu6qtxemaamrh5expcxn79dgje2lmrjp60vu3skf09nq")
+    "withdraw";
+CALL_METHOD
+    ComponentAddress("account_sim1qv3ud3gt5lhuu0538mkgkas6gm4l45fhsgqlnel3zy9qvs42qk")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");

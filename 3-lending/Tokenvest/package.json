@@ -1,0 +1,27 @@
+{
+  "name": "tokenvest-radix",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "setup": "concurrently -n \"strapi,frontend\" \"cd strapi && yarn && yarn build\" \"cd front-end && yarn\"",
+    "start:strapi": "cd strapi && yarn develop",
+    "start:frontend": "cd front-end && yarn run dev",
+    "start:prod": "concurrently -n \"strapi,frontend\" \"yarn start:strapi\" \"yarn start:frontend\"",
+    "start:dev": "concurrently -n \"strapi,frontend\" \"cd strapi && yarn develop\" \"cd front-end && yarn run dev\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hrachocode/tokenvest-radix.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hrachocode/tokenvest-radix/issues"
+  },
+  "homepage": "https://github.com/hrachocode/tokenvest-radix#readme",
+  "dependencies": {
+    "concurrently": "^7.6.0"
+  }
+}
