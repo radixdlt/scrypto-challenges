@@ -1,0 +1,84 @@
+body {
+  background-image: url("./BackgroundGradient.png");
+  color: #ffffff;
+  margin: 0;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  padding-left: 1.33rem;
+  padding-right: 1.33rem;
+  margin-bottom: 3.33rem;
+}
+
+button {
+  padding: 1rem;
+  background-color: #052cc0;
+  border-radius: 33rem;
+  border: none;
+  font-size: large;
+  color: #ff43ca;
+  min-width: 33%;
+}
+
+button:hover {
+  background-color: rgb(46, 49, 204);
+  cursor: pointer;
+}
+
+input {
+  padding: 1.33rem;
+  border-radius: 0.33rem;
+  width: 33%;
+  margin-bottom: 1.33rem;
+  display: block;
+  border: none;
+}
+
+select {
+  padding: 1.33rem;
+  border-radius: 0.33rem;
+  width: 35.5%;
+  margin-bottom: 1.33rem;
+  display: block;
+  border: none;
+  background-color: white;
+}
+
+.container {
+  background-color: #f4f5f9;
+  color: #414141;
+  max-width: 100%;
+  padding: 1rem;
+  overflow-x: scroll;
+  border-radius: 0.33rem;
+}
+
+.connectBtn {
+  background-color: white;
+  padding: 1rem;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+h1 {
+  font-weight: bold;
+  color: #fff;
+  font-size: xxx-large;
+  text-decoration: underline;
+}
+
+h2 {
+  font-weight: bold;
+  color: #fff;
+  font-size: xx-large;
+  text-decoration: underline;
+}
+
+h3 {
+  font-weight: bold;
+  color: #fff;
+  font-size: x-large;
+}
+
+a {
+  font-size: xx-large;
+}
