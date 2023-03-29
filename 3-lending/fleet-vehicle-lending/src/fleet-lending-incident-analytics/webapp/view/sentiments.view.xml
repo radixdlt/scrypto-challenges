@@ -1,0 +1,80 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.sentiments"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds" xmlns:viz.data="sap.viz.ui5.data"
+	xmlns:viz="sap.viz.ui5.controls" xmlns:l="sap.ui.layout" xmlns:c="sap.suite.ui.commons">
+	<App>
+		<pages>
+			<Page class="pageStyles" showNavButton="true" showHeader="true" showFooter="true" navButtonPress="onNavBack" enableScrolling="true">
+				<content>
+					<VBox>
+						<l:FixFlex id='chartFixFlex' minFlexSize="0" class="sapUiSmallMargin">
+							<l:fixContent >
+								<ComboBox id="idPopinLayout1" change="onTableFilter" placeholder="Filter by Person" forceSelection="false" class="sapUiLargeMarginEnd">
+										<items>
+											<core:Item key="1" text="Sheikh Hamadan"/>
+											<core:Item key="2" text="Abdullah Khalifa Al Merri"/>
+										</items>
+									</ComboBox>
+									<ComboBox id="idPopinLayout2" change="onTableFilter" placeholder="Filter by hashtag" forceSelection="false" class="sapUiLargeMarginEnd">
+										<items>
+											<core:Item key="#dubaipolice" text="#dubaipolice"/>
+											<core:Item key="#security" text="#security"/>
+											<core:Item key="#defense" text="#defense"/>
+											<core:Item key="#safety" text="#safety"/>
+										</items>
+									</ComboBox>
+								<c:ChartContainer id="chartContainer" showFullScreen="true" showPersonalization="true" autoAdjustHeight="false" showLegend="true"
+									personalizationPress="attachPersonalizationPress" contentChange="attachContentChange"
+									title="Sentiment Analysis as per the Post-Comments displayed">
+									<c:content>
+										<c:ChartContainerContent icon="sap-icon://vertical-bar-chart">
+											<c:content >
+												<viz:VizFrame id="idVizFramePie" title="" height='250px' width="80%" vizType='bar'>
+													<viz:dataset>
+														<viz.data:FlattenedDataset data="{graph>/}">
+															<viz.data:dimensions>
+																<viz.data:DimensionDefinition name="Sentiment" value="{graph>type}"/>
+															</viz.data:dimensions>
+															<viz.data:measures>
+																<viz.data:MeasureDefinition name="Count" value="{graph>count}"/>
+															</viz.data:measures>
+														</viz.data:FlattenedDataset>
+													</viz:dataset>
+													<viz:feeds>
+														<viz.feeds:FeedItem id='valueAxisFeed' uid="valueAxis" type="Measure" values="Count"/>
+														<viz.feeds:FeedItem id="categoryAxisFeed" uid="categoryAxis" type="Dimension" values="Sentiment"/>
+													</viz:feeds>
+												</viz:VizFrame>
+											</c:content>
+										</c:ChartContainerContent>
+									</c:content>
+								</c:ChartContainer>
+							</l:fixContent>
+						</l:FixFlex>
+					</VBox>
+					<VBox>
+						<Table id="idSocialMediaTable" updateFinished="onTableUpdateFinished" growing="true" inset="false" items="{infinityNetwork>/d/results}"
+							visible="true" class="sapUiSmallMargin">
+							<headerToolbar>
+								<Toolbar>
+									<Title text="Social Media Posts" level="H2"/>
+								</Toolbar>
+							</headerToolbar>
+							<columns>
+								<Column width="12em">
+									<Text text="Post"/>
+								</Column>
+							</columns>
+							<items>
+								<ColumnListItem>
+									<cells>
+										<Text text="{infinityNetwork>COMMENT}"/>
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
+					</VBox>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

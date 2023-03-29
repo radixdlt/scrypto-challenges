@@ -1,0 +1,208 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.AnalyticsEvent"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds" xmlns:viz.data="sap.viz.ui5.data"
+	xmlns:viz="sap.viz.ui5.controls" xmlns:l="sap.ui.layout" xmlns:c="sap.suite.ui.commons">
+	<App>
+		<pages>
+			<Page class="pageStyles" showNavButton="true" navButtonPress="onNavBack" >
+				<content>
+					<HBox class="healthAnalyticsStyle">
+						<l:FixFlex id='chartFixFlex' minFlexSize="0" visible="true">
+							<l:fixContent >
+								<Panel>
+									<content>
+										<c:ChartContainer id="chartContainerCholes1" title="Monthly Officer Sickness Report" showFullScreen="true" autoAdjustHeight="false"
+											showLegend="true">
+											<c:content>
+												<c:ChartContainerContent icon="sap-icon://vertical-bar-chart">
+													<c:content >
+														<!--<viz:Popover id="idPopOver2"></viz:Popover>-->
+														<viz:VizFrame id="idVizFrameBar" title="Monthly Sickness Report of Officers" height="300px" width="100%" vizType="bar"
+															selectData="onChartClickHandler">
+															<viz:dataset>
+																<viz.data:FlattenedDataset data="{/Monthly}">
+																	<viz.data:dimensions>
+																		<viz.data:DimensionDefinition name="Month" value="{Month}"/>
+																	</viz.data:dimensions>
+																	<viz.data:measures>
+																		<viz.data:MeasureDefinition name="Officer" value="{Officer}"/>
+																	</viz.data:measures>
+																</viz.data:FlattenedDataset>
+															</viz:dataset>
+															<viz:feeds>
+																<viz.feeds:FeedItem id='valueAxisFeed' uid="valueAxis" type="Measure" values="Officer"/>
+																<viz.feeds:FeedItem id="categoryAxisFeed" uid="categoryAxis" type="Dimension" values="Month"/>
+															</viz:feeds>
+														</viz:VizFrame>
+													</c:content>
+												</c:ChartContainerContent>
+											</c:content>
+										</c:ChartContainer>
+									</content>
+								</Panel>
+							</l:fixContent>
+						</l:FixFlex>
+						<l:FixFlex id='chartFixFlexCholes' minFlexSize="0" visible="true">
+							<l:fixContent>
+								<Panel width="100%">
+									<content>
+										<c:ChartContainer id="chartContainerCholes" showFullScreen="true" title="Report Details : Jan" autoAdjustHeight="false" showLegend="true">
+											<c:content>
+												<c:ChartContainerContent icon="sap-icon://vertical-bar-chart">
+													<c:content >
+														<viz:VizFrame id="idVizFrameBarC" title="Types of L" height='300px' width="100%" vizType='pie'>
+															<viz:dataset>
+																<viz.data:FlattenedDataset data="{/}">
+																	<viz.data:dimensions>
+																		<viz.data:DimensionDefinition name="Injury" value="{Injury}"/>
+																	</viz.data:dimensions>
+																	<viz.data:measures>
+																		<viz.data:MeasureDefinition name="Officer" value="{Officer}"/>
+																	</viz.data:measures>
+																</viz.data:FlattenedDataset>
+															</viz:dataset>
+															<viz:feeds>
+																<viz.feeds:FeedItem uid="size" type="Measure" values="Officer"/>
+																<viz.feeds:FeedItem uid="color" type="Dimension" values="Injury"/>
+															</viz:feeds>
+														</viz:VizFrame>
+													</c:content>
+												</c:ChartContainerContent>
+											</c:content>
+										</c:ChartContainer>
+									</content>
+								</Panel>
+							</l:fixContent>
+						</l:FixFlex>
+					</HBox>
+					<VBox>
+						<Title text="Select Measure from Wearable device"></Title>
+						<ComboBox id="cbhealth" items="{ path: '/HealthMeasure' }" selectedKey="1" change="onComboSelect">
+							<core:Item key="{ID}" text="{Text}"/>
+						</ComboBox>
+					</VBox>
+					<VBox>
+						<l:FixFlex id='chartFixFlexHR' minFlexSize="0" visible="true">
+							<l:fixContent >
+								<Panel>
+									<content>
+										<c:ChartContainer id="chartContainerHR" title="Current Wearable Device Status : Heart Rate" showFullScreen="true" autoAdjustHeight="false" showLegend="true">
+											<c:content>
+												<c:ChartContainerContent icon="sap-icon://vertical-bar-chart">
+													<c:content >
+														<!--<viz:Popover id="idPopOver2"></viz:Popover>-->
+														<viz:VizFrame id="idVizFrameBarHR" title="" height='300px' width="80%" vizType='bar'>
+															<viz:dataset>
+																<viz.data:FlattenedDataset data="{/HeartRateChart}">
+																	<viz.data:dimensions>
+																		<viz.data:DimensionDefinition name="BPMLevel" value="{BPMLevel}"/>
+																	</viz.data:dimensions>
+																	<viz.data:measures>
+																		<viz.data:MeasureDefinition name="Officer" value="{Officer}"/>
+																	</viz.data:measures>
+																</viz.data:FlattenedDataset>
+															</viz:dataset>
+															<viz:feeds>
+																<viz.feeds:FeedItem id='valueAxisHR' uid="valueAxis" type="Measure" values="Officer"/>
+																<viz.feeds:FeedItem id="categoryAxisHR" uid="categoryAxis" type="Dimension" values="BPMLevel"/>
+															</viz:feeds>
+														</viz:VizFrame>
+													</c:content>
+												</c:ChartContainerContent>
+											</c:content>
+										</c:ChartContainer>
+									</content>
+								</Panel>
+							</l:fixContent>
+						</l:FixFlex>
+						<l:FixFlex id='chartFixFlexCH' minFlexSize="0" visible="false">
+							<l:fixContent >
+								<Panel>
+									<content>
+										<c:ChartContainer id="chartContainerCH" showFullScreen="true" autoAdjustHeight="false" showLegend="true"
+											personalizationPress="attachPersonalizationPress" contentChange="attachContentChange" title="Current Wearable Device Status : Cholestrol">
+											<c:content>
+												<c:ChartContainerContent icon="sap-icon://vertical-bar-chart">
+													<c:content >
+														<!--<viz:Popover id="idPopOver2"></viz:Popover>-->
+														<viz:VizFrame id="idVizFrameBarCH" title="" height='300px' width="80%" vizType='bar'>
+															<viz:dataset>
+																<viz.data:FlattenedDataset data="{/Cholestrol}">
+																	<viz.data:dimensions>
+																		<viz.data:DimensionDefinition name="Cholestrol" value="{Choles}"/>
+																	</viz.data:dimensions>
+																	<viz.data:measures>
+																		<viz.data:MeasureDefinition name="Officer" value="{Officer}"/>
+																	</viz.data:measures>
+																</viz.data:FlattenedDataset>
+															</viz:dataset>
+															<viz:feeds>
+																<viz.feeds:FeedItem id='valueAxisCH' uid="valueAxis" type="Measure" values="Officer"/>
+																<viz.feeds:FeedItem id="categoryAxisCH" uid="categoryAxis" type="Dimension" values="Cholestrol"/>
+															</viz:feeds>
+														</viz:VizFrame>
+													</c:content>
+												</c:ChartContainerContent>
+											</c:content>
+										</c:ChartContainer>
+									</content>
+								</Panel>
+							</l:fixContent>
+						</l:FixFlex>
+					</VBox>
+					<VBox>
+						<Table id="idBPTable" inset="false" items="{ path: '/HearRateDetails' }" width="100%" visible="true">
+							<headerToolbar>
+								<Toolbar>
+									<Title text="Resting Heart Rate Categories" level="H2"/>
+								</Toolbar>
+							</headerToolbar>
+							<columns>
+								<Column minScreenWidth="Tablet" demandPopin="true" hAlign="Center">
+									<Text text="Category"/>
+								</Column>
+								<Column minScreenWidth="Tablet" demandPopin="true" hAlign="Center">
+									<Text text="Heart Rate Range(bpm)"/>
+								</Column>
+							</columns>
+							<items>
+								<ColumnListItem>
+									<cells>
+										<Text text="{Category}"/>
+										<Text text="{Range}"/>
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
+						<Table id="idCholesTable" inset="false" items="{ path: '/CholestrolChart' }" width="100%" visible="false">
+							<headerToolbar>
+								<Toolbar>
+									<Title text="Cholestrol Categories" level="H2"/>
+								</Toolbar>
+							</headerToolbar>
+							<columns>
+								<Column minScreenWidth="Tablet" demandPopin="true" hAlign="Center">
+									<Text text="Category"/>
+								</Column>
+								<Column minScreenWidth="Tablet" demandPopin="true" hAlign="Center">
+									<Text text="Total Cholestrol"/>
+								</Column>
+								<Column minScreenWidth="Tablet" demandPopin="true" hAlign="Center">
+									<Text text="LDL Cholestrol"/>
+								</Column>
+							</columns>
+							<items>
+								<ColumnListItem>
+									<cells>
+										<Text text="{Category}"/>
+										<Text text="{TCholestrol}"/>
+										<Text text="{LCholestrol}"/>
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
+					</VBox>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

@@ -1,0 +1,10 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Popover showHeader="false" class="sapUiContentPadding" placement="Bottom">
+		<List>
+			<StandardListItem title="Citizen" press="handleIndustryClick" type="Active" selected="true"></StandardListItem>
+			<StandardListItem title="Police Officer" press="handleIndustryClick" type="Active"></StandardListItem>
+			<StandardListItem title="Dispatcher" press="handleIndustryClick" type="Active"></StandardListItem>
+			<StandardListItem title="Admin" press="handleIndustryClick" type="Active"></StandardListItem>
+		</List>
+	</Popover>
+</core:FragmentDefinition>

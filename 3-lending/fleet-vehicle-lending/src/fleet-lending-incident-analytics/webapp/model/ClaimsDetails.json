@@ -1,0 +1,82 @@
+{
+	"loss_est":{
+		"aircraft_cost":22000000,
+		"load_factor":150,
+		"single_person_life_cost":110000,
+		"chartData" : [
+				 {
+				  "Name": "Aircraft",
+				  "Revenue": 59
+				}, {
+				  "Name": "Passemgers's life",
+				  "Revenue": 27
+				}, {
+				  "Name": "Infrastructure",
+				  "Revenue": 14
+				}]
+		},
+		"FlightDetails":{
+		"flightID":"EK186",
+		"from":"DXB",
+		"to":"BKK",
+		"from_fullname":"DUBAI",
+		"to_fullname":"BANGKOK",
+		"company":"emirates",
+		"runway_length": 2000,
+		"landing_margin": 500,
+		"flight_distance":2900,
+		"fleet_size":250,
+		"night_percent":0,
+		"flight_hrs": "5:30",
+		"landing_risk" :"5",
+		"opp_accd_rate":"1",
+		"aircraft_accd_rate":"3",
+		"past_flts_accd_rate":"0",
+		"weather_condition":"good",
+	    "route_sector":"pacific",
+	   "crash_probablity":2
+	    
+		},
+	"Claim":{
+		"avg_claim":"32",
+		"avg_claim_cost":"3.25",
+		"estimatedClaim":{"year":"2017",
+						"amt":"2121",
+						"cost":"2323131"
+		},
+		"insurance_value":"15217",
+		"loss_ratio":"1.2",
+		"estimated_loss":"11212",
+		"chartData":[
+			{
+				"Year":"2013",
+				"avg_claim":283,
+				"est_claim":"32",
+				"avg_claim_cost":2566646.0714,
+				"est_claim_cost":"2800000"
+			},
+			{
+				"Year":"2014",
+				"avg_claim":283,
+				"est_claim":"32",
+				"avg_claim_cost":10669344.1366,
+				"est_claim_cost":"2800000"
+			},
+			{
+				"Year":"2015",
+				"avg_claim":345,
+				"est_claim":"32",
+				"avg_claim_cost":22684485.2382,
+				"est_claim_cost":"2800000"
+			},
+			{
+				"Year":"2016",
+				"avg_claim":31,
+				"est_claim":"32",
+				"avg_claim_cost":17343721.8334,
+				"est_claim_cost":"2800000"
+			}
+			
+		]
+	}
+}

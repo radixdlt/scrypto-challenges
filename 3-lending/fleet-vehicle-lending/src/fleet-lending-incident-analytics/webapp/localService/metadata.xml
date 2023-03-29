@@ -1,0 +1,75 @@
+<edmx:Edmx xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" Version="1.0">
+	<edmx:DataServices xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" m:DataServiceVersion="2.0">
+		<Schema xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
+			xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns="http://schemas.microsoft.com/ado/2008/09/edm"
+			Namespace="Aviation.aviationservices">
+			<EntityType Name="policiesType">
+				<Key>
+					<PropertyRef Name="PoliciyId"/>
+				</Key>
+				<Property Name="PoliciyId" Type="Edm.String" Nullable="false" MaxLength="200"/>
+				<Property Name="PolicySource" Type="Edm.String" MaxLength="200"/>
+				<Property Name="DBNumber" Type="Edm.String" MaxLength="200"/>
+				<Property Name="PolicyNumber" Type="Edm.String" MaxLength="200"/>
+				<Property Name="PolicyRef" Type="Edm.String" MaxLength="200"/>
+				<Property Name="PolicyTitle" Type="Edm.String" MaxLength="200" sap:label="policy title"/>
+				<Property Name="UMR" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Insured" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Direct" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Captive" Type="Edm.String" MaxLength="200"/>
+				<Property Name="LloydsLayerRiskCode" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Inception" Type="Edm.DateTime"/>
+				<Property Name="Expiry" Type="Edm.DateTime"/>
+				<Property Name="Activity" Type="Edm.String" MaxLength="200"/>
+				<Property Name="LayerName" Type="Edm.String" MaxLength="200"/>
+				<Property Name="LayerLimitUSD" Type="Edm.Int32"/>
+				<Property Name="LayerAttachmentUSD" Type="Edm.Int32"/>
+				<Property Name="Accumulate" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Limitpercontract" Type="Edm.String" MaxLength="200"/>
+				<Property Name="LineSize" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Paper" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Broker" Type="Edm.String" MaxLength="200"/>
+				<Property Name="AgreementName" Type="Edm.String" MaxLength="200"/>
+				<Property Name="AirlinesTier" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Autobinding" Type="Edm.String" MaxLength="200"/>
+				<Property Name="MaximumLinePercent" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Country" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Renewal" Type="Edm.String" MaxLength="200"/>
+				<Property Name="GrossLayerPremiumUSD" Type="Edm.Int32"/>
+				<Property Name="Brokerage" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Tax" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Description" Type="Edm.String" MaxLength="200"/>
+				<Property Name="AFV" Type="Edm.String" MaxLength="200"/>
+				<Property Name="RPKs" Type="Edm.String" MaxLength="200"/>
+				<Property Name="NumberOfAircraft" Type="Edm.Int32"/>
+				<Property Name="NumberOfPassengers" Type="Edm.Int32"/>
+				<Property Name="NumberOfDepartures" Type="Edm.Int32"/>
+				<Property Name="NumberOfSeats" Type="Edm.Int32"/>
+				<Property Name="NumberOfHours" Type="Edm.Int32"/>
+				<Property Name="LoadFactor" Type="Edm.String" MaxLength="200"/>
+				<Property Name="NumberOfTakeoffs" Type="Edm.Int32"/>
+				<Property Name="NumberOfOverflights" Type="Edm.Int32"/>
+				<Property Name="USGallonage" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Turnover" Type="Edm.String" MaxLength="200"/>
+				<Property Name="LloydsLeaderDescription" Type="Edm.String" MaxLength="200"/>
+				<Property Name="LeaderName" Type="Edm.String" MaxLength="200"/>
+				<Property Name="DifferentialToLeadPercent" Type="Edm.String" MaxLength="200"/>
+				<Property Name="AWACLayerLimitUSD" Type="Edm.Int32"/>
+				<Property Name="GrossLayerPremiumAWACUSD" Type="Edm.Int32"/>
+				<Property Name="NetLayerPremiumAWACUSD" Type="Edm.Int32"/>
+				<Property Name="UniqueID" Type="Edm.String" MaxLength="200"/>
+				<Property Name="Region" Type="Edm.String" MaxLength="200"/>
+				<Property Name="ExposureDescription" Type="Edm.String" MaxLength="200"/>
+				<Property Name="ExposureType" Type="Edm.String" MaxLength="200"/>
+				<Property Name="RiskLocation" Type="Edm.String" MaxLength="200"/>
+				<Property Name="ExposureChangePercent" Type="Edm.String" MaxLength="200"/>
+				<Property Name="RateChangePercent" Type="Edm.String" MaxLength="200"/>
+				<Property Name="PremiumChangePercent" Type="Edm.String" MaxLength="200"/>
+				<Property Name="ModelPrice" Type="Edm.String" MaxLength="200"/>
+			</EntityType>
+			<EntityContainer Name="aviationservices" m:IsDefaultEntityContainer="true">
+				<EntitySet Name="policies" EntityType="Aviation.aviationservices.policiesType"/>
+			</EntityContainer>
+		</Schema>
+	</edmx:DataServices>
+</edmx:Edmx>

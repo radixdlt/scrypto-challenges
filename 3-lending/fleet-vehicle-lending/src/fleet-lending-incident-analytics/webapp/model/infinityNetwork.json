@@ -1,0 +1,278 @@
+{
+	"d": {
+		"results": [{
+			"PERSONNAME": "Sheikh Hamadan",
+			"HASHTAG": "", 
+			"NODEID": "Comments",
+			"NAME": "Comments",
+			"PARENT": "",
+			"NODETYPE": "machineData",
+			"VALUE": 1000,
+			"MainCategory": "Positive",
+			"LEVEL": 0,
+			"COMMENT": "GovGames will challenge participants both physically and mentally, while encouraging them to work as a team. The games will also boost confidence, interaction, and commitment among team members to achieve success"
+		}, {
+			"PERSONNAME": "Sheikh Hamadan",
+			"HASHTAG": "#safety", 
+			"NODEID": "Positive",
+			"NAME": "Positive",
+			"PARENT": "Comments",
+			"NODETYPE": "material",
+			"VALUE": 100,
+			"MainCategory": "Positive",
+			"LEVEL": 1,
+			"COMMENT": "We, the team of @HHShkMohd,  can overcome all challenges … Together, we are confident and ready for what the future holds for us #safety"
+		}, {
+			"PERSONNAME": "Sheikh Hamadan",
+			"NODEID": "Neutral",
+			"HASHTAG": "#dubaipolice", 
+			"NAME": "Neutral",
+			"PARENT": "Comments",
+			"NODETYPE": "material",
+			"VALUE": 100,
+			"LEVEL": 1,
+			"COMMENT": "Teamwork is what drives every entity’s success. Creating team spirit inspires every individual to achieve the impossible, and turn every challenge into an opportunity #dubaipolice"
+		},{
+			"PERSONNAME": "Sheikh Hamadan",
+			"HASHTAG": "#safety", 
+			"NODEID": "Negetive",
+			"NAME": "Negetive",
+			"PARENT": "Comments",
+			"NODETYPE": "material",
+			"VALUE": 100,
+			"LEVEL": 1,
+			"COMMENT": "Building sustainable partnerships and diversifying our international relationships at all levels is a priority. This reflects our leadership’s belief in the importance of opening up to the world and creating bridges of communication & cooperation in all aspects"
+		}, {
+			"PERSONNAME": "Sheikh Hamadan",
+			"HASHTAG": "#dubaipolice", 
+			"NODEID": "101",
+			"NAME": "Comment #101",
+			"PARENT": "Positive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Positive",
+			"SubCategory" : "Police Officers",
+			"COMMENT": "We are always grateful for the hard work our Auxiliary #dubaipolice Officers do for our community."
+		}, {
+			"PERSONNAME": "Sheikh Hamadan",
+			"HASHTAG": "#security", 
+			"NODEID": "102",
+			"NAME": "Comment #102",
+			"PARENT": "Neutral",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Neutral",
+			"SubCategory" : "cases of Drugs",
+			"COMMENT": "Our projects and strategies are designed to meet and surpass the expectations of citizens, and to predict and prepare for the future needs of our society"
+		}, {
+			"PERSONNAME": "Sheikh Hamadan",
+			"HASHTAG": "#safety", 
+			"NODEID": "104",
+			"NAME": "Comment #104",
+			"PARENT": "Neutral",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Neutral",
+			"SubCategory" : "Action required",
+			"COMMENT": "In line with efforts to protect children, we have directed the Community Development Authority to create a database of child abuse cases as part of a comprehensive child protection system"
+		}, {
+			"PERSONNAME": "Sheikh Hamadan",
+			"HASHTAG": "#security", 
+			"NODEID": "105",
+			"NAME": "Comment #105",
+			"PARENT": "Neutral",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Neutral",
+			"SubCategory" : "Action required",
+			"COMMENT": "We work as a team to reflect the vision of @HHShkMohd, where the needs of our citizens is a top the priority of all government entities #security"
+		}, {
+			"PERSONNAME": "Sheikh Hamadan",
+			"HASHTAG": "#dubaipolice", 
+			"NODEID": "106",
+			"NAME": "Comment #106",
+			"PARENT": "Positive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Positive",
+			"SubCategory" : "Great Work",
+			"COMMENT": "Smart Dubai is tasked with overseeing the implementation of this strategy, and we call on relevant government departments to work with them as one team to ensure rapid implementation #dubaipolice"
+		}, {
+			"PERSONNAME": "Sheikh Hamadan",
+			"HASHTAG": "", 
+			"NODEID": "107",
+			"NAME": "Comment #107",
+			"PARENT": "Neutral",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Positive",
+			"SubCategory" : "Actions for community",
+			"COMMENT": "The strategy will eliminate 1 billion papers annually used for government transactions in Dubai today, and will save time spent on processing paper transactions"
+		}, {
+			"PERSONNAME": "Sheikh Hamadan",
+			"HASHTAG": "#dubaipolice", 
+			"NODEID": "108",
+			"NAME": "Comment #108",
+			"PARENT": "Positive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Positive",
+			"SubCategory" : "Thanking the officers",
+			"COMMENT": "At the Dubai Police Academy, we inaugurated 'Ifaad'; an online platform that serves scholarship students both within & outside the UAE. Dubai Police is a source of pride and its innovation drive is impressive #dubaipolice"
+		}, {
+			"PERSONNAME": "Sheikh Hamadan",
+			"HASHTAG": "#dubaipolice", 
+			"NODEID": "109",
+			"NAME": "Comment #109",
+			"PARENT": "Negetive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Neutral",
+			"SubCategory" : "Road Accident",
+			"COMMENT": "Today, we witnessed the graduation of postgraduate students & cadet officers from the Dubai Police Academy. We salute those who serve our beloved country & its citizens #dubaipolice"
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#dubaipolice", 
+			"NODEID": "111",
+			"NAME": "Comment #111",
+			"PARENT": "Positive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Positive",
+			"SubCategory" : "#Police Officers",
+			"COMMENT": "Your dedication in your work is part of your loyalty to your country #dubaipolice"
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#safety", 
+			"NODEID": "112",
+			"NAME": "Comment #112",
+			"PARENT": "Negetive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Negetive",
+			"SubCategory" : "Traffic congestion",
+			"COMMENT": "Huge Traffic congestion near Hard Rock Cafe. Two vehicle collided #safety"
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#dubaipolice", 
+			"NODEID": "113",
+			"NAME": "Comment #113",
+			"PARENT": "Positive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Neutral",
+			"SubCategory" : "grateful",
+			"COMMENT": "#901 Answers all your inquiries about #DubaiPolice services and how to acquire it. #dubaipolice"
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#defense", 
+			"NODEID": "114",
+			"NAME": "Comment #115",
+			"PARENT": "Negetive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Negetive",
+			"SubCategory" : "Huge Traffic Congestion",
+			"COMMENT": "Jetmakers end Dubai rollercoaster with big orders pending by @Reuters #aerospace #defense"
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#defense", 
+			"NODEID": "116",
+			"NAME": "Comment #116",
+			"PARENT": "Negetive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Neutral",
+			"SubCategory" : "Two vehicles collided",
+			"COMMENT": "Autonomy is the new cyber; Dubai Air Show wrap-up; Raytheon and Saab to collaborate; and more #defense"
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#safety", 
+			"NODEID": "118",
+			"NAME": "Comment #118",
+			"PARENT": "Negetive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Negetive",
+			"SubCategory" : "Two vehicle collided",
+			"COMMENT": "Huge Traffic congestion near Hard Rock Cafe. Two vehicle collided #safety"
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#dubaipolice", 
+			"NODEID": "120",
+			"NAME": "Comment #120",
+			"PARENT": "Positive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Positive",
+			"SubCategory" : "#Police Officers",
+			"COMMENT": "We are always grateful for the hard work our Auxiliary #dubaipolice Officers do for our community."
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#security", 
+			"NODEID": "120",
+			"NAME": "Comment #120",
+			"PARENT": "Positive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Positive",
+			"SubCategory" : "#Police Officers",
+			"COMMENT": "US & #UAE continue to discuss possible joint R&D #Cooperation - New #security"
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#defense", 
+			"NODEID": "120",
+			"NAME": "Comment #120",
+			"PARENT": "Positive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Positive",
+			"SubCategory" : "#Police Officers",
+			"COMMENT": "Dubai Airshow 2017 : Les EAU se dotent du C295W #Aéronautique #Défense"
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#defense", 
+			"NODEID": "120",
+			"NAME": "Comment #120",
+			"PARENT": "Positive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Positive",
+			"SubCategory" : "#Police Officers",
+			"COMMENT": "We would like to thank the Participants for taking the time to take part in #DIAC ... It was a success! #Defense #DUBAI"
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#defense", 
+			"NODEID": "120",
+			"NAME": "Comment #120",
+			"PARENT": "Positive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Positive",
+			"SubCategory" : "#Police Officers",
+			"COMMENT": "USAF’s Goldfein has 3 questions for the defense industry; missile defense spending to spike; readying for Dubai, and more. http://dlvr.it/Q04w8w  #military #defense"
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#security", 
+			"NODEID": "120",
+			"NAME": "Comment #120",
+			"PARENT": "Positive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Positive",
+			"SubCategory" : "#Police Officers",
+			"COMMENT": "#Intersec 2018, 20th edition, held at Dubai from 21st to 23rd Jan.Thanks to all the participants helping in catering the specific physical #security & identity management requirements."
+		}, {
+			"PERSONNAME": "Abdullah Khalifa Al Merri",
+			"HASHTAG": "#security", 
+			"NODEID": "120",
+			"NAME": "Comment #120",
+			"PARENT": "Positive",
+			"NODETYPE": "warranty",
+			"VALUE": "1",
+			"MainCategory": "Positive",
+			"SubCategory" : "#Police Officers",
+			"COMMENT": "#security 2018, CCTvs installed on all the major highways fuelstations to monitor vehicle movements"
+		}]
+	}
+}

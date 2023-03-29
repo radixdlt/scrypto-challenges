@@ -1,0 +1,35 @@
+{
+	"SideNavList": [{
+		"icon": "sap-icon://home",
+		"title": "Dashboard",
+		"visible":true
+	}, {
+		"icon": "sap-icon://customer-view",
+		"title": "Sentiments",
+		"visible":false
+	}, {
+		"icon": "sap-icon://building",
+		"title": "ICM",
+		"visible":false
+	}, {
+		"icon": "sap-icon://stethoscope",
+		"title": "Health",
+		"visible":false
+	},
+	{
+		"icon": "sap-icon://chain-link",
+		"title": "BlockChain",
+		"visible":true
+	},
+		{
+		"icon": "sap-icon://activity-individual",
+		"title": "ICM",
+		"visible":false
+	},
+		{
+		"icon": "sap-icon://manager-insight",
+		"title": "Predictive Analysis",
+		"visible":false
+	}
+]
+}

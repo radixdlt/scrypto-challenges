@@ -1,0 +1,12 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.LiveStream"
+	xmlns:html="http://www.w3.org/1999/xhtml">
+	<App>
+		<pages>
+			<Page class="pageStyles" title="Live Stream" showNavButton="true" navButtonPress="onNavBack">
+				<content>
+					<html:iframe target='_top' src="https://iframe.dacast.com/b/104928/c/460923" id ="attachmentframe" height="100%" width="100%"></html:iframe>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

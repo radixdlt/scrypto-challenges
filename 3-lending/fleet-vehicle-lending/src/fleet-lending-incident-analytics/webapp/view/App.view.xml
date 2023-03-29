@@ -1,0 +1,24 @@
+<mvc:View controllerName="com.sap.Aviation.controller.App" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="sap.ui.core.mvc"
+	displayBlock="true" xmlns="sap.m">
+	<App>
+		<pages>
+			<Page>
+				<headerContent>
+					<Toolbar id="appHeaderToolbar" class="appHeaderToolbar">
+						<Image src="image/dubai-police.jpg" height="80%" class="sapUiTinyMarginBegin" />
+						<ToolbarSpacer />
+						<Button icon="sap-icon://sys-help-2"/>
+						<Button icon="sap-icon://email"/>
+						<Button icon="sap-icon://grid" text="Roles" press="handleChangeIndustry" visible="true"/>
+						<Label id="userLabel"/>
+						<Button icon="sap-icon://customer" press="navToPeopleProfile"/>
+						<Button icon="sap-icon://navigation-down-arrow"  press="onCopilotHeaderItemPress"/>
+					</Toolbar>
+				</headerContent>
+				<content>
+					<App id="mainApp"></App>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

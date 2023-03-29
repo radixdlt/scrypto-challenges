@@ -1,0 +1,30 @@
+{
+	"eventTiles": [
+		{
+			"title" : "Flight",
+			"icon" : "sap-icon://flight",
+			"number":"TK-5232"
+		},
+		{
+			"title" : "Aircraft",
+			"icon" : "sap-icon://home-share",
+			"number":"747-400",
+			"numberUnit":"TC-MCL"
+		},
+		{	
+			"title" : "Seats Configuration",
+			"icon" : "sap-icon://person-placeholder"
+		},
+		{
+			"title" : "Claims",
+			"icon" : "sap-icon://acyivities",
+			"number":"1",
+			"numberUnit":"Claim"
+		},
+		{
+			"title" : "Location",
+			"icon" : "sap-icon://locate-me",
+			"number":"Bishkek Kyrgystan"
+		}
+	]
+}	

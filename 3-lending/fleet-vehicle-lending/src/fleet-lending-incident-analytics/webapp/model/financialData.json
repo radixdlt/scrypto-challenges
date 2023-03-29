@@ -1,0 +1,36 @@
+{
+	"seatCollection": [{
+			"class": "Revenue and other operating income*",
+			"specs": "AED m",
+			"pitch": "92,896",
+			"width": "96,053",
+			"seating": "(3.3)"
+
+		}, {
+			"class": "Operating profit",
+			"specs": "AED m",
+			"pitch": "9,391",
+			"width": "6,898",
+			"seating": "36.1"
+		}, {
+			"class": "Operating margin",
+			"specs": "%",
+			"pitch": "10.1",
+			"width": "7.2",
+			"seating": "2.9pts"
+		}, {
+			"class": "Operating profit",
+			"specs": "AED m",
+			"pitch": "8,179",
+			"width": "5,461",
+			"seating": "49.8"
+		}, {
+			"class": "Operating profit",
+			"specs": "%",
+			"pitch": "8.8",
+			"width": "5.7",
+			"seating": "3.1pts"
+		}
+
+	]
+}

@@ -1,0 +1,193 @@
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+	<edmx:Reference xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx"
+		Uri="https://webide-afb05c1be.dispatcher.hana.ondemand.com/destinations/Planner/Aviation/aviationservices.xsodata/$metadata">
+		<edmx:Include xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Namespace="Aviation.aviationservices"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="http://docs.oasis-open.org/odata/odata-data-aggregation-ext/v4.0/cs02/vocabularies/Org.OData.Aggregation.V1.xml">
+		<edmx:Include Alias="Aggregation" Namespace="Org.OData.Aggregation.V1"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/vocabularies/Org.OData.Capabilities.V1.xml">
+		<edmx:Include Alias="Capabilities" Namespace="Org.OData.Capabilities.V1"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="https://wiki.scn.sap.com/wiki/download/attachments/448470974/Common.xml?api=v2">
+		<edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="https://wiki.scn.sap.com/wiki/download/attachments/448470971/Communication.xml?api=v2">
+		<edmx:Include Alias="vCard" Namespace="com.sap.vocabularies.Communication.v1"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/vocabularies/Org.OData.Core.V1.xml">
+		<edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/vocabularies/Org.OData.Measures.V1.xml">
+		<edmx:Include Alias="CQP" Namespace="Org.OData.Measures.V1"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="https://wiki.scn.sap.com/wiki/download/attachments/448470968/UI.xml?api=v2">
+		<edmx:Include Alias="UI" Namespace="com.sap.vocabularies.UI.v1"/>
+	</edmx:Reference>
+	<edmx:DataServices>
+		<Schema xmlns="http://docs.oasis-open.org/odata/ns/edm">
+			<Annotations Target="Aviation.aviationservices.bookTransferType">
+				<Annotation Term="UI.LineItem">
+					<Collection>
+						<Record Type="UI.DataField">
+							<PropertyValue Property="Label" String="Number"/>
+							<PropertyValue Property="Value" Path="PolicyNumber"/>
+						</Record>
+						<Record Type="UI.DataField">
+							<PropertyValue Property="Label" String="Title"/>
+							<PropertyValue Property="Value" Path="PolicyTitle"/>
+						</Record>
+					</Collection>
+				</Annotation>
+				<Annotations Target="Aviation.aviationservices.claimsType">
+					<Annotation Term="UI.LineItem">
+						<Collection>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Number"/>
+								<PropertyValue Property="Value" Path="PolicyNumber"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Branch"/>
+								<PropertyValue Property="Value" Path="BranchName"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Department"/>
+								<PropertyValue Property="Value" Path="ProductDepartmentName"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Assured Name"/>
+								<PropertyValue Property="Value" Path="AssuredName"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Claim Master Reference"/>
+								<PropertyValue Property="Value" Path="ClaimMasterReference"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Claim Status"/>
+								<PropertyValue Property="Value" Path="ClaimStatus"/>
+							</Record>
+							<!--<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Accident Year"/>
+								<PropertyValue Property="Value" Path="AccidentYear"/>
+							</Record>-->
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Accident Date"/>
+								<PropertyValue Property="Value" Path="AccidentDate"/>
+							</Record>
+							<!--<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Date Of Loss"/>
+								<PropertyValue Property="Value" Path="DateOfLossFrom"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Advised Date"/>
+								<PropertyValue Property="Value" Path="AdvisedDate"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Currency Code"/>
+								<PropertyValue Property="Value" Path="CurrencyCode"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="ALAE Paid"/>
+								<PropertyValue Property="Value" Path="GrossLossALAEPaidUSD"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="ALAE Reserve"/>
+								<PropertyValue Property="Value" Path="GrossLossALAEReserveUSD"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="ALAE Incurred"/>
+								<PropertyValue Property="Value" Path="GrossLossALAEIncurredUSD"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Currency Code"/>
+								<PropertyValue Property="Value" Path="CurrencyCode"/>
+							</Record>-->
+						</Collection>
+					</Annotation>
+				</Annotations>
+				<Annotations Target="Aviation.aviationservices.eventsType">
+					<Annotation Term="UI.LineItem">
+						<Collection>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Event ID"/>
+								<PropertyValue Property="Value" Path="EventId"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Date"/>
+								<PropertyValue Property="Value" Path="DoL"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Event Name"/>
+								<PropertyValue Property="Value" Path="EventName"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Classification"/>
+								<PropertyValue Property="Value" Path="EventClassification"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Sub Classification"/>
+								<PropertyValue Property="Value" Path="EventSubClassification"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Location"/>
+								<PropertyValue Property="Value" Path="Location"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="War"/>
+								<PropertyValue Property="Value" Path="War"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Year"/>
+								<PropertyValue Property="Value" Path="YoL"/>
+							</Record>
+						</Collection>
+					</Annotation>
+				</Annotations>
+				<Annotations Target="Aviation.aviationservices.flightRouteType">
+					<Annotation Term="UI.LineItem">
+						<Collection>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Code"/>
+								<PropertyValue Property="Value" Path="SMODE_CODE"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Operator Name"/>
+								<PropertyValue Property="Value" Path="OPERATED_BY"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Timestamp"/>
+								<PropertyValue Property="Value" Path="TIMESTAMP"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="From"/>
+								<PropertyValue Property="Value" Path="FROM"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="To"/>
+								<PropertyValue Property="Value" Path="TO"/>
+							</Record>
+						</Collection>
+					</Annotation>
+				</Annotations>
+				<Annotations Target="Aviation.aviationservices.operatorsType">
+					<Annotation Term="UI.LineItem">
+						<Collection>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Operator Code"/>
+								<PropertyValue Property="Value" Path="OperatorCode"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Operator Name"/>
+								<PropertyValue Property="Value" Path="OperatorName"/>
+							</Record>
+							<Record Type="UI.DataField">
+								<PropertyValue Property="Label" String="Operator Country"/>
+								<PropertyValue Property="Value" Path="OperatorCountry"/>
+							</Record>
+						</Collection>
+					</Annotation>
+				</Annotations>
+			</Annotations>
+		</Schema>
+	</edmx:DataServices>
+</edmx:Edmx>

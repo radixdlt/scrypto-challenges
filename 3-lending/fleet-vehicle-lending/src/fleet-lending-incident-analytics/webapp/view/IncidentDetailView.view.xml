@@ -1,0 +1,115 @@
+<core:View xmlns:core="sap.ui.core" xmlns="sap.uxap" xmlns:layout="sap.ui.layout" xmlns:m="sap.m" xmlns:f="sap.ui.layout.form"
+	controllerName="com.sap.Aviation.controller.IncidentDetailView" height="100%">
+	<ObjectPageLayout class="pageStyles"  id="ObjectPageLayout" enableLazyLoading="false" showNavButton="true" navButtonPress="onNavBack" subSectionLayout="TitleOnLeft" showTitleInHeaderContent="true"
+		showHeaderContent="true" xmlns:l="sap.ui.layout">
+		<headerTitle>
+			<ObjectPageHeader objectImageURI="" objectImageShape="Circle" objectTitle="{test>/comments}" objectSubtitle="{test>/status}"
+				objectImageAlt="Police Office" id="ObjectPageLayoutHeaderTitle" isObjectIconAlwaysVisible="false" isObjectTitleAlwaysVisible="false"
+				isObjectSubtitleAlwaysVisible="false" isActionAreaAlwaysVisible="true" showPlaceholder="true">
+				<actions>
+					<!--	<ObjectPageHeaderActionButton icon="sap-icon://pull-down" text="show section" type="Emphasized"/>
+					<ObjectPageHeaderActionButton icon="sap-icon://show" text="show state" type="Emphasized"/>-->
+				</actions>
+				<m:Button text="Change Status"
+						press="onChangeStatusPress"/> 
+			</ObjectPageHeader>
+		</headerTitle>
+		<headerContent>
+			<layout:VerticalLayout>
+				<m:Label text="{test>/eventNum}"/>
+			</layout:VerticalLayout>
+			<layout:VerticalLayout>
+				<m:Label text="{test>/address}"/>
+			</layout:VerticalLayout>
+		</headerContent>
+		<sections>
+			<ObjectPageSection title="Information" class="pageStyles">
+				<subSections>
+					<ObjectPageSubSection class="pageStyles" title="Incident Summary">
+						<blocks class="pageStyles">
+							<m:VBox class="sapUiSmallMargin">
+								<f:Form id="FormIncident" editable="false">
+									<f:layout>
+										<f:ResponsiveGridLayout class="pageStyles" labelSpanXL="3" labelSpanL="3" labelSpanM="3" labelSpanS="12" adjustLabelSpan="false" emptySpanXL="4" emptySpanL="4"
+											emptySpanM="4" emptySpanS="0" columnsXL="1" columnsL="1" columnsM="1" singleContainerFullSize="false"/>
+									</f:layout>
+									<f:formContainers>
+										<f:FormContainer>
+											<f:formElements>
+												<f:FormElement label="Incident">
+													<f:fields>
+														<m:Text text="{test>/comments}"/>
+													</f:fields>
+												</f:FormElement>
+												<f:FormElement label="Location">
+													<f:fields>
+														<m:Text text="{test>/address}" id="locText"/>
+													</f:fields>
+												</f:FormElement>
+												<f:FormElement label="Type">
+													<f:fields>
+														<m:Text text="{test>/category}"/>
+													</f:fields>
+												</f:FormElement>
+												<f:FormElement label="Emergency">
+													<f:fields>
+														<m:Text text="Yes"/>
+													</f:fields>
+												</f:FormElement>
+												<f:FormElement label="Reported Date">
+													<f:fields>
+														<m:Text text="{test>/date}"/>
+													</f:fields>
+												</f:FormElement>
+												<f:FormElement label="Reported Time">
+													<f:fields>
+														<m:Text text="{test>/time}"/>
+													</f:fields>
+												</f:FormElement>
+												<f:FormElement label="Officer In Charge">            
+													<f:fields>
+														<m:Text text="{test>/officerInCharge}"/>
+													</f:fields>
+												</f:FormElement>
+											</f:formElements>
+										</f:FormContainer>
+									</f:formContainers>
+								</f:Form>
+							</m:VBox>
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+			<ObjectPageSection title="Attachments">
+				<subSections>
+					<ObjectPageSubSection class="pageStyles" title="Evidences">
+						<blocks>
+							<m:HBox width="100%" id="__hbox1">
+								<m:Image width="100px" height="100px" id="myImage1" backgroundPosition="center" src="image/traffic_congestion.jpg" alt="ImageView"/>
+								<m:Image width="100px" height="100px" id="myImage2" backgroundPosition="center" src="image/fire_building.jpg" alt="ImageView"/>
+							</m:HBox>
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+			<ObjectPageSection class="pageStyles" title="Comments">
+				<subSections>
+					<ObjectPageSubSection class = "moveLeft" title="Chat History">
+						<blocks>
+								<l:VerticalLayout width="100%" class="sapUiContentPadding">
+									<l:content>
+										<m:List items="{test>/ChatCollection}">
+											<m:FeedListItem sender="{test>Author}" iconDensityAware="false" info="{test>Type}"
+												timestamp="{test>Date}" text="{test>Text}"/>
+										</m:List>
+									</l:content>
+								</l:VerticalLayout>
+								<!--<m:Label text="John (Citizen): Its a huge Fire!!!"></m:Label>
+								<m:Label text="Katy (Dispatcher): Fire Truck on its way. Ambulance and neaby hospitals have been informed "></m:Label>-->
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+		</sections>
+	</ObjectPageLayout>
+</core:View>

@@ -1,0 +1,22 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.SplitApp"
+	xmlns:html="http://www.w3.org/1999/xhtml">
+	<SplitApp id="splitApp">
+		<masterPages id="masterPage">
+			<Page showHeader="false">
+				<content>
+					<List id="SideNavList" class="sideNavClass" items="{sideNav>/SideNavList}">
+						<items>
+							<CustomListItem  press="sideNavPress" type="Active" visible="{sideNav>visible}">
+								<VBox class="ssapUiSmallMarginTopBotton sapUiSmallMarginBegin" justifyContent="Center">
+									<core:Icon src="{sideNav>icon}" size="3rem" class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom"/>
+									<Label text="{sideNav>title}"/>
+								</VBox>
+							</CustomListItem>
+						</items>
+					</List>
+				</content>
+			</Page>
+		</masterPages>
+		<detailPages id="detailPage"></detailPages>
+	</SplitApp>
+</mvc:View>

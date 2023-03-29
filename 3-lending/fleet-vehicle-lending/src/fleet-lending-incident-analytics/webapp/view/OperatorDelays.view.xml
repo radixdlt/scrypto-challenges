@@ -1,0 +1,38 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.OperatorDelays"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:l="sap.ui.layout"
+	xmlns:smartTable="sap.ui.comp.smarttable">
+	<App>
+		<pages>
+			<Page showHeader="false" class="financialDetailsPage">
+				<content>
+					<l:Grid defaultSpan="L2 M6 S6" class="sapUiSmallMarginTop">
+						<l:content>
+							<!-- Third / Half width items -->
+							<Image src="image/emiratesLogo/emiratesSmallLogo.PNG">
+								<layoutData>
+									<l:GridData span="L1 M12 S12"/>
+								</layoutData>
+							</Image>
+							<Panel class="operatorfinancialdatapanel1" backgroundDesign="Transparent">
+								<Label class="operatorfinancialdatalabel" text="Emirates"></Label>
+								<layoutData>
+									<l:GridData span="L11 M12 S12"/>
+								</layoutData>
+							</Panel>
+							<Panel backgroundDesign="Transparent">
+								<smartTable:SmartTable id="policiesTable"
+									initiallyVisibleFields="PolicyNumber,PolicyTitle,UMR,Insured,Direct,Activity,Activity,Broker,Country" entitySet="policies"
+									smartFilterId="smartFilterBar" tableType="ResponsiveTable" useExportToExcel="true" useVariantManagement="false"
+									useTablePersonalisation="false" persistencyKey="SmartTableAnalytical_Explored" enableAutoBinding="true" demandPopin="true"
+									dataReceived="navigationCovers" class="sapUiResponsiveContentPadding"></smartTable:SmartTable>
+								<layoutData>
+									<l:GridData span="L12 M12 S12"/>
+								</layoutData>
+							</Panel>
+						</l:content>
+					</l:Grid>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

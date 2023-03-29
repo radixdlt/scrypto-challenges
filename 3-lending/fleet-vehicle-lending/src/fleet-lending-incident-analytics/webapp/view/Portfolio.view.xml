@@ -1,0 +1,23 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.Portfolio"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:smartFilterBar="sap.ui.comp.smartfilterbar" xmlns:smartTable="sap.ui.comp.smarttable" class="viewStyle">
+	<App>
+		<pages>
+			<Page class="pageStyles"  showHeader="false">
+				<content>
+					<Label class="label_myportfolio" text="MY PORTFOLIO"></Label>
+					<Button class="button_analytics" icon="sap-icon://pie-chart" text="Analytics" press="onPortfolioAnalyticButtonPress"></Button>
+					<smartFilterBar:SmartFilterBar class="smartfilter_style sapUiResponsiveContentPadding sapUiResponsiveMargin" id="smartFilterBar" entityType="bookTransferType" enableBasicSearch="true">
+						<smartFilterBar:controlConfiguration>
+							<smartFilterBar:ControlConfiguration key="Activity" visibleInAdvancedArea="true" preventInitialDataFetchInValueHelpDialog="false"/>
+							<smartFilterBar:ControlConfiguration key="Country" visibleInAdvancedArea="true" preventInitialDataFetchInValueHelpDialog="false"/>
+						</smartFilterBar:controlConfiguration>
+					</smartFilterBar:SmartFilterBar>
+					<smartTable:SmartTable id="policiesTable"
+						initiallyVisibleFields="PolicyNumber,PolicyTitle,UMR,Insured,Direct,Activity,Activity,Broker,Country" entitySet="bookTransfer"
+						useTablePersonalisation="false" smartFilterId="smartFilterBar" tableType="ResponsiveTable" useExportToExcel="true" useVariantManagement="false"
+						dataReceived="navigationCovers" class="sapUiResponsiveContentPadding sapUiResponsiveMargin"></smartTable:SmartTable>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

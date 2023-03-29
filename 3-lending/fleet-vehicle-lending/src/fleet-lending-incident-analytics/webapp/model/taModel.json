@@ -1,0 +1,24 @@
+{
+	"results": [{
+		"dimension": "FATALITIES",
+		"measure": 56
+	}, {
+		"dimension": "FIRE",
+		"measure": 21
+	}, {
+		"dimension": "ENGINE",
+		"measure": 9
+	}, {
+		"dimension": "GEAR",
+		"measure": 24
+	}, {
+		"dimension": "FAILURE",
+		"measure": 26
+	}, {
+		"dimension": "FUEL",
+		"measure": 2
+	}, {
+		"dimension": "TIER",
+		"measure": 1
+	}]
+}

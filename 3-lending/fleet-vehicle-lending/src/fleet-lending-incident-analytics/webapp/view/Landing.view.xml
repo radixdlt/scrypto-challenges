@@ -1,0 +1,27 @@
+<mvc:View controllerName="emiratespost.controller.Landing" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="sap.ui.core.mvc"
+	displayBlock="true" xmlns:l="sap.ui.layout" xmlns="sap.m" xmlns:c="sap.ui.core">
+	<Page class="pageHeaderLandingPage" enableScrolling="false" id="landing">
+		<customHeader >
+			<Bar class="head">
+				<contentLeft>
+					
+					<Image src="images/emirates-final.jpg"/>
+				</contentLeft>
+				<contentMiddle>
+						<Text text="{i18n>landingPageTitle}" class="boldclass"/>
+					
+				</contentMiddle>
+			</Bar>
+		</customHeader>
+		<TileContainer id="container" tiles="{tilecontent>/TileCollection}">
+			<StandardTile icon="sap-icon://{tilecontent>icon}" title="{tilecontent>title}" press="onTilePress"/>
+		</TileContainer>
+		<footer>
+			<Bar>
+				<contentMiddle>
+					<Image src="images/sap_logo.png" height="14px" width="200px"></Image>
+				</contentMiddle>
+			</Bar>
+		</footer>
+	</Page>
+</mvc:View>

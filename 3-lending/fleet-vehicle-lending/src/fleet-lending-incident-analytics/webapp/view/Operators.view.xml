@@ -1,0 +1,54 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.Operators"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:smartFilterBar="sap.ui.comp.smartfilterbar" xmlns:smartTable="sap.ui.comp.smarttable">
+	<App>
+		<pages>
+			<Page showHeader="false" scrollable="false">
+				<content>
+					<Label class="label_myportfolio" text="OPERATORS"></Label>
+					<Button class="button_analytics" icon="sap-icon://pie-chart" text="Analytics"></Button>
+					<smartFilterBar:SmartFilterBar class="smartfilter_style sapUiResponsiveContentPadding sapUiResponsiveMargin" id="smartFilterBar"
+						entityType="operatorsType" enableBasicSearch="true">
+						<smartFilterBar:controlConfiguration>
+							<smartFilterBar:ControlConfiguration key="OperatorCountry" visibleInAdvancedArea="true" preventInitialDataFetchInValueHelpDialog="false"/>
+						</smartFilterBar:controlConfiguration>
+					</smartFilterBar:SmartFilterBar>
+					<VBox>
+					<Button text="Compare" press="onPressCompare" class="button_compare"></Button>
+					<smartTable:SmartTable id="operatorSmartTable" entitySet="operators" smartFilterId="smartFilterBar" tableType="ResponsiveTable" useExportToExcel="true"
+						useVariantManagement="false" useTablePersonalisation="false" initiallyVisibleFields="OperatorCode,OperatorName,OperatorCountry"
+						enableAutoBinding="true" demandPopin="true" class="sapUiResponsiveContentPadding sapUiResponsiveMargin"
+						persistencyKey="SmartTableAnalytical_Explored" toolbarStyleClass="toolbarstyle">
+						<Table id="operatorsTable" growingScrollToLoad="true" class="sapUiResponsiveMargin" width="auto">
+							<columns>
+								<Column width="100px" hAlign="Left">
+									<customData>
+										<core:CustomData key="p13nData" value='\{ "maxLength": "5","columnIndex":"7"}'/>
+									</customData>
+									<Text text="Action"/>
+								</Column>
+								<Column width="100px" hAlign="Left">
+									<customData>
+										<core:CustomData key="p13nData" value='\{ "maxLength": "5","columnIndex":"8"}'/>
+									</customData>
+									<Text text="Compare"/>
+								</Column>
+							</columns>
+							<items>
+								<ColumnListItem>
+									<cells>
+										<HBox>
+											<Button icon="sap-icon://customer-view" press="onOverviewButtonPress"/>
+											<Button icon="sap-icon://arrow-right" press="onOperatorsButtonPress"/>
+										</HBox>
+										<CheckBox></CheckBox>
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
+					</smartTable:SmartTable>
+					</VBox>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

@@ -1,0 +1,21 @@
+<mvc:View id="risks" xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.Risks"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:smartFilterBar="sap.ui.comp.smartfilterbar" xmlns:smartTable="sap.ui.comp.smarttable">
+	<App>
+		<pages>
+			<Page showHeader="false">
+				<content>
+					<Label class="label_myportfolio" text="RISKS"></Label>
+					<smartFilterBar:SmartFilterBar class="smartfilter_style sapUiResponsiveContentPadding sapUiResponsiveMargin" id="smartFilterBar" entityType="policiesType" enableBasicSearch="true">
+						<smartFilterBar:controlConfiguration>
+						</smartFilterBar:controlConfiguration>
+					</smartFilterBar:SmartFilterBar>
+					<smartTable:SmartTable id="policiesTable"
+						initiallyVisibleFields="PolicyNumber,PolicyTitle,UMR,Insured,Direct,Activity,Activity,Broker,Country" entitySet="policies"
+						smartFilterId="smartFilterBar" tableType="ResponsiveTable" useExportToExcel="true" useVariantManagement="false"
+						useTablePersonalisation="false" persistencyKey="SmartTableAnalytical_Explored" enableAutoBinding="true" demandPopin="true"
+						class="sapUiResponsiveContentPadding sapUiResponsiveMargin"></smartTable:SmartTable>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

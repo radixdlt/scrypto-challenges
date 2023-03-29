@@ -1,0 +1,62 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.ClaimDetail"  xmlns:f="sap.ui.layout.form"
+	xmlns:html="http://www.w3.org/1999/xhtml">
+	<App>
+		<pages>
+			<Page showHeader="false">
+				<content>
+					<ObjectHeader id="id1" 	class="sapUiResponsiveMargin">
+						<statuses>
+							<ObjectStatus id="claimStatus"></ObjectStatus>
+						</statuses>
+						<attributes>
+							<ObjectAttribute id="claimAttr1"/>
+							<ObjectAttribute id="claimAttr2"/>
+						</attributes>
+					</ObjectHeader>
+					<IconTabBar class="sapUiResponsiveMargin">
+						<items>
+							<IconTabFilter id="claimIconTabFilt1" icon="sap-icon://hint">
+								<f:SimpleForm editable="false" layout="ResponsiveGridLayout" labelSpanL="4" labelSpanM="12"
+									adjustLabelSpan="false" emptySpanL="0" emptySpanM="0" columnsL="2" columnsM="2" singleContainerFullSize="false">
+									<f:content>
+										<core:Title text="Claim Information"/>
+										<Label text="Branch Name"/>
+										<Text id="form1"/>
+										<Label text="Product Department Name"/>
+										<Text id="form2"/>
+										<Label text="Accident Date"/>
+										<Text id="form3"/>
+										<Label text="Date Of Loss From"/>
+										<Text id="form4"/>
+										<Label text="Advised Date"/>
+										<Text id="form5"/>
+										<Label text="Cause of Loss(Name)"/>
+										<Text id="form6"/>
+										<Label text="Cause of Loss(Code)"/>
+										<Text id="form7"/>
+									</f:content>
+								</f:SimpleForm>
+							</IconTabFilter>
+							<IconTabFilter id="claimIconTabFilt2" icon="sap-icon://customer-financial-fact-sheet">
+								<f:SimpleForm  editable="false" layout="ResponsiveGridLayout" labelSpanL="4" labelSpanM="12"
+									adjustLabelSpan="false" emptySpanL="0" emptySpanM="0" columnsL="2" columnsM="2" singleContainerFullSize="false">
+									<f:content>
+										<core:Title text="Financial Information"/>
+										<Label text="Loss Paid(USD)"/>
+										<Text id="form8"/>
+										<Label text="Loss Reserve(USD)"/>
+										<Text id="form9"/>
+										<Label text="Loss Incurred(USD)"/>
+										<Text id="form10"/>
+										<Label text="Currency Code"/>
+										<Text id="form11"/>
+									</f:content>
+								</f:SimpleForm>
+							</IconTabFilter>
+						</items>
+					</IconTabBar>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

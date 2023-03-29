@@ -1,0 +1,201 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.Operator"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:smartForm="sap.ui.comp.smartform" xmlns:smartField="sap.ui.comp.smartfield"
+	xmlns:s="sap.ui.comp.smartmicrochart" xmlns:micro="sap.suite.ui.microchart" xmlns:l="sap.ui.layout">
+	<App>
+		<pages>
+			<Page showHeader="false">
+				<content>
+					<smartForm:SmartForm id="smartFormFlightData">
+						<smartForm:Group>
+							<smartForm:layout>
+								<l:GridData span="L2 M12 S12"/>
+							</smartForm:layout>
+							<smartForm:GroupElement>
+								<Image src="image/emiratesLogo/emirates.PNG"/>
+							</smartForm:GroupElement>
+						</smartForm:Group>
+						<smartForm:Group label="EMIRATES">
+							<smartForm:layout>
+								<l:GridData span="L3 M12 S12"/>
+							</smartForm:layout>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="IATA" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="ICAO" value="{PolicyNumber}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Callsign" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Rating" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+						</smartForm:Group>
+						<smartForm:Group label=" ">
+							<smartForm:layout>
+								<l:GridData span="L3 M12 S12"/>
+							</smartForm:layout>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Founded" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Commenced operations" value="{PolicyNumber}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Hubs" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Subsidiaries" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:layout>
+								<l:GridData span="L3 M12 S12"/>
+							</smartForm:layout>
+						</smartForm:Group>
+						<smartForm:Group label=" ">
+							<smartForm:layout>
+								<l:GridData span="L3 M12 S12"/>
+							</smartForm:layout>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Elseco exposure" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Profitability" value="{PolicyNumber}"/>
+							</smartForm:GroupElement>
+							<smartForm:GroupElement>
+								<smartField:SmartField textLabel="Elseco results" value="{PolicyTitle}"/>
+							</smartForm:GroupElement>
+							<smartForm:layout>
+								<l:GridData span="L4 M12 S12"/>
+							</smartForm:layout>
+						</smartForm:Group>
+					</smartForm:SmartForm>
+					<l:Grid defaultSpan="L2 M6 S6" class="sapUiSmallMarginTop">
+						<l:content>
+							<!-- Third / Half width items -->
+							<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Financial data" subheader="PDF - INTERNET"
+								frameType="OneByOne" press="onOperatorTilePress">
+								<tileContent>
+									<TileContent>
+										<content>
+											<NumericContent icon="sap-icon://lead"/>
+										</content>
+									</TileContent>
+								</tileContent>
+							</GenericTile>
+							<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Underwriting files" 
+								frameType="OneByOne" press="onOperatorTilePress">
+								<tileContent>
+									<TileContent>
+										<content>
+											<NumericContent icon="sap-icon://sap-box"/>
+										</content>
+									</TileContent>
+								</tileContent>
+							</GenericTile>
+							<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Claims" frameType="OneByOne"
+								press="onOperatorTilePress">
+								<tileContent>
+									<TileContent footer="new claim">
+										<content>
+											<NumericContent value="1" icon="sap-icon://document-text"/>
+										</content>
+									</TileContent>
+								</tileContent>
+							</GenericTile>
+							<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Aircrafts"  frameType="OneByOne"
+								press="onOperatorTilePress">
+								<tileContent>
+									<TileContent footer="aircrafts">
+										<content>
+											<NumericContent value="240" icon="sap-icon://flight"/>
+										</content>
+									</TileContent>
+								</tileContent>
+							</GenericTile>
+							<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Flights"  frameType="OneByOne"
+								press="onOperatorTilePress">
+								<tileContent>
+									<TileContent>
+										<content>
+											<NumericContent icon="sap-icon://flight"/>
+										</content>
+									</TileContent>
+								</tileContent>
+							</GenericTile>
+							<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Delays" frameType="OneByOne"
+								press="onOperatorTilePress">
+								<tileContent>
+									<TileContent>
+										<content>
+											<NumericContent icon="sap-icon://bell"/>
+										</content>
+									</TileContent>
+								</tileContent>
+							</GenericTile>
+							<Panel class="operatorAnalyticsTile" press="onOperatorTilePress">
+								<HBox>
+									<VBox>
+										<Label text="Events"></Label>
+										<core:Icon class="operatoranalyticsicon" src="sap-icon://flight"></core:Icon>
+									</VBox>
+									<Label class="operatoranalyticslabel" text="0.02 Accident Rate"></Label>
+									<VBox>
+										<Label text="Past accidents"></Label>
+										<micro:ColumnMicroChart size="M" class="sapUiSmallMargin">
+											<micro:columns>
+												<micro:ColumnMicroChartData value="60" color="Error"/>
+												<micro:ColumnMicroChartData value="80" color="Error"/>
+												<micro:ColumnMicroChartData value="100" color="Error"/>
+												<micro:ColumnMicroChartData value="60" color="Neutral"/>
+												<micro:ColumnMicroChartData value="55" color="Neutral"/>
+												<micro:ColumnMicroChartData value="15" color="Neutral"/>
+											</micro:columns>
+										</micro:ColumnMicroChart>
+									</VBox>
+									<Label class="operatoranalyticslabel" text="0.002% of fatality"></Label>
+									<VBox>
+										<Label text="Fatality costs"></Label>
+										<micro:RadialMicroChart size="M" percentage="45" class="sapUiSmallMargin"></micro:RadialMicroChart>
+									</VBox>
+								</HBox>
+								<layoutData>
+									<l:GridData span="L8 M12 S12"/>
+								</layoutData>
+							</Panel>
+							<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Analytics" frameType="OneByOne"
+								press="onOperatorTilePress">
+								<tileContent>
+									<TileContent>
+										<content>
+											<NumericContent icon="sap-icon://pie-chart"/>
+										</content>
+									</TileContent>
+								</tileContent>
+							</GenericTile>
+							<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Social feed" frameType="OneByOne"
+								press="onOperatorTilePress">
+								<tileContent>
+									<TileContent>
+										<content>
+											<NumericContent icon="sap-icon://jam"/>
+										</content>
+									</TileContent>
+								</tileContent>
+							</GenericTile>
+							<!--
+							<ObjectListItem id="productitem-large-1" title="{Name}" intro="{Category}"
+								icon="{ path: 'Category', formatter: 'sap.ui.layout.sample.GridTiles.Formatter.categoryIcon' }">
+								<layoutData>
+									<l:GridData span="L6 M12 S12"/>
+								</layoutData>
+							</ObjectListItem>-->
+						</l:content>
+					</l:Grid>
+					<!--text="{products>/productdetails/0/Product}"-->
+					<!--<Input value="{products>/productdetails/Criticality}">-->
+					<!--</Input>-->
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

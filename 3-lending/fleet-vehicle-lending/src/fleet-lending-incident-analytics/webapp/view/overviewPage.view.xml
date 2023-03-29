@@ -1,0 +1,28 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m"
+	controllerName="com.sap.Aviation.controller.overviewPage" xmlns:html="http://www.w3.org/1999/xhtml">
+	<App>
+		<pages>
+			<Page title="Overview" showHeader="false">
+				<content>
+				
+		<Bar xmlns="sap.m">
+					<contentRight>
+						<SearchField
+							width="400px"
+							placeholder= "Search flight, airline, airport">
+							</SearchField>
+					</contentRight><!-- sap.ui.core.Control -->
+				</Bar>	
+			  <html:div id ="wra-map" class="overViewMap">No, press me. I am native HTML Button.</html:div>
+		<!--						<VerticalLayout id="wra-map" width="100%"  xmlns="sap.ui.layout">-->
+		<!--</VerticalLayout>-->
+	<!--			<HTML xmlns="sap.ui.core"-->
+	<!--content="hh"-->
+	<!--afterRendering="renderMap"></HTML>-->
+		
+
+</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

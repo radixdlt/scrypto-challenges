@@ -1,0 +1,25 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.Claims"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:smartFilterBar="sap.ui.comp.smartfilterbar" xmlns:smartTable="sap.ui.comp.smarttable">
+	<App>
+		<pages>
+			<Page showHeader="false">
+				<content>
+					<Label class="label_myportfolio" text="CLAIMS"></Label>
+					<Button class="button_analytics" icon="sap-icon://pie-chart" text="Analytics" press="onClaimAnalyticButtonPress"></Button>
+					<smartFilterBar:SmartFilterBar class="smartfilter_style sapUiResponsiveContentPadding sapUiResponsiveMargin" id="smartFilterBarClaims" entityType="claimsType" enableBasicSearch="true">
+						<smartFilterBar:controlConfiguration>
+							<smartFilterBar:ControlConfiguration key="Airline" visibleInAdvancedArea="true" preventInitialDataFetchInValueHelpDialog="false"/>
+							<smartFilterBar:ControlConfiguration key="AccidentYear" visibleInAdvancedArea="true" preventInitialDataFetchInValueHelpDialog="false"/>
+							<smartFilterBar:ControlConfiguration key="Value" visibleInAdvancedArea="true" preventInitialDataFetchInValueHelpDialog="false"/>
+						</smartFilterBar:controlConfiguration>
+					</smartFilterBar:SmartFilterBar>
+					<smartTable:SmartTable id="claimsTable"
+						initiallyVisibleFields="PolicyNumber,BranchName,ProductDepartmentName,AssuredName,ClaimMasterReference,ClaimStatus" entitySet="claims"
+						smartFilterId="smartFilterBarClaims" tableType="ResponsiveTable" useExportToExcel="true" useVariantManagement="false"
+						useTablePersonalisation="false" enableAutoBinding="true" demandPopin="true" 	dataReceived="navigationClaimDetail" 
+					    class="sapUiResponsiveContentPadding sapUiResponsiveMargin"></smartTable:SmartTable>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

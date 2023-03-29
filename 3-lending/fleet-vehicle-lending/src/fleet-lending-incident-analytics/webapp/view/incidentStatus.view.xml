@@ -1,0 +1,34 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.incidentStatus"
+	xmlns:html="http://www.w3.org/1999/xhtml">
+	<App>
+		<pages>
+			<Page class="pageStyles"  title="My Incidents History" showNavButton="true" navButtonPress="onNavBack">
+				<content>
+					<Table id="incidentsList" items="{path: '/IncidentsReported'}">
+						<headerToolbar>
+							<Toolbar>
+								<!--<Title text="Officer" level="H2"/>-->
+							</Toolbar>
+						</headerToolbar>
+						<columns>
+							<Column>
+								<Text text="Type"/>
+							</Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" hAlign="Center">
+								<Text text="Status"/>
+							</Column>
+						</columns>
+						<items>
+							<ColumnListItem type="Navigation" press="onIncidentItemPress">
+								<cells>
+									<ObjectIdentifier title="{type}" text="{date}"/>
+									<ObjectStatus class="sapUiSmallMarginBottom" text="{status}" state="{path:'status', formatter:'com.sap.aviation.analyticspricemterics.utils.formatter.formatDate'}"/>
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

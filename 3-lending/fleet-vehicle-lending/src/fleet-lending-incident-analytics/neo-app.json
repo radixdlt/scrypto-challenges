@@ -1,0 +1,71 @@
+{
+  "welcomeFile": "/webapp/index.html",
+  "routes": [
+    {
+      "path": "/destinations/Planner",
+      "target": {
+        "type": "destination",
+        "name": "Planner"
+      },
+      "description": "Planner OData Service"
+    },
+    {
+      "path": "/resources",
+      "target": {
+        "type": "service",
+        "name": "sapui5",
+        "entryPath": "/resources"
+      },
+      "description": "SAPUI5 Resources"
+    },
+    {
+      "path": "/test-resources",
+      "target": {
+        "type": "service",
+        "name": "sapui5",
+        "entryPath": "/test-resources"
+      },
+      "description": "SAPUI5 Test Resources"
+    },
+    {
+      "path": "/services/userapi",
+      "target": {
+        "type": "service",
+        "name": "userapi"
+      }
+    },
+    {
+      "path": "/destinations/Feeds",
+      "target": {
+        "type": "destination",
+        "name": "Feeds"
+      },
+      "description": "Feeds"
+    },
+       {
+      "path": "/destinations/CRZ_756_CLA_HTTP",
+      "target": {
+        "type": "destination",
+        "name": "CRZ_756_CLA_HTTP"
+      },
+      "description": "Feeds"
+    }
+  ],
+  "sendWelcomeFileRedirect": true,
+  "cacheControl": [
+    {
+      "directive": "private",
+      "maxAge": 0,
+      "path": "**.html"
+    },
+    {
+      "directive": "private",
+      "maxAge": 0,
+      "path": "sap-ui-cachebuster-info.json"
+    },
+    {
+      "directive": "public",
+      "maxAge": 31536000
+    }
+  ]
+}

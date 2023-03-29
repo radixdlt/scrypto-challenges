@@ -1,0 +1,94 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:form="sap.ui.layout.form" xmlns:l="sap.ui.layout"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds" xmlns:viz.data="sap.viz.ui5.data"
+	xmlns:viz="sap.viz.ui5.controls" xmlns:smartFilterBar="sap.ui.comp.smartfilterbar" xmlns:smartTable="sap.ui.comp.smarttable"
+	controllerName="com.sap.Aviation.controller.Analytics">
+	<App>
+		<pages>
+			<Page class="pageStyles" showHeader="true">
+				<customHeader>
+					<Bar>
+						<contentLeft>
+							<Button icon="sap-icon://nav-back" press="onNavBack"></Button>
+						</contentLeft>
+						<contentRight>
+							<Button text="Business Object" type="Accept" press="onBOPress"></Button>
+						</contentRight>
+					</Bar>
+				</customHeader>
+				<content>
+					<Panel>
+						<l:BlockLayout id="BlockLayout2" background="Default" class="blockstyle">
+							<l:BlockLayoutRow>
+								<l:BlockLayoutCell title="Incidents" class="crimeGraph">
+									<viz:VizFrame id="idVizFrameColumn" vizType='column' selectData="columnfunc"/>
+								</l:BlockLayoutCell>
+								<l:BlockLayoutCell title="Health" class="crimeGraph">
+									<!--									<CustomTile class="cust">
+										<l:FixFlex>
+											<l:flexContent>
+												<viz:Popover id="idPopOver1"></viz:Popover>-->
+									<viz:VizFrame id="idVizFrame1" uiConfig="{applicationSet:'fiori'}" vizType='column' vizProperties="{ title: {visible : false}}">
+										<viz:dataset>
+											<viz.data:FlattenedDataset data="{analyticsEventData>/analyticsEventCollection}">
+												<viz.data:dimensions>
+													<viz.data:DimensionDefinition name="Status" value="{analyticsEventData>month}"/>
+												</viz.data:dimensions>
+												<viz.data:measures>
+													<viz.data:MeasureDefinition name="Police Officer Deployed" value="{analyticsEventData>event}"/>
+													<viz.data:MeasureDefinition name="Police Officer Standby" value="{cost}"/>
+												</viz.data:measures>
+											</viz.data:FlattenedDataset>
+										</viz:dataset>
+										<viz:feeds>
+											<viz.feeds:FeedItem id='valueAxisFeed2' uid="valueAxis" type="Measure" values="Police Officer Deployed"/>
+											<viz.feeds:FeedItem id='valueAxisFeed3' uid="valueAxis" type="Measure" values="Police Officer Standby"/>
+											<viz.feeds:FeedItem id='categoryAxisFeed2' uid="categoryAxis" type="Dimension" values="Status"/>
+										</viz:feeds>
+									</viz:VizFrame>
+									<!--											</l:flexContent>
+										</l:FixFlex>
+									</CustomTile>
+									<HBox></HBox>-->
+								</l:BlockLayoutCell>
+							</l:BlockLayoutRow>
+							<l:BlockLayoutRow class="blockRowStyle sapUiNoPanPadding">
+								<l:BlockLayoutCell title="Incidents Prediction">
+									<VBox>
+										<HBox>
+											<Label text="Area :" width="90px" class="graphSlide"></Label>
+											<ComboBox id="cbArea" items="{ path: 'areas>/areas' }" value="{areas>/name}" selectedKey="Bur Dubai">
+												<core:Item key="{areas>name}" text="{areas>name}"/>
+											</ComboBox>
+										</HBox>
+										<HBox>
+											<Label text="Incident Type :" class="graphSlide"></Label>
+											<ComboBox id="cbIncident" items="{ path: 'areas>/incident' }" selectedKey="Accident">
+												<core:Item key="{areas>name}" text="{areas>name}"/>
+											</ComboBox>
+										</HBox>
+									</VBox>
+									<VBox>
+										<Text text="Incident Rate"/>
+										<Slider id="idS1" value="50" min="0" max="100" showAdvancedTooltip="true" showHandleTooltip="false" liveChange="onSliderChange"/>
+										<Text text="Severity"/>
+										<Slider id="idS2" value="10" min="0" max="100" showAdvancedTooltip="true" showHandleTooltip="false" liveChange="onSliderChange"/>
+										<Text text="Resolution"/>
+										<Slider id="idS3" value="50" min="0" max="100" showAdvancedTooltip="true" showHandleTooltip="false" liveChange="onSliderChange"/>
+										<Text text="Crime Rate :"/>
+										<Text id="idCrimeRate" text="" class="crimeStat"/>
+									</VBox>
+								</l:BlockLayoutCell>
+								<l:BlockLayoutCell id="idCrimeCell" title="Overview Surveillance">
+									<HBox id="map_analytic" fitContainer="true" justifyContent="Center" alignItems="Center"></HBox>
+									<html:div id="legend" class="legend1">
+										<html:h3>Legend</html:h3>
+									</html:div>
+								</l:BlockLayoutCell>
+							</l:BlockLayoutRow>
+						</l:BlockLayout>
+					</Panel>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

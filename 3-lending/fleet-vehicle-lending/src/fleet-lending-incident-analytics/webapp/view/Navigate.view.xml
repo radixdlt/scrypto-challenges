@@ -1,0 +1,129 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:semantic="sap.m.semantic" displayBlock="true"
+	controllerName="com.sap.Aviation.controller.Navigate" height="95%" xmlns:viz="sap.viz.ui5.controls"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds" xmlns:viz.data="sap.viz.ui5.data"
+	xmlns:l="sap.ui.layout">
+	<App>
+		<pages>
+			<Page class="pageStyles" title="Incidents Overview and Assignment" showNavButton="true" navButtonPress="onNavBack">
+				<content>
+					<Bar>
+						<contentRight>
+							<Button text="Officer View" type="Accept" press="onLoadOfficerView" id="viewType"/>
+						</contentRight>
+					</Bar>
+					<l:BlockLayout id="BlockLayout" background="Default" class="blockStyle">
+						<l:BlockLayoutRow>
+							<!--							<l:BlockLayoutCell>
+								<viz:VizFrame height="100%" xmlns="sap.viz" id="idVizFrame" vizType="pie" class="pieChartClass"/>
+							</l:BlockLayoutCell>
+							<l:BlockLayoutCell>
+								<viz:VizFrame height="100%" xmlns="sap.viz" id="idVizFrame2" vizType="pie" class="pieChartClass"/>
+							</l:BlockLayoutCell>
+							<l:BlockLayoutCell>
+								<viz:VizFrame height="100%" xmlns="sap.viz" id="idVizFrame3" vizType="pie" class="pieChartClass"/>
+							</l:BlockLayoutCell>-->
+							<l:BlockLayoutCell>
+								<Panel height="100%" class="panelContentHeight">
+									<content>
+										<VBox>
+											<ComboBox id="cbArea" items="{ path: 'areas>/areas' }" selectedKey="Bur Dubai" value="{areas>/name}">
+												<core:Item key="{areas>name}" text="{areas>name}"/>
+											</ComboBox>
+											<Button text="Live Video Streaming" press="navToLiveStream"></Button>
+										</VBox>
+									</content>
+								</Panel>
+							</l:BlockLayoutCell>
+						</l:BlockLayoutRow>
+					</l:BlockLayout>
+					<HBox height="75%" id="map_canvas1" fitContainer="true" justifyContent="Center" alignItems="Center" visible="true"/>
+					<html:div id="legend" class="legend1">
+						<html:h3>Legend</html:h3>
+					</html:div>
+<!--					<HBox height="75%" id="map_canvas2" fitContainer="true" justifyContent="Center" alignItems="Center" visible="true"/>
+					<html:div id="legend2" class="legend1" visible="false">
+						<html:h3>Legend</html:h3>
+					</html:div>-->
+				</content>
+			</Page>
+		</pages>
+	</App>
+	<!--<SplitContainer class="hoo">-->
+	<!--	<masterPages>-->
+	<!--		<semantic:MasterPage title="Incidents">-->
+	<!--<semantic:filter>-->
+	<!--	<semantic:FilterAction press="onSemanticButtonPress"/>-->
+	<!--</semantic:filter>-->
+	<!--<semantic:group>-->
+	<!--	<semantic:GroupAction press="onSemanticButtonPress"/>-->
+	<!--</semantic:group>-->
+	<!--<semantic:addAction>-->
+	<!--	<semantic:AddAction press="onSemanticButtonPress"/>-->
+	<!--</semantic:addAction>-->
+	<!--<semantic:multiSelectAction>-->
+	<!--	<semantic:MultiSelectAction press="onMultiSelectPress"/>-->
+	<!--</semantic:multiSelectAction>-->
+	<!--			<List id="list1" items="{/IncidentCollection}" headerText="Incidents">-->
+	<!--				<items>-->
+	<!--					<ObjectListItem title="{type}" type="Active"-->
+	<!--						number="{eventNum}" press="onListItemPress" itemPress="onListItemPress" select="onListItemPress" selectionChange="onListItemPress">-->
+	<!--						<attributes>-->
+	<!--							<ObjectAttribute text="{date}"/>-->
+	<!--							<ObjectAttribute text="{time}"/>-->
+	<!--						</attributes>-->
+	<!--					</ObjectListItem>-->
+	<!--				</items>-->
+	<!--			</List>-->
+	<!--		</semantic:MasterPage>-->
+	<!--	</masterPages>-->
+	<!--	<detailPages>-->
+	<!--		<semantic:DetailPage title="Incidents">-->
+	<!--<semantic:positiveAction>-->
+	<!--	<semantic:PositiveAction text="Positive" press="onSemanticButtonPress"/>-->
+	<!--</semantic:positiveAction>-->
+	<!--<semantic:negativeAction>-->
+	<!--	<semantic:NegativeAction text="Negative" press="onSemanticButtonPress"/>-->
+	<!--</semantic:negativeAction>-->
+	<!--<semantic:forwardAction>-->
+	<!--	<semantic:ForwardAction press="onSemanticButtonPress"/>-->
+	<!--</semantic:forwardAction>-->
+	<!--<semantic:flagAction>-->
+	<!--	<semantic:FlagAction press="onSemanticButtonPress"/>-->
+	<!--</semantic:flagAction>-->
+	<!--<semantic:favoriteAction>-->
+	<!--	<semantic:FavoriteAction press="onSemanticButtonPress"/>-->
+	<!--</semantic:favoriteAction>-->
+	<!--<semantic:sendEmailAction>-->
+	<!--	<semantic:SendEmailAction press="onSemanticButtonPress"/>-->
+	<!--</semantic:sendEmailAction>-->
+	<!--<semantic:sendMessageAction>-->
+	<!--	<semantic:SendMessageAction press="onSemanticButtonPress"/>-->
+	<!--</semantic:sendMessageAction>-->
+	<!--<semantic:discussInJamAction>-->
+	<!--	<semantic:DiscussInJamAction press="onSemanticButtonPress"/>-->
+	<!--</semantic:discussInJamAction>-->
+	<!--<semantic:shareInJamAction>-->
+	<!--	<semantic:ShareInJamAction press="onSemanticButtonPress"/>-->
+	<!--</semantic:shareInJamAction>-->
+	<!--<semantic:printAction>-->
+	<!--	<semantic:PrintAction press="onSemanticButtonPress"/>-->
+	<!--</semantic:printAction>-->
+	<!--<semantic:messagesIndicator>-->
+	<!--	<semantic:MessagesIndicator press="onMessagesButtonPress"/>-->
+	<!--</semantic:messagesIndicator>-->
+	<!--<semantic:pagingAction>-->
+	<!--	<PagingButton count="5" positionChange="onPositionChange"/>-->
+	<!--</semantic:pagingAction>-->
+	<!--<semantic:customFooterContent>-->
+	<!--	<OverflowToolbarButton icon="sap-icon://settings" text="Settings" press="onPress"/>-->
+	<!--	<OverflowToolbarButton icon="sap-icon://video" text="Video" press="onPress"/>-->
+	<!--</semantic:customFooterContent>-->
+	<!--<semantic:customShareMenuContent>-->
+	<!--	<Button text="CustomShareBtn1" icon="sap-icon://color-fill" press="onPress"/>-->
+	<!--	<Button text="CustomShareBtn2" icon="sap-icon://crop" press="onPress"/>-->
+	<!--</semantic:customShareMenuContent>-->
+	<!--			<HBox id="map_canvas" fitContainer="true" justifyContent="Center" alignItems="Center"/>-->
+	<!--		</semantic:DetailPage>-->
+	<!--	</detailPages>-->
+	<!--</SplitContainer>-->
+</mvc:View>

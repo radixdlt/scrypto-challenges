@@ -1,0 +1,48 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.Events"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:smartFilterBar="sap.ui.comp.smartfilterbar" xmlns:smartTable="sap.ui.comp.smarttable">
+	<App>
+		<pages>
+			<Page class="pageStyles"  title="Officer Report" showNavButton="true" navButtonPress="onNavBack">
+				<content>
+					<Label class="label_myportfolio" text="Officers"></Label>
+					<Button class="button_analytics" icon="sap-icon://pie-chart" text="Analytics" press="onEventAnalyticButtonPress"></Button>
+					<Table id="idProductsTable" inset="false" items="{ path: '/PoliceOfficerCollection' }">
+						<headerToolbar>
+							<Toolbar>
+								<!--<Title text="Officer" level="H2"/>-->
+							</Toolbar>
+						</headerToolbar>
+						<columns>
+							<Column>
+								<Text text="Officer List"/>
+							</Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" width="5%">
+								<Text text="Age"/>
+							</Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" hAlign="Center">
+								<Text text="Gender"/>
+							</Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" hAlign="Center">
+								<Text text="Ranking"/>
+							</Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" hAlign="Center">
+								<Text text="Base Location"/>
+							</Column>
+						</columns>
+						<items>
+							<ColumnListItem type="Navigation" press="policeOfficerPressed">
+								<cells>
+									<ObjectIdentifier title="{Name}" text="{Id}"/>
+									<Text text="{Age}"/>
+									<Text text="{Gender}"/>
+									<Text text="{Rank}"/>
+									<Text text="{BaseLocation}"/>
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

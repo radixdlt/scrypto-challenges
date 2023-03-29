@@ -1,0 +1,67 @@
+{
+	"airlineCollection"  : [
+		           {
+		           	"company" : "Emirates",
+		           	"aircraftType" : "A380",
+		           	"aircraftNum" : "381"
+		           },
+		           {
+		           	"company" : "Emirates",
+		           	"aircraftType" : "A380",
+		           	"aircraftNum" : "382"
+		           },
+		           {
+		           	"company" : "Emirates",
+		           	"aircraftType" : "A380",
+		           	"aircraftNum" : "383"
+		           },
+		           {
+		           	"company" : "Emirates",
+		           	"aircraftType" : "A740",
+		           	"aircraftNum" : "741"
+		           },
+		           {
+		           	"company" : "Emirates",
+		           	"aircraftType" : "A740",
+		           	"aircraftNum" : "742"
+		           },
+		           {
+		           	"company" : "Emirates",
+		           	"aircraftType" : "A740",
+		           	"aircraftNum" : "743"
+		           },
+		           {
+		           	"company" : "Emirates",
+		           	"aircraftType" : "A740",
+		           	"aircraftNum" : "745"
+		           },
+		           {
+		           	"company" : "Emirates",
+		           	"aircraftType" : "A880",
+		           	"aircraftNum" : "881"
+		           },
+		           {
+		           	"company" : "Emirates",
+		           	"aircraftType" : "A880",
+		           	"aircraftNum" : "882"
+		           },
+		           {
+		           	"company" : "Emirates",
+		           	"aircraftType" : "A880",
+		           	"aircraftNum" : "883"
+		           },
+		           {
+		           	"company" : "Lufthansa",
+		           	"aircraftType" : "A380",
+		           	"aircraftNum" : "381"
+		           },
+		           {
+		           	"company" : "Lufthansa",
+		           	"aircraftType" : "A380",
+		           	"aircraftNum" : "389"
+		           }
+		
+		
+		]
+		
+}

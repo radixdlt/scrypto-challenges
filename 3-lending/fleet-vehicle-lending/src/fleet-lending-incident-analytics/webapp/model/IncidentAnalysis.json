@@ -1,0 +1,41 @@
+{
+		"Theft": [{
+			"Area": "Janakpuri",
+			"Cases": 12
+		}, {
+			"Area": "Mundaka",
+			"Cases": 30
+		}, {
+			"Area": "Rajouri",
+			"Cases": 15
+		}, {
+			"Area": "Downtown Dubai",
+			"Cases": 20
+		}],
+		"Accident": [{
+			"Area": "Janakpuri",
+			"Cases": 10
+		}, {
+			"Area": "Mundaka",
+			"Cases": 20
+		}, {
+			"Area": "Jumeirah",
+			"Cases": 40
+		}, {
+			"Area": "Downtown Dubai",
+			"Cases": 15
+		}],
+		"Dummy": [{
+			"Area": "Janakpuri",
+			"Cases": 30
+		}, {
+			"Area": "Mundaka",
+			"Cases": 24
+		}, {
+			"Area": "Jumeirah",
+			"Cases": 55
+		}, {
+			"Area": "Downtown Dubai",
+			"Cases": 35
+		}]
+}

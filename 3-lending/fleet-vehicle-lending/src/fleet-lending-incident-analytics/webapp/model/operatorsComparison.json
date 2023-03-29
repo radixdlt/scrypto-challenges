@@ -1,0 +1,43 @@
+{
+	"operatorCollection": [{
+		"operator": "Operator Code",
+		"value1": 30,
+		"value2": 27
+	}, {
+		"operator": "Operator Name",
+		"value1": 240,
+		"value2": 232
+	}, {
+		"operator": "Operator Area Code",
+		"value1": 141,
+		"value2": 139
+	}, {
+		"operator": "Operator Area Description",
+		"value1": 56725,
+		"value2": 56102
+	}, {
+		"operator": "Location",
+		"value1": 0,
+		"value2": 2
+	}, {
+		"operator": "Country",
+		"value1": 0,
+		"value2": "200000$"
+	}, {
+		"operator": "Operator Category Code",
+		"value1": 0,
+		"value2": 0
+	}, {
+		"operator": "Operator Category Description",
+		"value1": 0,
+		"value2": 0
+	}, {
+		"operator": "Operator Country Code",
+		"value1": 0,
+		"value2": 2
+	}, {
+		"operator": "Operator Country",
+		"value1": 1287,
+		"value2": 987
+	}]
+}

@@ -1,0 +1,28 @@
+{
+	"analyticsHullCollection": [{
+		"name": "Total Hull Incurred",
+		"value1": 5,
+		"value2": 2,
+		"value3": 3
+	}, {
+		"name": "Total Liab Incurred",
+		"value1": 3,
+		"value2": 2,
+		"value3": 4
+	}, {
+		"name": "Total Incurred",
+		"value1": 4,
+		"value2":  3,
+		"value3": 4
+	}, {
+		"name": "Product Hull Incurred",
+		"value1": 7,
+		"value2": 2,
+		"value3": 2
+	}, {
+		"name": "Product Liab Incurred",
+		"value1": 2,
+		"value2":  1,
+		"value3": 5
+	}]
+}

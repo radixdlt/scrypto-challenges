@@ -1,0 +1,108 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m"
+	controllerName="com.sap.Aviation.controller.OperatorFinancialData" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:l="sap.ui.layout">
+	<App>
+		<pages>
+			<Page showHeader="false" class="financialDetailsPage">
+				<content>
+					<l:Grid defaultSpan="L2 M6 S6" class="sapUiSmallMarginTop">
+						<l:content>
+							<!-- Third / Half width items -->
+							<Image src="image/emiratesLogo/emiratesSmallLogo.PNG">
+								<layoutData>
+									<l:GridData span="L1 M12 S12"/>
+								</layoutData>
+							</Image>
+							<Panel class="operatorfinancialdatapanel1" backgroundDesign="Transparent">
+								<Label class="operatorfinancialdatalabel" text="Emirates"></Label>
+								<layoutData>
+									<l:GridData span="L11 M12 S12"/>
+								</layoutData>
+							</Panel>
+							<Panel class="operatorfinancialdatapanel2" backgroundDesign="Transparent">
+								<Panel class="operatorfinancialdatapanel3" backgroundDesign="Transparent">
+									<!--	<l:BlockLayout id="BlockLayout" class="sapUiNoContentPadding">
+										<l:BlockLayoutRow>
+											<l:BlockLayoutCell>
+												<Table id="idProductsTable" inset="false" items="{financialData>/seatCollection}">
+													<headerToolbar>
+														<Toolbar>
+															<Title text="Emirates Group"></Title>
+														</Toolbar>
+													</headerToolbar>
+													<columns>
+														<Column>
+															<Text text="Financial highlights"/>
+														</Column>
+														<Column></Column>
+														<Column >
+															<Text text="2015-16"/>
+														</Column>
+														<Column >
+															<Text text="2014-15"/>
+														</Column>
+														<Column >
+															<Text text="%change"/>
+														</Column>
+													</columns>
+													<items>
+														<ColumnListItem>
+															<cells>
+																<Text text="{financialData>class}"/>
+																<Text text="{financialData>specs}"/>
+																<Text text="{financialData>pitch}"/>
+																<Text text="{financialData>width}"/>
+																<Text text="{financialData>seating}"/>
+															</cells>
+														</ColumnListItem>
+													</items>
+												</Table>
+											</l:BlockLayoutCell>
+										</l:BlockLayoutRow>
+									</l:BlockLayout>-->
+									<Table id="idProductsTable" inset="false" items="{financialData>/seatCollection}">
+										<headerToolbar>
+											<Toolbar>
+												<Title text="Emirates Group"></Title>
+											</Toolbar>
+										</headerToolbar>
+										<columns>
+											<Column>
+												<Text text="Financial highlights"/>
+											</Column>
+											<Column></Column>
+											<Column >
+												<Text text="2015-16"/>
+											</Column>
+											<Column >
+												<Text text="2014-15"/>
+											</Column>
+											<Column >
+												<Text text="%change"/>
+											</Column>
+										</columns>
+										<items>
+											<ColumnListItem>
+												<cells>
+													<Text text="{financialData>class}"/>
+													<Text text="{financialData>specs}"/>
+													<Text text="{financialData>pitch}"/>
+													<Text text="{financialData>width}"/>
+													<Text text="{financialData>seating}"/>
+												</cells>
+											</ColumnListItem>
+										</items>
+									</Table>
+									<FormattedText
+										htmlText='&lt;p&gt;2014-15 figures have been re-classified to confirm with the current year presentation&lt;/p&gt; &lt;p&gt;* after eliminating inter company income/expense of AED 2,778m in 2015-16(2014=15:AED 1,926m) &lt;/p&gt; &lt;p&gt;** after eliminating inter company receivables/payables of AED 168m in 2015-16(2014=15:AED 122m) &lt;/p&gt; &lt;p&gt;Percentages and ratios are derived based on the full figure before rounding.&lt;/p&gt; &lt;p&gt;The financial year of the Emirates Group is from 1 April to 31 March. Throughout this report all figures in UAE Dirhams (AED) unless otherwise stated. The exchange rate of the Dirham to the US Dollar is fixed at 3.67.&lt;/p&gt;'/>
+								</Panel>
+								<layoutData>
+									<l:GridData span="L12 M12 S12"/>
+								</layoutData>
+							</Panel>
+						</l:content>
+					</l:Grid>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

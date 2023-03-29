@@ -1,0 +1,15 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Popover class="sapUiContentPadding" placement="Bottom" showHeader="false" contentHeight="400px" contentWidth="300px">
+		<Page title="Copilot">
+			<content>
+				<List id="feedList" />
+			</content>
+			<footer>
+				<Toolbar>
+				<Input id="msgArea"></Input>
+				<Button  icon="sap-icon://feeder-arrow" press="onMsgSubmit"></Button>
+				</Toolbar>
+			</footer>
+		</Page>
+	</Popover>
+</core:FragmentDefinition>

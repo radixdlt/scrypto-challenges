@@ -1,0 +1,21 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="com.sap.Aviation.controller.spaceMaster"
+	xmlns:html="http://www.w3.org/1999/xhtml">
+	<App>
+		<pages>
+			<Page class="pageStyles"  showHeader="false">
+				<content>
+					<List id="SideNavList"  items="{sideNav>/SpaceNavList}">
+						<items>
+							<CustomListItem  press="sideNavPress" type="Active">
+								<VBox class="ssapUiSmallMarginTopBotton sapUiSmallMarginBegin" justifyContent="Center">
+									<core:Icon src="{sideNav>icon}" size="2rem" class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom"/>
+									<Label text="{sideNav>title}"/>
+								</VBox>
+							</CustomListItem>
+						</items>
+					</List>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

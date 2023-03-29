@@ -1,0 +1,727 @@
+[
+  {
+    "Count": 1284,
+    "Code": "A320",
+    "Model": "Airbus A320"
+  },
+  {
+    "Count": 1102,
+    "Code": "B738.Boeing 737-800",
+    "Model": ""
+  },
+  {
+    "Count": 431,
+    "Code": "A321",
+    "Model": "Airbus A321"
+  },
+  {
+    "Count": 348,
+    "Code": "A319",
+    "Model": "Airbus A319"
+  },
+  {
+    "Count": 347,
+    "Code": "B77W",
+    "Model": "Boeing 777-300ER"
+  },
+  {
+    "Count": 223,
+    "Code": "A333",
+    "Model": "Airbus A330-300"
+  },
+  {
+    "Count": 173,
+    "Code": "A332",
+    "Model": "Airbus A330-200"
+  },
+  {
+    "Count": 162,
+    "Code": "B772",
+    "Model": "Boeing 777-200"
+  },
+  {
+    "Count": 153,
+    "Code": "B763",
+    "Model": "Boeing 767-300"
+  },
+  {
+    "Count": 145,
+    "Code": "B788",
+    "Model": "Boeing 787-8"
+  },
+  {
+    "Count": 111,
+    "Code": "B789",
+    "Model": "Boeing 787-9"
+  },
+  {
+    "Count": 108,
+    "Code": "A388",
+    "Model": "Airbus A380-800"
+  },
+  {
+    "Count": 104,
+    "Code": "B744",
+    "Model": "Boeing 747-400"
+  },
+  {
+    "Count": 93,
+    "Code": "B739",
+    "Model": "Boeing 737-900"
+  },
+  {
+    "Count": 90,
+    "Code": "B752",
+    "Model": "Boeing 757-200"
+  },
+  {
+    "Count": 88,
+    "Code": "E190",
+    "Model": "Embraer ERJ-190"
+  },
+  {
+    "Count": 87,
+    "Code": "B737",
+    "Model": "Boeing 737-700"
+  },
+  {
+    "Count": 75,
+    "Code": 737,
+    "Model": ""
+  },
+  {
+    "Count": 68,
+    "Code": "A330",
+    "Model": "Airbus A330"
+  },
+  {
+    "Count": 59,
+    "Code": "B773",
+    "Model": "Boeing 777-300"
+  },
+  {
+    "Count": 50,
+    "Code": "B77L",
+    "Model": "Boeing 777-200LR/F"
+  },
+  {
+    "Count": 42,
+    "Code": "AT72",
+    "Model": "ATR ATR-72"
+  },
+  {
+    "Count": 35,
+    "Code": "A343",
+    "Model": "Airbus A340-300"
+  },
+  {
+    "Count": 34,
+    "Code": "CRJ9",
+    "Model": "Canadair Regional Jet CRJ-900"
+  },
+  {
+    "Count": 33,
+    "Code": "B748",
+    "Model": "Boeing 747-8"
+  },
+  {
+    "Count": 32,
+    "Code": "DH8D",
+    "Model": "de Havilland Dash 8-400"
+  },
+  {
+    "Count": 31,
+    "Code": "B735",
+    "Model": "Boeing 737-500"
+  },
+  {
+    "Count": 29,
+    "Code": "DH8B",
+    "Model": "de Havilland Dash 8-200"
+  },
+  {
+    "Count": 27,
+    "Code": "A359",
+    "Model": "Airbus A350-900"
+  },
+  {
+    "Count": 22,
+    "Code": "E170",
+    "Model": "Embraer 170/175"
+  },
+  {
+    "Count": 20,
+    "Code": "SF34",
+    "Model": "Saab 340"
+  },
+  {
+    "Count": 18,
+    "Code": 767,
+    "Model": ""
+  },
+  {
+    "Count": 18,
+    "Code": "A346",
+    "Model": "Airbus A340-600"
+  },
+  {
+    "Count": 18,
+    "Code": "B734",
+    "Model": "Boeing 737-400"
+  },
+  {
+    "Count": 18,
+    "Code": "CRK",
+    "Model": "Bombardier CRJ-1000"
+  },
+  {
+    "Count": 17,
+    "Code": "B736",
+    "Model": "Boeing 737-600"
+  },
+  {
+    "Count": 16,
+    "Code": 777,
+    "Model": "Boeing 777"
+  },
+  {
+    "Count": 16,
+    "Code": "AC50",
+    "Model": "Aero Commander 500"
+  },
+  {
+    "Count": 15,
+    "Code": "C208",
+    "Model": "Cessna Caravan"
+  },
+  {
+    "Count": 15,
+    "Code": "F100",
+    "Model": "Fokker 100"
+  },
+  {
+    "Count": 14,
+    "Code": "AT43",
+    "Model": "Aerospatiale ATR-42-300"
+  },
+  {
+    "Count": 14,
+    "Code": "C172",
+    "Model": "Cessna Skyhawk"
+  },
+  {
+    "Count": 13,
+    "Code": "B733",
+    "Model": "Boeing 737-300"
+  },
+  {
+    "Count": 13,
+    "Code": "BE20",
+    "Model": "Beechcraft Super King Air 200"
+  },
+  {
+    "Count": 13,
+    "Code": "E145",
+    "Model": "Embraer ERJ-145"
+  },
+  {
+    "Count": 12,
+    "Code": "A306",
+    "Model": "Airbus A300F4-600"
+  },
+  {
+    "Count": 11,
+    "Code": "B764",
+    "Model": "Boeing 767-400"
+  },
+  {
+    "Count": 11,
+    "Code": "PC12",
+    "Model": "Pilatus PC-12"
+  },
+  {
+    "Count": 11,
+    "Code": "SU9",
+    "Model": "Sukhoi Superjet 100"
+  },
+  {
+    "Count": 10,
+    "Code": 787,
+    "Model": ""
+  },
+  {
+    "Count": 10,
+    "Code": "MD11",
+    "Model": "McDonnell Douglas MD-11"
+  },
+  {
+    "Count": 8,
+    "Code": "B712",
+    "Model": "Boeing 717-200"
+  },
+  {
+    "Count": 8,
+    "Code": "DH8C",
+    "Model": "de Havilland Dash 8-300"
+  },
+  {
+    "Count": 8,
+    "Code": "F70",
+    "Model": "Fokker 70"
+  },
+  {
+    "Count": 7,
+    "Code": "A310",
+    "Model": "Airbus A310"
+  },
+  {
+    "Count": 7,
+    "Code": "B762",
+    "Model": "Boeing 767-200"
+  },
+  {
+    "Count": 7,
+    "Code": "BE58",
+    "Model": "Beechcraft Baron (58)"
+  },
+  {
+    "Count": 7,
+    "Code": "J328",
+    "Model": "Fairchild Dornier 328JET"
+  },
+  {
+    "Count": 7,
+    "Code": "PA31",
+    "Model": "Piper Navajo"
+  },
+  {
+    "Count": 7,
+    "Code": "SW4",
+    "Model": "Fairchild Dornier SA-227DC Metro"
+  },
+  {
+    "Count": 6,
+    "Code": "B190",
+    "Model": "Beechcraft 1900"
+  },
+  {
+    "Count": 6,
+    "Code": "CRJ7",
+    "Model": "Canadair Regional Jet CRJ-700"
+  },
+  {
+    "Count": 5,
+    "Code": 727,
+    "Model": ""
+  },
+  {
+    "Count": 5,
+    "Code": "73M",
+    "Model": ""
+  },
+  {
+    "Count": 5,
+    "Code": "B753",
+    "Model": "Boeing 757-300"
+  },
+  {
+    "Count": 5,
+    "Code": "DH8A",
+    "Model": "de Havilland Dash 8-100"
+  },
+  {
+    "Count": 5,
+    "Code": "PA44",
+    "Model": "Piper PA-44 Seminole"
+  },
+  {
+    "Count": 4,
+    "Code": 350,
+    "Model": ""
+  },
+  {
+    "Count": 4,
+    "Code": "A345",
+    "Model": "Airbus A340-500"
+  },
+  {
+    "Count": 4,
+    "Code": "AT76",
+    "Model": "Aerospatiale ATR-72-600"
+  },
+  {
+    "Count": 4,
+    "Code": "FA20",
+    "Model": "Dassault Falcon 20"
+  },
+  {
+    "Count": 4,
+    "Code": "JS41",
+    "Model": "JETSTREAM Jetstream 41"
+  },
+  {
+    "Count": 4,
+    "Code": "RJ1H",
+    "Model": "Avro RJ-100 Avroliner"
+  },
+  {
+    "Count": 3,
+    "Code": 747,
+    "Model": ""
+  },
+  {
+    "Count": 3,
+    "Code": "74F",
+    "Model": ""
+  },
+  {
+    "Count": 3,
+    "Code": "A139",
+    "Model": "Bell AB-139"
+  },
+  {
+    "Count": 3,
+    "Code": "B732",
+    "Model": "Boeing 737-200"
+  },
+  {
+    "Count": 3,
+    "Code": "C404",
+    "Model": "Cessna 404 Titan"
+  },
+  {
+    "Count": 3,
+    "Code": "E120",
+    "Model": "Embraer EMB-120 Brasilia"
+  },
+  {
+    "Count": 3,
+    "Code": "E135",
+    "Model": "Embraer ERJ-135"
+  },
+  {
+    "Count": 3,
+    "Code": "G115",
+    "Model": "GROB Tutor"
+  },
+  {
+    "Count": 3,
+    "Code": "GLEX",
+    "Model": "Bombardier Global Express"
+  },
+  {
+    "Count": 3,
+    "Code": "H25B",
+    "Model": "Raytheon Hawker 800"
+  },
+  {
+    "Count": 3,
+    "Code": "SH36",
+    "Model": "Short SD3-60"
+  },
+  {
+    "Count": 2,
+    "Code": 340,
+    "Model": ""
+  },
+  {
+    "Count": 2,
+    "Code": "B722",
+    "Model": "Boeing 727-200"
+  },
+  {
+    "Count": 2,
+    "Code": "BE9L",
+    "Model": "Beechcraft King Air 90"
+  },
+  {
+    "Count": 2,
+    "Code": "C310",
+    "Model": "Cessna 310"
+  },
+  {
+    "Count": 2,
+    "Code": "C402",
+    "Model": "Cessna 402"
+  },
+  {
+    "Count": 2,
+    "Code": "C750",
+    "Model": "Cessna Citation X"
+  },
+  {
+    "Count": 2,
+    "Code": "CP10",
+    "Model": "MUDRY CAP-10"
+  },
+  {
+    "Count": 2,
+    "Code": "CRJ2",
+    "Model": "Canadair Regional Jet CRJ-200"
+  },
+  {
+    "Count": 2,
+    "Code": "DA42",
+    "Model": "Diamond Twin Star"
+  },
+  {
+    "Count": 2,
+    "Code": "E75L",
+    "Model": "Embraer 175"
+  },
+  {
+    "Count": 2,
+    "Code": "GLF4",
+    "Model": "Gulfstream Aerospace Gulfstream IV"
+  },
+  {
+    "Count": 2,
+    "Code": "JS32",
+    "Model": "British Aerospace Jetstream Super 31"
+  },
+  {
+    "Count": 2,
+    "Code": "LJ35",
+    "Model": "Learjet 35"
+  },
+  {
+    "Count": 2,
+    "Code": "SB20",
+    "Model": "Saab 2000"
+  },
+  {
+    "Count": 2,
+    "Code": "SR22",
+    "Model": "Cirrus SR-22"
+  },
+  {
+    "Count": 1,
+    "Code": 310,
+    "Model": ""
+  },
+  {
+    "Count": 1,
+    "Code": "73L",
+    "Model": ""
+  },
+  {
+    "Count": 1,
+    "Code": "74N",
+    "Model": ""
+  },
+  {
+    "Count": 1,
+    "Code": "A124",
+    "Model": "Antonov An-124 Ruslan"
+  },
+  {
+    "Count": 1,
+    "Code": "A140",
+    "Model": "Antonov An-140"
+  },
+  {
+    "Count": 1,
+    "Code": "A318",
+    "Model": "Airbus A318"
+  },
+  {
+    "Count": 1,
+    "Code": "AA1",
+    "Model": "Grumman Tr2"
+  },
+  {
+    "Count": 1,
+    "Code": "AC6L",
+    "Model": "Rockwell Commander 685"
+  },
+  {
+    "Count": 1,
+    "Code": "AC90",
+    "Model": "Rockwell Turbo Commander 690"
+  },
+  {
+    "Count": 1,
+    "Code": "AT45",
+    "Model": "ALENIA Surveyor (ATR-42-500)"
+  },
+  {
+    "Count": 1,
+    "Code": "B350",
+    "Model": "Beechcraft Super King Air 350"
+  },
+  {
+    "Count": 1,
+    "Code": "B462",
+    "Model": "British Aerospace BAe-146-200"
+  },
+  {
+    "Count": 1,
+    "Code": "B463",
+    "Model": "British Aerospace BAe-146-300"
+  },
+  {
+    "Count": 1,
+    "Code": "B47",
+    "Model": ""
+  },
+  {
+    "Count": 1,
+    "Code": "B741",
+    "Model": "Boeing 747-100"
+  },
+  {
+    "Count": 1,
+    "Code": "BE30",
+    "Model": "Beechcraft Super King Air 300"
+  },
+  {
+    "Count": 1,
+    "Code": "BE36",
+    "Model": "Beechcraft Bonanza (36)"
+  },
+  {
+    "Count": 1,
+    "Code": "BE99",
+    "Model": "Beechcraft Airliner"
+  },
+  {
+    "Count": 1,
+    "Code": "BL8",
+    "Model": "CHAMPION Decathlon"
+  },
+  {
+    "Count": 1,
+    "Code": "BLCF",
+    "Model": "Boeing 747 Large Cargo Freighter"
+  },
+  {
+    "Count": 1,
+    "Code": "C182",
+    "Model": "Cessna Skylane"
+  },
+  {
+    "Count": 1,
+    "Code": "C25B",
+    "Model": "Cessna Citation CJ3"
+  },
+  {
+    "Count": 1,
+    "Code": "C414",
+    "Model": "Cessna Chancellor"
+  },
+  {
+    "Count": 1,
+    "Code": "C441",
+    "Model": "Cessna Conquest 2"
+  },
+  {
+    "Count": 1,
+    "Code": "C510",
+    "Model": "Cessna Citation Mustang"
+  },
+  {
+    "Count": 1,
+    "Code": "C550",
+    "Model": "Cessna Citation II"
+  },
+  {
+    "Count": 1,
+    "Code": "C560",
+    "Model": "Cessna Citation V"
+  },
+  {
+    "Count": 1,
+    "Code": "C680",
+    "Model": "Cessna Citation Sovereign"
+  },
+  {
+    "Count": 1,
+    "Code": "CRJ",
+    "Model": "Canadair Regional Jet CRJ-200"
+  },
+  {
+    "Count": 1,
+    "Code": "D328",
+    "Model": "Fairchild Dornier 328"
+  },
+  {
+    "Count": 1,
+    "Code": "DHC6",
+    "Model": "De Havilland Canada Twin Otter"
+  },
+  {
+    "Count": 1,
+    "Code": "E50P",
+    "Model": "Embraer Phenom 100"
+  },
+  {
+    "Count": 1,
+    "Code": "F50",
+    "Model": "Fokker Maritime Enforcer"
+  },
+  {
+    "Count": 1,
+    "Code": "FA10",
+    "Model": "Dassault Falcon 10"
+  },
+  {
+    "Count": 1,
+    "Code": "GLF5",
+    "Model": "Gulfstream Aerospace Gulfstream V"
+  },
+  {
+    "Count": 1,
+    "Code": "HA4T",
+    "Model": "Hawker Beechcraft 4000"
+  },
+  {
+    "Count": 1,
+    "Code": "IL96",
+    "Model": "Ilyushin Il-96"
+  },
+  {
+    "Count": 1,
+    "Code": "KODI",
+    "Model": "Quest Kodiak"
+  },
+  {
+    "Count": 1,
+    "Code": "LJ60",
+    "Model": "Learjet 60"
+  },
+  {
+    "Count": 1,
+    "Code": "MD83",
+    "Model": "McDonnell Douglas MD-83"
+  },
+  {
+    "Count": 1,
+    "Code": "MU2",
+    "Model": "Mitsubishi MU-2"
+  },
+  {
+    "Count": 1,
+    "Code": "P28A",
+    "Model": "Piper Cherokee"
+  },
+  {
+    "Count": 1,
+    "Code": "P28R",
+    "Model": "Piper Cherokee Arrow"
+  },
+  {
+    "Count": 1,
+    "Code": "PA34",
+    "Model": "Piper Seneca"
+  },
+  {
+    "Count": 1,
+    "Code": "R44",
+    "Model": "Robinson Clipper"
+  },
+  {
+    "Count": 1,
+    "Code": "SW3",
+    "Model": "Swearingen Merlin 3"
+  }
+]

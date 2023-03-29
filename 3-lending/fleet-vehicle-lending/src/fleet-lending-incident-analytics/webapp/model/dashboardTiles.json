@@ -1,0 +1,37 @@
+{
+	"HomeTiles": [
+		{
+			"icon" : "sap-icon://form",
+			"title" : "My Portfolio"
+		},
+		{
+			"icon" : "sap-icon://activities",
+			"title" : "Claims",
+			"number":"2",
+			"numberUnit":"New Claims"
+		
+		},
+		{	"icon" : "sap-icon://paper-plane",
+			"title" : "Events",
+			"number":"5",
+			"numberUnit":"New Events"
+		},
+		{
+			"icon" : "sap-icon://alert",
+			"title" : "Safety Ratings"
+		},
+		{
+			"icon" : "sap-icon://column-chart-dual-axis",
+			"title" : "Analytics Dashboard"
+		},
+		{
+			"icon" : "sap-icon://incident",
+			"title" : "Incidents Analysis"
+		},
+		{
+			"icon" : "	sap-icon://chart-axis",
+			"title" : "Incident Analysis"
+		}
+	
+	]
+}

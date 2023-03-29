@@ -1,0 +1,82 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:form="sap.ui.layout.form" xmlns:l="sap.ui.layout" controllerName="com.sap.Aviation.controller.DashboardEnergy"
+	xmlns:html="http://www.w3.org/1999/xhtml">
+	<App>
+		<pages>
+		<Page showHeader="false">
+				<content>
+					<l:BlockLayout id="BlockLayout">
+						<l:BlockLayoutRow accentCells="Accent1" class="blockRow1Style">
+							<l:BlockLayoutCell>
+								<Label text="HOME" class="dashboardLabelStyle"/>
+							</l:BlockLayoutCell>
+						</l:BlockLayoutRow>
+						<l:BlockLayoutRow accentCells="Accent1" class="blockRow2Style">
+							<l:BlockLayoutCell class="dashboardCellStyle">
+								<TileContainer id="container" class="tileContainer" tiles="{dashboardTiles>/HomeTiles}" width="107%">
+									<StandardTile icon="{dashboardTiles>icon}" type="{dashboardTiles>type}" number="{dashboardTiles>number}" numberUnit="{dashboardTiles>numberUnit}"
+										title="{dashboardTiles>title}" info="{dashboardTiles>info}" infoState="{dashboardTiles>infoState}" class="tileStyle" press="dashboardTilePress"/>
+								</TileContainer>
+								<!--<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="My Portfolio" frameType="auto" press="press">-->
+								<!--	<tileContent>-->
+								<!--		<TileContent>-->
+								<!--			<content><ImageContent src="sap-icon://form"/></content>-->
+								<!--		</TileContent>-->
+								<!--	</tileContent>-->
+								<!--</GenericTile>-->
+								<!--<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Claims" frameType="auto" press="press">-->
+								<!--	<tileContent>-->
+								<!--		<TileContent>-->
+								<!--			<content><ImageContent src="sap-icon://activities"/></content>-->
+								<!--		</TileContent>-->
+								<!--	</tileContent>-->
+								<!--</GenericTile>-->
+								<!--<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Events" frameType="auto" press="press">-->
+								<!--	<tileContent>-->
+								<!--		<TileContent>-->
+								<!--			<content><ImageContent src="sap-icon://paper-plane"/></content>-->
+								<!--		</TileContent>-->
+								<!--	</tileContent>-->
+								<!--</GenericTile>-->
+								<!--<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Risks" frameType="auto" press="press">-->
+								<!--	<tileContent>-->
+								<!--		<TileContent>-->
+								<!--			<content><ImageContent src="sap-icon://alert"/></content>-->
+								<!--		</TileContent>-->
+								<!--	</tileContent>-->
+								<!--</GenericTile>-->
+								<!--<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Analytics" frameType="auto" press="press">-->
+								<!--	<tileContent>-->
+								<!--		<TileContent>-->
+								<!--			<content><ImageContent src="sap-icon://column-chart-dual-axis"/></content>-->
+								<!--		</TileContent>-->
+								<!--	</tileContent>-->
+								<!--</GenericTile>-->
+							</l:BlockLayoutCell>
+						</l:BlockLayoutRow>
+						<!--<l:BlockLayoutRow accentCells="Accent1" class="blockRow2Style">-->
+						<!--	<l:BlockLayoutCell class="dashboardCellStyle">-->
+						<!--		<Label text="Lorem ipsum dolor st amet"/>-->
+						<!--		<Label text="Lorem ipsum dolor st amet"/>-->
+						<!--		<Label text="Lorem ipsum dolor st amet"/>-->
+						<!--		<Label text="Lorem ipsum dolor st amet"/>-->
+						<!--	</l:BlockLayoutCell>-->
+							<!--<l:BlockLayoutCell>-->
+							<!--	<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="My Inbox" frameType="auto" press="press">-->
+							<!--		<tileContent>-->
+							<!--			<TileContent><content><ImageContent src="sap-icon://column-chart-dual-axis"/></content></TileContent>-->
+							<!--		</tileContent>-->
+							<!--	</GenericTile>-->
+							<!--</l:BlockLayoutCell>-->
+						<!--	<l:BlockLayoutCell>-->
+						<!--		<List showSeparators="Inner" >-->
+						<!--			<FeedListItem sender="Accident" icon="sap-icon://customer" timestamp="03/03/2017" text="Ryanair B738 and Vueling A320 near Sevilla on Oct 30th 2014, near collision"/>-->
+						<!--			<FeedListItem sender="Incident" icon="sap-icon://customer" timestamp="03/03/2017" text="Ryanair B738 and Vueling A320 near Sevilla on Oct 30th 2014, near collision"/>-->
+						<!--		</List>-->
+						<!--	</l:BlockLayoutCell>-->
+						<!--</l:BlockLayoutRow>-->
+					</l:BlockLayout>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>
