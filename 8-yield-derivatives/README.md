@@ -1,4 +1,4 @@
-Scrypto Yield Derivatives Challenge
+# Scrypto Yield Derivatives Challenge
 
 See the announcement [here](https://www.radixdlt.com/blog/scrypto-yield-derivatives-challenge-is-live)
 
