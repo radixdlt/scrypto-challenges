@@ -5,7 +5,6 @@ const { OpenAI } = require('openai');
 const app = express();
 const port = 3000;
 
-const openai = new OpenAI('sk-proj-CjIdebxxMN9RRysWYyjiT3BlbkFJ4UdNGslmUGoBFchHVPWm');
 
 // GET endpoint for chat completions
 app.get('/api/chat-completion', async (req, res) => {

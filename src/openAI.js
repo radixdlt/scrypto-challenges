@@ -13,7 +13,6 @@ const TradingBotComponent = () => {
     const initializeOpenAI = async () => {
       try {
         const chatGPTClient = new OpenAI({ 
-          apiKey: 'sk-proj-CjIdebxxMN9RRysWYyjiT3BlbkFJ4UdNGslmUGoBFchHVPWm', // Replace with your actual API key
           dangerouslyAllowBrowser: true 
         });
         // Save the initialized client to state
