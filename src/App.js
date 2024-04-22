@@ -1,27 +1,19 @@
 import './App.css';
 import TradingBotComponent from './openAI';
 import TradingBotCompo from './ins'
+import Header from './Header';
+import Footer from './Footer';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-
-        </p>
+        <Header/>
+        </header>
         <div><TradingBotCompo/></div>
-
-
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+     <Footer>
+      <Footer/>
+     </Footer>
     </div>
   );
 }
