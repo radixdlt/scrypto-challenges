@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { DataRequestBuilder, RadixDappToolkit, RadixNetwork } from "@radixdlt/radix-dapp-toolkit";
+import { RadixDappToolkit, RadixNetwork } from "@radixdlt/radix-dapp-toolkit";
+import './TradingBotComponent.css'; // Import CSS for styling
+import logo from './logo.png'; // Import your logo image
 
 const TradingBotComponent = () => {
-  const [messages, setMessages] = useState([]);
-  const [inputText, setInputText] = useState('');
+  const [response, setResponse] = useState('');
+  const [loading, setLoading] = useState(false);
   const [rdt, setRdt] = useState(null);
+
+  const [contractDetails, setContractDetails] = useState(null);
+  const [claimingInsurance, setClaimingInsurance] = useState(false);
+  const [signingContract, setSigningContract] = useState(false);
 
   useEffect(() => {
     const initializeRadixDappToolkit = async () => {
@@ -16,7 +22,6 @@ const TradingBotComponent = () => {
           applicationVersion: "1.0.0",
         });
         setRdt(rdtInstance);
-        rdtInstance.walletApi.setRequestData(DataRequestBuilder.accounts().exactly(1));
       } catch (error) {
         console.error('Error initializing RadixDappToolkit:', error);
       }
@@ -25,50 +30,66 @@ const TradingBotComponent = () => {
     initializeRadixDappToolkit();
   }, []);
 
-  const handleSendMessage = async () => {
+  const handleRunBot = async () => {
+    if (!rdt) return;
+
+    setLoading(true);
     try {
-      if (!rdt || !rdt.walletApi || !rdt.walletApi.getWalletData().accounts.length) {
-        console.error('RadixDappToolkit or walletApi not available.');
-        return;
-      }
-
-      const accountAddress = rdt.walletApi.getWalletData().accounts[0].address;
-
-      const manifest = `
-        CALL_METHOD
-            Address("$")
-            "new"
-        ;
-        CALL_METHOD
-            Address("${accountAddress}")
-            "deposit_batch"
-            Expression("ENTIRE_WORKTOP")
-        ;
-      `;
-
-      const result = await rdt.walletApi.sendTransaction({
-        transactionManifest: manifest,
-        version: 1,
-      });
-
-      if (result.isErr()) throw result.error;
-      console.log("Transaction result: ", result.value);
+      // Simulate bot response (replace with actual bot interaction)
+      setTimeout(() => {
+        setResponse('Bot: Buy signal detected for BTC/USD');
+        setLoading(false);
+      }, 2000);
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Error running bot:', error);
+      setLoading(false);
     }
   };
 
+  const handleCreateContract = async () => {
+    setSigningContract(true);
+    // Implement logic to create a new contract
+    // Once the contract is created, setSigningContract(false);
+  };
+
+  const handleViewDetails = async () => {
+    // Implement logic to fetch and display contract details
+    // Set contractDetails with the fetched details
+  };
+
+  const handleClaimInsurance = async () => {
+    setClaimingInsurance(true);
+    // Implement logic to claim insurance for a contract
+    // Once the insurance is claimed, setClaimingInsurance(false);
+  };
+
   return (
-    <div>
-      <div>
-        {messages.map((message, index) => (
-          <div key={index}>{message.text}</div>
-        ))}
+    <div className="trading-bot-container">
+      <div className="trading-bot-form">
+      <img src={logo} alt="InfiniX Logo" className="logo" style={{ width: '150px', height: '150px' }} />
+
+        <h2>Welcome to InfiniX</h2>
+        <p style={{ fontSize: '20px' }}>Instant Insurance, Infinite Possibilities!</p>
+
+       
+        {response && <div className="bot-response">{response}</div>}
+        <h2>Your Insurance Platform</h2>
+        <button onClick={handleCreateContract} disabled={signingContract}>
+          {signingContract ? 'Signing Up Contract...' : 'Sign Up Contract'}
+        </button>
+        <button onClick={handleViewDetails}>View Contract Details</button>
+        <button onClick={handleClaimInsurance} disabled={claimingInsurance}>
+          {claimingInsurance ? 'Claiming Insurance...' : 'Claim Insurance'}
+        </button>
+        {contractDetails && (
+          <div className="contract-details">
+            {/* Display contract details here */}
+          </div>
+        )}
       </div>
-      <input value={inputText} onChange={(e) => setInputText(e.target.value)} />
-      <button onClick={handleSendMessage}>Send</button>
     </div>
   );
 };
 
 export default TradingBotComponent;
+
