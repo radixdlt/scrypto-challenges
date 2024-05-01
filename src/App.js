@@ -24,6 +24,8 @@ function App() {
       </div>
       <div>
         <Team />
+        <Profile/>
+
       </div>
       {/* Conditionally render LoginForm or Profile based on login status */}
       {isLoggedIn ? <Profile /> : <LogIn onLogin={handleLogin} />}
