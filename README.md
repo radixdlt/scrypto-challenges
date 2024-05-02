@@ -5,7 +5,9 @@ Welcome to InfiniX, a revolutionary DeFi protocol on the Radix blockchain, engin
 
 ---
 
-**Noteworthy Achievement**: The InfiniX team is proud to announce our recent triumph at the Radix Global Hackathon held in London, where we clinched the first prize in the advanced track.
+**Noteworthy Achievement**: The InfiniX team is proud to announce our recent triumph at the Radix Global Hackathon organized by Radix.wiki held in London, where we clinched the first prize in the advanced track.
+
+- **Watch Our Presentation Video**: [Click Here](https://youtu.be/zNV2ufQnZTQ?si=qLCiPtSXjH1Qq3-L)
 
 ---
 
@@ -37,6 +39,14 @@ For more details on each insurance product and why it is important in the Radix 
 - **Read**: [Radix DeFi Ecosystem](https://developers.radixdlt.com/docs/introduction)
 
 ---
+
+
+### Link to Canva Presentation
+
+- **Click to See Presentation**: [Here](https://www.canva.com/design/DAGDCJiRn0g/jvYaaVqe4WQasc20wUjRYw/edit?utm_content=DAGDCJiRn0g&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+
+---
+
 
 ## Workflow Overview
 
@@ -74,9 +84,14 @@ InfiniX is a pioneering DeFi protocol on the Radix blockchain designed to integr
 
 This project was initiated using Create React App, providing a set of pre-configured tools and practices to help kick-start your React application development.
 
+
+
 ### Available Scripts
 
 Within the project directory, you can run several commands:
+
+#### `npm install`
+This command will download and install all the required packages defined in the package.json file into the node_modules folder, setting up everything needed to run the application successfully.
 
 #### `npm start`
 This command runs your app in development mode. Visit [http://localhost:3000](http://localhost:3000) to view it in the browser. The page will reload if you make edits. You will also see lint errors in the console.
@@ -107,9 +122,6 @@ For more complex setups, you might need to tweak additional settings. For guidan
 - **Making a Progressive Web App**: Turn your React app into a PWA by following the steps outlined in the [PWA setup guide](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app).
 - **Troubleshooting**: If you encounter issues during the build process, refer to the [troubleshooting guide](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify).
 
-This format of the README is designed to provide clear instructions and links to further resources, streamlining the project setup and maintenance process for developers.
-
-Here's a rewritten version of the license section for clarity and conciseness:
 
 ---
 
