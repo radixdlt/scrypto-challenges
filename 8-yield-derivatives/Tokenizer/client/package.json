@@ -1,0 +1,25 @@
+{
+  "name": "client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=staging vite",
+    "build": "cross-env NODE_ENV=staging vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.2",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.3.1",
+    "typescript": "^5.0.2",
+    "vite": "^4.1.0"
+  },
+  "dependencies": {
+    "@radixdlt/connect-button": "^1.0.4",
+    "@radixdlt/radix-dapp-toolkit": "^1.4.3",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "fs": "^0.0.1-security"
+  }
+}

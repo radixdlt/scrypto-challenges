@@ -1,0 +1,40 @@
+CALL_METHOD
+    Address("${component_test}")
+    "lock_fee"
+    Decimal("5000")
+;
+CALL_METHOD
+    Address("${account}")
+    "withdraw"
+    Address("${pt}")
+    Decimal("50")
+;
+TAKE_FROM_WORKTOP
+    Address("${pt}")
+    Decimal("50")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("${account}")
+    "withdraw"
+    Address("${yt}")
+    Decimal("1")
+;
+TAKE_FROM_WORKTOP
+    Address("${yt}")
+    Decimal("1")
+    Bucket("bucket2")
+;
+CALL_METHOD
+    Address("${component}")
+    "redeem"
+    Bucket("bucket1")
+    Bucket("bucket2")
+    Decimal("50")
+;
+CALL_METHOD
+    Address("${account}")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
