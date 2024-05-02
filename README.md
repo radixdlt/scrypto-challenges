@@ -1,126 +1,127 @@
-# InfiniX
-
-InfiniX - Instant Insurance, Infinite Possibilities
-
-## Introduction
-
-Welcome to InfiniX, where we aim to revolutionize decentralized finance (DeFi) by offering instant insurance solutions with infinite possibilities. InfiniX addresses the inherent risks and challenges faced by investors in the volatile DeFi market by providing customizable loss limits, instant fund settlements, and integration with parametric insurance.
-
-## Problem Statement
-
-The DeFi space presents lucrative opportunities for investors but also comes with significant risks due to market volatility and lack of security measures. InfiniX identifies the following key problems:
-
-### No Security on Highly Volatile Investment in DeFi
-Current DeFi protocols lack robust security measures to limit potential losses in highly volatile markets, exposing investors to significant risks.
-
-### 14 Days LSU Settlement Period
-Long settlement periods in other DeFi platforms lead to liquidity issues and reduce investor trust due to delayed access to funds.
-
-### Lack of Parametric Insurance Solutions
-Existing DeFi protocols do not offer parametric insurance solutions to automatically protect against predefined risks, leaving investors vulnerable to unforeseen events.
-
-## Solution
-
-InfiniX offers a comprehensive solution to address the challenges faced by DeFi investors:
-
-### Customizable Loss Limits on Staking
-Investors can set customizable loss limits on their staked assets, allowing them to define their risk tolerance and mitigate potential losses.
-
-### Instant Fund Settlement
-InfiniX ensures instant settlement of funds, providing investors with immediate access to their assets without the delays associated with traditional settlement periods.
-
-### Parametric Insurance Integration
-Our platform integrates parametric insurance solutions, automatically triggering payouts based on predefined conditions such as market fluctuations or protocol failures, providing investors with added security and peace of mind.
-
-## Future Projection
-
-### June - July
-- Improve Smart Contract Functionality
-- Enhance Security Measures
-
-### September
-- Integrate Oracle for Real-Time Feed
-- Launch DApp (Decentralized Application)
-
-### November
-- Scale Platform and Business Operations
+## InfiniX - **Yield Derivative Protocol**
 
 
+Welcome to InfiniX, a revolutionary DeFi protocol on the Radix blockchain, engineered to transform staking and parametric insurance. InfiniX is being crafted to tackle significant challenges faced by stakers and validators, such as losses due to validator downtime or underperformance, risks of slashing from malicious activities, and the liquidity issues associated with unstaking delays. With features like instant liquidity, rapid fund settlements (No need to wait for 14 Days LSU Settlement Period), and customizable loss limits, InfiniX introduces strategic innovations to enhance security and flexibility for investors. Our protocol not only addresses these concerns but also includes safeguards against smart contract failures, ensuring a resilient and efficient investment environment. By transforming staked assets into tradable NFTs, InfiniX not only secures investments with insurance but also enhances their liquidity and yield potential. By providing these solutions, InfiniX stands as a thoughtfully designed platform poised to redefine risk management in decentralized finance.
+
+---
+
+**Noteworthy Achievement**: The InfiniX team is proud to announce our recent triumph at the Radix Global Hackathon held in London, where we clinched the first prize in the advanced track.
+
+---
+
+For more details on each insurance product and why it is important in the Radix ecosystem, visit the links provided (Some of the products are still in the development stage):
+
+### Validator Performance Insurance
+
+- **Purpose**: Covers losses related to validator downtime or underperformance, encouraging diversification across validators.
+- **Read**: [Radix Staking and Incentive Rewards Guide](https://www.radixdlt.com/post/radix-staking-and-incentive-rewards-guide)
+
+### Slashing Risk Coverage
+
+- **Purpose**: Protects stakers against financial losses due to slashing if a validator acts maliciously.
+- **Read**: [Radix Knowledge Base on Staking](https://learn.radixdlt.com/article/how-does-staking-work-on-radix)
+
+### Unstaking Delay and Liquidity Risk Insurance
+
+- **Purpose**: Covers potential market volatility losses during the unstaking delay period, enhancing liquidity.
+- **Read**: [Radix Unstaking Process](https://learn.radixdlt.com/article/how-to-unstake-xrd)
+
+### Emissions Variability Insurance
+
+- **Purpose**: Offers a guaranteed minimum return or covers shortfalls in emissions, making staking returns more predictable.
+- **Read**: [Radix Emissions Information](https://www.radixdlt.com/post/radix-emissions-reward-amounts)
+
+### Smart Contract Failure Insurance
+
+- **Purpose**: Safeguards against losses due to smart contract failures or bugs, boosting confidence in Radix staking.
+- **Read**: [Radix DeFi Ecosystem](https://developers.radixdlt.com/docs/introduction)
+
+---
+
+## Workflow Overview
+
+InfiniX is a pioneering DeFi protocol on the Radix blockchain designed to integrate staking, insurance, and yield derivatives into a cohesive ecosystem. Here's how it works:
+
+![alt text](image.png)
+
+### Investment and Staking Process
+
+1. **Initial Investment**: Investors start by lending 100 XRD tokens to the InfiniX staking protocol.
+2. **Token Staking**: The lent XRD tokens are staked within the InfiniX protocol, which is the first step in generating returns for the investor.
+3. **LSU Minting**: In return for staking their XRD, 100 LSU Tokens are minted. Unlike traditional protocols where LSU would be directly returned to investors as a guarantee of their stake, InfiniX takes a novel approach.
+4. **Yield Generation and Fees**:
+    - Investors earn a 9% yield annually on their staked XRD.
+    - A protocol fee of 1% is deducted from the yield as compensation for the platform's services.
+
+### Integration with Insurance Liquidity Pool
+
+1. **Lending LSU to Insurance Pool**: Instead of returning the LSU to investors, these units are lent to an insurance liquidity pool.
+2. **Surplus Liquidity Creation**: The staked LSUs in the insurance pool generate surplus liquidity. This liquidity is crucial as it supports the platform's capability for instant transaction settlements and enhances overall financial stability.
+
+### Insurance and Yield Derivatives
+
+1. **Insurance Product Integration**: Investors can utilize their LSU holdings to purchase insurance products, adding a layer of security to their investments.
+2. **NFT Issuance**: As proof of their LSU stake and the associated rights, investors are issued NFTs. These NFTs represent ownership and can be traded or utilized within the ecosystem, introducing a yield derivative component.
+3. **Trading NFTs**: The NFTs serve as yield derivatives that can be traded on secondary markets. This allows investors to manage their investment exposure and participate in the broader DeFi market dynamics.
 
 
 
-
-
+---
 
 
 
 # Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was initiated using Create React App, providing a set of pre-configured tools and practices to help kick-start your React application development.
 
-## Available Scripts
+### Available Scripts
 
-In the project directory, you can run:
+Within the project directory, you can run several commands:
 
-### `npm start`
+#### `npm start`
+This command runs your app in development mode. Visit [http://localhost:3000](http://localhost:3000) to view it in the browser. The page will reload if you make edits. You will also see lint errors in the console.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+#### `npm test`
+Executes the test runner in the interactive watch mode. For more details on running tests, refer to the [testing documentation](https://facebook.github.io/create-react-app/docs/running-tests).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+#### `npm run build`
+Builds the app for production to the `build` folder. It correctly bundles React in production mode and optimizes the build for the best performance - the build is minified, and filenames include the hashes. After building, your app is ready to be deployed. For deployment instructions, see the [deployment documentation](https://facebook.github.io/create-react-app/docs/deployment).
 
-### `npm test`
+#### `npm run eject`
+**Note**: This is a one-way operation. Once you `eject`, you cannot go back! If you are not satisfied with the build tool and configuration choices, you can eject at any time. This command will remove the single build dependency from your project and copy all the configuration files and transitive dependencies (webpack, Babel, ESLint, etc.) into your project so that you have full control over them. All commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. This feature is provided for advanced customization and is not required for small to middle deployments.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Learn More
 
-### `npm run build`
+For an in-depth guide on how to make the most out of Create React App, consult the [official documentation](https://facebook.github.io/create-react-app/docs/getting-started). 
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+To learn more about React and its capabilities, visit the [React documentation](https://reactjs.org/docs/getting-started.html).
 
 ### Advanced Configuration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+For more complex setups, you might need to tweak additional settings. For guidance on advanced configurations, refer to the [advanced configuration documentation](https://facebook.github.io/create-react-app/docs/advanced-configuration).
 
-### Deployment
+### Additional Resources
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- **Code Splitting**: This can help reduce your app's bundle size and improve load time. Details are available in the [code splitting guide](https://facebook.github.io/create-react-app/docs/code-splitting).
+- **Analyzing the Bundle Size**: Learn how to measure and optimize the size of your application bundle in the [bundle analysis guide](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size).
+- **Making a Progressive Web App**: Turn your React app into a PWA by following the steps outlined in the [PWA setup guide](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app).
+- **Troubleshooting**: If you encounter issues during the build process, refer to the [troubleshooting guide](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify).
 
-### `npm run build` fails to minify
+This format of the README is designed to provide clear instructions and links to further resources, streamlining the project setup and maintenance process for developers.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Here's a rewritten version of the license section for clarity and conciseness:
+
+---
+
+## License
+
+**Radix Official Examples Code - Radix Modified MIT License**
+
+**Copyright 2024, Radix Publishing Ltd.**
+
+Permission is granted, free of charge, to any person obtaining this software and associated documentation files (the "Software"), to use the Software for non-commercial, informational, and educational purposes only. This includes the rights to use, copy, modify, merge, publish, distribute, and sublicense, and to allow others to whom the Software is furnished to do the same, under the following conditions:
+
+The above copyright notice and this permission notice must be included in all copies or substantial portions of the Software.
+
+**Disclaimer**:
+The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software. The authors do not owe any fiduciary duties or duty of care to users of the Software.
