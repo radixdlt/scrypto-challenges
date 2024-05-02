@@ -36,8 +36,7 @@ let admin_badge = import.meta.env.VITE_ADMIN_BADGE
 let owner_badge = import.meta.env.VITE_OWNER_BADGE
 let lnd_resourceAddress = import.meta.env.VITE_USERDATA_NFT_RESOURCE_ADDRESS // NFT  manager
 let lnd_tokenAddress = import.meta.env.VITE_TOKENIZER_TOKEN_ADDRESS // TKN token resource address
-
-let staff_badge = import.meta.env.VITE_STAFF_BADGE_ADDRESS
+let staff_badge = import.meta.env.VITE_STAFF_BADGE
 
 let xrdAddress = import.meta.env.VITE_XRD //Stokenet XRD resource address
 
@@ -63,7 +62,25 @@ if (storedAccountAddress) {
 console.log(" wallet accountAddress: ", accountAddress)
 
 
-// ***** Main function (elementId = divId del button, inputTextId = divId del field di inserimento, method = scrypto method) *****
+/**
+ * Main function that is triggered by an action on the web page and triggers a transaction on the wallet
+ * 
+ * Functions for account supply/withdraw.
+ * 
+ * Usage: 
+ * createTransactionOnClick(elementId, inputTextId, accountAddressId, method, errorField);
+ * 
+ * @function createTransactionOnClick
+ * @param {string} elementId - The ID of the button element.
+ * @param {string} inputTextId - The ID of the input field element.
+ * @param {string} accountAddressId - The ID of the account address element.
+ * @param {string} method - The scrypto method to call.
+ * @param {string} errorField - The ID of the element to display errors.
+ * 
+ * @example
+ * // Extend Lending Pool
+ * createTransactionOnClick('extendLendingPool', 'extendLendingPoolAmount', 'extend_lending_pool');
+ */
 function createTransactionOnClick(elementId, inputTextId, method) {
   document.getElementById(elementId).onclick = async function () {
     let inputValue = document.getElementById(inputTextId).value;
@@ -80,6 +97,19 @@ function createTransactionOnClick(elementId, inputTextId, method) {
   };
 }
 
+/**
+ * 
+ * Generates a transaction manifest for a given method and input values.
+ * 
+ * @function generateManifest
+ * @param {string} method - The scrypto method to call (e.g., 'extend_lending_pool').
+ * @param {string} inputValue - The first input value (e.g., number of tokens).
+ * @returns {string} The generated manifest code.
+ * 
+ * @example
+ * const manifest = generateManifest('extend_lending_pool', '100');
+ * console.log(manifest);
+ */
 function generateManifest(method, inputValue) {
   let code;
   switch (method) {
@@ -158,7 +188,24 @@ function generateManifest(method, inputValue) {
             "deposit_batch"
             Expression("ENTIRE_WORKTOP");
           `;
-        break;           
+        break;     
+      case 'mint_staff_badge':
+        code = ` 
+          CALL_METHOD
+            Address("${accountAddress}")
+            "create_proof_of_amount"    
+            Address("${admin_badge}")
+            Decimal("1");
+          CALL_METHOD
+            Address("${componentAddress}")
+            "mint_staff_badge"
+            "${inputValue}";
+          CALL_METHOD
+            Address("${accountAddress}")
+            "deposit_batch"
+            Expression("ENTIRE_WORKTOP");
+          `;
+      break;              
     default:
       throw new Error(`Unsupported method: ${method}`);
   }
@@ -166,7 +213,30 @@ function generateManifest(method, inputValue) {
   return code;
 }
 
-
+/**
+ * Generates a manifest configuration for a given method and input values.
+ * 
+ * @function generateManifestConfig
+ * @param {string} method - The method to call.
+ * @param {string} inputValue1 - The first input value.
+ * @param {string} inputValue2 - The second input value.
+ * @param {string} inputValue3 - The third input value.
+ * @param {string} inputValue4 - The fourth input value.
+ * @param {string} inputValue5 - The fifth input value.
+ * @returns {string} The generated manifest configuration code.
+ * 
+ * @example
+ * // Example call
+ * const manifestConfig = generateManifestConfig(
+ *   'config',
+ *   'reward2',
+ *   'interest2',
+ *   'tokenized_epoch_max_lenght',
+ *   'min_loan_limit',
+ *   'max_loan_limit'
+ * );
+ * console.log(manifestConfig);
+ */
 function generateManifestConfig(method, inputValue1, inputValue2, inputValue3, inputValue4, inputValue5) {
   let code;
   switch (method) {
@@ -175,7 +245,7 @@ function generateManifestConfig(method, inputValue1, inputValue2, inputValue3, i
         CALL_METHOD
           Address("${accountAddress}")
           "create_proof_of_amount"    
-          Address("${staff_badge}")
+          Address("${admin_badge}")
           Decimal("1");  
         CALL_METHOD
           Address("${componentAddress}")
@@ -200,11 +270,34 @@ function generateManifestConfig(method, inputValue1, inputValue2, inputValue3, i
 }
 
 
-// ***** Main function (elementId = divId del button, inputTextId = divId del field di inserimento, method = scrypto method) *****
-function createTransactionConfigOnClick(elementId, reward,interest,tokenized_epoch_max_lenght,min_loan_limit,max_loan_limit,method) {
+/**
+ * Main function to create a transaction configuration on button click.
+ * 
+ * @function createTransactionConfigOnClick
+ * @param {string} elementId - The ID of the button element.
+ * @param {string} reward - The reward value.
+ * @param {string} extra_reward - The extra reward value.
+ * @param {string} tokenized_epoch_max_lenght - The maximum length of the tokenized operation.
+ * @param {string} min_loan_limit - The minimum amount that can be supplied .
+ * @param {string} max_loan_limit - The maximum amount that can be supplied .
+ * @param {string} method - The scrypto method to be called.
+ * 
+ * @example
+ * // Example call
+ * createTransactionConfigOnClick(
+ *   'config',
+ *   'reward2',
+ *   'extra_reward',
+ *   'tokenized_epoch_max_lenght',
+ *   'min_loan_limit',
+ *   'max_loan_limit',
+ *   'config'
+ * );
+ */
+function createTransactionConfigOnClick(elementId, reward,extra_reward,tokenized_epoch_max_lenght,min_loan_limit,max_loan_limit,method) {
   document.getElementById(elementId).onclick = async function () {
     let inputValue1 = document.getElementById(reward).value;
-    let inputValue2 = document.getElementById(interest).value;
+    let inputValue2 = document.getElementById(extra_reward).value;
     let inputValue3 = document.getElementById(tokenized_epoch_max_lenght).value;
     let inputValue4 = document.getElementById(min_loan_limit).value;
     let inputValue5 = document.getElementById(max_loan_limit).value;
@@ -223,12 +316,12 @@ function createTransactionConfigOnClick(elementId, reward,interest,tokenized_epo
 }
 
 
-// Usage
+// Usage (for Admins)
 createTransactionOnClick('extendLendingPool', 'extendLendingPoolAmount', 'extend_lending_pool');
 createTransactionOnClick('setReward', 'reward', 'set_reward');
 createTransactionOnClick('fundMainPool', 'numberOfFundedTokens', 'fund_main_pool');
 createTransactionOnClick('addToken', 'tokenAddress', 'add_token');
+createTransactionOnClick('mintStaffBadge', 'staffUsername', 'mint_staff_badge');
 
-
+// Usage (Config, for Staff)
 createTransactionConfigOnClick('config', 'reward2','interest2','tokenized_epoch_max_lenght','min_loan_limit','max_loan_limit','config');
-

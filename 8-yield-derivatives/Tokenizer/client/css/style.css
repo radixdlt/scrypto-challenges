@@ -1,3 +1,12 @@
+:root {
+  /* CSS HSL */
+  --midnight-green: hsla(193, 100%, 20%, 1);
+  --pacific-cyan: hsla(192, 100%, 41%, 1);
+  --aquamarine: hsla(147, 100%, 81%, 1);
+  --persian-green: hsla(171, 63%, 39%, 1);
+  --light-green: hsla(124, 67%, 69%, 1);
+}
+
 body {
   /* background-image: url("../images/BackgroundGradient.png"); */
   color: #333333;
@@ -10,11 +19,28 @@ body {
   overflow-x: hidden;
 }
 
-.maincontainer {
+.animated-gradient {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient 30s ease infinite;
+  height: 100vh;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+main > section {
   display: flex;
-  align-items: center;
-  padding: 1rem;
-  border-radius: .33rem;
+  justify-content: center;
 }
 
 .logo {
@@ -41,14 +67,34 @@ body {
   text-align: left;
 }
 
+
 button {
   padding: 1rem;
-  background-color: #c3c7c8;
+  background-color: var(--persian-green);
   border-radius: 10px;
-  border: 1px solid #000000; 
+  border: 1px solid rgba(237, 231, 225, 0.1);
   font-size: 18px;
-  color: #333333;
+  color: #FFFFFF;
   min-width: 23%;
+  transition: all 0.3s ease;
+
+  /* add shadow */
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.2);
+}
+
+/*
+ buttons states
+*/
+button:hover {
+  background-color: var(--light-green);
+  color: #FFFFFF;
+}
+
+button:active {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 1px 0 rgba(0,0,0,0.2);
+  transform: scale(0.98);
 }
 
 .input {
@@ -66,16 +112,21 @@ button {
 }
 
 .number input[type="text"] {
-  border: 2px solid #000000; /* Black border with 2px width */
+  border: 1px solid rgba(0, 0, 0, 0.1); /* Add a border to the input */
   border-radius: 5px; /* Optional: Add border-radius for rounded corners */
   padding: 0.5rem; /* Optional: Add padding for spacing inside the input */
   margin-top: 0.25rem;
 }
 
+.number input[type="text"]:focus {
+  outline: none; /* Remove the default focus style */
+  border-color: var(--pacific-cyan); /* Change the border color on focus */
+}
+
 .header-container {
   display: flex;
   align-items: center;
-  justify-content: center; /* Center horizontally */
+  justify-content: space-around;
   padding: 1rem;
   font-size: 32px;
   border-radius: .33rem;
@@ -99,8 +150,9 @@ section {
 
 .header {  
   position: sticky;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 1);
   top: 0;
+  z-index: 10;
 }
 
 .left-container,
@@ -109,12 +161,40 @@ section {
 }
 
 .content-wrapper  {
-  border: 1px solid  #ced0d6; /* Add a border to the content wrapper */
+  border: 1px solid rgba(0, 0, 0, 0.1); /* Add a border to the content wrapper */
   margin-bottom: 10px; /* Add some margin between content wrappers */
-  border-radius: 5px;
+  border-radius: 10px;
   height: 100%;
   flex-basis: 48%;
+
+  /* add shadow */
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.2);
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
 }
+
+.maturity-date {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+#numberOfTokenizedZero,
+#tokenizeEndEpochBorrow
+ {
+  border: 1px solid rgba(0, 0, 0, 0.1); /* Add a border to the input */
+  border-radius: 5px; /* Optional: Add border-radius for rounded corners */
+  padding: 0.5rem; /* Optional: Add padding for spacing inside the input */
+  margin-top: 0.25rem;
+}
+
+#tokenizeEndEpochBorrow {
+  max-width: 300px;
+}
+
 
 .row-wrapper {
   display: flex;
@@ -143,14 +223,21 @@ section {
 }
 
 .header-wrapper {
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   display: flex;
   border-bottom: 1px solid #333333;
 }
+
+.center {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
  
 .column {
   flex-basis: auto;
+  width: 100%;
 }
 
 h1 {

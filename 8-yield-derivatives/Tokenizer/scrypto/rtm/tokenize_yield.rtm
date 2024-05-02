@@ -29,7 +29,7 @@ CALL_METHOD
     Address("${component}")
     "tokenize_yield"
     Bucket("bucket1")
-    Decimal("4000")
+    Decimal("${length}")
     Bucket("bucket2")
     Address("${resource_address}")
 ;

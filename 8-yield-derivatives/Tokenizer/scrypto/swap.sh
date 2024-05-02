@@ -74,41 +74,78 @@ export account=$owner_account
 echo '>>> Register'
 resim run rtm/register.rtm
 
-
 export resource_address=resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3
 
 export amount='4000'
-echo '>>> Supply tokens (amount 4000) of type xrd'
+echo '>>> Supply tokens (amount '$amount') of type xrd'
 resim set-current-epoch 1
 resim run rtm/supply_high.rtm
+
 # 4000 xrd supplied in
 
-echo '>>> Add Token 3'
-export token=$demo2
-resim run rtm/add_token.rtm
+export amount_reward='4'
+echo '>>> Set Reward '$amount_reward' at epoch 100'
+resim set-current-epoch 100
+resim run rtm/set_reward.rtm
 
-echo '>>> Supply 4000 Tokens of a different type'
-export resource_address=$token
-export amount='4000'
-resim set-current-epoch 50
-resim run rtm/supply_high.rtm
+export amount_reward='8'
+echo '>>> Set Reward '$amount_reward' at epoch 1000'
+resim set-current-epoch 1000
+resim run rtm/set_reward.rtm
 
+export amount_reward='12'
+echo '>>> Set Reward '$amount_reward' at epoch 1000'
+resim set-current-epoch 2500
+resim run rtm/set_reward.rtm
+resim run rtm/set_extra.rtm
 
-echo '>>> Tokenize 2000 tokens for 4000 epoch , type = '  $token
 export amount='2000'
 export length='4000'
+echo '>>> Tokenize 1 @5000 (amount '$amount') for '$length' epoch at extra_reward ' $amount_reward
 resim set-current-epoch 5000
 resim run rtm/tokenize_yield.rtm
 
-
-resim set-current-epoch 100
-
-echo '>>> Withdraw (amount 2000) of type ' $token
-export amount='2000'
-resim run rtm/takes_back.rtm
-
-echo '>>> Have a look at the different tokens in the account '
 resim show $account
 
+# 2000 xrd tokenized and the interest rate drops from 12% to 6% and then 3%
 
+export amount_reward='6'
+echo '>>> Set Reward '$amount_reward' at epoch 6000'
+resim set-current-epoch 6000
+resim run rtm/set_extra.rtm
 
+export amount_reward='3'
+echo '>>> Set Reward '$amount_reward' at epoch 7000'
+resim set-current-epoch 7000
+resim run rtm/set_extra.rtm
+
+export amount='2000'
+echo '>>> Redeem amount ' $amount
+resim run rtm/redeem.rtm
+
+# 2000 xrd swapped
+echo 'Result after swapping after the interest rate drops'
+resim show $account
+
+# tokenize again 2000 xrd 
+
+export amount='2000'
+export length='4000'
+echo '>>> Tokenize 2 @5000 (amount '$amount') for '$length' epoch  at extra_reward ' $amount_reward
+resim set-current-epoch 5000
+resim run rtm/tokenize_yield.rtm
+
+export amount_reward='15'
+echo '>>> Set Reward '$amount_reward' at epoch 7000'
+resim set-current-epoch 7000
+resim run rtm/set_extra.rtm
+
+# 2000 xrd tokenized and the interest rate rises from 3% to 15%
+
+export amount='2000'
+echo '>>> Redeem amount ' $amount
+resim run rtm/redeem.rtm
+
+# 2000 xrd swapped
+echo 'Result after swapping after the interest rate rise'
+resim show $account

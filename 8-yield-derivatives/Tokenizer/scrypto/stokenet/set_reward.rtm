@@ -1,11 +1,12 @@
 CALL_METHOD
-    Address("${component_test}")
-    "lock_fee"
-    Decimal("10")
-;
+    Address("${account}")
+    "create_proof_of_amount"    
+    Address("${admin_badge}")
+    Decimal("1");
 CALL_METHOD
     Address("${component}")
-    "register"
+    "set_reward"
+    Decimal("${amount_reward}")
 ;
 CALL_METHOD
     Address("${account}")

@@ -4,8 +4,14 @@ CALL_METHOD
     Decimal("10")
 ;
 CALL_METHOD
+    Address("${account}")
+    "create_proof_of_amount"    
+    Address("${admin_badge}")
+    Decimal("1");
+CALL_METHOD
     Address("${component}")
-    "register"
+    "set_extra_reward"
+    Decimal("${amount_reward}")
 ;
 CALL_METHOD
     Address("${account}")

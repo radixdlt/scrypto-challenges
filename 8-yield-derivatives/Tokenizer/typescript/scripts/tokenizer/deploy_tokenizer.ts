@@ -23,7 +23,7 @@ const instantiateTokenizerdApp = (sugarOraclePackage: string, tokenSymbol: strin
             "${tokenSymbol}"
             "timebased"     
             Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
-            Address("resource_tdx_2_1th9fqs7mfkrsgyc2344hz9z5n47r79v7wxuwyj9mq64wjv3ym6d578")   
+            Address("resource_tdx_2_1t57ejuayfdyrzn6wvzdw0u9lh5ae3u72c4pcxwmvvuf47q6jzk4xv2")   
             ;
         CALL_METHOD
             Address("${wellKnownAddresses.accountAddress}")
@@ -80,7 +80,7 @@ ResultAsync.combine([
     "VITE_TOKENIZER_TOKEN_ADDRESS",
     "VITE_USERDATA_NFT_RESOURCE_ADDRESS",
     "VITE_PT_RESOURCE_ADDRESS",
-    "VITE_YT_RESOURCE_ADDRESS"
+    "VITE_STAFF_BADGE"
     ];
 
 

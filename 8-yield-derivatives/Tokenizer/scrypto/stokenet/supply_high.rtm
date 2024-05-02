@@ -1,16 +1,11 @@
 CALL_METHOD
-    Address("${component_test}")
-    "lock_fee"
-    Decimal("5000")
-;
-CALL_METHOD
     Address("${account}")
     "withdraw"
-    Address("${tokenizer_token}")
+    Address("${resource_address}")
     Decimal("${amount}")
 ;
 TAKE_FROM_WORKTOP
-    Address("${tokenizer_token}")
+    Address("${resource_address}")
     Decimal("${amount}")
     Bucket("bucket1")
 ;
@@ -27,7 +22,7 @@ TAKE_FROM_WORKTOP
 ;
 CALL_METHOD
     Address("${component}")
-    "takes_back"
+    "supply"
     Bucket("bucket1")
     Bucket("bucket2")
     Address("${resource_address}")

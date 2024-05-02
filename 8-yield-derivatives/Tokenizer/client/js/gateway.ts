@@ -16,13 +16,15 @@ if (environment == 'production') {
 }
 gwUrl = import.meta.env.VITE_GATEWAY_URL;
 dashboardUrl = import.meta.env.VITE_DASHBOARD_URL;
+let component = import.meta.env.VITE_COMP_ADDRESS
 console.log("gw url (gateway.js): ", gwUrl)
 console.log("dashboard url (gateway.js): ", dashboardUrl)
-
-let component = import.meta.env.VITE_COMP_ADDRESS
 console.log("component address (gateway.js): ", component)
 
-// Instantiate DappToolkit
+/**
+ * Instantiate Radix Dapp Toolkit (RDT).
+ * 
+ */
 export const rdt = RadixDappToolkit({
   dAppDefinitionAddress: dAppId,
   networkId: networkId,
@@ -35,12 +37,17 @@ export const rdt = RadixDappToolkit({
   }
 });
 
-// manage multi tokens
-export function getXrdAddress(currency) {
+// Global states
+let componentAddress = import.meta.env.VITE_COMP_ADDRESS //Component address on stokenet
+
+/**
+ * Manage multi tokens by returning the token address based on the currency.
+ */
+export function getTokenAddress(currency) {
     if (currency === 'XRD') {
         return 'resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc';
     } else if (currency === 'USDC') {
-        return 'resource_tdx_2_1th9fqs7mfkrsgyc2344hz9z5n47r79v7wxuwyj9mq64wjv3ym6d578';
+        return 'resource_tdx_2_1t57ejuayfdyrzn6wvzdw0u9lh5ae3u72c4pcxwmvvuf47q6jzk4xv2';
     } else if (currency === 'USDT') {
       return 'resource_tdx_2_1th5z7tgaddluc8xg525rvy6klztvmth2tj4hgjpvd78x0mg5854ccu';
   }
@@ -50,21 +57,113 @@ export function getXrdAddress(currency) {
 
 let accountAddress: string | null;
 
-  // ************ Fetch the user's account address (Page Load) ************
-  rdt.walletApi.setRequestData(DataRequestBuilder.accounts().atLeast(1))
-  
-  // Subscribe to updates to the user's shared wallet data
-  const subscription = rdt.walletApi.walletData$.subscribe((walletData) => {
-    accountAddress = walletData && walletData.accounts && walletData.accounts.length>0 ? walletData.accounts[0].address : null
-    console.log("accountAddress : ", accountAddress)
-    if (accountAddress!=null) {
-      
-      const element = document?.getElementById('accountAddress') as HTMLInputElement | null;
-      if (element) {
-          element.value = accountAddress ?? '';
-      }
+// ************ Fetch the user's account address (Page Load) ************
+rdt.walletApi.setRequestData(DataRequestBuilder.accounts().atLeast(1))
 
-      // Store the accountAddress in localStorage
-      localStorage.setItem('accountAddress', accountAddress);
+// Subscribe to updates to the user's shared wallet data
+const subscription = rdt.walletApi.walletData$.subscribe((walletData) => {
+  accountAddress = walletData && walletData.accounts && walletData.accounts.length>0 ? walletData.accounts[0].address : null
+  console.log("accountAddress : ", accountAddress)
+  if (accountAddress!=null) {
+    
+    const element = document?.getElementById('accountAddress') as HTMLInputElement | null;
+    if (element) {
+        element.value = accountAddress ?? '';
     }
+
+    // Store the accountAddress in localStorage
+    localStorage.setItem('accountAddress', accountAddress);
+  }
+
+  interface Hashmap {
+    [key: string]: any;
+  }    
+  const hashmap: Hashmap = fetchComponentConfig(componentAddress)  
+  //get config parameter of the component
+  console.log("Hashmap:", hashmap);  
+
+})
+
+
+
+// *********** Fetch Component Config (/state/entity/details) (Gateway) ***********
+interface Hashmap {
+  [key: string]: any;
+}    
+export async function fetchComponentConfig(_componentAddress: any): Promise<Hashmap>  {
+  // Define the data to be sent in the POST request.
+  const requestData = generatePayload("ComponentConfig", "", "Global");
+  const hashmap: Hashmap = {};
+  // Make an HTTP POST request to the gateway
+  fetch(gwUrl+'/state/entity/details', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: requestData,
   })
+  .then(response => response.json()) // Assuming the response is JSON data.
+  .then(data => { 
+    const json = data.items ? data.items[0] : null;
+    
+    const currentEpoch = data.ledger_state.epoch;
+
+    const rewardValue = getReward(json);
+    const extrarewardValue = getExtraReward(json);
+
+    const currentRewardConfig = document.getElementById("currentReward");
+    const currentExtraRewardConfig = document.getElementById("currentExtraReward");
+
+    if (currentRewardConfig) currentRewardConfig.textContent = rewardValue + '%' ?? '';
+    if (currentExtraRewardConfig) currentExtraRewardConfig.textContent = extrarewardValue + '%' ?? '';
+
+  })
+  .catch(error => {
+      console.error('Error fetching data:', error);
+  });
+  return hashmap;
+}
+
+
+
+// ************ Utility Function (Gateway) *****************
+function generatePayload(method: string, _address: string, resource_address: string) {
+  let code;
+  console.log("generatePayload for method:", method);
+  switch (method) {
+    case 'ComponentConfig':
+      console.log("generatePayload for method:", method);
+      code = `{
+        "addresses": [
+          "${componentAddress}"
+        ],
+        "aggregation_level": "Global",
+        "opt_ins": {
+          "ancestor_identities": true,
+          "component_royalty_vault_balance": true,
+          "package_royalty_vault_balance": true,
+          "non_fungible_include_nfids": true,
+          "explicit_metadata": [
+            "name",
+            "description"
+          ]
+        }
+      }`;
+    break;   
+    // Add more cases as needed
+    default:
+      throw new Error(`Unsupported method: ${method}`);
+  }
+  return code;
+}
+
+// ************ Utility Function (Gateway) *****************
+function getReward(data: { details: { state: { fields: any[]; }; }; }) {
+  const rewardField = data.details.state.fields.find((field: { field_name: string; }) => field.field_name === "reward");
+  return rewardField ? rewardField.value : null;
+}
+
+function getExtraReward(data: { details: { state: { fields: any[]; }; }; }) {
+  const rewardField = data.details.state.fields.find((field: { field_name: string; }) => field.field_name === "extra_reward");
+  return rewardField ? rewardField.value : null;
+}

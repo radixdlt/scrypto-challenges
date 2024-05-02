@@ -4,19 +4,19 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.1" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.1" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.2" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.2" }
 proc-macro2 = "1.0.66"
-scrypto_math = { git = "https://github.com/ociswap/scrypto-math", tag = "v0.4.0" }
-scrypto_avltree = { git = "https://github.com/ociswap/scrypto-avltree", version = "1.1.0" }
+scrypto_math = { git = "https://github.com/ociswap/scrypto-math", tag = "v0.5.0" }
+scrypto_avltree = { git = "https://github.com/ociswap/scrypto-avltree", version = "1.1.2" }
 # qrcode = "0.13.0"
 
 [dev-dependencies]
 tokenizer = { path = ".", features = ["test"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.1" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.1" }
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.1" }
-scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.1" }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.2" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.2" }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.2" }
+scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.2" }
 
 [features]
 default = []

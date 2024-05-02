@@ -1,0 +1,21 @@
+CALL_METHOD
+    Address("${account}")
+    "lock_fee"
+    Decimal("50")
+;
+CALL_FUNCTION
+    Address("${package}")
+    "Tokenizer"
+    "instantiate"
+    Decimal("5")
+    "TKN"
+    "timebased"
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Address("resource_tdx_2_1t57ejuayfdyrzn6wvzdw0u9lh5ae3u72c4pcxwmvvuf47q6jzk4xv2")
+;
+CALL_METHOD
+    Address("${account}")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;

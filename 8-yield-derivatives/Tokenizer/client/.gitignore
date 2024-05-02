@@ -3,6 +3,9 @@ packages.txt
 .vite/*
 package-lock.json
 
+# Docs
+docs
+
 # Logs
 logs
 *.log

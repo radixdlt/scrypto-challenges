@@ -33,6 +33,7 @@ export component_test=component_sim1cptxxxxxxxxxfaucetxxxxxxxxx000527798379xxxxx
 echo "Instantiate output"
 echo 'output = '$output
 
+echo "Component and resource created"
 echo 'component = '$component
 echo 'owner_badge = '$owner_badge
 echo 'admin_badge = '$admin_badge
@@ -55,7 +56,7 @@ echo ' > admin'
 resim show $admin_badge
 echo ' > userdata_nft_manager'
 resim show $userdata_nft_manager
-echo ' > zero tokenizer_token'
+echo ' > tokenizer_token'
 resim show $tokenizer_token
 echo ' > pt'
 resim show $pt
@@ -63,52 +64,64 @@ echo ' > yt'
 resim show $yt
 
 echo '>>> Extend Lending Pool High'
-export amount='5000'
+export amount='10000'
 resim run rtm/extend_lending_pool.rtm
 
-export fund='1000'
-echo '>>> Fund Main Vault'
-resim run rtm/fund.rtm
+# echo '>>> Add Token 1'
+# export token=resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3
+# resim run rtm/add_token.rtm
+# echo '>>> Add Token 2'
+# export token=$demo1
+# resim run rtm/add_token.rtm
+# echo '>>> Add Token 3'
+# export token=$demo2
+# resim run rtm/add_token.rtm
+
+# export fund='1000'
+# echo '>>> Fund Main Vault'
+# resim run rtm/fund.rtm
+
+# export account=$(resim new-account | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
+# echo "Account = " $account
 
 export account=$owner_account
-echo '>>> Register'
+echo '>>> Register an account to the dApp'
 resim run rtm/register.rtm
-
 
 export resource_address=resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3
 
-export amount='4000'
-echo '>>> Supply tokens (amount 4000) of type xrd'
+export amount_reward='10'
+echo '>>> Set Reward '$amount_reward' at epoch 1'
+resim set-current-epoch 1
+resim run rtm/set_reward.rtm
+
+export amount_reward='10'
+echo '>>> Set Extra Reward '$amount_reward' at epoch 1'
+resim run rtm/set_extra.rtm
+
+export amount='10000'
+echo '>>> Supply '$amount' tokens of type xrd'
 resim set-current-epoch 1
 resim run rtm/supply_high.rtm
-# 4000 xrd supplied in
+# 10000 xrd have been supplied in
 
-echo '>>> Add Token 3'
-export token=$demo2
-resim run rtm/add_token.rtm
-
-echo '>>> Supply 4000 Tokens of a different type'
-export resource_address=$token
-export amount='4000'
-resim set-current-epoch 50
-resim run rtm/supply_high.rtm
-
-
-echo '>>> Tokenize 2000 tokens for 4000 epoch , type = '  $token
-export amount='2000'
-export length='4000'
-resim set-current-epoch 5000
+export length='8000'
+echo '>>> Tokenize '$amount' tokens for '$length' epoch'
 resim run rtm/tokenize_yield.rtm
+# 10000 xrd have been tokenized for one month at epoch 1
+
+# interest rates drops at 5 at epoch 1000
+export amount_reward='5'
+echo '>>> Set Reward '$amount_reward' at epoch 1000'
+resim set-current-epoch 1000
+resim run rtm/set_extra.rtm
+
+# Trading before the maturity date causes the account to get more tokens than were deposited due to the fact that the interest rate has decreased
+# The opposite happens if instead the interest rates rises
+echo '>>> Redeem'
+export amount='10000'
+resim run rtm/redeem.rtm
 
 
-resim set-current-epoch 100
-
-echo '>>> Withdraw (amount 2000) of type ' $token
-export amount='2000'
-resim run rtm/takes_back.rtm
-
-echo '>>> Have a look at the different tokens in the account '
 resim show $account
-
-
 

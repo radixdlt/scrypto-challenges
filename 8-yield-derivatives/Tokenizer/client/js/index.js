@@ -1,6 +1,6 @@
 import { RadixDappToolkit, DataRequestBuilder, RadixNetwork, NonFungibleIdType, OneTimeDataRequestBuilder } from '@radixdlt/radix-dapp-toolkit'
 import { rdt } from './gateway.ts'; 
-import { getXrdAddress } from './gateway.ts';
+import { getTokenAddress, fetchComponentConfig } from './gateway.ts';
 
 const environment = process.env.NODE_ENV || 'Stokenet'; // Default to 'development' if NODE_ENV is not set
 console.log("environment (index.js): ", environment)
@@ -21,20 +21,32 @@ console.log("gw url (index.js): ", gwUrl)
 
 // Global states
 let componentAddress = import.meta.env.VITE_COMP_ADDRESS //Scrypto Challenge component address on stokenet
-let admin_badge = import.meta.env.VITE_ADMIN_BADGE
-let owner_badge = import.meta.env.VITE_OWNER_BADGE
 let lnd_resourceAddress = import.meta.env.VITE_USERDATA_NFT_RESOURCE_ADDRESS // NFT  manager
 let lnd_tokenAddress = import.meta.env.VITE_TOKENIZER_TOKEN_ADDRESS // TKN token resource address
 let pt_Address = import.meta.env.VITE_PT_RESOURCE_ADDRESS // PT token resource address
-let yt_Address = import.meta.env.VITE_YT_RESOURCE_ADDRESS // YT token resource address
 
-let xrdAddress = getXrdAddress(currencySelect.value);
-
+/**
+ * Handle the successful result of a transaction.
+ * 
+ * @function handleTransactionSuccess
+ * @param {Object} result - The result object returned from the transaction.
+ * 
+ * @example
+ * handleTransactionSuccess({ status: 'success', data: ... });
+ */
 function handleTransactionSuccess(result) {
-
+  //get config parameter of the component
+  fetchComponentConfig(componentAddress);
 }
 
-//Utility for cleaning previous red errors
+/**
+ * Utility function for cleaning previous red errors from the result display elements.
+ * 
+ * @function cleanPreviousErrors
+ * 
+ * @example
+ * cleanPreviousErrors();
+ */
 function cleanPreviousErrors() {
   document.getElementById('registerTxResult').textContent = "";
   document.getElementById('unregisterTxResult').textContent = "";
@@ -43,9 +55,32 @@ function cleanPreviousErrors() {
   document.getElementById('tokenizeTxResult').textContent = "";
   document.getElementById('redeemTxResult').textContent = "";
   document.getElementById('claimedTxResult').textContent = "";
+  document.getElementById('SwapTxResult').textContent = "";
 }
 
-// ***** Main function *****
+/**
+ * Main function that is triggered by an action on the web page and triggers a transaction on the wallet
+ * 
+ * Functions for account supply/withdraw.
+ * 
+ * Usage: 
+ * createTransactionOnClick(elementId, inputTextId, accountAddressId, method, errorField);
+ * 
+ * @function createTransactionOnClick
+ * @param {string} elementId - The ID of the button element.
+ * @param {string} inputTextId - The ID of the input field element.
+ * @param {string} accountAddressId - The ID of the account address element.
+ * @param {string} method - The scrypto method to call.
+ * @param {string} errorField - The ID of the element to display errors.
+ * 
+ * @example
+ * // Supply tokens
+ * createTransactionOnClick('lendTokens', 'numberOfTokens', 'accountAddress', 'supply', 'lendTxResult');
+ * 
+ * @example
+ * // Withdraw tokens
+ * createTransactionOnClick('takes_back', 'numberOfLndTokens', 'accountAddress', 'takes_back', 'takeBackTxResult');
+ */
 function createTransactionOnClick(elementId, inputTextId, inputTextId2, method, errorField) {
   document.getElementById(elementId).onclick = async function () {
     //clean previous error
@@ -54,7 +89,6 @@ function createTransactionOnClick(elementId, inputTextId, inputTextId2, method, 
 
     let inputValue = document.getElementById(inputTextId).value;
     let inputValue2 = document.getElementById(inputTextId2).value;
-    // let accountAddressFrom = document.getElementById('accountAddress').value;
     console.log("epoch length (index.js) on elementId: ", inputValue2, elementId)
 
     const manifest = generateManifest(method, inputValue, inputValue2);
@@ -73,7 +107,27 @@ function createTransactionOnClick(elementId, inputTextId, inputTextId2, method, 
   };
 }
 
-// ***** Main function on Button Only *****
+/**
+ * Functions to allow account sign in / off.
+ * 
+ * Main function on Button Only
+ * 
+ * Usage:
+ * createTransactionOnButtonClick(elementId, method, errorField);
+ * 
+ * @function createTransactionOnButtonClick
+ * @param {string} elementId - The ID of the button element.
+ * @param {string} method - The scrypto method to call.
+ * @param {string} errorField - The ID of the element to display errors.
+ * 
+ * @example
+ * // Register a user
+ * createTransactionOnButtonClick('register', 'register', 'registerTxResult');
+ * 
+ * @example
+ * // Unregister a user
+ * createTransactionOnButtonClick('unregister', 'unregister', 'unregisterTxResult');
+ */
 function createTransactionOnButtonClick(elementId, method, errorField) {
   document.getElementById(elementId).onclick = async function () {
 
@@ -92,22 +146,35 @@ function createTransactionOnButtonClick(elementId, method, errorField) {
   };
 }
 
-// ***** Utility function *****
+/**
+ * 
+ * Generates a transaction manifest for a given method and input values.
+ * 
+ * @function generateManifest
+ * @param {string} method - The scrypto method to call (e.g., 'supply', 'withdraw').
+ * @param {string} inputValue - The first input value (e.g., number of tokens).
+ * @param {string} inputValue2 - The second input value (e.g., account address).
+ * @returns {string} The generated manifest code.
+ * 
+ * @example
+ * const manifest = generateManifest('supply', '100', 'someAccountAddress');
+ * console.log(manifest);
+ */
 function generateManifest(method, inputValue, inputValue2) {
   let code;
   let accountAddressFrom = document.getElementById('accountAddress').value;
-  let xrdAddress = getXrdAddress(currencySelect.value);
-  console.log(`Working with this token type ${xrdAddress} `);
+  let tokenAddress = getTokenAddress(currencySelect.value);
+  console.log(`Working with this token type ${tokenAddress} `);
   switch (method) {
     case 'supply':
       code = `
         CALL_METHOD
           Address("${accountAddressFrom}")
           "withdraw"    
-          Address("${xrdAddress}")
+          Address("${tokenAddress}")
           Decimal("${inputValue}");
         TAKE_ALL_FROM_WORKTOP
-          Address("${xrdAddress}")
+          Address("${tokenAddress}")
           Bucket("xrd");
         CALL_METHOD
           Address("${accountAddressFrom}")
@@ -122,7 +189,7 @@ function generateManifest(method, inputValue, inputValue2) {
           "supply"
           Bucket("xrd")
           Bucket("nft")
-          Address("${xrdAddress}");
+          Address("${tokenAddress}");
         CALL_METHOD
           Address("${accountAddressFrom}")
           "try_deposit_batch_or_refund"
@@ -187,7 +254,7 @@ function generateManifest(method, inputValue, inputValue2) {
           "takes_back"
           Bucket("loan")
           Bucket("nft")
-          Address("${xrdAddress}");
+          Address("${tokenAddress}");
         CALL_METHOD
           Address("${accountAddressFrom}")
           "try_deposit_batch_or_refund"
@@ -225,7 +292,7 @@ function generateManifest(method, inputValue, inputValue2) {
               Bucket("bucket1")
               Decimal("${inputValue2}")
               Bucket("bucket2")
-              Address("${xrdAddress}")
+              Address("${tokenAddress}")
           ;
           CALL_METHOD
               Address("${accountAddressFrom}")
@@ -264,7 +331,7 @@ function generateManifest(method, inputValue, inputValue2) {
                 "redeem_from_pt"
                 Bucket("bucket1")
                 Bucket("bucket2")
-                Address("${xrdAddress}")
+                Address("${tokenAddress}")
             ;
             CALL_METHOD
                 Address("${accountAddressFrom}")
@@ -291,7 +358,7 @@ function generateManifest(method, inputValue, inputValue2) {
                   Address("${componentAddress}")
                   "claim_yield"
                   Bucket("bucket1")
-                  Address("${xrdAddress}")
+                  Address("${tokenAddress}")
               ;
               CALL_METHOD
                   Address("${accountAddressFrom}")
@@ -299,7 +366,45 @@ function generateManifest(method, inputValue, inputValue2) {
                   Expression("ENTIRE_WORKTOP")
                   Enum<0u8>()
               ;`;
-            break;                                                               
+            break;       
+          case 'swap':
+            code = `
+            CALL_METHOD
+                Address("${accountAddressFrom}")
+                "withdraw"
+                Address("${lnd_resourceAddress}")
+                Decimal("1")
+            ;
+            TAKE_FROM_WORKTOP
+                Address("${lnd_resourceAddress}")
+                Decimal("1")
+                Bucket("bucket2")
+            ;
+            CALL_METHOD
+                Address("${accountAddressFrom}")
+                "withdraw"
+                Address("${pt_Address}")
+                Decimal("${inputValue}")
+            ;
+            TAKE_FROM_WORKTOP
+                Address("${pt_Address}")
+                Decimal("${inputValue}")
+                Bucket("bucket1")
+            ;            
+            CALL_METHOD
+                Address("${componentAddress}")
+                "redeem"
+                Bucket("bucket1")
+                Bucket("bucket2")
+                Address("${tokenAddress}")
+            ;
+            CALL_METHOD
+                Address("${accountAddressFrom}")
+                "try_deposit_batch_or_refund"
+                Expression("ENTIRE_WORKTOP")
+                Enum<0u8>()
+            ;`;
+          break;                                                                       
     // Add more cases as needed
     default:
       throw new Error(`Unsupported method: ${method}`);
@@ -308,20 +413,35 @@ function generateManifest(method, inputValue, inputValue2) {
   return code;
 }
 
-
-// Usage
-// createTransactionOnClick (elementId = divId of the button, inputTextId = divId of the input field, method = scrypto method)
+// Functions to allow account sign in / off
+// Usage: createTransactionOnButtonClick (elementId = divId of the button, method = scrypto method, errorField = divId for showing back the error)
 createTransactionOnButtonClick('register', 'register', 'registerTxResult');
 createTransactionOnButtonClick('unregister', 'unregister', 'unregisterTxResult');
+
+// Functions for account supply/wirthdraw
+// Usage: createTransactionOnClick (elementId = divId of the button, inputTextId = divId of the input field, method = scrypto method, errorField = divId for showing back the error)
 createTransactionOnClick('lendTokens', 'numberOfTokens', 'accountAddress', 'supply', 'lendTxResult');
 createTransactionOnClick('takes_back', 'numberOfLndTokens', 'accountAddress', 'takes_back', 'takeBackTxResult');
 
-//tokenize
+// Functions for account tokenize/swap/reedem
+// Usage: createTransactionOnClick (elementId = divId of the button, inputTextId = divId of the input field, method = scrypto method, errorField = divId for showing back the error)
 createTransactionOnClick('tokenize', 'numberOfTokenizedZero', 'expectedTokenizeLength','tokenize', 'tokenizeTxResult');
 createTransactionOnClick('redeem', 'numberOfRedeemedXrdTokens', 'accountAddress', 'redeem', 'redeemTxResult');
 createTransactionOnClick('claim', 'numberOfClaimedXrdTokens', 'accountAddress', 'claim', 'claimedTxResult');
+createTransactionOnClick('swap', 'numberOfSwapXrdTokens', 'accountAddress', 'swap', 'SwapTxResult');
 
 
+/**
+ * Function for extracting the error message from a string.
+ * 
+ * @function extractErrorMessage
+ * @param {string} inputString - The string containing the error message.
+ * @returns {string} - The extracted error message or "No match found".
+ * 
+ * @example
+ * const errorMessage = extractErrorMessage('PanicMessage("Some error message"@...');
+ * console.log(errorMessage); // Outputs: Some error message
+ */
 function extractErrorMessage(inputString) {
   const panicRegex = /PanicMessage\("([^@]*)@/;
   const resourceRegex = /ResourceError\(([^)]*)/;

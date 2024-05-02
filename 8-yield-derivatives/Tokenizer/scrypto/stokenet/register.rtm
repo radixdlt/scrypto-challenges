@@ -1,9 +1,4 @@
 CALL_METHOD
-    Address("${component_test}")
-    "lock_fee"
-    Decimal("10")
-;
-CALL_METHOD
     Address("${component}")
     "register"
 ;

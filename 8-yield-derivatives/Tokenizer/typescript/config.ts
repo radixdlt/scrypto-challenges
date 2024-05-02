@@ -5,7 +5,7 @@ if (!process.env.MNEMONIC) throw new Error('MNEMONIC env var not set')
 if (!process.env.NETWORK_NAME) throw new Error('NETWORK_NAME env var not set')
 
 export const radixEngineClient = RadixEngineClient({
-  derivationIndex: 1,
+  derivationIndex: 9,
   networkName: process.env.NETWORK_NAME!,
   mnemonic: process.env.MNEMONIC!,
 })
