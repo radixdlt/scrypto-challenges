@@ -72,3 +72,33 @@ A centralized key-value store `NonFungibleId(positionId)`->`PositionInfo` locate
 - `recallable` resource access control has not yet been implemented at the time of this challenge, making it less straightforward to revoke positions that have been liquidated 
 - no API exists on the Babylon PTE-SDK to view individual NonFungibleData for a specific NonFungibleId resource. Without this API, the frontend UI lacked the ability to display individual `PositionInfo` located in the NonFungibleData from the position badge NonFungible token resource.
 - subscription to on-chain events is not available yet at the time of this challenge, making it difficult to implement any liquidation bots to subscribe to new position opens, draws, paydowns, etc. in order to track which positions can be liquidated. Gas-inefficient functions that log the global position state are provided as a workaround to allow users to manually inspect which positions can be liquidated. 
+
+
+## License
+
+The Radix Official Examples code is released under Radix Modified MIT License.
+
+    Copyright 2024 Radix Publishing Ltd
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal in
+    the Software for non-production informational and educational purposes without
+    restriction, including without limitation the rights to use, copy, modify,
+    merge, publish, distribute, sublicense, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    This notice shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE HAS BEEN CREATED AND IS PROVIDED FOR NON-PRODUCTION, INFORMATIONAL
+    AND EDUCATIONAL PURPOSES ONLY.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+    FOR A PARTICULAR PURPOSE, ERROR-FREE PERFORMANCE AND NONINFRINGEMENT. IN NO
+    EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES,
+    COSTS OR OTHER LIABILITY OF ANY NATURE WHATSOEVER, WHETHER IN AN ACTION OF
+    CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE, MISUSE OR OTHER DEALINGS IN THE SOFTWARE. THE AUTHORS SHALL
+    OWE NO DUTY OF CARE OR FIDUCIARY DUTIES TO USERS OF THE SOFTWARE.
+

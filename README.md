@@ -24,3 +24,33 @@ Read More about the DeFi challenge in [the announcement blog post](https://www.r
 5. [DAOs](https://www.radixdlt.com/post/scrypto-dao-challenge-results) (Sept 13th 2022, Oct 11th 2022)
 This time around, participants had to come up with a Scrypto package related to Decentralized Autonomous Organizations (DAO).
 6. [NFTs for financial applications](https://www.radixdlt.com/post/scrypto-nft-challenge-results) (Oct 25th 2022 - Nov 23rd)
+
+
+## License
+
+The Radix Official Examples code is released under Radix Modified MIT License.
+
+    Copyright 2024 Radix Publishing Ltd
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal in
+    the Software for non-production informational and educational purposes without
+    restriction, including without limitation the rights to use, copy, modify,
+    merge, publish, distribute, sublicense, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    This notice shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE HAS BEEN CREATED AND IS PROVIDED FOR NON-PRODUCTION, INFORMATIONAL
+    AND EDUCATIONAL PURPOSES ONLY.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+    FOR A PARTICULAR PURPOSE, ERROR-FREE PERFORMANCE AND NONINFRINGEMENT. IN NO
+    EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES,
+    COSTS OR OTHER LIABILITY OF ANY NATURE WHATSOEVER, WHETHER IN AN ACTION OF
+    CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE, MISUSE OR OTHER DEALINGS IN THE SOFTWARE. THE AUTHORS SHALL
+    OWE NO DUTY OF CARE OR FIDUCIARY DUTIES TO USERS OF THE SOFTWARE.
+
