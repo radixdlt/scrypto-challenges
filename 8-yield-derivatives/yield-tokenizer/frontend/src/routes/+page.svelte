@@ -62,7 +62,7 @@
 	let claimYTBusy = false;
 
 	$: anyYTSelected = yt_list.some((i) => i.selected);
-
+	$: total_claim_amount = $tokenizer_store?.total_claim_amount() ?? '0';
 	$: {
 		update_yt_list($account_store?.yt_ids ?? []);
 	}
@@ -184,14 +184,26 @@
 
 		<Container>
 			<Card shadow="lg" padding="lg">
-				<Group>
+				<Stack>
 					<Text>Yield Tokenizer</Text>
-					<Container fluid />
-					<Text>Available XRD:</Text>
-					<Text weight={'semibold'}>{$tokenizer_store?.$fungible_resources[XRD] ?? dec(0)}</Text>
-					<Text>LSU in the pool:</Text>
-					<Text weight={'semibold'}>{$tokenizer_store?.$fungible_resources[LSU] ?? dec(0)}</Text>
-				</Group>
+
+					<Space />
+
+					<Group>
+						<Text size="xs">Available XRD:</Text>
+						<Text size="xs" weight={'semibold'}>
+							{$tokenizer_store?.$fungible_resources[XRD] ?? dec(0)}</Text
+						>
+						<Text size="xs">LSU in the pool:</Text>
+						<Text size="xs" weight={'semibold'}>
+							{$tokenizer_store?.$fungible_resources[LSU] ?? dec(0)}
+						</Text>
+						<Text size="xs">XRD Ready to claim:</Text>
+						<Text size="xs" weight={'semibold'}>
+							{total_claim_amount}
+						</Text>
+					</Group>
+				</Stack>
 			</Card>
 		</Container>
 
