@@ -1,0 +1,23 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.formatNumberAddZeros = void 0;
+function formatNumberAddZeros(value, digits = 2, addNumber = 0) {
+    if (value != null && isNaN(value)) {
+        return "";
+    }
+    value = value != null ? value + addNumber : value;
+    return digits === 2
+        ? value == null
+            ? "--"
+            : value < 10
+                ? "0" + value
+                : value.toString()
+        : value == null
+            ? "---"
+            : value < 10
+                ? "00" + value
+                : value < 100
+                    ? "0" + value
+                    : value.toString();
+}
+exports.formatNumberAddZeros = formatNumberAddZeros;

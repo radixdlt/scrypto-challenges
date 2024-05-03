@@ -1,0 +1,7 @@
+{
+  "name": "list/curried",
+  "private": true,
+  "main": "../dist/curried.js",
+  "module": "../dist/es/curried.js",
+  "types": "../dist/curried.d.ts"
+}

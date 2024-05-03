@@ -1,0 +1,12 @@
+{
+    "name": "your-server-app",
+    "version": "1.0.0",
+    "description": "Description of your server app",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "web3": "^4.7.0"
+    }
+}

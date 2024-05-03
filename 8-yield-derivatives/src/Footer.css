@@ -1,0 +1,27 @@
+/* Footer.css */
+
+footer {
+    background-color: black;
+    color: white;
+    padding: 20px 0; /* Adjust padding as needed */
+    text-align: center;
+  }
+  
+  .footer-content {
+    width: 100%;
+    max-width: 1200px; /* Set max width for content */
+    margin: 0 auto; /* Center content horizontally */
+    display: flex;
+    justify-content: space-between; /* Distribute content evenly */
+  }
+  
+  .footer-content > div {
+    flex: 1; /* Each div takes equal space */
+    padding: 0 10px; /* Adjust padding as needed */
+  }
+  
+  .footer-content > div p {
+    margin: 0; /* Remove default margin for paragraphs */
+  }
+
+  

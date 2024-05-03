@@ -1,0 +1,909 @@
+/* Header1 for Home page */
+
+
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap");
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Outfit", sans-serif;
+}
+/* CSS styles for wallpaper container */
+.wallpaper {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+  }
+  
+  .blank-img {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: bottom center;
+    object-fit: cover;
+    position: relative;
+  }
+  
+  /* Apply black shadow directly to the picture */
+  .blank-img::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Adjust opacity as needed */
+  }
+  
+  /* CSS styles for text container */
+  .text-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+  }
+  
+  .text-container h1 {
+    font-size: 3rem;
+    font-weight: bold;
+  }
+  
+  .text-container h4 {
+    font-size: 2rem;
+    font-weight: normal;
+    margin-top: 1rem;
+  }
+  
+
+  
+  
+.header h1,
+.header h4,
+.header p,
+.header a, 
+.header1 h1,
+.header1 h4,
+.header1 p,
+.header1 a
+{
+  color: #fff;
+  text-decoration: none;
+}
+
+.header ul,
+.header1 ul {
+  list-style-type: none;
+}
+
+.header {
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  position: fixed;
+  width: 100%;
+  height: 100px;
+  z-index: 12;
+}
+.header-bg {
+  background-color: 	#3e054f;
+  transition: 0.5s;
+}
+
+.header img{
+  width: 270px;
+  margin-top: 15px;
+  position: relative;
+}
+
+.nav-menu {
+  display: flex;
+}
+
+.nav-menu li {
+  padding: 0 1rem;
+}
+
+.nav-menu li a {
+  font-size: 1.8rem;
+  font-weight: 500;
+}
+
+.menubutton {
+  display: none;
+}
+
+
+@media screen and (max-width: 1040px) {
+  .nav-menu {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    background:#3e054f;
+    position: absolute;
+    top: 0;
+    left: -100%;
+    z-index: -3;
+    transition: 0.3s;
+  }
+
+  .nav-menu.active {
+    left: 0;
+  }
+
+  .nav-menu li {
+    padding: 1rem 0;
+  }
+
+  .nav-menu li a {
+    font-size: 2rem;
+  }
+
+  .menubutton {
+    display: initial;
+  }
+}
+
+/* Header1 for Other pages */
+.header1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  position: fixed;
+  width: 100%;
+  height: 100px;
+  background-color: #3e054f;
+  z-index: 12;
+}
+
+.header1 img{
+  width: 270px;
+  margin-top: 15px;
+  position: relative;
+}
+
+.nav-menu1 {
+  display: flex;
+}
+
+.nav-menu1 li {
+  padding: 0 1rem;
+}
+
+.nav-menu1 li a {
+  font-size: 1.8rem;
+  font-weight: 500;
+}
+
+.menubutton1 {
+  display: none;
+}
+
+@media screen and (max-width: 1040px) {
+  .nav-menu1 {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    background:#3e054f;
+    position: absolute;
+    top: 0;
+    left: -100%;
+    z-index: -3;
+    transition: 0.3s;
+  }
+
+  .nav-menu1.active1 {
+    left: 0;
+  }
+
+  .nav-menu1 li {
+    padding: 1rem 0;
+  }
+
+  .nav-menu1 li a {
+    font-size: 2rem;
+  }
+
+  .menubutton1 {
+    display: initial;
+  }
+}
+
+/* Footer  */
+  .footer {
+    width: 100%;
+    padding: 6rem 0;
+    background-color: #3e054f;
+  }
+  
+  .footer-container {
+    max-width: 1140px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 40px;
+  }
+  
+  .left {
+    height: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .location,
+  .email,
+  .phone {
+    display: flex;
+    margin-bottom: 0.8rem;
+  }
+  
+  .location p,
+  .email p,
+  .phone p{
+    line-height: 30px;
+    color: #fff;
+  }
+  
+  .right {
+    height: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .socialmedia {
+    margin-top: 1rem;
+  }
+  
+  .right h4 {
+    font-size: 1.2rem;
+    padding-bottom: 0.7rem;
+    color: #fff;
+  }
+  
+  .right p {
+    font-size: 1.2rem;
+    color: #fff;
+  }
+  
+  @media screen and (max-width: 640px) {
+    .footer-container {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* Blank template page */
+  .blank {
+    height: 100%;
+    width: 100%;
+  }
+
+  .wallpaper {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+  }
+  .blank-img {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: bottom center;
+    object-fit: cover;
+  }
+
+  /* Banner for home page */
+
+  .banner {
+    height: 50%;
+    width: 100%;
+  }
+
+  .bannerwallpaper {
+    width: 100%;
+    height: 45vh;
+    position: relative;
+  }
+
+  .banner-img {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    object-fit: cover;
+    z-index: -999;
+  }
+
+  .bannerwallpaper::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #000;
+    opacity: 0.6;
+    z-index: 1;
+  }
+
+  .banner .bannercontent {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    z-index: 9;
+  }
+
+  .banner .bannercontent p {
+    font-size: 4rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .bannercontent .btn {
+    display: inline-block;
+    padding: 10px 30px;
+    color: white;
+    background-color: transparent;
+    border: 4px solid rgb(36, 127, 150);
+    margin-right: 20px;
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: .1rem;
+    margin-top: 30px;
+    transition: .3s ease;
+    transition-property: background-color, color;
+    text-decoration: none;
+  
+  }
+  
+  .bannercontent .btn:hover{
+    color: white;
+    background-color: rgb(36, 127, 150);
+  }
+  
+.intro {
+    height: 100%;
+    width: 100%;
+  }
+  
+  .introwallpaper {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+  }
+  
+  .intro-img {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    object-fit: cover;
+    z-index: -999;
+  }
+  
+  .introwallpaper::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #000;
+    opacity: 0.6;
+    z-index: 1;
+  }
+  
+  .intro .introcontent {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    z-index: 9;
+  }
+  
+  .intro .introcontent p {
+    font-family: Arial;
+    display: block;
+    width: fit-content;
+    font-size: 7vmin;
+    font-weight: 600;
+    position: relative;
+    color: transparent;
+    -webkit-text-stroke: 1.5px white;
+    background-image: url(./y.jpg); /* This line is causing the issue */
+    -webkit-background-clip: text;
+    background-position: 0 0;
+    animation: back 20s linear infinite;
+  }
+  
+  @keyframes back {
+    100% {
+      background-position: 2000px 0;
+    }
+  }
+  
+  .intro .introcontent h1 {
+    font-family: Arial;
+    display: block;
+    width: fit-content;
+    font-size: 3.2vmin;
+    position: relative;
+    color: white;
+  }
+  
+  .introcontent .btn {
+    display: inline-block;
+    padding: 10px 30px;
+    color: white;
+    background-color: transparent;
+    border: 4px solid rgb(36, 127, 150);
+    margin-right: 20px;
+    font-size: 3vmin;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    margin-top: 30px;
+    transition: 0.3s ease;
+    transition-property: background-color, color;
+    text-decoration: none;
+  }
+  
+  .introcontent .btn:hover {
+    color: white;
+    background-color: rgb(36, 127, 150);
+  }
+  
+
+  @keyframes back{
+    100%{
+        background-position: 2000px 0;
+    }
+}
+
+
+  .intro .introcontent h1{
+    font-family: Arial;
+    display: block;
+    width: fit-content;
+    font-size: 3.2vmin;
+    position: relative;
+    color: white;
+  }
+
+
+  .introcontent .btn {
+  display: inline-block;
+  padding: 10px 30px;
+  color: white;
+  background-color: transparent;
+  border: 4px solid rgb(36, 127, 150);
+  margin-right: 20px;
+  font-size: 3vmin;
+  text-transform: uppercase;
+  letter-spacing: .1rem;
+  margin-top: 30px;
+  transition: .3s ease;
+  transition-property: background-color, color;
+  text-decoration: none;
+
+}
+
+.introcontent .btn:hover{
+  color: white;
+  background-color: rgb(36, 127, 150);
+}
+
+
+
+ /* Contact page sectio*/
+
+ .contact {
+  width: 100%;
+  height: 120vh;
+  padding: 20vh 0;
+  position: relative;
+  /*background-image: url(../img/pexels-eberhard-grossgasteiger-2088170.jpg);*/
+  background-size: cover;
+  background-position: bottom center;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-container {
+  max-width: 1140px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 40px;
+}
+
+.left1 {
+  height: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  
+}
+
+
+.location1,
+.phone1,
+.email1 {
+  display: flex;
+  margin-bottom: 3rem;
+  height: fit-content;
+  width: 80%;
+  padding: 0.8rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border:1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+
+.location1 p {
+  line-height: 30px;
+  color: #000;
+  font-size: 1.2rem;
+  padding-bottom: 0.7rem;
+}
+
+.phone1 p {
+  line-height: 30px;
+  color: #000;
+  font-size: 1.2rem;
+  padding-bottom: 0.7rem;
+}
+
+.email1 p {
+  line-height: 30px;
+  color: #000;
+  font-size: 1.2rem;
+  padding-bottom: 0.7rem;
+}
+
+.right1 {
+  height: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border:1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.40);
+}
+
+
+.email1:hover,
+.location1:hover,
+.phone1:hover,
+.right1:hover{
+ box-shadow: 0 12px 52px 0 rgba(0, 0, 0, 0.9);
+}
+
+
+
+.right1 h4 {
+  font-size: 1.2rem;
+  padding-bottom: 0.7rem;
+}
+
+.right1 p {
+  font-size: 1.2rem;
+ 
+}
+
+.right form {
+    display: flex;
+    flex-direction: column;
+    width: 280px;
+}
+
+@media screen and (max-width: 940px) {
+  .contact-container {
+    grid-template-columns: 1fr;
+  }
+
+  .phone1,
+  .email1,
+  .location1 {
+    width: 100%;
+  }
+
+
+
+}
+
+
+.right1 label {
+  font-size: 18px;
+  color: gray;
+}
+
+.right1 input {
+  width: 100%;
+  font-size: 1rem;
+  padding: 1.2rem;
+  color: #000000;
+  background-color: transparent;
+  outline: none;
+  border: 2px solid rgb(105, 30, 30);
+  border-radius: 5px;
+  margin-top: 1rem;
+}
+
+
+.right1 textarea {
+  width: 100%;
+  font-size: 1rem;
+  padding: 1.2rem;
+  color: #1d0909;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  border-radius: 8px;
+  margin-top: 1rem;
+  min-height: 250px;
+  resize: vertical;
+  padding: 15px;
+  margin: 10px 0px;
+  border-radius: 5px;
+  border: 2px solid rgb(105, 30, 30);
+
+}
+.right1 button[type='submit'] {
+width: 100%;
+display: inline-block;
+padding: 10px 30px;
+color: rgb(0, 0, 0);
+background-color: transparent;
+border: 4px solid rgb(36, 127, 150);
+margin-right: 20px;
+font-size: 1.2rem;
+text-align: center;
+letter-spacing: .1rem;
+margin-top: 30px;
+transition: .3s ease;
+transition-property: background-color, color;
+
+}
+.right1 button[type='submit']:hover{
+color: white;
+background-color: rgb(36, 127, 150);
+}
+
+/* confirm email */
+.confirmemailbackground {
+    
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  /*background-image: url(../img/pexels-eberhard-grossgasteiger-2088170.jpg);*/
+  background-size: cover;
+  background-position: bottom center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  
+}
+
+
+.confirmemailcontent p {
+  color: blue;
+  font-size: 1.2rem;
+}
+
+.confirmemailcontent h2 {
+  color: rgb(0, 0, 0);
+ font-size: 3rem;
+}
+
+.confirmemailbackground .confirmemailcontent{
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  width: 390px;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border:1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+ 
+
+
+.confirmemailcontent label,input {
+  display: flex;
+  flex-direction: column;
+   width: 360px;
+}
+
+/* registration*/
+.Registrationform1 {
+	width: 100%;
+	height: 120vh;
+	display: flex;
+	/*background-image: url(../img/pexels-eberhard-grossgasteiger-2088170.jpg);*/
+	background-size: cover;
+	background-position: bottom center;
+	align-items: center;
+	justify-content: center;
+}
+
+
+
+.Registrationform1 .Registrationcontent1 {
+
+width: 400px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 1rem;
+background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+backdrop-filter: blur(10px);
+border-radius: 20px;
+border:1px solid rgba(255, 255, 255, 0.18);
+box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.Registrationform1 form {
+display: flex;
+flex-direction: column;
+justify-content: space-evenly;
+flex-grow: 1;
+padding-bottom: 1rem;
+}
+
+.Registrationform1 a,
+.Registrationform1 a:visited {
+color: #a10101;
+}
+
+.Registrationform1 input[type='text'],
+.Registrationform1 input[type='password'],
+.Registrationform1 input,
+.Registrationform1 button,
+.Registrationform1 textarea {
+font-family: 'Nunito', sans-serif;
+font-size: 22px;
+padding: 0.25rem;
+border-radius: 0.5rem;
+width: 100%;
+}
+
+.Registrationform1 label,
+.Registrationform1 button {
+margin-top: 1rem;
+}
+
+.Registrationform1 input[type='text'],
+.Registrationform1 input[type='password'],
+.Registrationform1 input{
+	background-color: transparent;
+	border: 2px solid rgb(105, 30, 30);
+}
+
+.Registrationform1 button {
+padding: 0.5rem;
+background-color: rgb(105, 30, 30);
+color: #fff;
+}
+
+.Registrationform1 button:disabled {
+	padding: 0.5rem;
+	background-color: rgb(255, 145, 145);
+	color: #fff;
+	}
+
+
+.info {
+font-size: 1rem;
+border-radius: 0.5rem;
+background: rgb(105 ,30 ,30);
+height: fit-content;
+color: #fff;
+padding: 0.25rem;
+position: relative;
+bottom: -10px;
+}
+
+
+
+.infoOff {
+position: absolute;
+left: -9999px;
+}
+
+.Registrationcontent1 label[classname='showpassword']{
+  position: relative;
+  left: 340px;
+  top: -50px;
+  color: rgb(105, 30, 30);
+  margin-bottom: -40px;
+  
+ 
+}
+
+.Registrationcontent1 label[classname='showpassword1']{
+  position: relative;
+  top: -50px;
+  left: 340px;
+  color: rgb(105, 30, 30);
+  margin-bottom: -40px;
+  
+ 
+}
+
+/*success page*/
+
+.regSuccess {
+  width: 100%;
+	height: 100vh;
+	display: flex;
+    background-image: url(./y.jpg);
+	background-size: cover;
+	background-position: bottom center;
+	align-items: center;
+	justify-content: center;
+}
+
+.regSuccess .regSuccesscontent{
+  align-items: center;
+	justify-content: center;
+  display: flex;
+}
+
+.regSuccess .regSuccesscontent .btn{
+  display: inline-block;
+  padding: 10px 30px;
+  color: white;
+  background-color: transparent;
+  background-color: rgb(105 ,30 ,30);
+  
+  margin-right: 20px;
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: .1rem;
+  margin-top: 30px;
+  transition: .3s ease;
+  transition-property: background-color, color;
+  text-decoration: none;
+
+}
+
+.regSuccess .regSuccesscontent .btn:hover{
+  color: rgb(0, 0, 0);
+  border: 4px solid rgb(105 ,30 ,30);
+  background-color: transparent;
+}
+
+.regSuccesscontent {
+  flex-direction: column;
+}
+
+.regSuccess .regSuccesscontent p {
+  font-size: 2rem;
+  color: #000;
+}

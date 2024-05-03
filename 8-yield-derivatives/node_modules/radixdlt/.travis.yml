@@ -1,0 +1,10 @@
+language: node_js
+node_js: node 
+
+addons:
+  sonarcloud:
+    organization: "radixdlt-github"
+
+script: 
+  - yarn coverage
+  - sonar-scanner

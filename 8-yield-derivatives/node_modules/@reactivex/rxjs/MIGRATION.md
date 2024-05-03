@@ -1,0 +1,1 @@
+# [This file has been moved!](docs_app/content/guide/v6/migration.md)

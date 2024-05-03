@@ -1,0 +1,195 @@
+Software EULA (End User License Agreement)
+
+The Radix(r) Software means the toolkits, apps, services and other software that enables developers to publish code to the Radix network or perform other functions. This agreement applies in respect of and in connection with your use of the Application Version of the Radix(r) Software. 
+The Radix(r) Software (Application Version) is licensed by RADIX(r) PUBLISHING LIMITED a company registered in Jersey number 136972 with its registered office at First Floor, La Chasse Chambers, Ten La Chasse, La Chasse, St. Helier, JE2 4UE, Jersey ("Radix(r) Publishing" "we" or "us"), on the terms and conditions set out below. 
+This licence relates to the Application Version of the Radix(r) Software which is made available for private or commercial use. Use of any open-source versions of the Radix(r) Software is subject to different terms.
+By downloading, installing or using the Radix(r) Software, you accept the terms of this agreement, and agree to use the Radix(r) Software in accordance with this agreement. If you are a business user, this agreement binds you, your affiliates and the employees, agents, members, contractors and consultants acting on your or your affiliates' behalf. You represent that the person accepting/signing this agreement is authorised to enter into this agreement on your and on your affiliates' behalf and that the entity on whose behalf the signatory is acting is duly organised and validly existing under the applicable laws of the jurisdiction of its organisation.
+The capitalised terms used in this agreement have the definitions/explanations found at https://learn.radixdlt.com/which are incorporated herein by reference. 
+The unnumbered paragraphs below are binding and shall have full effect as terms of this End-User Licence Agreement.
+THE RADIX(r) SOFTWARE IS PROVIDED FREE OF CHARGE.
+YOU ARE EXCLUSIVELY RESPONSIBLE FOR TAKING STEPS TO INCORPORATE RECOVERY PROCESSES INTO YOUR USE OF THE RADIX(r) SOFTWARE. THESE MAY INCLUDE USE OF FUNCTIONALITY WHICH IS ACCESSIBLE AS PART OF THE RADIX(r) PUBLIC LEDGER SOFTWARE OR BY MAKING ARRANGEMENTS OFF CHAIN WITH RELIABLE, TRUSTED THIRD PARTIES TO STORE YOUR 12-WORD RECOVERY PHRASE OR TO ACT AS RECOVERY FACTORS.
+FAILURE TO SET UP RECOVERY PROCESSES COULD RESULT IN THE TOTAL LOSS OF ANY CRYPTO/DIGITAL ASSETS (OR ACCESS THERETO) OR IN LOSS OF ACCESS TO OTHER SERVICES THAT ARE CONTROLLED OR ACCESSED VIA YOUR KEYS.
+YOU ARE EXCLUSIVELY RESPONSIBLE FOR THE CONSEQUENCES OF ANY USE YOU MAKE OF THE RADIX(r) SOFTWARE. 
+Radix(r) Publishing does not and will not act as fiduciary, trustee, escrow agent or custodian and does not control the allocation or management, transmission, or grant custody or control, of rewards or digital assets, keys, seed phrases, passwords or factors. Neither Radix(r) Publishing nor any other Radix(r) company has any responsibility or control relating to the functioning (or non-functioning), use or operation of the Radix(r) Public Ledger. 
+YOU ARE RESPONSIBLE FOR TESTING AND EVALUATING THE OPERATION AND USE OF ALL FUNCTIONALITY OF THE RADIX(r) SOFTWARE TO ENSURE IT MEETS YOUR REQUIREMENTS AND OPERATES AS YOU INTEND AND EXPECT. AN OPEN-SOURCE VERSION IS MADE AVAILABLE TO ASSIST YOU IN UNDERSTANDING THE OPERATION OF THE SOFTWARE. 
+BEFORE USING RADIX(r) SOFTWARE YOU SHOULD INFORM YOURSELF OF ALL RISKS, TECHNICAL REQUIRMENTS AND THE CONSEQUENCES OF USING THE SOFTWARE INCLUDING SUCH TECHNICAL, LEGAL, FINANCIAL, ACCOUNTING OR OTHER ADVICE THAT IS APPROPRIATE TO YOUR KNOWLEDGE AND EXPERIENCE OF WORKING WITH DIGITAL ASSETS, PUBLIC AND PRIVATE KEYS AND YOUR INTENDED USE OF THE RADIX(r) SOFTWARE.
+RADIX(r) PUBLISHING DOES NOT PROVIDE TECHNICAL, FINANCIAL, TAX OR LEGAL ADVICE. 
+RADIX(r) PUBLISHING DOES NOT EXCHANGE, SEND, OR RECEIVE CRYPTO OR DIGITAL ASSETS FOR OR ON BEHALF OF USERS AND DOES NOT CONTROL ANY INFRASTRUCTURE, SYSTEM OR NETWORK TO FACILITATE ANY CREATION, USE, STORAGE OR EXCHANGE OF DIGITAL ASSETS. 
+RADIX(r) PUBLISHING DOES NOT ADVISE OR MAKE RECOMMENDATIONS ABOUT ENGAGING IN CRYPTO ASSET TRANSACTIONS OR OPERATIONS. DECISIONS TO ENGAGE IN TRANSACTIONS OR PERFORM OPERATIONS INVOLVING CRYPTO ASSETS SHOULD BE TAKEN ON YOUR OWN OR RELY ON OPINIONS OF YOUR OWN RELIABLE AND QUALIFIED EXPERTS.
+IMPORTANT: YOUR ATTENTION IS DRAWN TO THE LIMITATIONS OF LIABILITY BELOW. YOU ACKNOWLEDGE THAT YOU HAVE READ ALL THE WARNINGS AND DISCLAIMERS THAT APPLY TO USE OF THE RADIX(r) SOFTWARE AND HAVE FAMILIARISED YOURSELF WITH THE OPERATION OF THE RADIX(r) SOFTWARE BEFORE ATTEMPTING TO USE IT.
+RADIX(r) PUBLISHING HAS NO OBLIGATION, AND IN MOST CASES NO ABILITY, TO INFLUENCE OR ALTER THE FUNCTIONING OR OPERATION OF THE RADIX(r) PUBLIC NETWORK OR ANY SERVICES (INCLUDING THIRD PARTY SERVICES, DAPPS OR COMPONENTS), NOR TO CONTROL THE OPERATION OF REWARDS RELATING TO STAKING.
+RADIX(r) PUBLISHING HAS NO RIGHT, ENTITLEMENT OR OBLIGATION (OR IN MOST CASES ABILITY) TO IMPLEMENT CHANGES, UPGRADES OR FORKS TO THE RADIX(r) PUBLIC NETWORK CODE, RULES, PROTOCOLS OR ANY SERVICES OR APPLICATIONS DEPLOYED IN RELATION THERETO. 
+YOU HAVE NO RECOURSE AGAINST RADIX(r) PUBLISHING NOR ANY AFFILIATE (where affiliate shall mean any holding or subsidiary company or other company which is a holding or subsidiary company of a company which is itself a subsidiary or holding company of Radix(r) Publishing) OR ANY OTHER RADIX(r) COMPANY IF TRANSACTIONS YOU BROADCAST ARE NOT CONFIRMED OR PROCESSED AT ALL OR AS EXPECTED BY THE RADIX(r) PUBLIC LEDGER OR BY ANY APPLICATIONS OR SERVICES RELATED THERETO FOR ANY REASON.
+YOU UNDERSTAND AND ACCEPT THAT NEITHER RADIX(r) PUBLISHING NOR ANY OTHER SINGLE LEGAL PERSON, COMPANY, OR UNINCORPORATED ASSOCIATION IS RESPONSIBLE FOR THE CODING, USE OR SECURITY OF THE RADIX(r) PUBLIC LEDGER TECHNOLOGY.
+ALL PUBLIC LEDGERS AND RELATED SERVICES ARE POTENTIALLY VULNERABLE TO HACKING, MISUSE, ERRORS, WEAKNESSES AND FLAWS WHICH MAY ONLY BE DISCOVERED AFTER THE SOFTWARE HAS BEEN IMPLEMENTED AND SUBJECTED TO CONSIDERABLE USE GIVING RISE TO RISK THAT YOU COULD LOSE SUBSTANTIAL ASSETS WITHOUT RECOURSE.
+YOU ACKNOWLEDGE THE NOVEL AND EVOLVING NATURE OF DISTRIBUTED LEDGER TECHNOLOGY SUCH AS THE RADIX(r) PUBLIC LEDGER TECHNOLOGY CAN BE VULNERABLE TO UNFORSEEN ERRORS AND THAT USE OF DISTRIBUTED LEDGER TECHNOLOGY, THE RADIX(r) SOFTWARE, OTHER RADIX(r) SOFTWARE AND/OR DIGITAL ASSETS COULD BE LIMITED OR PREVENTED BY CHANGES IN LAWS OR REGULATIONS OR FOR OTHER REASONS AND ANY RELATED TECHNOLOGY MAY CEASE TO OPERATE OR NOT OPERATE AS YOU ANTICIPATE. 
+RADIX(r) PUBLISHING DOES NOT WARRANT OR REPRESENT THAT THE OPERATION OF THE RADIX(r) PUBLIC LEDGER NOR ANY SERVICE OR SOFTWARE USED IN CONJUNCTION WITH THE RADIX(r) PUBLIC LEDGER IS SECURE AND/OR WILL REMAIN SECURE, OR THAT ANY DIGITAL ASSETS WILL NOT BE VULNERABLE TO LOSS, IMPAIRMENT, CORRUPTION, MISAPPROPRIATION OR THAT USE OR STORAGE THEREOF WILL BE LAWFUL.
+YOU SHOULD TAKE NOTICE OF ANY WARNINGS AND WHERE APPLICABLE USE THE LATEST AVAILABLE VERSION OF THE RADIX(r) SOFTWARE AND REVIEW ALL GUIDANCE AS MAY BE ISSUED BY RADIX(r) PUBLISHING FROM TIME TO TIME.
+USE OF THE RADIX(r) PUBLIC LEDGER TECHNOLOGY, THE RADIX(r) SOFTWARE AND THE SERVICES (INCLUDING THIRD PARTY SERVICES) ASSOCIATED WITH OR ACCESSED VIA THE RADIX(r) PUBLIC LEDGER REQUIRES SIGNIFICANT KNOWLEDGE AND SKILL AND CARRIES FORSEEABLE AND UNFORSEEABLE RISKS. 
+YOU ARE EXCLUSIVELY RESPONSIBLE FOR YOUR USE AND ANY USE YOU PERMIT OF THE RADIX(r) SOFTWARE AND FOR THE CONSEQUENCES OF YOUR USE OF THE RADIX(r) SOFTWARE. 
+TRANSACTIONS ON PUBLIC LEDGERS ARE IRREVERSIBLE. ERRORS CANNOT BE CORRECTED. THERE IS NO CENTRAL AUTHORITY WHO CAN BE OR IS RESPONSIBLE FOR REMEDIATING LOSSES.
+MALFUNCTION OR MALEVOLENT ATTACKS ON PUBLIC LEDGERS MAY RESULT IN THE LOSS OF DIGITAL ASSETS (OR LOSS OF ACCESS THERETO). 
+RADIX(r) PUBLISHING HAS NO OBLIGATION TO RETRIEVE YOUR CREDENTIALS. WE DO NOT STORE, NOR HAVE ACCESS TO, YOUR DIGITAL ASSETS, KEYS, PASSWORDS, RECOVERY PHRASES, SEED PHRASES, PIN, OR ANY CREDENTIALS ASSOCIATED WITH YOUR USE OF THE RADIX(r) SOFTWARE. 
+THE HOLDING, SALE AND TRANSFER OF AND DEALING IN DIGITAL ASSETS IS SUBJECT TO THE LAWS AND REGULATIONS OF DIVERSE JURISDICTIONS AND MIGHT DEPEND UPON WHERE YOU AND WHERE ANY COUNTERPARTY IS RESIDENT, CARRIES ON BUSINESS OR IS DOMICILED. 
+1 LICENSE
+1.1 By downloading the Radix(r) Software you accept the terms and conditions of this agreement and agree to use the Radix(r) Software in accordance herewith. 
+1.2 Radix(r) Publishing hereby grants to you a perpetual, non-exclusive, royalty-free, non-transferrable, non-assignable, revocable licence to use the Radix(r) Software in accordance with the terms hereof.
+1.3 Neither Radix(r) Publishing nor any other Radix(r) company is responsible for any aspect of the use, operation or function of the Radix(r) Public Ledger nor of any Services, Components or d'Apps (Distributed Applications) provided by any third party, nor for any errors or malfunction of the Radix(r) Public Ledger.
+1.4 Validator Nodes are operated by independent third parties. Radix(r) Publishing is not a party to any arrangement or agreement you may enter into with third-party Validator Nodes. 
+1.5 You are exclusively responsible for all use and misuse of Radix(r) Software, for compliance with all applicable laws and regulations relating to the storage, transmission and/or use of digital assets and for any keys or information you store, secure, hold or access using the Radix(r) Software. 
+1.6 You are responsible for obtaining any necessary licenses and/or permissions and for complying with the laws and regulations of any country where you use the Radix(r) Software or where any counterparty to any communication or transaction is resident, carries on business or is domiciled.
+1.7 You must not use, or if using immediately stop using, the Radix(r) Software if you have any concerns as to the use, operation or security of the Radix(r) Software.
+1.8 You must not:
+(a) copy the Radix(r) Software or any part of it, except where such copying is necessary for the lawful use of the Radix(r) Software in accordance with this agreement;
+(b) remove or tamper with any copyright, trademark or other attribution notices;
+(c) use, promote or facilitate the use of the Radix(r) Software in connection with or to facilitate, promote or assist any fraudulent or other unlawful activity anywhere in the world, including but not limited to money-laundering, terrorist financing or tax avoidance;
+(d) enable or permit, either directly or indirectly, any third party to access or use the instance of the Radix(r) Software you have downloaded or licensed;
+(e) translate, merge, adapt, vary or otherwise alter the whole or any part of the Radix(r) Software or combine it or allow it to be combined with any other software or create derivative works of the Radix(r) Software;
+(f) use the Radix(r) Software to impersonate another person or assist others to conceal their identities in any manner harmful to Radix(r) Publishing or any Radix(r) affiliate;
+(g) violate any law, regulation, contract, third-party right or commit any legal wrong by accessing or using the Radix(r) Software;
+(h) use Radix(r) Software to create or transmit or to assist with the creation or transmission of, false, inaccurate or misleading information or to conceal unlawful activity;
+(i) use the Radix(r) Software in any manner that could interfere with, disrupt, damage, overburden, negatively affect, impair or inhibit the functionality of the Radix(r) Software;
+(j) use any robot, spider, crawler, scraper or any other automated process or interface not provided by us or to extract or manipulate data from or via the Radix(r) Software;
+(k) attempt to circumvent any technical measures contained in the Radix(r) Software as implemented on any device; or assist or procure others to do so; or
+(l) use the Radix(r) Software in or in relation to any matter or person in any country in which its use or any such transaction is prohibited.
+1.9 Radix(r) Publishing has no liability or obligation to support any use of the Radix(r) Software in relation to any particular software, system or device.
+2 DECOMPILATION AND REVERSE ENGINEERING
+2.1 You must not decompile or attempt to decompile or reverse engineer the Radix(r) Software (Application Version).
+2.2 An open-source version of the Radix(r) Software is readily available for you to review on the Radix(r) Publishing GitHub. 
+2.3 If you wish to review the source code, build your own wallet, create any interfaces or interoperability you may download the open-source version via this link: https://github.com/radixdlt/ 
+2.4 All use of the Radix(r) Software "open-source version" is provided pursuant to the open-source licence terms provided with it.
+3 WARRANTY
+3.1 We warrant that:
+(a) the Radix(r) Software, in the form made available by us for download by you, is free of viruses, malware or other malicious code;
+(b) the Radix(r) Software does not infringe the intellectual property rights of any third party; and
+(c) subject to this agreement the Radix(r) Software has the functionality described at www.learn.radixdlt.com 
+3.2 We do not warrant or represent that the Radix(r) Software is or will be free from errors.
+4 SUPPORT 
+4.1 We will at our discretion provide reasonable support from time to time as necessary in our reasonable opinion for the operation of the Radix(r) Software.  
+4.2 We may defer updates, corrections or patches until such time as we are satisfied that the proposed solution will operate as intended.
+4.3 Modifications, error corrections, versions or upgrades are provided on the then current Radix(r) Software Application Version licence terms and all indemnities, limitations and exclusions shall endure.
+4.4 It is your responsibility to check any advisory notices, warnings or updates relating to Radix(r) Software and to decide whether to stop using Radix(r) Software, or to stop using it in relation to the execution of any value or class of transaction which is not acceptable to you. These notices updates and warnings will be posted at www.radixdlt.com/notices
+5 INTELLECTUAL PROPERTY RIGHTS
+5.1 All worldwide legal and beneficial rights, title and interests in the Radix(r) Software belong to Radix(r) Publishing or its licensors and all intellectual property rights in or relating to all modifications, versions and improvements shall accrue to Radix(r) Publishing. 
+5.2 All rights to use the Radix(r) Software are licensed (not sold) to you. You have no rights in, or to, the Radix(r) Software other than the personal right to use it in accordance with these terms and conditions.  
+5.3 The trademarks, logos, and service marks displayed on https://www.radixdlt.com/trademarks are owned or used under license by Radix(r) Publishing.
+5.4 No rights or license is granted to use the Radix(r) trademarks.
+6 DATA PROTECTION AND CONFIDENTIALITY
+If and to the extent that you provide us with any personal data it shall be processed in accordance with the terms of our privacy policy, a copy of which is available at https://www.radixdlt.com/privacy-policy.
+7 EXCLUSIONS LIMITATIONS AND DISCLAIMERS
+7.1 All implied warranties, conditions and other terms, express or implied, whether by statute, common law, custom, usage or otherwise, including implied warranties of merchantability, fitness for a particular purpose, satisfactory quality, informational content or accuracy, quiet enjoyment, title and non-infringement, and error-free operation with regard to the Radix(r) Software, and the provision of or failure to provide support services, are excluded. 
+7.2 Save as expressly set out in this agreement, Radix(r) Publishing does not make or purport to make and excludes liability for all and any, representation, statement, misrepresentation, misstatement, warranty or undertaking in any form, whether express or implied, to any entity or person, including you and including any representation, warranty or undertaking as to the functionality, security, use or any other characteristic of the Radix(r) Software or any distributed ledger or in respect of the functioning of the Radix(r) Software or any software with which it operates/interoperates. 
+7.3 Radix(r) Publishing: 
+(a) does not warrant or represent that the Radix(r) Software or any use of the Radix(r) Software is or will be permitted by any law or regulation in any territory. 
+(b) has no obligation to take any positive action, including without limitation to amend the Radix(r) Software or to provide any solution or assistance to recover control of any keys, seed phrases, factors, security devices or digital assets;  
+(c) shall have no obligation or liability in relation to any use of the Radix(r) Software in conjunction with any operating systems, including but not limited to iOS or Android, which have been modified, jail broken, or adapted for use with security measures other than those originally published; and
+(d) shall (in any event) have no liability for any loss or damage which you suffer arising from a risk, error or potentially malevolent action of which we have notified you at www.radixdlt.com/notices.
+7.4 Our exclusive liability for breach of warranty shall be:
+ (i) providing a reasonable work-around, patch, modification or upgrade within a reasonable time; or
+ (ii) in the case of an alleged infringement of third-party intellectual property rights, the provision of a non-infringing version within a reasonable time.
+7.5 We disclaim and exclude any duty of care or fiduciary duty that we may have to you other than as set out in this agreement.
+7.6 The following types of loss are wholly excluded or shall be limited to the extent permitted by applicable law:
+(a) losses attributable to the loss of access to, or control of, public or private keys, seed phrases, or to the interoperability of security systems;
+(b) loss of any staking or other benefits or rewards and the loss or impairment of digital assets themselves;
+(c) loss or damages attributable to the incorrect transmission, approval or signature of any transactions made using the Radix(r) Software;
+(d) loss of anticipated gains, fees, awards or rewards attributable to the holding, sale, exchange, staking or transmission of digital assets, keys, seed phrases, or other security tokens or devices;
+(e) loss of anticipated savings;
+(f) loss of use or corruption of software, data or information;
+(g) loss of or damage to goodwill;
+(h) indirect or consequential loss;
+(i) wasted expenditure;
+(j) additional costs of procuring and implementing replacements, reconstitution or recovery of software, information or data including but not limited to consultancy costs, additional costs of management time and other personnel costs, and costs of equipment and materials; and
+(k) losses incurred by you arising out of or in connection with any third-party claim against you which has been caused by any errors or omissions in relation to the creation or implementation of the Radix(r) Software. For these purposes, third party claims shall include but not be limited to claims, demands, fines, penalties, actions, costs of investigations or proceedings, including by regulators.
+7.7 The liability of Radix(r) Publishing shall in any event be limited to direct damage and shall in no event exceed the sum of 150.00 GBP in respect of any one event or series of events.
+7.8 Nothing in this agreement shall limit or exclude either your or our liability to the extent that such liability cannot be lawfully limited or excluded.
+7.9 The unenforceability or invalidity of any clause or part of these exclusions and limitations shall not invalidate or render any other clause or part invalid void or unenforceable.
+7.10 In the event that a court of competent jurisdiction or an arbitrator determines that any of these provisions are invalid, or unenforceable such clause or provision shall be limited to such scope duration and/or amount as the court or arbitrator determines to be valid and enforceable. 
+8 EXPORT DUAL USE AND ENCRYPTION
+8.1 THIS PRODUCT MAY INCLUDE ENCRYPTION THE USE OR EXPORT OF WHICH IS PROHIBITED IN SOME TERRITORIES. YOU ARE EXCLUSIVELY RESPONSIBLE FOR ENSURING THAT YOU MAY USE, TRAVEL WITH AND/OR EXPORT DEVICES THAT INCLUDE THIS SOFTWARE AND/OR EXECUTE TRANSACTIONS USING THE ENCRYPTION TECHNOLOGY WHICH IS INCORPORATED.
+8.2 Neither you nor we shall export, directly or indirectly, any technical data acquired from each other (or any products, including software, incorporating any such data) in breach of any applicable laws or regulations (export control laws), including without limitation United States export laws and regulations, to any country for which the government or any agency thereof at the time of export requires an export licence or other governmental approval without first obtaining such licence or approval.
+9 CONFIDENTIALITY
+If we obtain any confidential information concerning you or your affairs, we will keep such information confidential save that we may disclose it:
+(a) to our employees, officers, representatives, contractors, subcontractors or advisors who need to know such information for the purposes of undertaking their obligations under or in connection with this agreement; and/or
+(b) as may be required by law, a court or any governmental or regulatory agency or authority anywhere in the world.
+10 TERMINATION
+10.1 We may terminate this license at any time by giving you notice in accordance with clause 15 
+10.2 You may terminate this license at any time by ceasing to use the Radix(r) Software and removing or deleting it from all devices owned or controlled by you.
+10.3 Disposing of control, possession or ownership of any mobile device on which the Radix(r) Software is installed or purporting to assign, delegate control, or enabling or facilitating any other person to access or control access to such device permanently terminates this license with immediate effect.
+11 ASSIGNMENT/TRANSFER
+11.1 The license hereby granted is for your use only and your rights and entitlement to use this software may not be assigned, sub-contracted, delegated or transferred.
+11.2 We may assign or transfer our rights and obligations under this agreement.
+11.3 We may give you notice of assignment or transfer in accordance with clause 15. Upon giving you notice of such assignment/transfer to a third-party such transferee shall become responsible for the performance of our obligations and Radix(r) Publishing will be released from all future obligations. 
+12 ENTIRE AGREEMENT
+12.1 This agreement constitutes the entire agreement between you and us in respect of the Application Version of Radix(r) Software and supersedes and extinguishes all previous agreements, promises, assurances, warranties, representations and understandings between the Parties, whether written or oral, relating to its subject matter. 
+12.2 You agree that:
+(a) you shall have no claim or remedy in damages or otherwise in respect of any statement, misstatement, representation, misrepresentation, assurance or warranty (whether made innocently or negligently) that is not set out in this agreement; and
+(b) you shall have no claim or remedy in damages or otherwise for innocent, negligent misrepresentation or negligent misstatement based on any statement made to you, directly or indirectly, prior to entering into this agreement or included expressly or impliedly in this agreement. 
+13 NO WAIVER
+13.1 Failure by either you or us to enforce of any obligations imposed on the other by these terms and conditions, or any delay in doing so, shall not constitute a waiver of that obligation. 
+13.2 Each provision of this agreement operates separately. 
+13.3 If any court or competent authority decides that any one or more of the provisions is unlawful, invalid or unenforceable, but would be lawful, valid or enforceable if some part of it were deleted or modified, the provision in question shall apply with such deletion or modification as may be necessary to make it lawful, valid or enforceable, and the remaining conditions will remain in full force and effect. 
+14 CHANGES TO THIS AGREEMENT
+14.1 We may modify the terms of this agreement at our sole discretion. 
+14.2 Changes to the terms of this agreement may be implemented in one of the following ways: 
+(a) you download and install a new version or update of the Radix(r) Software, the terms included with that version or update of Radix(r) Software will replace these terms;
+(b) by us publishing terms applicable to Radix(r) Software on our website at https://www.radixdlt.com/terms/genericEULA or in relevant social media channels which are habitually used by users of the Radix(r) Software; or
+(c) by notifying you by e-mail or other medium where you have agreed to receive such notifications in accordance with our Privacy Policy,
+each of which shall constitute adequate notice and be deemed to take effect when published. All changes will be effective 21 days from the date they are notified or published. If you do not accept the changes, you must cease using the Radix(r) Software within 21 days of notification/publication.
+14.3 Your continued installation and use of the Radix(r) Software for more than 21 days after we provide notice of amended terms shall constitute acceptance of the amended terms. 
+14.4 If you do not accept any changes to these terms, you must cease to use Radix(r) Software provided to you under this agreement.
+14.5 These terms and conditions do not give rise to any rights under the Contracts (Rights of Third Parties) Act 1999 to enforce any term within this agreement.
+14.6 If you provide us with any feedback on the Radix(r) Software, or any of our other products or services, you grant to us the irrevocable right to use such ideas, information, solutions or code to develop or modify services and products and to create our own works based on such feedback. 
+14.7 All moral rights are waived. Without limiting the foregoing, we may use information received from you to test, develop, improve and enhance our products and services and all such developments modifications and improvements shall be owned by us and may be used by us without compensation to you.
+15 NOTICES TO RADIX(r) PUBLISHING
+15.1 Any notice you wish to give us must be in writing in English and may be delivered by email to:
+(a) hello@radixdlt.com
+With a copy to:
+(b) notices@radixpublishing.com 
+15.2 by courier with certified delivery to:
+(a) First Floor La Chasse Chambers, 10 La Chasse, St Helier, JE2 4UE Jersey (C.I)
+15.3 Notices to Radix(r) Publishing will be deemed effective on the first working day in England following: 
+(a) the date of transmission if by e-mail; or 
+(b) the date on which the courier confirms delivery. 
+16 NOTICES TO YOU 
+16.1 We may give you notice by: 
+(a) posting these on our website at www.radixdlt.com/notices; or
+(b) in all other cases:
+ (i) by post to your last known address; or
+ (ii) via any other medium where you have agreed to receive such notifications in accordance with our Privacy Policy; or
+ (iii) via a posting or message in social media channels which we believe in good faith is likely to come to your attention.
+16.2 Notices to you will be deemed effective on the date of posting on our website, within 5 working days (in England) of posting on any other medium and the first working day following the date of transmission (if by e-mail) or the date on which the courier confirms delivery.
+17 INDEMNITY
+You agree to defend, indemnify and hold harmless Radix(r) Publishing, its affiliates, licensors and service providers, and its and their respective officers, directors, employees, contractors, agents, licensors, suppliers, successors and assigns from and against any claims, liabilities, damages, judgments, awards, losses, costs, expenses or fees (including reasonable attorneys' fees) arising out of or relating to your violation of this agreement or your use of any website, services or any other products, including, but not limited to, any use of any website's content, services and products other than as expressly authorized in this agreement or your use of any information obtained from Radix(r) Publishing.
+18 COMPLAINTS PROCEDURE
+You may refer any complaint or concern to us by emailing us at hello@radixdlt.com and we will endeavour to resolve the dispute in accordance with our complaints procedure, a copy of which is available here: https://www.radixdlt.com/complaints-procedure (our "Complaints Procedure").
+19 ALTERNATE DISPUTE RESOLUTION
+19.1 Alternative dispute resolution is an optional process where an independent body considers the facts of a dispute and seeks to resolve it, without you having to go to court or arbitration. 
+19.2 You can submit a dispute to the alternative dispute resolution entity ("ADR entity") identified in our Complaints Procedure who will not charge you for making a complaint and the dispute resolution process will be administered in accordance with any procedural rules set down by that ADR entity. 
+19.3 If either party is not satisfied with the outcome, that party may make a reference to arbitration in accordance with this agreement. 
+20 ARBITRATION 
+You can bring claims against us through arbitration in London, England. 
+20.1 If we identify any dispute with you, we will first seek to resolve that dispute in accordance with our Complaints Procedure unless we consider it reasonable to seek a court remedy known as an injunction in which case we will go directly to court. 
+20.2 If resolution is not possible or timely using our Complaints Procedure, we shall refer any dispute worth GBP 50,000 or less to an alternative dispute resolution entity but reserve the right to commence a reference to arbitration if we are not satisfied with the outcome. 
+20.3 Any dispute over the value of GBP 50,000 shall be referred to arbitration. 
+20.4 The value of any dispute shall be calculated on the basis on the closing price on the date upon which the dispute arose or the price of the last arm's length transaction for the digital asset prior to the date of reference.
+20.5 All arbitrations shall be subject to the London Court of International Arbitration Rules which are deemed to be incorporated by reference into this clause. 
+20.6 The tribunal shall consist of one arbitrator. In default of agreement between you and us as to which arbitrator should be appointed, the appointing authority shall be the London Court of International Arbitration.  The place of arbitration shall be London, England and the proceedings shall be conducted in English.
+20.7 Irrespective of the form of resolution whether by a Court or Arbitrator the successful party shall be entitled to be awarded and to recover its legal costs and expenses.
+20.8 The exclusive jurisdiction for arbitration or the commencement of any action shall be England and Wales.
+21 JURISDICTION 
+21.1 It is agreed that situs of the agreement formed in accordance with this agreement, the place of delivery of Radix(r) Software, and the situs of any transaction effected using Radix(r) Software including the creation of any debt or obligation and the situs of any property or rights in any token, digital asset, crypto-currency and/or cryptographic key is to be England and the performance and the operation of Radix(r) Software and any losses or damage arising from the use of such software shall be deemed to occur in England.
+21.2 Nothing in this clause 21 shall limit or exclude our entitlement or ability to enforce any rights to any intellectual property in any territory in relation or accordance with the laws application to such rights that subsist in any territory.
+21.3 This agreement and any dispute or claim or complaint arising out of or in connection with it, its subject matter or its formation (including contractual and non-contractual disputes) will be exclusively governed by and construed in accordance with the laws of England and Wales. 
+21.4 The 1980 United Convention on Contracts for the International Sale of Goods and its related instruments will not apply to this agreement. 
+21.5 All operation of conflict of laws is excluded.
+22 WAIVER OF CLASS ACTIONS/ALTERNATE JURISIDCTIONS
+22.1 You irrevocably waive on behalf of yourself and your successors in title, trustees, assigns, including any person, group or body appointed under any bankruptcy or insolvency rules: 
+(a) all rights to bring or participate in any class action; 
+(b) any right to request a jury trial against us or other Radix(r) affiliates or entities;
+(c) all rights and entitlement to seek or participate in, commence or pursue any action or seek any order or remedy in any territory (other than England) which may, or is intended to, or is framed so as to be, binding upon the property, assets or rights of Radix(r) Publishing, its officers, directors, employees, agents or affiliates; and
+(d) all rights to assert personal and or subject matter jurisdiction in any territory other than England.
+
+Radix(r) EULA V1.1 Issued 2023.09.07
+
+
+

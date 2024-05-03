@@ -1,0 +1,10 @@
+import { Observable, ObservableInput } from 'rxjs';
+export declare function onErrorResumeNext<T>(): Observable<T>;
+export declare function onErrorResumeNext<T, R = T>(this: Observable<T>, v: ObservableInput<R>): Observable<T | R>;
+export declare function onErrorResumeNext<T, T2 = T, R = T>(this: Observable<T>, v: ObservableInput<T2>): Observable<T | T2 | R>;
+export declare function onErrorResumeNext<T, T2 = T, T3 = T, R = T>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>): Observable<T | T2 | T3 | R>;
+export declare function onErrorResumeNext<T, T2 = T, T3 = T, T4 = T, R = T>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>): Observable<T | T2 | T3 | T4 | R>;
+export declare function onErrorResumeNext<T, T2 = T, T3 = T, T4 = T, T5 = T, R = T>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>, v5: ObservableInput<T5>): Observable<T | T2 | T3 | T4 | T5 | R>;
+export declare function onErrorResumeNext<T, T2 = T, T3 = T, T4 = T, T5 = T, T6 = T, R = T>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>, v5: ObservableInput<T5>, v6: ObservableInput<T6>): Observable<T | T2 | T3 | T4 | T5 | T6 | R>;
+export declare function onErrorResumeNext<T, R>(this: Observable<T>, ...observables: Array<ObservableInput<any>>): Observable<T | R>;
+export declare function onErrorResumeNext<T, R>(this: Observable<T>, array: ObservableInput<any>[]): Observable<T | R>;

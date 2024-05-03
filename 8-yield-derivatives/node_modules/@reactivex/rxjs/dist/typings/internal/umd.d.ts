@@ -1,0 +1,11 @@
+export * from '../index';
+import * as _operators from '../operators/index';
+export declare const operators: typeof _operators;
+import * as _testing from '../testing/index';
+export declare const testing: typeof _testing;
+import * as _ajax from '../ajax/index';
+export declare const ajax: typeof _ajax;
+import * as _webSocket from '../webSocket/index';
+export declare const webSocket: typeof _webSocket;
+import * as _fetch from '../fetch/index';
+export declare const fetch: typeof _fetch;

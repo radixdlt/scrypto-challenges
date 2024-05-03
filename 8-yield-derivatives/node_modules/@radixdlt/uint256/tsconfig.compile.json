@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "es3",
+        "module": "commonjs",
+        "declaration": true,
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "strict": true,
+        "paths": {
+            "src/*": ["src/*"]
+        },
+        "noUnusedLocals": true,
+        "noUnusedParameters": true
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "src/test"
+    ]
+}

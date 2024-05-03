@@ -1,0 +1,38 @@
+/* Header.css */
+/* Header.css */
+
+header {
+    width: 100%;
+
+    background-color: black;
+    padding: 10px 0; /* Adjust padding as needed */
+  }
+  
+  nav {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+  }
+  
+  nav ul li {
+    margin-right: 50px; /* Adjust spacing between links */
+  }
+  
+  .nav-link {
+    color: white; /* Set link color to white */
+    font-family: 'Arial', sans-serif; /* Use the same font as the form */
+    text-decoration: none;
+    font-size: 16px; /* Adjust font size as needed */
+  }
+  
+  .nav-link:hover {
+    text-decoration: underline; /* Add underline on hover */
+  }
+  
