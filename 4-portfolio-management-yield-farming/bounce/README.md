@@ -151,7 +151,7 @@ An interesting aside is that the NFTs associated with a SMPL-AMM would not be co
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

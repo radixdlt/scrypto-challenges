@@ -199,7 +199,7 @@ dutifully here, since he offers scheduling as a service for which he wants to re
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

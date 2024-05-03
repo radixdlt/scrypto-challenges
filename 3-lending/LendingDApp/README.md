@@ -594,7 +594,7 @@ This work is licensed under Apache 2.0 and the license file is provided [here](.
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 
