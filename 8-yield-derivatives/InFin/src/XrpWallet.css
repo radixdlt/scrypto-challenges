@@ -1,0 +1,62 @@
+.wallet_container {
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .wallet_details,
+  .ledger_details,
+  .send_xrp_container {
+    width: 100%;
+    max-width: 600px; /* Limit the width of the sections */
+    background-color: #f4f1f169; /* Semi-transparent white background */
+    backdrop-filter: blur(10px); /* Apply a blur effect to the background */
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px; /* Add space between sections */
+    word-wrap: break-word;
+  }
+  
+  .wallet_details h2,
+  .ledger_details h2,
+  .send_xrp_container h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .send_xrp_container label {
+    margin-top: 10px;
+  }
+  
+  .send_xrp_container input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(122, 107, 107, 0.1);
+    color: white;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  
+  .send_xrp_container input:focus {
+    border-color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .send_xrp_container button {
+    padding: 12px 24px; /* Adjust button padding */
+    border-radius: 8px;
+    background-color: #4B0082; /* Dark purple button color */
+    color: white;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .send_xrp_container button:hover {
+    background-color: #800080; /* Darker purple color on hover */
+  }

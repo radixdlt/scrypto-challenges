@@ -1,0 +1,2 @@
+8-yield-derivatives/node_modules/.cache/default-development/3.pack filter=lfs diff=lfs merge=lfs -text
+8-yield-derivatives/node_modules/* filter=lfs diff=lfs merge=lfs -text
