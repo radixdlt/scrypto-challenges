@@ -1,0 +1,56 @@
+CALL_METHOD
+    Address("account_tdx_2_128fpdfl9qzha85luverks8plcdwqayhvhgw8mlsr2tr720dj3exm0h")
+    "withdraw"
+    Address("resource_tdx_2_1tkgngu3sh76n6kkcpy7drqlwm4lup6799fcexhprwgt98yp78sge2l")
+    Decimal("1")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1tkgngu3sh76n6kkcpy7drqlwm4lup6799fcexhprwgt98yp78sge2l")
+    Bucket("xrd_bucket")
+;
+CREATE_PROOF_FROM_BUCKET_OF_AMOUNT
+    Bucket("xrd_bucket")
+    Decimal("1.0")
+    Proof("proof")
+;
+
+CALL_METHOD
+    Address("account_tdx_2_128fpdfl9qzha85luverks8plcdwqayhvhgw8mlsr2tr720dj3exm0h")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+
+
+
+
+CALL_METHOD 
+    Address("account_tdx_2_128fpdfl9qzha85luverks8plcdwqayhvhgw8mlsr2tr720dj3exm0h") 
+    "create_proof_of_fungibles" 
+    Address("resource_tdx_2_1tkgngu3sh76n6kkcpy7drqlwm4lup6799fcexhprwgt98yp78sge2l") 
+;
+PUSH_TO_AUTH_ZONE
+    Address("resource_tdx_2_1tkgngu3sh76n6kkcpy7drqlwm4lup6799fcexhprwgt98yp78sge2l")
+    Decimal("1")
+;
+
+CALL_FUNCTION
+    Address("package_tdx_2_1p5g49dthgn56t5htw9fk72dav6jwrwavh22qkwwkaqzv8avmak0qyk")
+    "YieldTokenizer"
+    "instantiate_yield_tokenizer"
+    Enum<0u8>()
+    Address("resource_tdx_2_1thydcf5zxpp20us8jka3p02ryzudndm82603j306zry8gr23p2s3mu")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1thydcf5zxpp20us8jka3p02ryzudndm82603j306zry8gr23p2s3mu")
+    Bucket("LSU Bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cp6kz5luvdz6rugagxx7ksst22xud8nj3mmldh2d92tvxsgdwjlks3")
+    "tokenize_yield"
+    Bucket("LSU Bucket")
+;
+CALL_METHOD
+    Address("account_tdx_2_168fghy4kapzfnwpmq7t7753425lwklk65r82ys7pz2xzleeh99snuv")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;

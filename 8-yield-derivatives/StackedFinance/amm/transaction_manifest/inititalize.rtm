@@ -1,0 +1,8 @@
+CALL_FUNCTION
+    Address("package_tdx_2_1p4c8cn0sj7kx8gml22fyx24crypg6jv2ls3vx5c404nnhlh33wg2ze")
+    "YieldTokenizer"
+    "instantiate_yield_amm"
+    Enum<OwnerRole::None>()
+    Decimal("1.01")
+    Decimal("0.8")
+;
