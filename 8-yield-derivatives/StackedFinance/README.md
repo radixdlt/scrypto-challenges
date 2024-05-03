@@ -6,7 +6,7 @@
 This is Vue 3, Nuxt 3 and Nuxt UI project for the Radix Yield Derivatives Competition
 
 You can check out the project hosted here:  
-[Github Pages](https://nguvictor.github.io/radix-yield-split/)
+[Project Link](https://radixyield.web.app/)
 
 ## How to Build
 
