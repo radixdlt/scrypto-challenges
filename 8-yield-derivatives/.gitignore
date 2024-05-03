@@ -1,0 +1,21 @@
+# Visual studio code
+.vscode
+.history
+
+# Intellij
+.idea
+
+# macOS folder attributes
+.DS_Store
+
+# Rust auto-generated
+target/
+Cargo.lock
+**/*.rs.bk
+
+# Flamegraph profiles
+flamegraph.svg
+3-lending/LendingDApp/node_modules
+3-lending/LendingDApp/public/lending_dapp.wasm
+3-lending/LendingDApp/public/loan_application.wasm
+3-lending/LendingDApp/TODO.md
