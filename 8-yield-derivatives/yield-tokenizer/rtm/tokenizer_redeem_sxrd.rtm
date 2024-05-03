@@ -1,0 +1,24 @@
+CALL_METHOD
+    Address("account_tdx_2_12yvwgxe8mj9uwtaamt3sereuxe6lkwvrrn92frxtsek83r24y05nv6") # Account
+    "withdraw"
+    Address("resource_tdx_2_1tk7zhzann257t2wg8c3563n8awhfwnwmyy4cmxlexyljc8tng8f0r8") # sXRD
+    Decimal("100")
+;
+
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1tk7zhzann257t2wg8c3563n8awhfwnwmyy4cmxlexyljc8tng8f0r8") # sXRD
+    Bucket("sxrd_bucket")
+;
+
+CALL_METHOD
+    Address("component_tdx_2_1crpxl4gyx20m77ru369vzefjh6h3tzau066jtsk2pt08m8700t2ycr") # Tokenizer
+    "redeem_sxrd"
+    Bucket("sxrd_bucket")
+    false
+;
+
+CALL_METHOD
+    Address("account_tdx_2_12yvwgxe8mj9uwtaamt3sereuxe6lkwvrrn92frxtsek83r24y05nv6") # Account
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
