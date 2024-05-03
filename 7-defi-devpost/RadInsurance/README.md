@@ -108,7 +108,7 @@ To fix this error, you can just add the missing braces around `z` in the import 
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

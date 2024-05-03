@@ -61,7 +61,7 @@ cargo test -- --test-threads=1 --nocapture
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

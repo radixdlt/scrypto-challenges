@@ -72,7 +72,7 @@ resim call-method $comp retirar_orden "#5fb3609e8e98973516885c65469b7a12,034486c
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

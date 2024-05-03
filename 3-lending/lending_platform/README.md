@@ -36,7 +36,7 @@ Each directory has their own README.md detailing how to use each piece of the ap
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 
