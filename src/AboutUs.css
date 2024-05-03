@@ -1,0 +1,80 @@
+/* AboutUs.css */
+.aboutUs {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    color: rgb(255, 252, 252);
+    background-color: #03254c; /* Dark purple background color */
+    overflow: auto;
+  }
+  
+  
+  .container {
+    display: flex;
+    justify-content: center;
+    background-color: #a81a77; /* Dark blue background color */
+    padding-top: 20px;
+  }
+  /* AboutUs.css */
+/* AboutUs.css */
+/* AboutUs.css */
+.concertData {
+  background-color: white; /* Set background color to white */
+}
+
+.grid-containerdata {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Display four items per row */
+  gap: 20px; /* Add gap between grid items */
+}
+
+.grid-itemdata {
+  border: 1px solid #03254c; /* Set border color */
+  padding: 20px;
+  border-radius: 5px;
+  color: black; /* Set text color to black */
+  margin: 20px; /* Add margin to create padding outside the border */
+}
+
+
+  .banner-img {
+    min-width: 10%;
+    width: 270px;
+    height: 200px;
+  }
+  
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* grid-template-rows: 300px 300px; Remove fixed height */
+    gap: 10px; /* Add gap between grid items */
+    padding-top: 10px;
+    padding-left: 240px;
+    padding-right: 240px;
+  }
+  
+  .grid-item {
+    border: 2px solid rgb(128, 0, 0);
+    padding: 10px;
+    z-index: 1;
+    will-change: width, height;
+  }
+  
+  .grid-container-aboutUs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    padding-top: 10px;
+  }
+  
+  .about-container {
+    height: 1500px;
+  }
+  
+  @media screen and (max-width: 1081px) {
+    .grid-container-aboutUs {
+      grid-template-columns: 1fr;
+    }
+    .grid-container {
+      grid-template-columns: 2fr;
+    }
+  }
+  
