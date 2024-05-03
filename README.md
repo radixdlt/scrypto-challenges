@@ -7,7 +7,7 @@ Welcome to InfiniX, a revolutionary DeFi protocol on the Radix blockchain, engin
 
 **Noteworthy Achievement**: The InfiniX team is proud to announce our recent triumph at the Radix Global Hackathon organized by Radix.wiki held in London, where we clinched the first prize in the advanced track.
 
-- **Watch Our Presentation Video**: [Click Here](https://youtu.be/zNV2ufQnZTQ?si=qLCiPtSXjH1Qq3-L)
+- **Watch Our Presentation Video (Includes Testing of Scrypto Smart Contract)**: [Click Here](https://youtu.be/zNV2ufQnZTQ?si=qLCiPtSXjH1Qq3-L)
 
 ---
 
@@ -43,7 +43,7 @@ For more details on each insurance product and why it is important in the Radix 
 
 ### Link to Canva Presentation
 
-- **Click to See Presentation**: [Here](https://www.canva.com/design/DAGDCJiRn0g/jvYaaVqe4WQasc20wUjRYw/edit?utm_content=DAGDCJiRn0g&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+- **Click to See Presentation (Includes Scrypto Testing Video) **: [Here](https://www.canva.com/design/DAGDCJiRn0g/jvYaaVqe4WQasc20wUjRYw/edit?utm_content=DAGDCJiRn0g&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 ---
 
