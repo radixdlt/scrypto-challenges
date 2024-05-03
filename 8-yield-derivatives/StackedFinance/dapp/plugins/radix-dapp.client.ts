@@ -1,5 +1,5 @@
 
-import { RadixDappToolkit, RadixNetwork } from '@radixdlt/radix-dapp-toolkit'
+import { RadixDappToolkit, RadixNetwork, DataRequestBuilder } from '@radixdlt/radix-dapp-toolkit'
 import data from '../data/validators.json'
 
 const rdt = RadixDappToolkit({
@@ -9,6 +9,8 @@ const rdt = RadixDappToolkit({
   //applicationName: 'Radix Web3 dApp',
   //applicationVersion: '1.0.0',
 })
+
+rdt.walletApi.setRequestData(DataRequestBuilder.accounts().atLeast(1))
 
 const getRDT = async () => {
   /*
