@@ -1,0 +1,7 @@
+Could be in:
+
+/var/www/html/.well-known/     <------ HIGH PROB
+/usr/local/lsws/Example/html/.well-known/
+/home/user/public_html/.well-known/
+/srv/www/.well-known/
+/opt/openlitespeed/domains/example.com/public_html/.well-known/
