@@ -2,13 +2,11 @@
 
 ### About
 
-```
 This is a simple flexible staking blueprint designed to yield rewards for staking for a specific time. For the account staking the XRD (or other approved asset, like xUSDC), the rewards are taken from the ytXRD dedicated pool (or ytxUSDC).
 
 There is no locking, and the account can unstake at any time, while the rewards would be available only after a predefined time has elapsed.
 
 The package contains component with a simple frontend to demonstrate the functionality and end-user experience. The demo is also available here: https://yield-srwa.netlify.app/
-```
 
 ### Usage
 
