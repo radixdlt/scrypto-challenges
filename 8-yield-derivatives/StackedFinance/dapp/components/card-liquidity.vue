@@ -1,6 +1,14 @@
 <script lang="ts" setup>
 const { $getRDT, $getWallet, $getEntityDetails } = useNuxtApp();
+const toast = useToast();
+try{
 const walletAddress = (await $getWallet()).accounts[0].address;
+}catch(error){
+  toast.add({ 
+    title: 'Please Connect your wallet this site to function', 
+    color : 'red',
+    timeout: 0 });
+}
 const props = defineProps([
   'validatorAddress',
   'yieldPackageAddress',

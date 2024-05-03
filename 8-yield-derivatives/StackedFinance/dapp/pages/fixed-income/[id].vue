@@ -6,10 +6,12 @@ const counter = useState('counter', () => ({
   lsuAddress:'',
   XRDBalance:0,
 }))
+const toast = useToast();
 const route = useRoute();
 const component_id = route.params.id;
 //Check if the component is valid from the package
 //Get users Balance of the token
+
 const { $getEntityDetails, $getLSUBalance, $getXRDBalance } = await useNuxtApp();
 
 //await callOnce(async () => {
@@ -20,8 +22,15 @@ const { $getEntityDetails, $getLSUBalance, $getXRDBalance } = await useNuxtApp()
   console.log(findByFieldName)
   counter.value.lsuAddress = findByFieldName;
   //Ge users balances from LSU
-  counter.value.balance = await $getLSUBalance(findByFieldName);
-  counter.value.XRDBalance = await $getXRDBalance();
+  try{
+    counter.value.balance = await $getLSUBalance(findByFieldName);
+    counter.value.XRDBalance = await $getXRDBalance();
+  }catch(error){
+    toast.add({ 
+      title: 'Please Connect your wallet this site to function', 
+      color : 'red',
+      timeout: 0 });
+  } 
 //})
 
 </script>
