@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/License-Apache_2.0-orange.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
+
 
 ![](./img/CandyDex.jpg)	
 [![Credit](https://img.shields.io/badge/Pic_Credit-Akshat_Soni-lightblue.svg)](https://www.pexels.com/@akshat-soni-1170605)

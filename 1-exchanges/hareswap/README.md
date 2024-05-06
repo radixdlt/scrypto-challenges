@@ -13,7 +13,6 @@ interactions described here:
 - Swap Protocol: <https://www.airswap.io/whitepaper.htm>
 - Request-for-Quote: <https://about.airswap.io/technology/request-for-quote>
 
-License: Apache + MIT
 
 ## Quick Start
 
