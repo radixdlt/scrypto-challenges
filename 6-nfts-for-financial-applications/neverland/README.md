@@ -1,5 +1,3 @@
-[![License](https://img.shields.io/badge/License-Apache_2.0-orange.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-
 
 ![](./img/neverland.jpg)
 [![Credit](https://img.shields.io/badge/Pic_Credit-Max_Bohme-red.svg)](https://unsplash.com/@max_thehuman)	
