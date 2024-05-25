@@ -1,0 +1,1215 @@
+:root {
+  /*#region Colors and Account Appearance*/
+  --grey-1: #0d0f16;
+  --grey-2: #12151f;
+  --grey-3: #333fff;
+  --grey-4: #565962;
+  --grey-5: #74777d;
+  --grey-6: #ffffff;
+  --radix-blue: #052cc0;
+  --radix-pink: #ff43ca;
+  --radix-green: #01e2a0;
+  --radix-cyan: #20e4ff;
+  --floww-blue: #333fff;
+
+  --account-appearance-0: linear-gradient(
+          276.58deg,
+          #01e2a0 -0.6%,
+          #052cc0 102.8%
+  );
+  --account-appearance-1: linear-gradient(
+          276.33deg,
+          #ff43ca -14.55%,
+          #052cc0 102.71%
+  );
+  --account-appearance-2: linear-gradient(
+          276.33deg,
+          #20e4ff -14.55%,
+          #052cc0 102.71%
+  );
+  --account-appearance-3: linear-gradient(
+          94.8deg,
+          #00ab84 -1.2%,
+          #052cc0 103.67%
+  );
+  --account-appearance-4: linear-gradient(
+          94.62deg,
+          #ce0d98 -10.14%,
+          #052cc0 104.1%
+  );
+  --account-appearance-5: linear-gradient(
+          276.33deg,
+          #052cc0 -14.55%,
+          #0dcae4 102.71%
+  );
+  --account-appearance-6: linear-gradient(
+          90.89deg,
+          #003057 -2.21%,
+          #03d597 102.16%
+  );
+  --account-appearance-7: linear-gradient(
+          276.23deg,
+          #f31dbe -2.1%,
+          #003057 102.67%
+  );
+  --account-appearance-8: linear-gradient(
+          276.48deg,
+          #003057 -0.14%,
+          #052cc0 102.77%
+  );
+  --account-appearance-9: linear-gradient(
+          276.32deg,
+          #1af4b5 -5.15%,
+          #0ba97d 102.7%
+  );
+  --account-appearance-10: linear-gradient(
+          276.23deg,
+          #e225b3 -2.1%,
+          #7e0d5f 102.67%
+  );
+  --account-appearance-11: linear-gradient(
+          276.48deg,
+          #1f48e2 -0.14%,
+          #040b72 102.77%
+  );
+
+  --nft-appearance-even-bg: linear-gradient(
+          280deg, #040b72 -1%, #333fff 100%);
+
+  --nft-appearance-odd-bg: linear-gradient(
+          280deg,  #ffefec -0%, #ffffff 100%);
+
+  .nft-appearance-even {
+    background: linear-gradient(
+            280deg, #040b72 -1%, #333fff 100%);
+    color: white;
+  }
+
+  .nft-appearance-odd {
+    background: linear-gradient(
+            280deg,  #ffefec -0%, #ffffff 100%);
+    color: #000000;
+  }
+
+  /*#endregion Colors and Account Appearance*/
+
+  font-family: "IBM Plex Sans", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: var(--grey-6);
+  background-color: var(--grey-2);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: auto;
+
+  /* Font size definitions using rem */
+  --font-xs: 0.75rem;  /* Extra small font size, for fine print and disclaimers */
+  --font-s: 1rem;      /* Small font size, for secondary text */
+  --font-m: 1.25rem;   /* Medium font size, standard for body text */
+  --font-l: 1.5rem;    /* Large font size, for subheadings */
+  --font-xl: 2rem;     /* Extra large font size, for main headings */
+  --font-xxl: 2.5rem;  /* 2x extra large, for major titles */
+  --font-xxxl: 3rem;   /* 3x extra large, for prominent headings */
+  --font-4xl: 3.5rem;   /* 3x extra large, for prominent headings */
+  --font-5xl: 4rem;   /* Huge font size, for key banners or hero text */
+  --font-6xl: 5rem;  /* Giant font size, for ultra impact areas */
+
+  /* Bold variations typically match the regular sizes */
+  --font-weight-regular: 400;  /* Regular font weight */
+  --font-weight-bold: 700;     /* Bold font weight */
+
+  --container-xs: 50vw; /* Extra small containers */
+  --container-sm: 60vw; /* Small containers */
+  --container-md: 70vw;
+  --container-lg: 85vw; /* Medium containers */
+  --container-xl: 95vw; /* Large containers */
+  --container-xxl: 100%;
+
+  --container-padding-xs: 1rem; /* Extra small padding */
+  --container-padding-sm: 1.5rem; /* Small padding */
+  --container-padding-md: 2rem; /* Medium padding */
+  --container-padding-lg: 2.5rem; /* Large padding */
+
+  --container-margin-horizontal: auto; /* Center containers horizontally */
+  --container-margin-vertical: 1rem; /* Vertical spacing for stacking */
+
+  --container-border-radius: 1.25rem; /* Rounded corners */
+  --container-border: 0.125rem solid rgba(255, 255, 255, 0.08); /* Standard border */
+  --container-background: var(--account-appearance-0); /* Default gradient background */
+  --container-shadow: 0 0.625rem 1.5625rem rgba(0, 0, 0, 0.2); /* Shadow for depth */
+
+  @media (max-width: 850px) {
+    --container-xs: 80vw; /* Use more of the viewport width on small screens */
+    --container-sm: 85vw;
+    --container-md: 90vw;
+    --container-lg: 95vw;
+    --container-xl: 100%; /* Full width for the largest containers */
+    --container-padding-xs: 0.5rem;
+    --container-padding-sm: 1rem;
+    --container-padding-md: 1.5rem;
+    --container-padding-lg: 2rem;
+
+    --container-margin-vertical: 0.5rem;
+
+    --container-border-radius: 0.75rem;
+    --container-border: 0.1rem solid rgba(255, 255, 255, 0.08);
+
+    --container-shadow: 0 0.3125rem 0.78125rem rgba(0, 0, 0, 0.15);
+  }
+
+}
+html {
+
+  font-size: 16px; /* Default base size, equating to 1rem = 16px */
+}
+
+@media (max-width: 850px) {
+  html {
+    font-size: 12px; /* Reduce base size on smaller screens */
+  }
+}
+
+@media (min-width: 1200px) {
+  html {
+    font-size: 18px; /* Increase base size on larger screens for better readability */
+  }
+}
+
+
+
+
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5rem;
+  padding: 5rem 0;
+}
+
+.heading-section {
+  display: flex;
+  width: var(--container-md);
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/*#region Text Styles*/
+
+h1 {
+  text-align: center;
+  font-size: var(--font-4xl);
+  font-style: normal;
+  font-weight: 700;
+  line-height: 120%;
+  margin: 0;
+}
+
+h2 {
+  text-align: center;
+  font-size: var(--font-4xl);
+  font-style: normal;
+  font-weight: 700;
+  line-height: 120%;
+  margin: 0;
+}
+
+.h2-cyan {
+  color: var(--radix-cyan);
+  text-align: center;
+    font-size: var(--font-4xl);
+    font-style: normal;
+    font-weight: 700;
+    line-height: 120%;
+    margin: 0;
+}
+
+h3 {
+  font-size: var(--font-m);;
+  font-style: normal;
+  font-weight: 600;
+  margin: 0;
+}
+
+.head-text {
+  text-align: center;
+  font-size: var(--font-l);;
+  font-style: normal;
+  font-weight: 400;
+  margin: 0;
+}
+
+.semi-bold {
+  font-weight: 500;
+}
+
+.hello-token-pink {
+  color: var(--radix-pink);
+  font-size: var(--font-l);;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.pink-text {
+  color: var(--radix-pink);
+  font-size: var(--font-l);;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.cyan-text {
+  color: var(--radix-cyan);
+  font-size: var(--font-l);;
+  font-style: normal;
+  font-weight: 600;
+}
+.countdown-text {
+  color: var(--radix-cyan);
+  font-size: var(--font-l);;
+  font-style: normal;
+  font-weight: 400;
+}
+.aqua-text {
+  color: var(--radix-green);
+  font-size: var(--font-l);;
+  font-style: normal;
+  font-weight: 600;
+}
+.hello-token-pink-sm {
+  color: var(--radix-pink);
+  font-size: var(--font-s);;
+  font-style: normal;
+  font-weight: 600;
+}
+
+/*#endregion Text Styles*/
+
+
+#container {
+  box-sizing: border-box;
+  display: flex;
+  max-width: 100%;
+  padding: 0 4rem 4rem 4rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 5rem;
+}
+
+/*#region PrimaryNavbar*/
+
+body, html {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+
+
+#navbar {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+  border-bottom: 0.125rem solid var(--grey-3);
+  height:fit-content;
+}
+
+#navbar img {
+  align-items: flex-start;
+  background: var(--grey-2);
+  height: 2.875rem;
+  width: 11rem;
+}
+#navbar-container {
+  display: flex;
+}
+#navbar-link-container {
+  display: flex;
+  height: auto;
+}
+#navbar-links {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  list-style-type: none;
+  font-size: var(--font-l);
+  font-weight: var(--font-weight-bold);
+  gap: var(--font-xxl);
+  margin-right: 3rem;
+}
+#navbar-links ul {
+  display: flex;
+  align-content: space-around;
+
+}
+#navbar li a {
+  color: var(--grey-6);
+  display: flex;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.3s ease-in-out;
+  align-content: center;
+  justify-content: space-around;
+}
+#navbar li a::after {
+  content: '';
+  position: absolute;
+  bottom: -1rem;
+  left: -25%;
+  width: 150%;
+  height: 0.2rem;
+  background-color: transparent;
+  color: #2ceeb4;
+  transform: scaleX(0);
+  transform-origin: bottom left;
+  transition: transform 0.25s ease-in-out, background-color 0.25s ease-in-out, color 0.25s ease-in-out;
+}
+
+#navbar li a:hover::after, #navbar li a.active::after {
+  transform: scaleX(1);
+  background-color: #2ceeb4;
+  color: #2ceeb4;
+}
+#navbar li a.active {
+  color: rgb(44, 238, 180);
+}
+#connect-btn {
+  display: flex;
+  align-items: flex-end;
+  --radix-connect-button-width: 11.25rem;
+  --radix-connect-button-height: 2.875rem;
+  --radix-connect-button-border-radius: 0.125rem;
+}
+
+@media (max-width: 850px) {
+  #navbar-container {
+    box-sizing: border-box;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+  }
+  #navbar {
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+  #connect-btn {
+    display: flex;
+    align-items: flex-end;
+    --radix-connect-button-width: fit-content;
+    --radix-connect-button-height: fit-content;
+  }
+  #navbar-link-container {
+    box-sizing: border-box;
+    justify-content: center;
+    display: flex;
+    width: 100vw;
+    margin-top: 0.75rem;
+  }
+  #navbar-links {
+    gap: var(--font-xxl);
+    font-size: var(--font-m);
+    font-weight: var(--font-weight-bold);
+  }
+}
+
+/*#endregion PrimaryNavbar*/
+
+/*#region SecondaryNavBar */
+
+#secondary-navbar {
+  display: flex;
+  box-sizing: border-box;
+  justify-content: space-around;
+  border-bottom: 0.0125rem solid var(--grey-3);
+}
+
+#secondary-navbar-link-container {
+  display: flex;
+  background: var(--grey-2);
+  justify-content: space-between; /* Center horizontally */
+  align-items: baseline;     /* Center vertically */
+}
+
+#secondary-navbar-links {
+  display: flex;
+  flex-direction: row;
+  list-style-type: none;
+  font-size: var(--font-l);
+  font-weight: var(--font-weight-bold);
+  align-items: center;
+  gap: 10rem;
+  margin-right: 3rem;
+}
+
+#secondary-navbar li a {
+  color: var(--grey-6); /* Default color */
+  display: inline-flex;
+  text-decoration: none; /* Globally remove underline */
+  position: relative;
+  transition: color 0.3s ease-in-out; /* Smooth transition for color */
+  align-content: center;
+  justify-content: space-around;
+}
+
+#secondary-navbar li a::after {
+  content: '   ';
+  position: absolute;
+  bottom: -1rem; /* Adjust this as needed */
+  left: -25%;
+  width: 150%;
+  height: 0.2rem;
+  background-color: transparent; /* Start with no visible underline */
+  color: #2ceeb4;
+  transform: scaleX(0);
+  transform-origin: bottom left;
+  transition: transform 0.25s ease-in-out, background-color 0.25s ease-in-out, color 0.25s ease-in-out; /* Animate both transformation and color */
+}
+
+#secondary-navbar li a:hover::after, #navbar li a.active::after {
+  transform: scaleX(1);
+  background-color: #2ceeb4; /* Underline color on hover and active */
+  color: #2ceeb4;
+}
+
+#secondary-navbar li a.active {
+  color: rgb(44, 238, 180); /* Active state color */
+}
+
+@media (max-width: 850px) {
+
+  #secondary-navbar-container {
+    height: fit-content;
+  }
+  #secondary-navbar li a {
+    font-size: var(--font-s);
+  }
+}
+
+/*#endregion */
+
+/*#region DevMode*/
+
+.dev-mode-instruction-container {
+  box-sizing: border-box;
+  width: min-content;
+  height: 100%;
+  padding: 3rem 3rem;
+  background: #0d0f16;
+  box-shadow: 0 1rem 2rem rgba(0, 48, 87, 0.15);
+  border-radius: 1.25rem;
+  border: 0.125rem white solid;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  display: flex;
+}
+
+.dev-mode-content-container {
+  width: fit-content;
+  display: flex;
+  align-items: flex-start;
+  gap: 3.125rem;
+}
+
+.dev-mode-step-container {
+  width: 35vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  align-self: stretch;
+}
+
+.step-nums {
+  color: var(--radix-pink);
+  font-size: 2.125rem;
+  font-style: normal;
+  font-weight: 600;
+  margin: 0;
+}
+
+.step-heading {
+  font-size: var(--font-m);;
+  font-style: normal;
+  font-weight: 600;
+  margin: 0;
+}
+
+.step-text {
+  font-size: var(--font-s);;
+  font-style: normal;
+  font-weight: 400;
+  margin: 0 0 2rem;
+}
+
+.dev-mode-gif-container {
+  display: flex;
+  padding: 1% 1% 1% 1%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 1.25rem;
+  background: var(--grey-3);
+  height:fit-content;
+  width:auto;
+}
+
+
+
+/*#endregion DevMode*/
+
+/*#region HelloToken Dapp*/
+
+.hello-token-container {
+  display: flex;
+  width: var(--container-md);
+  height: 17.5rem;
+  padding: 4.5rem 2.5rem;
+  align-items: center;
+  gap: 5rem;
+  border-radius: 1.25rem;
+  border: 0.125rem solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    30deg,
+    rgba(255, 255, 255, 0.5) -34.01%,
+    rgba(255, 255, 255, 0.2) 0.67%,
+    rgba(255, 255, 255, 0) 86.69%
+  );
+}
+
+.hello-token-left-col {
+  width: 75vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+#get-hello-token {
+  cursor: pointer;
+  display: flex;
+  height: 3.125rem;
+  width: 30vw;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  border: none;
+  text-decoration: none;
+  color: var(--grey-6);
+  font-size: var(--font-s);;
+  font-weight: 600;
+  background: var(--radix-blue);
+}
+
+/*#endregion Dapp*/
+
+/*#region Buy SUPER Page*/
+
+.buy-super-container {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: var(--container-md);;
+  max-width: var(--container-lg);
+  height: fit-content;
+  padding: 4.5rem 2.5rem;
+  gap: 5rem;
+  border-radius: 1.25rem;
+  border: 0.125rem solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+          30deg,
+          rgba(255, 255, 255, 0.5) -34.01%,
+          rgba(255, 255, 255, 0.2) 0.67%,
+          rgba(255, 255, 255, 0) 86.69%
+  );
+  align-items: center;
+}
+
+.go-buy-super {
+  font-size: var(--font-xxl);
+  display: flex;
+  width: fit-content;
+  flex-direction: row;
+  align-items: center;
+  align-self: center;
+  justify-content: space-around;
+  gap: var(--font-xxl);
+}
+
+.ExchangeRateFormula {
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  justify-content: space-evenly;
+  font-size: 2vw;
+  color: #fff; /* And light text color */
+  flex-grow: 1;
+}
+
+.buy-super-input-container {
+  display: flex;
+  width: 80%;
+  max-width: 100%;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.buy-super-input-wrapper {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  width: 100%;
+  max-width: 100%;
+}
+
+#buy-super-input {
+  display: flex;
+  width: 100%;
+  flex-grow: 1;
+  justify-self: flex-start;
+  font-size: var(--font-s);
+  font-weight: 500;
+  background-color: var(--grey-2);
+  padding: 1rem;
+  border: 0.0125rem solid var(--grey-5);
+  border-radius: 0.5rem;
+  outline: none;
+}
+
+#input-suffix {
+  display: flex;
+  width: 8%;
+  font-size: var(--font-m);
+  font-weight: 500;
+
+  padding: 0 0.5rem 0 2.5rem; /* Ensure this margin doesn't push the suffix too far from the input */
+  align-items: center; /* Center vertically in flex container */
+  align-content: center;
+}
+
+
+.buy-super-button, #buy-super-button {
+  width: 30vw;
+  cursor: pointer;
+  height: 3.125rem;
+  padding: 0 2rem; /* Horizontal padding for better appearance */
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: var(--font-s);
+  font-weight: 600;
+  color: #fff; /* White text on buttons */
+  background: linear-gradient(285deg, #333fff -20%, var(--radix-blue) 100%); /* Gradient background */
+}
+
+
+
+
+
+
+
+
+
+/*#endregion SUPER Page*/
+
+/*region Select Owner Page*/
+
+.choose-owner-container {
+  box-sizing: border-box;
+  display: flex;
+  width: var(--container-md);
+  flex-direction: column;
+  height: fit-content;
+  padding: 2.5rem 2.5rem 10rem;
+  align-content: center;
+  gap: 5rem;
+  border-radius: 1.25rem;
+  border: 0.125rem solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+          30deg,
+          rgba(255, 255, 255, 0.5) -34.01%,
+          rgba(255, 255, 255, 0.2) 0.67%,
+          rgba(255, 255, 255, 0) 86.69%
+  );
+}
+
+.choose-owner-heading-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  flex-grow: 1;
+}
+
+#choose-owner-dropdown-container {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 8rem;
+  align-items: center;
+  flex-grow: 1;
+  width: 35vw;
+}
+
+#select-nft-dropdown-container {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 8rem;
+  align-items: center;
+  flex-grow: 1;
+  width: 35vw;
+}
+/*endregion Select Owner Page*/
+
+/*region Owner Page */
+
+
+#owner-page-button-container {
+  align-content: center;
+  width: fit-content;
+}
+
+.sale-status-button-container {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 6vw;
+}
+
+#sale-status-button {
+  cursor: pointer;
+  display: flex;
+  height: 3.125rem;
+  width: 12vw;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  border: none;
+  text-decoration: none;
+  color: var(--grey-6);
+  font-size: var(--font-s);;
+  font-weight: 600;
+  background: var(--radix-blue);
+}
+
+.owner-page-container {
+  box-sizing: border-box;
+  display: flex;
+  width: var(--container-md);
+  flex-direction: column;
+  height: fit-content;
+  padding: 3.5rem 2.5rem;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  gap: 5rem;
+  border-radius: 1.25rem;
+  border: 0.125rem solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+          30deg,
+          rgba(255, 255, 255, 0.5) -34.01%,
+          rgba(255, 255, 255, 0.2) 0.67%,
+          rgba(255, 255, 255, 0) 86.69%
+  );
+}
+
+#owner-page-button {
+  cursor: pointer;
+  display: flex;
+  height: 3.125rem;
+  width: 30vw;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  border: none;
+  text-decoration: none;
+  color: var(--grey-6);
+  font-size: var(--font-s);;
+  font-weight: 600;
+  background: var(--radix-blue);
+}
+
+.owners-only-container {
+  display: flex;
+  width: var(--container-md);
+  height: 17.5rem;
+  padding: 4.5rem 2.5rem;
+  align-items: center;
+  gap: 5rem;
+  border-radius: 1.25rem;
+  border: 0.125rem solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+          30deg,
+          rgba(255, 255, 255, 0.5) -34.01%,
+          rgba(255, 255, 255, 0.2) 0.67%,
+          rgba(255, 255, 255, 0) 86.69%
+  );
+}
+
+.sale-active-status {
+  display: flex;
+  gap: 1rem;
+  flex-direction: row;
+}
+
+
+/*endregion Owner Page*/
+
+/*#region DocsPage */
+
+.docs-button-container {
+  display: flex;
+  padding-top: 1rem;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-dark {
+  display: flex;
+  width: 11.5rem;
+  height: 3.125rem;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  background: var(--grey-3);
+  text-decoration: none;
+  color: var(--grey-6);
+}
+
+.btn-radix-blue {
+  display: flex;
+  width: 11.5rem;
+  height: 3.125rem;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  background: var(--radix-blue);
+  text-decoration: none;
+  color: var(--grey-6);
+}
+
+/*#endregion docs */
+
+/*#region Dropdown Menus (both) */
+
+/*#reigon Common */
+
+
+
+
+/*#region YielfNftDropdown */
+
+.nft-dropdown-option {
+  display: flex; /* Ensures the spans line up horizontally */
+  justify-content: space-between; /* Spaces out the children to opposite ends */
+  width: 98%; /* Ensure the container takes full width to maximize space usage */
+  align-items: center; /* Centers them vertically */
+}
+
+.nft-dropdown-option-label {
+  /* Styling for the label part */
+  font-weight: bold; /* Optional styling */
+  font-size: var(--font-m);
+}
+
+.nft-dropdown-option-data {
+  /* Styling for the data part */
+  font-size: var(--font-s);
+  font-style: italic; /* Example style */
+  padding-left: 1rem;
+}
+
+/*#endregion YielfNftDropdown
+
+
+
+/*#region Account Select */
+
+.custom-select {
+  position: relative; /* Ensure this is set */
+  display: flex;
+  width: 100%;
+  max-width: 60vw;
+}
+
+/* interactivity */
+.custom-select.active .arrow {
+  transform: rotate(180deg);
+}
+
+.custom-select.active .select-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: scaleY(1);
+}
+
+.select-button {
+  box-sizing: border-box;
+  width: 100%;
+  font-size: var(--font-m);
+  background-color: var(--grey-2);
+  padding: 0.675rem 1rem;
+  border: 0.125rem solid var(--grey-5);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.selected-value {
+font-size: var(--font-m);
+  text-align: left;
+}
+
+.selected-nft-value {
+font-size: var(--font-m);
+  text-align: left;
+}
+
+.arrow {
+  border-left: 0.3125rem solid transparent;
+  border-right: 0.3125rem solid transparent;
+  border-top: 0.375rem solid var(--grey-6);
+  transition: transform ease-in-out 0.15s;
+}
+
+.select-dropdown {
+  position: absolute;
+  list-style: none;
+  width: calc(100% - 1.5rem);
+  box-shadow: 0 0.625rem 1.5625rem rgba(0, 0, 0, 0.2);
+  background-color: var(--grey-2);
+  border: 0.125rem solid var(--grey-5);
+  border-radius: 0.5rem;
+  padding: 0.5em;
+  margin-top: 3.5rem;
+  max-height: 9.45rem;
+  overflow-y: auto;
+  transition: 0.15s ease;
+  transform: scaleY(0);
+  opacity: 0;
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.select-dropdown:focus-within {
+  box-shadow: 0 0.625rem 1.5625rem rgba(94, 108, 233, 0.6);
+}
+
+.select-dropdown li {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--grey-6);
+  border-radius: 0.5rem;
+}
+
+.select-dropdown li label {
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  cursor: pointer;
+}
+
+.select-dropdown::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+.select-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 1.5625rem;
+}
+
+.select-dropdown::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 1.5625rem;
+}
+
+.select-dropdown input[type="radio"] {
+  margin: 1rem;
+  cursor: pointer;
+}
+
+/*#endregion Account Select */
+
+
+/*#endregion Dropdown Menus (both) */
+
+
+
+/*#region exchange-rate */
+
+
+
+.exchange-amount-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
+  gap: 2.5vw;
+}
+
+.exchange-amount-container img {
+  width: auto; /* Adjust the image size */
+  height: 10vw; /* Maintain aspect ratio */
+}
+
+.exchange-amount-container h2 {
+  font-size: var(--font-s);
+  margin: -1vw; /* Remove default margins to control spacing better */
+  flex-wrap: wrap;
+  max-width: 12vw;
+}
+
+.exchange-symbols {
+  font-size: var(--font-xxl);
+  margin: 0;
+  max-width: 12vw;
+}
+
+.exchange-arrow {
+  height: 4rem;
+}
+
+/* Additional styling for arrows and plus signs */
+.ExchangeRatePic h1 {
+  padding: 0 0.5vw; /* Add horizontal padding */
+  min-width: 2vw; /* Ensure they don't become too narrow */
+  text-align: center; /* Center text */
+  border-radius: 5px; /* Optionally round corners */
+}
+
+/* Optional responsive adjustments */
+@media (max-width: 600px) {
+  .ExchangeRatePic {
+    flex-direction: row;
+    font-size: var(--font-m);
+  }
+  .exchange-amount-container {
+    flex-direction: column;
+  }
+  .exchange-amount-container img {
+    height: 15vw; /* Larger image size for smaller screens */
+  }
+  .exchange-symbols {
+    font-size: var(--font-l);
+    margin: 0;
+    max-width: 12vw;
+  }
+}
+
+
+/*#endregion exchange-rate */
+
+
+
+
+.nft-select-button {
+  box-sizing: border-box;
+  width: 100%;
+  font-size: var(--font-m);
+  background-color: var(--grey-2);
+  padding: 0.675rem 1rem;
+  border: 0.125rem solid var(--grey-5);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/*#region split nft container + related */
+
+.split-nft-input-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 80%;
+  max-width: var(--container-md);
+  padding: 1.5rem; /* Smaller padding than .buy-super-container for inner sections */
+  gap: 2rem; /* Space between rows */
+}
+
+
+/*Styling for individual line containers to align elements horizontally */
+.split-nft-input-first-line, .split-nft-input-second-line {
+  box-sizing: content-box;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Reusing the style for input fields similar to #buy-super-input */
+input#split-input {
+  max-width: 80%;
+  flex-grow: 1;
+  font-size: var(--font-m);
+  padding: 1rem;
+  border: 0.0125rem solid var(--grey-5);
+  border-radius: 0.5rem;
+  background-color: var(--grey-2);
+  outline: none;
+}
+
+/* Styling text elements to match your existing text styles */
+#nft-prefix, #nft-suffix, #split-input-prefix, #split-input-suffix {
+  color: #fff; /* White text for better readability */
+  font-size: var(--font-m);
+  font-weight: 500;
+}
+#nft-prefix, #split-input-prefix {
+  padding-right: 0.125rem;
+}
+
+#nft-suffix, #split-input-suffix {
+  padding-left: 0.5rem;
+
+}
+
+/* Error message styling */
+p.error {
+  color: var(--radix-pink); /* Using a design system variable for red */
+  font-size: var(--font-s);
+  margin-top: 0.5rem;
+}
+
+/* Enhancing the button styles to fit the larger input and dropdown */
+.buy-super-button {
+  cursor: pointer;
+  height: 3.125rem;
+  width: auto; /* Adapting width to content */
+  padding: 0 2rem; /* Horizontal padding for better appearance */
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: var(--font-s);
+  font-weight: 600;
+  color: #fff; /* White text on buttons */
+  background: linear-gradient(145deg, #333fff 2%, var(--radix-blue) 110%); /* Gradient background */
+}
+
+
+
+
+/*#endregion */

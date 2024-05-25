@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/xhtml-entities.dtd">
+<topic xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/topic.v2.xsd"
+       title="Tutorial" id="Tutorial">
+
+    <p>
+        Tutorials are learning-oriented articles that help users to go through a process and achieve a deliverable.
+        Start with an introduction: for whom is this tutorial and what the reader will achieve by reading it.
+        Answer the question: "Why should I follow this?"
+    </p>
+
+    <p>
+        Provide a short outline for the tutorial.
+        In this tutorial, you will learn how to:
+    </p>
+
+    <list>
+        <li>Do this</li>
+        <li>Deal with that</li>
+    </list>
+
+    <chapter title="Before you start" id="before-you-start">
+        <p>
+            List the prerequisites that are required or recommended.
+            Make sure that:
+        </p>
+
+        <list>
+            <li>Prerequisite one</li>
+            <li>Prerequisite two</li>
+        </list>
+    </chapter>
+
+    <chapter title="Part 1" id="part-one">
+        <p>
+            Describe what the user will learn and accomplish in the first part,
+            then write a step-by-step procedure but on a real-world example.
+        </p>
+
+        <procedure>
+            <step>
+                <p>Execute the following command in the terminal:</p>
+
+                <code-block lang="bash">
+                    run this --that
+                </code-block>
+            </step>
+
+            <step>
+                Step with a <a href="https://www.jetbrains.com">link</a>.
+            </step>
+
+            <step>
+                Final step in part 1.
+            </step>
+        </procedure>
+    </chapter>
+
+    <chapter title="Part 2" id="part-two">
+        <p>This is the second part of the tutorial:</p>
+
+        <procedure>
+            <step>
+                From the menu, select <ui-path>Foo | Bar</ui-path>.
+            </step>
+            <step>
+                Enter <code>this text</code> in the <control>Text</control> field.
+            </step>
+            <step>
+                Click <control>OK</control> to...
+            </step>
+        </procedure>
+    </chapter>
+
+    <chapter title="What you've learned" id="what-learned">
+        <p>Summarize what the reader achieved by completing this tutorial.</p>
+    </chapter>
+
+    <seealso>
+        <!--Give some related links to how-to articles-->
+    </seealso>
+</topic>
