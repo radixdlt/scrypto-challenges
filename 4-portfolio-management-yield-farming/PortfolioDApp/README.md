@@ -1,7 +1,5 @@
 ![](./images/logo-cubi4_scritta1.jpg)
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
 Portfolio dApp is a proof-of-concept protocol of a collaborative portfolio management solution built on the Radix ledger using v0.4.1 of Scrypto: the smart contract language of the Radix ledger.
 
 ## Table of Content
@@ -840,7 +838,7 @@ find *.rtm -exec sed -i 's/02e0905317d684478c275540e2ed7170f217e0c557805f7fd2a0d
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

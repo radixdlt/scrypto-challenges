@@ -1,5 +1,3 @@
-[![License](https://img.shields.io/badge/License-Apache_2.0-orange.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-
 
 ![](./img/neverland.jpg)
 [![Credit](https://img.shields.io/badge/Pic_Credit-Max_Bohme-red.svg)](https://unsplash.com/@max_thehuman)	
@@ -306,7 +304,7 @@ Fig.: Example of liquidation scheme involving a borrow/lending external protocol
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

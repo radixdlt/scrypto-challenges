@@ -1,7 +1,5 @@
 # RadHedge
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
 The RadHedge crate is a prototype / proof-of-concept of a decentralized asset management platform meant to be operating on the Radix-Dlt. It is built with Scrypto v0.4.1 on the Radix Engine V2.
 
 ## Motivation
@@ -83,7 +81,7 @@ Unfortunately my test don't run because I forgot to initialize prices for the or
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

@@ -2,8 +2,6 @@
 
 ![](./images/logo3b.jpg)
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
 LendingApp is a proof-of-concept protocol of an uncollateralized Lending Application built on the Radix ledger using v0.4.0 of Scrypto: the smart contract language of the Radix ledger.
 
 ## Table of Content
@@ -588,13 +586,9 @@ There is a lot that could be improved about the current implementation of Lendin
 * Write a white-paper with mathematical functions and a business plan with assumptions about the business model
 * Removing 'money' from all methods name 
 
-## License 
-
-This work is licensed under Apache 2.0 and the license file is provided [here](./LICENSE).
-
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

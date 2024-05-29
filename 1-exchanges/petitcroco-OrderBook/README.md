@@ -1,7 +1,6 @@
 # Scrypto DEX Challenge
 ## _By petitcroco for the 'xrd ducks mafia'_
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![N|Scrypto](assets/dTxpPi9lDf.svg)](https://www.radixdlt.com/post/scrypto-v0-3-released)
 
 <img src="assets/duckmlogo.png" width="200">
@@ -97,10 +96,6 @@ https://github.com/RadGuild/revup
 revup -r tests/revup.rev > tests/RESULT.txt
 ```
 
-# License
-
-*Licensed under the Apache 2.0 open-source*
-
 # Special thanks
 
 For answering a question :
@@ -116,7 +111,7 @@ For answering a question :
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

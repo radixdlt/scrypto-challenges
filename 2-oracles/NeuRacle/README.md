@@ -1,8 +1,5 @@
 # NeuRacle: Decentralized, Trustless Oracle solution
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
 NeuRacle is a Decentralized, Trustless Oracle built on Radix Ledger that provide decentralized, trustless data validation service to bring-in off-chain data.
 
 ![](./src/logo.svg)
@@ -203,9 +200,7 @@ Although such a bad thing might happen on NeuRacle, it wouldn't be a critical pr
 
 - **Private data feeding**: Currently, all data verified on NeuRacle prototype is stored on NeuRacle component state and is available for any off-chain reading. In the future, NeuRacle will include an Encrypt - Decrypt tool for this specific usecase.
 
-## License & P/s
-
-This work is licensed under MIT and Apache 2.0.
+## P/s
 
 *To complete this work, I has learned a lot from works of many other Radix community members. My best gratitude for [Clement](https://github.com/cbisaillon), [0xOmar](https://github.com/0xOmarA), [Devmannic](https://github.com/devmannic) and [Chris](https://github.com/plymth)*
 
@@ -214,7 +209,7 @@ This work is licensed under MIT and Apache 2.0.
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

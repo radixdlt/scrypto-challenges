@@ -1,7 +1,5 @@
 # DeXianOracle
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
 ## Basic Request Model
 
 ![Basic Request Model](res/basic_req_model.png)
@@ -77,7 +75,7 @@ resim run transactions/user_account2_request.rtm
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

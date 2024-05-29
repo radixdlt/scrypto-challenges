@@ -63,7 +63,7 @@ Notably, many institutions may prefer to keep the details of their accounts and 
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

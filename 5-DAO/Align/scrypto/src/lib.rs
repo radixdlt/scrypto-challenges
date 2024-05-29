@@ -175,9 +175,6 @@ Also contain 2 extra non-callable transation manifests to test malicious user pa
 
 Detail about transaction manifest sub-groups on each blueprint module documentation.
 
-# License
-This project is licensed under [Apache 2.0](https://github.com/radixdlt/scrypto-challenges/blob/main/LICENSE).
-
 The author can be contacted on discord by name: `Peter Kim#9374`
 */
 

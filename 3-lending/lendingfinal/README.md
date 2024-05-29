@@ -1,7 +1,5 @@
 # MescaLend
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
 MescaLend is a proof-of-concept AMM-inspired lending protocol built on the Radix ledger using v0.4.1 of Scrypto: the smart contract language of the Radix ledger. 
 
 It is based off of Timeswap, a recently developed lending protocol on Polygon that uses a novel constant product automated market maker function to enable market driven, oracleless, and permissionless fixed interest rate lending for any digital asset. 
@@ -76,9 +74,6 @@ As MescaLend is a proof-of-concept and not a complete implementation of the Time
  * Implementing a minimum interest rate for lenders and borrowers. 
  * Implementing a method that burns collateralised debt NFTs when debt is fully repaid. 
 
-## License
-This work is licensed under Apache 2.0
-
 ## Acknowledgements
 
 As I recently started learning Scrypto and just discovered Timeswap, I have had many questions and challenges as I developed MescaLend. Several Radix and Timeswap community members have helped answer those questions. Thus I stand on the shoulder of giants. 
@@ -94,7 +89,7 @@ I give thanks to:
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

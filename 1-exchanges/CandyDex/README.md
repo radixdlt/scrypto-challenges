@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/License-Apache_2.0-orange.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
+
 
 ![](./img/CandyDex.jpg)	
 [![Credit](https://img.shields.io/badge/Pic_Credit-Akshat_Soni-lightblue.svg)](https://www.pexels.com/@akshat-soni-1170605)
@@ -262,7 +262,7 @@ Protocol's code is untested aside simulator environment.
 	
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

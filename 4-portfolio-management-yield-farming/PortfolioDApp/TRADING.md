@@ -1,7 +1,5 @@
 ![](./images/trading.jpg)
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
 Trading dApp is a proof-of-concept protocol of a 'simulated' trading application operating on crypto tokens pair. It has been  built on the Radix ledger using v0.4.1 of Scrypto: the smart contract language of the Radix ledger.   
   
 # Abstract 
@@ -26,3 +24,31 @@ Execute 'scrypto test'
 # TODO 
 
 Implement a LazyMap containing ResourceAddress and Vaults instead of fixed crypto token pairs
+
+## License
+
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
+
+    Copyright 2024 Radix Publishing Ltd
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal in
+    the Software for non-production informational and educational purposes without
+    restriction, including without limitation the rights to use, copy, modify,
+    merge, publish, distribute, sublicense, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    This notice shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE HAS BEEN CREATED AND IS PROVIDED FOR NON-PRODUCTION, INFORMATIONAL
+    AND EDUCATIONAL PURPOSES ONLY.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+    FOR A PARTICULAR PURPOSE, ERROR-FREE PERFORMANCE AND NONINFRINGEMENT. IN NO
+    EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES,
+    COSTS OR OTHER LIABILITY OF ANY NATURE WHATSOEVER, WHETHER IN AN ACTION OF
+    CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE, MISUSE OR OTHER DEALINGS IN THE SOFTWARE. THE AUTHORS SHALL
+    OWE NO DUTY OF CARE OR FIDUCIARY DUTIES TO USERS OF THE SOFTWARE.

@@ -57,7 +57,7 @@ The backend directory includes the code needed to decode the gateway API.
 
  ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 

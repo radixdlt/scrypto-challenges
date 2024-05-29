@@ -15,7 +15,7 @@ All the buyers gets to buy shares at a price lower than they value them, and all
 
 ## License
 
-The Radix Official Examples code is released under Radix Modified MIT License.
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
     Copyright 2024 Radix Publishing Ltd
 
