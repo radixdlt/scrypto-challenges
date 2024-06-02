@@ -1,9 +1,9 @@
 
 CALL_FUNCTION
-    Address("package_tdx_2_1p47epnzajs88ecuxpt2l9xdqjh0wc3j7dp52dcpcfnte3mxyhxv8mr")
+    Address("package_tdx_2_1pkkx9fcefqqletedgtut9w9ysm59g8eyk7f3kq3gj3crrvlk7klwpp")
     "YieldTokenizer"
     "instantiate"
-    Address("resource_tdx_2_1thydcf5zxpp20us8jka3p02ryzudndm82603j306zry8gr23p2s3mu") # LSU
+    Address("resource_tdx_2_1th9k30slgu9uekfu42llstgcq80dx8d59hxgexe5hdaqzyp8etc2dv") # LSU
     5u32
     Decimal("0.03") 
     Enum<0u8>()

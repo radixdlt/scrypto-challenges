@@ -249,7 +249,7 @@
 								size="xs"
 								compact
 								color="violet"
-								href="https://stokenet-dashboard.radixdlt.com/network-staking/validator_tdx_2_1s0j35ansmur5q8kxem4edr23j2leutupveqc9g8kuuj29wc7uvmd8z/unstake"
+								href="https://stokenet-dashboard.radixdlt.com/network-staking/{VALIDATOR}/stake"
 								target="_blank">Get LSU by staking your XRD</Button
 							>
 						{/if}
