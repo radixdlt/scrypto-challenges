@@ -1,32 +1,28 @@
-use radix_engine_interface::prelude::*;
-use scrypto::this_package;
-use scrypto_test::prelude::*;
-use scrypto_unit::*;
-use transaction::manifest::decompiler::ManifestObjectNames;
+use scrypto_test::{prelude::*, utils::dump_manifest_to_file_system};
 
 // INSTANTIATE
 #[test]
 fn instantiate() {
-   TestEnvironment::instantiate();
+   LocalTestEnvironment::instantiate();
 }
 
 // TOKENIZE
 #[test]
 fn tokenize_yield() {
-   let mut test_environment = TestEnvironment::instantiate();
+   let mut test_environment = LocalTestEnvironment::instantiate();
    test_environment.tokenize_yield().expect_commit_success();
 }
 
 #[test]
 fn tokenize_yield_with_xrd() {
-   let mut test_environment = TestEnvironment::instantiate();
+   let mut test_environment = LocalTestEnvironment::instantiate();
    test_environment.tokenize_yield_with_xrd().expect_commit_success();
 }
 
 // CLAIM
 #[test]
 fn claim_yield_for_sxrd_no_reward() {
-   let mut test_environment = TestEnvironment::instantiate();
+   let mut test_environment = LocalTestEnvironment::instantiate();
 
    test_environment.tokenize_yield().expect_commit_success();
 
@@ -39,7 +35,7 @@ fn claim_yield_for_sxrd_no_reward() {
 
 #[test]
 fn claim_yield_for_lsu_no_reward() {
-   let mut test_environment = TestEnvironment::instantiate();
+   let mut test_environment = LocalTestEnvironment::instantiate();
 
    test_environment.tokenize_yield().expect_commit_success();
 
@@ -53,13 +49,13 @@ fn claim_yield_for_lsu_no_reward() {
 // MINT
 #[test]
 fn mint_sxrd() {
-   let mut test_environment = TestEnvironment::instantiate();
+   let mut test_environment = LocalTestEnvironment::instantiate();
    test_environment.mint_sxrd().expect_commit_success();
 }
 
 #[test]
 fn redeem_sxrd() {
-   let mut test_environment = TestEnvironment::instantiate();
+   let mut test_environment = LocalTestEnvironment::instantiate();
 
    test_environment.tokenize_yield().expect_commit_success();
 
@@ -71,8 +67,8 @@ pub struct Account {
    account_component: ComponentAddress,
 }
 
-pub struct TestEnvironment {
-   test_runner: DefaultTestRunner,
+pub struct LocalTestEnvironment {
+   test_runner: LedgerSimulator<NoExtension, InMemorySubstateDatabase>,
    account: Account,
    tokenizer_component: ComponentAddress,
    lsu_resource_address: ResourceAddress,
@@ -80,7 +76,7 @@ pub struct TestEnvironment {
    yt_resource: ResourceAddress,
 }
 
-impl TestEnvironment {
+impl LocalTestEnvironment {
    pub fn instantiate() -> Self {
       let genesis_epoch = Epoch::of(2);
       let epoch_emissions_xrd = dec!("100");
@@ -120,9 +116,9 @@ impl TestEnvironment {
          faucet_supply: *DEFAULT_TESTING_FAUCET_SUPPLY,
       };
       // Setup the environment
-      let mut test_runner = TestRunnerBuilder::new()
+      let mut test_runner = LedgerSimulatorBuilder::new()
          .with_custom_genesis(custom_genesis)
-         .without_trace()
+         .without_kernel_trace()
          .build();
 
       // Create an account
@@ -139,6 +135,7 @@ impl TestEnvironment {
          .stake_unit_resource;
 
       let manifest = ManifestBuilder::new()
+         .lock_fee_from_faucet()
          .withdraw_from_account(account_component, XRD, dec!(1000))
          .take_all_from_worktop(XRD, "xrd")
          .call_method_with_name_lookup(validator_address, "stake", |lookup| (lookup.bucket("xrd"),))
@@ -146,13 +143,14 @@ impl TestEnvironment {
          .build();
 
       test_runner
-         .execute_manifest_ignoring_fee(manifest, vec![NonFungibleGlobalId::from_public_key(&public_key)])
+         .execute_manifest(manifest, vec![NonFungibleGlobalId::from_public_key(&public_key)])
          .expect_commit_success();
 
       // Publish package
       let package_address = test_runner.compile_and_publish(this_package!());
 
       let manifest = ManifestBuilder::new()
+         .lock_fee_from_faucet()
          .call_function(
             package_address,
             "YieldTokenizer",
@@ -161,8 +159,7 @@ impl TestEnvironment {
          )
          .build();
 
-      let receipt =
-         test_runner.execute_manifest_ignoring_fee(manifest, vec![NonFungibleGlobalId::from_public_key(&public_key)]);
+      let receipt = test_runner.execute_manifest(manifest, vec![NonFungibleGlobalId::from_public_key(&public_key)]);
 
       let tokenizer_component = receipt.expect_commit(true).new_component_addresses()[0];
       let sxrd_resource = receipt.expect_commit(true).new_resource_addresses()[0];
@@ -184,12 +181,10 @@ impl TestEnvironment {
       receipt.expect_commit_success();
    }
 
-   pub fn execute_manifest(
-      &mut self,
-      object_manifest: ManifestObjectNames,
-      built_manifest: TransactionManifestV1,
-      name: &str,
-   ) -> TransactionReceiptV1 {
+   pub fn execute_manifest(&mut self, manifest: ManifestBuilder, name: &str) -> TransactionReceiptV1 {
+      let object_manifest = manifest.object_names();
+      let built_manifest = manifest.build();
+
       dump_manifest_to_file_system(
          object_manifest,
          &built_manifest,
@@ -199,7 +194,7 @@ impl TestEnvironment {
       )
       .ok();
 
-      let receipt = self.test_runner.execute_manifest_ignoring_fee(
+      let receipt = self.test_runner.execute_manifest(
          built_manifest,
          vec![NonFungibleGlobalId::from_public_key(&self.account.public_key)],
       );
@@ -209,6 +204,7 @@ impl TestEnvironment {
 
    pub fn tokenize_yield(&mut self) -> TransactionReceiptV1 {
       let manifest = ManifestBuilder::new()
+         .lock_fee_from_faucet()
          .withdraw_from_account(self.account.account_component, self.lsu_resource_address, dec!(1000))
          .take_all_from_worktop(self.lsu_resource_address, "LSU Bucket")
          .call_method_with_name_lookup(self.tokenizer_component, "tokenize_yield", |lookup| {
@@ -216,11 +212,12 @@ impl TestEnvironment {
          })
          .deposit_batch(self.account.account_component);
 
-      self.execute_manifest(manifest.object_names(), manifest.build(), "tokenize_yield")
+      self.execute_manifest(manifest, "tokenize_yield")
    }
 
    pub fn tokenize_yield_with_xrd(&mut self) -> TransactionReceiptV1 {
       let manifest = ManifestBuilder::new()
+         .lock_fee_from_faucet()
          .withdraw_from_account(self.account.account_component, XRD, dec!(500))
          .take_all_from_worktop(XRD, "xrd")
          .call_method_with_name_lookup(self.tokenizer_component, "tokenize_yield", |lookup| {
@@ -228,11 +225,12 @@ impl TestEnvironment {
          })
          .deposit_batch(self.account.account_component);
 
-      self.execute_manifest(manifest.object_names(), manifest.build(), "tokenize_yield")
+      self.execute_manifest(manifest, "tokenize_yield")
    }
 
    pub fn claim_yield_for_sxrd(&mut self) -> TransactionReceiptV1 {
       let manifest = ManifestBuilder::new()
+         .lock_fee_from_faucet()
          .withdraw_from_account(self.account.account_component, self.yt_resource, dec!(1))
          .take_all_from_worktop(self.yt_resource, "YT Bucket")
          .call_method_with_name_lookup(self.tokenizer_component, "claim_yield_for_sxrd", |lookup| {
@@ -240,11 +238,12 @@ impl TestEnvironment {
          })
          .deposit_batch(self.account.account_component);
 
-      self.execute_manifest(manifest.object_names(), manifest.build(), "claim_yield_for_sxrd")
+      self.execute_manifest(manifest, "claim_yield_for_sxrd")
    }
 
    pub fn claim_yield_for_lsu(&mut self) -> TransactionReceiptV1 {
       let manifest = ManifestBuilder::new()
+         .lock_fee_from_faucet()
          .withdraw_from_account(self.account.account_component, self.yt_resource, dec!(1))
          .take_all_from_worktop(self.yt_resource, "YT Bucket")
          .call_method_with_name_lookup(self.tokenizer_component, "claim_yield_for_lsu", |lookup| {
@@ -252,21 +251,23 @@ impl TestEnvironment {
          })
          .deposit_batch(self.account.account_component);
 
-      self.execute_manifest(manifest.object_names(), manifest.build(), "claim_yield_for_lsu")
+      self.execute_manifest(manifest, "claim_yield_for_lsu")
    }
 
    pub fn mint_sxrd(&mut self) -> TransactionReceiptV1 {
       let manifest = ManifestBuilder::new()
+         .lock_fee_from_faucet()
          .withdraw_from_account(self.account.account_component, XRD, dec!(500))
          .take_all_from_worktop(XRD, "xrd")
          .call_method_with_name_lookup(self.tokenizer_component, "mint_sxrd", |lookup| (lookup.bucket("xrd"),))
          .deposit_batch(self.account.account_component);
 
-      self.execute_manifest(manifest.object_names(), manifest.build(), "mint_sxrd")
+      self.execute_manifest(manifest, "mint_sxrd")
    }
 
    pub fn redeem_sxrd(&mut self, only_xrd: bool) -> TransactionReceiptV1 {
       let manifest = ManifestBuilder::new()
+         .lock_fee_from_faucet()
          .withdraw_from_account(self.account.account_component, self.sxrd_resource, dec!(1000))
          .take_all_from_worktop(self.sxrd_resource, "sXRD Bucket")
          .call_method_with_name_lookup(self.tokenizer_component, "redeem_sxrd", |lookup| {
@@ -274,11 +275,12 @@ impl TestEnvironment {
          })
          .deposit_batch(self.account.account_component);
 
-      self.execute_manifest(manifest.object_names(), manifest.build(), "redeem_sxrd")
+      self.execute_manifest(manifest, "redeem_sxrd")
    }
 
    pub fn claim_yield_with_id(&mut self, local_id: NonFungibleLocalId) -> TransactionReceiptV1 {
       let manifest = ManifestBuilder::new()
+         .lock_fee_from_faucet()
          .create_proof_from_account_of_non_fungibles(self.account.account_component, self.yt_resource, [local_id])
          .pop_from_auth_zone("YT Proof")
          .call_method_with_name_lookup(self.tokenizer_component, "claim_yield", |lookup| {
@@ -286,6 +288,6 @@ impl TestEnvironment {
          })
          .deposit_batch(self.account.account_component);
 
-      self.execute_manifest(manifest.object_names(), manifest.build(), "claim_yield")
+      self.execute_manifest(manifest, "claim_yield")
    }
 }

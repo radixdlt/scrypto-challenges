@@ -1,4 +1,9 @@
 CALL_METHOD
+    Address("component_tdx_2_1cptxxxxxxxxxfaucetxxxxxxxxx000527798379xxxxxxxxxyulkzl")
+    "lock_fee"
+    Decimal("5000")
+;
+CALL_METHOD
     Address("account_tdx_2_1c8m6h4yv2x9ca0wx5ddtl0nctqmjt2t740wfjgj9w8sdz82zyrnjm9")
     "withdraw"
     Address("resource_tdx_2_1nfw7wxq90z8pwldy72r9rtm34fc6mf6a6gh6m3e4zgs7te23nt37um")

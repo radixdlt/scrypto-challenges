@@ -1,11 +1,10 @@
-use radix_engine_interface::prelude::*;
-use scrypto::*;
+use scrypto::blueprints::resource::FungibleBucket;
 use scrypto_test::prelude::*;
-use yield_tokenizer::staking_pool::test_bindings::StakingPool;
+use yield_tokenizer::staking_pool::staking_pool_test::StakingPool;
 
 pub fn arrange() -> Result<
    (
-      TestEnvironment,
+      TestEnvironment<InMemorySubstateDatabase>,
       StakingPool,
       Vec<IntegerNonFungibleLocalId>,
       Bucket,
@@ -13,11 +12,11 @@ pub fn arrange() -> Result<
    ),
    RuntimeError,
 > {
-   let mut env = TestEnvironment::new();
+   let mut env: TestEnvironment<InMemorySubstateDatabase> = TestEnvironment::new();
 
    env.enable_transaction_runtime_module();
 
-   let package_address = Package::compile_and_publish(this_package!(), &mut env)?;
+   let package_address = PackageFactory::compile_and_publish(this_package!(), &mut env, CompileProfile::Fast)?;
 
    let lsu_bucket = ResourceBuilder::new_fungible(OwnerRole::None)
       .divisibility(18)
