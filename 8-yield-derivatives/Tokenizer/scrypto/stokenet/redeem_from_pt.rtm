@@ -1,0 +1,35 @@
+CALL_METHOD
+    Address("${account}")
+    "withdraw"
+    Address("${pt}")
+    Decimal("${amount}")
+;
+TAKE_FROM_WORKTOP
+    Address("${pt}")
+    Decimal("${amount}")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("${account}")
+    "withdraw"
+    Address("${userdata_nft_manager}")
+    Decimal("1")
+;
+TAKE_FROM_WORKTOP
+    Address("${userdata_nft_manager}")
+    Decimal("1")
+    Bucket("bucket2")
+;
+CALL_METHOD
+    Address("${component}")
+    "redeem_from_pt"
+    Bucket("bucket1")
+    Bucket("bucket2")
+    Address("${resource_address}")
+;
+CALL_METHOD
+    Address("${account}")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;

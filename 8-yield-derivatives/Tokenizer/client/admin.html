@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/style.css">
+  <title>dApp Admin</title>
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <script type="module" src="js/admin.js"></script>
+
+  <div class="big-container header">
+    <div class="header-wrapper" >
+      <center>
+        <h1> Tokenizer Admin</h1>
+        <div class="connectBtn">
+          <radix-connect-button />
+        </div>
+      </center>
+    </div>
+  </div>
+
+  <input type="hidden" placeholder="Account address" id="accountAddress">
+  
+  <section>
+    <div class="content-wrapper">    
+      <h1>DApp Tuning</h1>
+      Set the reward level for account providing liquidity (Admin or Owner badge needed)
+      <br>
+      <div class="number">
+        <input type="text" placeholder="Reward" id="reward">
+      </div>
+
+      <p><button id="setReward">Set reward level</button></p>
+
+      <br><br>
+      Config the Tokenizer ! (Staff or Admin or Owner  needed)
+      <br>  
+      <div class="number">
+        <input type="text"  size="80" placeholder="Reward level for account providing liquidity (default=8)" id="reward2"><br>
+        <input type="text"  size="80" placeholder="Extra Reward level for account tokenizing provided liquidity (default=5)" id="interest2"><br>
+        <input type="text"  size="80" placeholder="Maximum tokenize length expressed in epochs (default=518000)" id="tokenized_epoch_max_lenght"><br>
+        <input type="text"  size="80" placeholder="Minimu number of tokens that can be supplied (default=1)" id="min_loan_limit"><br>
+        <input type="text"  size="80" placeholder="Maximum number of tokens that can be supplied (default=100000)" id="max_loan_limit"><br>
+      </div>
+      <p><button id="config">Config</button></p>
+
+      <br><br>
+      Increases the maximum total liquidity accepted by the specified number of token (Admin or Owner  needed)
+      <br>      
+      <div class="number">
+        <input type="text" placeholder="Extend the Lending Pool size" id="extendLendingPoolAmount">
+      </div>
+      <p><button id="extendLendingPool">Extend the Lending Pool size</button></p>
+
+    </div>
+
+    <div class="content-wrapper">   
+      <h1>Admin Function </h1>
+
+      Fund the main pool (Admin or Owner badge needed)
+      <br>
+      <div class="number">
+        <input type="text" placeholder="Number of Token" id="numberOfFundedTokens">
+      </div>      
+      <p><button id="fundMainPool">Fund</button></p> 
+
+      <br><br>
+      Add a new token resource address  (Admin or Owner badge needed)
+      <br>
+      <div class="number">
+        <input type="text" placeholder="Token Resource Address" id="tokenAddress">
+      </div>      
+      <p><button id="addToken">Add new token</button></p>     
+      
+      
+      <br><br>
+      Mint a Staff Badge (Admin or Owner badge needed)
+      <br>
+      <div class="number">
+        <input type="text" placeholder="staffUsername" id="staffUsername">
+      </div>
+      <p><button id="mintStaffBadge">Mint Staff Badge</button></p>
+
+    </div>
+
+  </section>
+  
+
+</body>
+</html>

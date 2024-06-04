@@ -1,0 +1,16 @@
+CALL_METHOD
+    Address("${owner_account}")
+    "create_proof_of_amount"    
+    Address("${admin_badge}")
+    Decimal("1");
+CALL_METHOD
+    Address("${component}")
+    "extend_lending_pool"
+    Decimal("${amount}")
+;
+CALL_METHOD
+    Address("${owner_account}")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;

@@ -1,0 +1,75 @@
+CALL_METHOD
+    Address("${account}")
+    "withdraw"
+    Address("${tokenizer_token}")
+    Decimal("${amount}")
+;
+TAKE_FROM_WORKTOP
+    Address("${tokenizer_token}")
+    Decimal("${amount}")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("${account}")
+    "withdraw"
+    Address("${userdata_nft_manager}")
+    Decimal("1")
+;
+TAKE_FROM_WORKTOP
+    Address("${userdata_nft_manager}")
+    Decimal("1")
+    Bucket("bucket2")
+;
+CALL_METHOD
+    Address("${component}")
+    "takes_back"
+    Bucket("bucket1")
+    Bucket("bucket2")
+    Address("${resource_address}")
+;
+CALL_METHOD
+    Address("${account}")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+
+
+
+
+
+CALL_METHOD
+    Address("${account}")
+    "withdraw"
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Decimal("1000")
+;
+TAKE_FROM_WORKTOP
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Decimal("1000")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("${account}")
+    "withdraw"
+    Address("resource_tdx_2_1ngdmnv3jk6qlcl3scc4ufr2723vynr2zxr9c9zu3mu09t20sq674kk")
+    Decimal("1")
+;
+TAKE_FROM_WORKTOP
+    Address("resource_tdx_2_1ngdmnv3jk6qlcl3scc4ufr2723vynr2zxr9c9zu3mu09t20sq674kk")
+    Decimal("1")
+    Bucket("bucket2")
+;
+CALL_METHOD
+    Address("component_tdx_2_1czdgxj72a3ezsfu9fva2x0dtly9l6ltdfz98tcsgle9msjdyztaef0")
+    "supply"
+    Bucket("bucket1")
+    Bucket("bucket2")
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+;
+CALL_METHOD
+    Address("${account}")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;

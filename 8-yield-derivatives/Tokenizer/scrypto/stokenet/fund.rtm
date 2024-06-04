@@ -1,0 +1,27 @@
+CALL_METHOD
+    Address("${owner_account}")
+    "create_proof_of_amount"    
+    Address("${admin_badge}")
+    Decimal("1");
+CALL_METHOD
+    Address("${owner_account}")
+    "withdraw"
+    Address("${xrd}")
+    Decimal("1000")
+;
+TAKE_FROM_WORKTOP
+    Address("${xrd}")
+    Decimal("1000")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("${component}")
+    "fund_main_pool"
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("${owner_account}")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;

@@ -1,0 +1,22 @@
+CALL_METHOD
+    Address("${account}")
+    "withdraw"
+    Address("${userdata_nft_manager}")
+    Decimal("1")
+;
+TAKE_FROM_WORKTOP
+    Address("${userdata_nft_manager}")
+    Decimal("1")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("${component}")
+    "unregister"
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("${account}")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;

@@ -1,0 +1,21 @@
+CALL_METHOD
+    Address("${component_test}")
+    "lock_fee"
+    Decimal("5000")
+;
+CALL_FUNCTION
+    Address("${package}")
+    "Tokenizer"
+    "instantiate"
+    Decimal("5")
+    "TKN"
+    "timebased"
+    Address(${xrd})
+    Address(${demo1})
+;
+CALL_METHOD
+    Address("${account}")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
