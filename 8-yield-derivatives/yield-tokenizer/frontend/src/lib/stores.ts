@@ -1,3 +1,20 @@
+/*
+
+dApp Stores.
+
+This module define the stores used by the dApp. we have 3 stores:
+- dapp_state (persisted in local storage)
+This sore is used to store the last account address selected by the user.
+
+- account_store (persisted in local storage)
+this store is used fetch data of the selected account address. Stored data are balance of resource such us XRD, sXRD, and Yield Tokens
+
+- tokenizer_store
+This store is used to fetch data of the Yield Tokenizer component.
+
+*/
+
+
 import { UserAccount } from "$lib/models/account";
 import { persisted } from 'svelte-local-storage-store';
 import { get, writable } from "svelte/store";

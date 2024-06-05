@@ -1,4 +1,8 @@
 
+/*
+Yield Token Stokenet Addresses
+*/
+
 
 export const XRD = 'resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc'
 export const VALIDATOR = 'validator_tdx_2_1s0l6946a2kx33vjmuuh3qrax3ueauznd2fc3d69md2exx29rcnjmnj'

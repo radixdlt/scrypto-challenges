@@ -1,3 +1,12 @@
+/*
+
+Yield Token Component model
+
+This model is used to store data of the Yield Token component fetched using the gateway api
+
+*/
+
+
 import { CLAIM_NFT } from "$lib/addresses";
 import Decimal from "decimal.js";
 import { BaseModel } from "./base";

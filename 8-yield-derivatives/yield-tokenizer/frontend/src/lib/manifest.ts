@@ -1,4 +1,14 @@
+/* 
+Mini transaction manifest builder
+
+This module define a transaction manifest builder for the Yield Tokenizer component.
+We also added some utility functions to make it easier to build the manifest.
+
+*/
+
+
 import type Decimal from "decimal.js"
+
 
 export function callMethod(component: string, method: string, args: string[]) {
     return ` 

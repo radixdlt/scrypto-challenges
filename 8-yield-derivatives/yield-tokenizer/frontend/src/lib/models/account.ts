@@ -1,3 +1,9 @@
+/*
+Account model
+
+*/
+
+
 import { YT } from "$lib/addresses";
 import Decimal from "decimal.js";
 import { BaseModel } from "./base";
