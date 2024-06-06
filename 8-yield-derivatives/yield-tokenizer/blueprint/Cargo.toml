@@ -1,0 +1,31 @@
+[package]
+edition = "2021"
+name = "yield-tokenizer"
+resolver = "2"
+version = "1.0.0"
+
+[dependencies]
+scrypto = {version = "1.2.0"}
+
+[dev-dependencies]
+scrypto-test = {version = "1.2.0"}
+yield-tokenizer = {path = ".", features = ["test"]}
+
+[profile.release]
+codegen-units = 1 # Reduce number of codegen units to increase optimizations.
+lto = true # Enable Link Time Optimization.
+opt-level = 'z' # Optimize for size.
+overflow-checks = true # Panic in the case of an overflow.
+panic = 'abort' # Abort on panic.
+strip = true # Strip the symbols.
+
+[features]
+default = []
+test = []
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[workspace]
+# Set the package crate as its own empty workspace, to hide it from any potential ancestor workspace
+# Remove this [workspace] section if you intend the package to be part of a Cargo workspace
