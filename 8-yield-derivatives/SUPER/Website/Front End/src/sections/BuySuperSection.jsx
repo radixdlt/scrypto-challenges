@@ -17,9 +17,6 @@ const BuySuperSection = () => {
     setEnableButtons(accounts.length > 0);
   }, [accounts]);
 
-
-
-
   useEffect(() => {
     if (accounts.length > 0) {
       setEnableButtons(true);

@@ -2,13 +2,22 @@ import React, {useEffect, useState} from "react";
 import PropTypes from "prop-types";
 import SplitNftButton from "../components/SplitNftButton.jsx";
 
-
-const ManageNFTSection = ({ selectedAccount, selectedNFT, YieldNftRaddy, enableInput }) => {
+const SplitNftSectionV2 = ({ selectedAccount, selectedNft, YieldNftRaddy, enableInput }) => {
 
     const [numSplits, setNumSplits] = useState(0);
     const [error, setError] = useState('');
     const [enableButton, setEnableButton] = useState(false);
     const [input, setInput] = useState(""); // Changed to use state
+    const [nftLabel, setNftLabel] = useState("")
+
+    useEffect(() => {
+        if (selectedNft) {
+            setNftLabel(selectedNft.label)
+        }
+        else {
+            setNftLabel("")
+        }
+    }, [selectedNft]);
 
     const isNumeric = num => !isNaN(num);
     const isInteger = num => Number.isInteger(num);
@@ -31,6 +40,7 @@ const ManageNFTSection = ({ selectedAccount, selectedNFT, YieldNftRaddy, enableI
     return (
         <>
 
+
             <div className="buy-super-container">
 
                 <div className="go-buy-super">
@@ -41,7 +51,8 @@ const ManageNFTSection = ({ selectedAccount, selectedNFT, YieldNftRaddy, enableI
 
                     <div className="split-nft-input-first-line">
 
-                        <p id="nft-prefix">Split</p>
+
+                        <p id="nft-prefix">Split NFT {nftLabel}</p>
 
 
                     </div>
@@ -59,7 +70,7 @@ const ManageNFTSection = ({ selectedAccount, selectedNFT, YieldNftRaddy, enableI
                             style={{marginBottom: '0.625rem'}}
                         />
                         <p id='split-input-suffix'>
-                            NFTs
+                            equivalent NFTs
                         </p>
 
                     </div>
@@ -72,22 +83,21 @@ const ManageNFTSection = ({ selectedAccount, selectedNFT, YieldNftRaddy, enableI
                     selectedAccount={selectedAccount}
                     enableButton = {enableButton}
                     YieldNftRaddy={YieldNftRaddy}
-                    selectedNft={selectedNFT}
+                    selectedNft={selectedNft}
                     numSplits={numSplits.toString()}
                 />
-
             </div>
         </>
     );
 };
 
-ManageNFTSection.propTypes = {
+SplitNftSectionV2.propTypes = {
     selectedAccount: PropTypes.string,
-    selectedNFT: PropTypes.object,
+    selectedNft: PropTypes.object,
     YieldNftRaddy: PropTypes.string,
     enableInput: PropTypes.bool
 };
 
-const MemoizedManageNFTSection = React.memo(ManageNFTSection);
+const MemoizedSplitNftSection = React.memo(SplitNftSectionV2);
 
-export default MemoizedManageNFTSection;
+export default MemoizedSplitNftSection;

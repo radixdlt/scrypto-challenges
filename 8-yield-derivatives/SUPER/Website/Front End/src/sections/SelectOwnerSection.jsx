@@ -18,7 +18,7 @@ const SelectOwnerSection = (props) => {
                     <AccountDropdown
                         selectedAccount={selectedAccount}
                         setSelectedAccount={setSelectedAccount}
-                        enableButtons={enableButtons}
+                        enableDropdown={enableButtons}
                     />
                 </div>
             </div>

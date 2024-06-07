@@ -8,7 +8,6 @@ const SelectNftSection = ({ selectedAccount, setSelectedAccount, enableButtons, 
             <div className="choose-owner-container">
 
                 <div className="choose-owner-heading-section">
-                    <h2>Select Account and NFT</h2>
                     <p className="head-text">Select the account and the SUPER Yield NFT you want to manage.</p>
                 </div>
 
@@ -31,6 +30,10 @@ const SelectNftSection = ({ selectedAccount, setSelectedAccount, enableButtons, 
                         setEnableInput={setEnableInput}
                     />
 
+                </div>
+
+                <div className="manage-button-container">
+                    
                 </div>
 
             </div>

@@ -3,10 +3,11 @@
         SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
 
 <instance-profile id="in"
-                 name="Instance Name"
-                 start-page="starter.md">
+                 name="Initial Yield Offering"
+                 start-page="FLOWW.md">
 
-    <toc-element topic="starter.md"/>
-    <toc-element topic="Section-Starting-Page.topic"/>
-    <toc-element topic="Tutorial.topic"/>
+    <toc-element topic="FLOWW.md"/>
+    <toc-element topic="Understand_IYO.md"/>
+    <toc-element topic="YieldCurveCalculations.md"/>
+    <toc-element topic="Scrypto-Package-Functions.md"/>
 </instance-profile>

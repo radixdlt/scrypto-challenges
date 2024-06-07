@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { useRdt } from "./useRdt";
-import { useGatewayApi } from "./useGatewayApi";
+import { useRdt } from "./useRdt.js";
+import { useGatewayApi } from "./useGatewayApi.js";
 
 export const useSendTransaction = () => {
   const rdt = useRdt();

@@ -6,7 +6,19 @@
     <build-profile instance="in">
         <variables>
             <noindex-content>true</noindex-content>
+            <color-preset>vivid</color-preset>
+            <primary-color>emerald</primary-color>
+            <custom-favicons>super.png</custom-favicons>
+            <header-logo>super.png</header-logo>
+            <product-web-url>https://help.example.com</product-web-url>
+            <download-title>Get Awesome App</download-title>
+            <download-page>https://example.com</download-page>
+            <showDownloadButton>true</showDownloadButton>
+            <offline-docs>true</offline-docs>
         </variables>
+        <footer>
+            <copyright>Yo</copyright>
+        </footer>
     </build-profile>
 
 </buildprofiles>

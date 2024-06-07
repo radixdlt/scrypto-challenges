@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { RdtContext } from "../contexts.jsx";
+import { RdtContext } from "../rdtContext.jsx";
 
 export const RdtProvider = ({ value, children }) => (
   <RdtContext.Provider value={value}>{children}</RdtContext.Provider>

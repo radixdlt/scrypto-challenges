@@ -9,18 +9,12 @@ function OwnerPage() {
 
     const { accounts } = useAccount();
     const [selectedAccount, setSelectedAccount] = useState(null);
-    const [enableButtons, setEnableButtons] = useState(false);
+    const [enableButtons, setEnableButtons] = useState(true);
 
     useEffect(() => {
         // Automatically enable buttons if accounts are available
         setEnableButtons(accounts.length > 0);
     }, [accounts]);
-
-    /*const handleSelectAccount = useCallback((account) => {
-        setSelectedAccount(account);
-        // Example of additional logic that could be incorporated:
-        // You might want to do more things here when an account is selected.
-    }, [setSelectedAccount]);*/
 
     return (
         <>

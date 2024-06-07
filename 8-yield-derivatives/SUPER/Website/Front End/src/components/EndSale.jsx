@@ -1,4 +1,4 @@
-import { useSendTransaction } from "../hooks/useSendTransaction";
+import { useSendTransaction } from "../hooks/useSendTransaction.js";
 import PropTypes from "prop-types";
 import {useEffect, useState} from "react";
 import {useComponentAddy, useOwnerBadgeRaddy} from "../hooks/useComponentDetails.js";

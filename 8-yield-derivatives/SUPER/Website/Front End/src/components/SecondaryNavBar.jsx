@@ -7,7 +7,6 @@ const SecondaryNavbar = () => {
                 <ul id="secondary-navbar-links">
                     <li><NavLink to="/super/buy"> Buy </NavLink></li>
                     <li><NavLink to="/super/manage"> Manage </NavLink></li>
-                    <li><NavLink to="/super/superv2"> Manage2 </NavLink></li>
                 </ul>
 
             </div>

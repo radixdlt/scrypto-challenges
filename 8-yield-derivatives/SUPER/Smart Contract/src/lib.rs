@@ -54,10 +54,14 @@ impl Converters for Decimal {
 
 //region YieldClaim struct and impl
 
+/// Defines the detailed claim data stored within each Super Yield NFT.
 #[derive(NonFungibleData, ScryptoSbor, Clone, Copy, PartialEq, Eq)]
 pub struct YieldClaim {
+    /// The hour relative to the start of the token sale when the NFT was minted.
     pub hour_of_mint: u64,
+    /// Indicates the amount of SUPER tokens that were minted with this NFT.
     pub n_super_minted: u64,
+    /// Indicates the amount of SUPERt tokens that were minted with this NFT, these tokens represent a share of XRD stored within the component's Native Pool.
     pub n_trust_minted: Decimal,
 }
 
@@ -72,18 +76,6 @@ impl fmt::Display for YieldClaim {
 }
 
 //endregion
-
-
-#[derive(ScryptoSbor, ScryptoEvent)]
-pub struct SplitNFTEvent {
-    pub burnt_nft_id: u64,
-    pub burnt_nft_data: YieldClaim,
-    pub first_nft_id: NonFungibleLocalId,
-    pub first_nft_data: YieldClaim,
-    pub rest_nft_ids: Vec<NonFungibleLocalId>,
-    pub rest_nft_data: YieldClaim
-}
-
 
 #[blueprint]
 #[events(
@@ -157,57 +149,58 @@ mod super_iyo {
     }
 
     struct Super {
-        test_mode: bool,
-
-        icons: IconSet,
+        icons: Icons,
         active_colors: IconUrls,
 
-        //Owner Vesting Vault
+        // Owner Vesting Vault
         vesting_vault: Vault,
         vested_withdrawal_amount: Decimal,
         unclaimed_super_yield: Decimal,
 
         pool: Global<OneResourcePool>,
 
-        //ResourceManagers
+        // ResourceManagers
         super_manager: ResourceManager,
         super_yield_manager: ResourceManager,
         yield_nft_manager: ResourceManager,
 
-        //AVLTrees
+        // AVLTree
         yield_nft_db: AvlTree<u64, YieldClaim>, // <nft_local_addy, nft_data>
         yield_generated_db: AvlTree<u64, Decimal>, // <nft_local_addy, yield_generated_so_far>
         vested_withdrawals_db: AvlTree<u64, bool>, // <hour_of_withdrawal, withdrawal_used>
         hourly_super_minted: AvlTree<u64, u64>, // <hour, total_n_super>
         hour_updated_checklist: AvlTree<u64, bool>,
 
-        //Token Sale Status flags
+        // Token Sale Status flags
         time_sale_start: Instant,
         time_sale_end: Instant,
         dbs_updated_up_to_before_hour: u64,
-        //yield_curve_updated_to_before_hour: u64,
         sale_details: SaleDetailEvent,
     }
 
     impl Super {
+        /// Initializes and returns a new instance of the Super component.
+        /// This function sets up the initial state, including badges, resource managers, and
+        /// databases required for the component's operation.
+        ///
+        /// # Arguments
+        /// * `dapp_definition_addy` - DApp definition address for the DApp.
+        ///
+        /// # Returns
+        /// A tuple containing:
+        /// * A `NonFungibleBucket` for the owner badge.
+        /// * A `Global<Super>` instance representing the newly created Super component.
+        /// * A `NonFungibleBucket` for the database updater badge.
         pub fn new(
             dapp_definition_addy: ComponentAddress,
-            testing: u32,
         ) -> (NonFungibleBucket, Global<Super>, NonFungibleBucket) {
-            let mut testing_mode: bool = true;
-
-            if testing == 0 {
-                testing_mode = false;
-            } else if testing != 1 {
-                panic!("Invalid testing parameter!");
-            };
 
             let dapp_definition_addy_vec: Vec<GlobalAddress> =
                 vec![GlobalAddress::new_or_panic(dapp_definition_addy.into())];
 
-            let logos: IconSet = IconSet::new();
+            let logos: Icons = Icons::new();
 
-            let current_colors: IconUrls = logos.transparent.black.clone();
+            let current_colors: IconUrls = logos.black.clone();
 
             //region Component Rules and address reservations
 
@@ -322,7 +315,7 @@ mod super_iyo {
             let super_yield_manager: ResourceManager = ResourceBuilder::new_fungible(
                 owner_component_or_owner_badge.clone(),
             )
-            .metadata(metadata! {
+                .metadata(metadata! {
                 roles {
                     metadata_locker => access_rule_component.clone();
                     metadata_locker_updater => access_rule_component.clone();
@@ -336,16 +329,16 @@ mod super_iyo {
                         "dapp_definitions" => dapp_definition_addy_vec.to_owned(), updatable;
                     }
             })
-            .mint_roles(mint_roles!(
+                .mint_roles(mint_roles!(
                 minter => rule!(require(global_caller(component_addy)));
                 minter_updater => rule!(require(global_caller(component_addy)));
             ))
-            .divisibility(DIVISIBILITY_MAXIMUM)
-            .burn_roles(burn_roles!(
+                .divisibility(DIVISIBILITY_MAXIMUM)
+                .burn_roles(burn_roles!(
             burner => rule!(require(global_caller(component_addy)));
             burner_updater => rule!(require(global_caller(component_addy)));
             ))
-            .create_with_no_initial_supply();
+                .create_with_no_initial_supply();
 
             let super_yield_empty_bucket: Bucket = super_yield_manager.create_empty_bucket();
             let super_yield_resource_addy: ResourceAddress =
@@ -359,7 +352,7 @@ mod super_iyo {
             let nft_manager: ResourceManager = ResourceBuilder::new_integer_non_fungible::<
                 YieldClaim,
             >(owner_component_or_owner_badge.clone())
-            .metadata(metadata!(
+                .metadata(metadata!(
                 roles {
                     metadata_setter => access_rule_component.clone();
                     metadata_setter_updater => access_rule_component.clone();
@@ -376,19 +369,19 @@ mod super_iyo {
                     "key_image_url" => current_colors.nft.to_owned(), updatable;
                 }
             ))
-            .mint_roles(mint_roles!(
+                .mint_roles(mint_roles!(
                 minter => access_rule_component.clone();
                 minter_updater => access_rule_component.clone();
             ))
-            .non_fungible_data_update_roles(non_fungible_data_update_roles!(
+                .non_fungible_data_update_roles(non_fungible_data_update_roles!(
                 non_fungible_data_updater => access_rule_component.clone();
                 non_fungible_data_updater_updater => rule!(deny_all);
             ))
-            .burn_roles(burn_roles!(
+                .burn_roles(burn_roles!(
                 burner => access_rule_component.clone();
                 burner_updater => rule!(deny_all);
             ))
-            .create_with_no_initial_supply();
+                .create_with_no_initial_supply();
 
             let nft_empty_bucket: Bucket = nft_manager.create_empty_bucket();
             let nft_resource_addy: ResourceAddress = nft_empty_bucket.resource_address();
@@ -447,7 +440,6 @@ mod super_iyo {
             };
 
             let component: Global<Super> = Self {
-                test_mode: testing_mode,
                 //Icon stuff
                 icons: logos.clone(),
                 active_colors: current_colors.clone(),
@@ -478,20 +470,20 @@ mod super_iyo {
                 dbs_updated_up_to_before_hour: 0,
                 sale_details: new_super_event.to_owned(),
             }
-            .instantiate()
-            .prepare_to_globalize(OwnerRole::Fixed(rule!(require(badge_owner_addy))))
-            .roles(roles! {
+                .instantiate()
+                .prepare_to_globalize(OwnerRole::Fixed(rule!(require(badge_owner_addy))))
+                .roles(roles! {
                 db_updater => rule!(require(db_updater_resource_addy));
             })
-            .with_address(addy_reservation)
-            .metadata(metadata!(
+                .with_address(addy_reservation)
+                .metadata(metadata!(
                 init {
                     "name" => "SUPER_IYO", updatable;
                     "dapp_definition" => dapp_definition_addy_vec.to_owned(), updatable;
                     "icon_url" => current_colors.ww.clone().to_owned(), updatable;
                 }
             ))
-            .globalize();
+                .globalize();
 
             Runtime::emit_event(new_super_event.to_owned());
 
@@ -502,7 +494,7 @@ mod super_iyo {
 
         /// Initiates the token sale and configures the necessary parameters and schedules.
         ///
-        /// This function marks the start of the token sale by setting up the trust fund metadata with the provided fee, initializing the start and end times of the sale, and preparing the withdrawal epochs based on the sale's duration. The function also logs the start and end times of the sale for auditing and tracking purposes.
+        /// This function marks the start of the token sale by setting up the trust fund metadata with the provided fee, initializing the start and end times of the sale, and preparing the withdrawal epochs based on the sale's duration.
         ///
         /// # Arguments
         /// * `fee` - A bucket containing 1 XRD, for setting up the trust fund. This fee will be handled by `set_trustfund_metadata`.
@@ -518,12 +510,6 @@ mod super_iyo {
             self.time_sale_end = Clock::current_time_rounded_to_seconds()
                 .add_days(SALE_DURATION_DAYS as i64)
                 .unwrap();
-
-            if self.test_mode {
-                self.time_sale_end = Clock::current_time_rounded_to_seconds()
-                    .add_hours(6)
-                    .unwrap();
-            }
 
             self.calculate_withdrawal_epochs();
 
@@ -568,32 +554,17 @@ mod super_iyo {
         pub fn calculate_withdrawal_epochs(&mut self) {
             let mut withdrawal_epoch_vector: Vec<String> = Vec::new();
 
-            if !(&self.test_mode) {
-                for i in 0..WEEKS_VESTED {
-                    let epoch: u64 = self
-                        .time_sale_start
-                        .to_owned()
-                        .add_days((i * DAYS_PER_VEST_PERIOD) as i64)
-                        .unwrap()
-                        .seconds_since_unix_epoch as u64;
+            for i in 0..WEEKS_VESTED {
+                let epoch: u64 = self
+                    .time_sale_start
+                    .to_owned()
+                    .add_days((i * DAYS_PER_VEST_PERIOD) as i64)
+                    .unwrap()
+                    .seconds_since_unix_epoch as u64;
 
-                    self.vested_withdrawals_db.insert(epoch.clone(), false);
+                self.vested_withdrawals_db.insert(epoch.clone(), false);
 
-                    withdrawal_epoch_vector.insert(i as usize, epoch.clone().to_string());
-                }
-            } else {
-                for i in 0..=6 {
-                    let epoch: u64 = self
-                        .time_sale_start
-                        .to_owned()
-                        .add_hours(i)
-                        .unwrap()
-                        .seconds_since_unix_epoch as u64;
-
-                    self.vested_withdrawals_db.insert(epoch.clone(), false);
-
-                    withdrawal_epoch_vector.insert(i as usize, epoch.clone().to_string());
-                }
+                withdrawal_epoch_vector.insert(i as usize, epoch.clone().to_string());
             }
 
             Runtime::emit_event(WithdrawalCalculationEvent {
@@ -605,9 +576,11 @@ mod super_iyo {
 
         //region Metadata Updaters
 
-        /// Sets metadata for the trust fund and handles contributions.
+        /// Sets **initial metadata** for the trust fund.
         ///
-        /// This function configures the metadata for the trust fund pool and contributes the specified fee to it. It sets up the trust fund's name, description, and other attributes to ensure transparency and trustworthiness. The function then records the contribution and adjusts the resource manager for the contributed tokens.
+        /// This function configures the metadata for the trust fund pool using the specified fee. It sets up
+        /// the trust fund's name, description, and other attributes to ensure transparency and
+        /// trustworthiness.
         ///
         /// # Arguments
         /// * `fee` - A bucket containing 1 XRD, which will be returned
@@ -615,9 +588,6 @@ mod super_iyo {
         /// # Returns
         /// Bucket containing the fee passed in
         pub fn set_trustfund_metadata(&mut self, fee: Bucket) -> Bucket {
-            //self.dapp_definition_addy = ComponentAddress
-            //self.pool = Global<OneResourcePool>
-            //the pool accepts XRD, so the fee bucket is in XRD but this is an owner-restricted method so no point in checking
 
             self.pool
                 .set_metadata("name".to_owned(), "SUPER Trust Fund".to_owned());
@@ -648,6 +618,13 @@ mod super_iyo {
             return_fee
         }
 
+        /// Updates the metadata of the SUPER token.
+        /// This function modifies the metadata entry specified by `entry_to_update` with the new value `value_to_update_to`.
+        /// If the entry is for "icon_url" or "info_url", it treats the value as a URL; otherwise, it treats it as a string.
+        ///
+        /// # Arguments
+        /// * `entry_to_update` - The metadata entry to update (e.g., "icon_url", "name").
+        /// * `value_to_update_to` - The new value for the metadata entry.
         pub fn update_super_metadata(
             &mut self,
             entry_to_update: String,
@@ -663,6 +640,13 @@ mod super_iyo {
             }
         }
 
+        /// Updates the metadata of the SUPERt token.
+        /// This function modifies the metadata entry specified by `entry_to_update` with the new value `value_to_update_to`.
+        /// If the entry is for "icon_url" or "info_url", it treats the value as a URL; otherwise, it treats it as a string.
+        ///
+        /// # Arguments
+        /// * `entry_to_update` - The metadata entry to update (e.g., "icon_url", "name").
+        /// * `value_to_update_to` - The new value for the metadata entry.
         pub fn update_trust_metadata(
             &mut self,
             entry_to_update: String,
@@ -682,6 +666,13 @@ mod super_iyo {
             }
         }
 
+        /// Updates the metadata of the SUPERy token.
+        /// This function modifies the metadata entry specified by `entry_to_update` with the new value `value_to_update_to`.
+        /// If the entry is for "icon_url" or "info_url", it treats the value as a URL; otherwise, it treats it as a string.
+        ///
+        /// # Arguments
+        /// * `entry_to_update` - The metadata entry to update (e.g., "icon_url", "name").
+        /// * `value_to_update_to` - The new value for the metadata entry.
         pub fn update_yield_metadata(
             &mut self,
             entry_to_update: String,
@@ -697,6 +688,13 @@ mod super_iyo {
             }
         }
 
+        /// Updates the metadata of the SUPER NFT.
+        /// This function modifies the metadata entry specified by `entry_to_update` with the new value `value_to_update_to`.
+        /// If the entry is for "icon_url" or "info_url", it treats the value as a URL; otherwise, it treats it as a string.
+        ///
+        /// # Arguments
+        /// * `entry_to_update` - The metadata entry to update (e.g., "icon_url", "name").
+        /// * `value_to_update_to` - The new value for the metadata entry.
         pub fn update_nft_manager_metadata(&mut self) {
             let current_time: i64 =
                 Clock::current_time_rounded_to_seconds().seconds_since_unix_epoch;
@@ -725,16 +723,24 @@ mod super_iyo {
 
         //region Ending Token Sale
 
+        /// Ends the token sale and finalizes the sale details.
+        /// This function sets the SUPER token to non-mintable, marks the sale as completed,
+        /// calculates the vested withdrawal amount, and emits the updated sale details event.
         pub fn end_sale(&mut self) {
+            // Set SUPER tokens to non-mintable
             self.super_manager.set_mintable(AccessRule::DenyAll);
 
+            // Mark the sale as completed
             self.sale_details.sale_completed = true;
 
+            // Calculate the total vested amount and the vested withdrawal amount
             let total_vested: Decimal = self.vesting_vault.amount();
             self.vested_withdrawal_amount = total_vested / Decimal::from(WEEKS_VESTED);
 
+            // Emit the updated sale details event
             Runtime::emit_event(self.sale_details.to_owned());
 
+            // Ensure the total vested amount is correctly divided into weekly withdrawals
             assert_eq!(
                 Decimal::from(WEEKS_VESTED) * self.vested_withdrawal_amount,
                 total_vested,
@@ -742,14 +748,21 @@ mod super_iyo {
             );
         }
 
+        /// Checks if the token sale is complete and ends the sale if it is.
+        /// This function compares the current time with the sale end time and calls `end_sale`
+        /// if the current time is past the sale end time.
         pub fn check_if_sale_complete(&mut self) {
+            // Get the current time rounded to seconds
             let now: Instant = Clock::current_time_rounded_to_seconds();
 
+            // Check if the current time is greater than the sale end time
             let check_sale_complete: bool =
                 now.compare(self.time_sale_end, TimeComparisonOperator::Gt);
 
+            // Log the current sale completion status
             info!("Token sale completed = {}", self.sale_details.sale_completed);
 
+            // If the sale is complete, end the sale
             if check_sale_complete {
                 self.end_sale();
             }
@@ -759,36 +772,61 @@ mod super_iyo {
 
         //region Buying Functions
 
+
+        /// Processes a deposit during the token sale.
+        /// This function handles the payment, splits it into vested and trust fund amounts,
+        /// mints SUPER tokens, creates a Yield NFT, and updates the relevant vaults and pools.
+        ///
+        /// # Arguments
+        /// * `payment` - A bucket containing the payment in XRD tokens.
+        ///
+        /// # Returns
+        /// A tuple containing:
+        /// * The remaining payment bucket.
+        /// * The contribution bucket to the trust fund.
+        /// * The bucket containing minted SUPER tokens.
+        /// * The bucket containing the created Yield NFT.
         pub fn deposit(&mut self, mut payment: Bucket) -> (Bucket, Bucket, Bucket, Bucket) {
+
+            // Get the current time rounded to seconds
             let now: Instant = Clock::current_time_rounded_to_seconds();
             let now_integer: i64 = now.seconds_since_unix_epoch;
 
+            // Get the start time of the sale
             let time_start: i64 = self.time_sale_start.to_owned().seconds_since_unix_epoch;
 
+            // Calculate the time since the sale began
             let time_since_sale_began: u64 = (now_integer - time_start) as u64;
 
+            // Check if the sale is complete
             self.check_if_sale_complete();
 
+            // Ensure the sale is not completed
             assert!(
                 !self.sale_details.sale_completed,
                 "Token sale is finished, buy on secondary market!"
             );
 
+            // Ensure the sale has started
             assert!(
                 self.sale_details.sale_started,
                 "Token sale hasn't started! Please wait"
             );
 
+            // Ensure the payment is made with XRD tokens
             assert_eq!(payment.resource_address(), XRD, "Please pay with XRD.");
 
+            // Find the nearest positive non-zero multiple of 10 for the payment amount
             let payment_amount: Decimal =
                 self.find_positive_non_zero_multiple_of_10(payment.amount());
 
+            // Calculate the vested amount and trust fund amount
             let amount_vested: Decimal = FRACTION_VESTED
                 .checked_mul(payment_amount)
                 .unwrap()
                 .checked_round(0, RoundingMode::ToNearestMidpointToEven)
                 .unwrap();
+
 
             let amount_trust_fund: Decimal = FRACTION_TRUST_FUND
                 .checked_mul(payment_amount)
@@ -796,24 +834,25 @@ mod super_iyo {
                 .checked_round(0, RoundingMode::ToNearestMidpointToEven)
                 .unwrap();
 
+            // Ensure the payment is correctly split into vested and trust fund amounts
             assert_eq!(
                 amount_vested.checked_add(amount_trust_fund).unwrap(),
                 payment_amount,
                 "Payment isn't being split right broski"
             );
 
-            //Take amount_funding out of payment:
+            // Put the vested amount into the vesting vault
             self.vesting_vault.put(payment.take(amount_vested));
 
-            //Put the remaining XRD into pool
+            // Contribute the remaining XRD to the trust fund pool
             let contribution: Bucket = self.pool.contribute(payment.take(amount_trust_fund));
-
             let trust_token_amount: Decimal = contribution.amount();
 
+            // Mint SUPER tokens for the payment amount
             let minted_tokens: Bucket = self.super_manager.mint(payment_amount);
-
             let payment_int: u64 = payment_amount.to_u64();
 
+            // Create a Yield NFT for the payment
             let (yield_nft, _): (Bucket, u64) = self.create_yield_nft(
                 payment_int,
                 trust_token_amount,
@@ -821,11 +860,25 @@ mod super_iyo {
                 false,
             );
 
-            //Return any remaining
+            // Return any remaining payment, the trust fund contribution, minted tokens, and the Yield NFT
             (payment, contribution, minted_tokens, yield_nft)
         }
 
-        ///Returns bucket and nonfungiblelocalid, since it may need to be changed if mint happened in same second.
+
+        /// Creates a Yield NFT with the specified parameters.
+        /// This function mints a new Yield NFT with the provided SUPER and trust amounts,
+        /// records the NFT details in the database, and emits an event indicating the creation.
+        ///
+        /// # Arguments
+        /// * `super_amount` - The amount of SUPER tokens minted with the NFT.
+        /// * `trust_amount` - The amount of trust tokens (SUPERt) minted with the NFT.
+        /// * `time_after_sale_start` - The time after the sale started, in seconds.
+        /// * `splitting_nft` - A boolean indicating if the NFT is being created as part of a split.
+        ///
+        /// # Returns
+        /// A tuple containing:
+        /// * A `Bucket` with the minted Yield NFT.
+        /// * A `u64` representing the ID of the newly created NFT.
         pub fn create_yield_nft(
             &mut self,
             super_amount: u64,
@@ -833,38 +886,49 @@ mod super_iyo {
             time_after_sale_start: u64,
             splitting_nft: bool,
         ) -> (Bucket, u64) {
+
+            // Calculate the hour after the sale started
             let hour_after_sale_start: u64 = time_after_sale_start / TIME_SECONDS_PER_HOUR;
 
+            // Create the YieldClaim data for the NFT
             let receipt_data: YieldClaim = YieldClaim {
                 hour_of_mint: hour_after_sale_start,
                 n_super_minted: super_amount,
                 n_trust_minted: trust_amount,
             };
 
+            // Set metadata for the NFT
             let manager: ResourceManager = self.yield_nft_manager;
             manager.set_metadata("Amount", super_amount);
             manager.set_metadata("Hour of Mint", hour_after_sale_start);
 
+            // Get a valid NFT ID, ensuring no collisions
             let checked_time: u64 = self.get_checked_nft_id(time_after_sale_start);
 
+            // Mint the new Yield NFT
             let nft: Bucket = self.yield_nft_manager.mint_non_fungible(
                 &NonFungibleLocalId::integer(checked_time.to_owned()),
                 receipt_data.to_owned(),
             );
 
+            // Add the NFT details to the database
             let inserted_nft_id: u64 = self.add_receipt_to_db(checked_time, receipt_data.clone());
 
+            // Ensure the inserted NFT ID matches the checked time
             assert_eq!(
                 checked_time, inserted_nft_id,
                 "Key dont match w/ checked key"
             );
 
+            // Update databases and emit events
             if !splitting_nft {
+                // Update the databases with the new NFT details
                 self.update_dbs_with(
                     Some(receipt_data.n_super_minted.to_owned()),
                     Some(receipt_data.hour_of_mint.to_owned()),
                 );
 
+                // Emit event for the creation of the Yield NFT
                 Runtime::emit_event(CreateYieldNFTEvent {
                     nft_id: inserted_nft_id.to_owned(),
                     hour_of_mint: receipt_data.hour_of_mint.to_owned(),
@@ -872,8 +936,10 @@ mod super_iyo {
                     n_trust_minted: receipt_data.n_trust_minted.to_owned(),
                 });
             } else {
-                self.update_dbs_with(None, None);
+                // Update the databases without specific details
+                self.update_dbs_to_now();
 
+                // Emit event for the creation of the Yield NFT as part of a split
                 Runtime::emit_event(CreateYieldNFTEvent {
                     nft_id: inserted_nft_id.to_owned(),
                     hour_of_mint: receipt_data.hour_of_mint.to_owned(),
@@ -882,12 +948,24 @@ mod super_iyo {
                 });
             }
 
+            // Return the minted NFT and its ID
             (nft, checked_time)
         }
 
+
+        /// Ensures the NFT ID is unique by checking against existing IDs in the database.
+        /// This function increments the provided NFT ID until a unique ID is found that does not
+        /// already exist in the `yield_nft_db` database.
+        ///
+        /// # Arguments
+        /// * `nft_id` - The initial NFT ID to check.
+        ///
+        /// # Returns
+        /// A `u64` representing the first unique NFT ID that is not already used.
         pub fn get_checked_nft_id(&mut self, nft_id: u64) -> u64 {
             let mut key: u64 = nft_id;
 
+            // Increment the key until a unique one is found
             while self.yield_nft_db.get(&key).is_some() {
                 key += 1; // Increment the key if the current key is already used
             }
@@ -895,15 +973,19 @@ mod super_iyo {
             key
         }
 
+        /// Adds a new YieldClaim entry to the database, ensuring a unique key is used.
+        /// This function checks the provided NFT ID for uniqueness, increments it if necessary,
+        /// and then inserts the YieldClaim data into the `yield_nft_db` and `yield_generated_db` databases.
+        ///
+        /// # Arguments
+        /// * `nft_id` - The initial NFT ID to check and insert.
+        /// * `nft_data` - The YieldClaim data to insert.
+        ///
+        /// # Returns
+        /// A `u64` representing the unique NFT ID used for the insertion.
         pub fn add_receipt_to_db(&mut self, nft_id: u64, nft_data: YieldClaim) -> u64 {
             let mut key: u64 = nft_id;
             let value: YieldClaim = nft_data;
-
-            //pub struct YieldClaim {
-            //     pub hour_of_mint: u64,
-            //     pub n_super_minted: u64,
-            //     pub n_trust_minted: Decimal,
-            // }
 
             // Loop until an unused key is found
             while self.yield_nft_db.get(&key).is_some() {
@@ -911,7 +993,6 @@ mod super_iyo {
             }
 
             // Insert the new value at the unused key
-            // yield_nft_db: AvlTree<u64, YieldClaim>
             self.yield_nft_db.insert(key, value);
             self.yield_generated_db.insert(key, dec!(0));
 
@@ -923,31 +1004,49 @@ mod super_iyo {
 
         //region Things to do w/ yield tokens
 
+        /// Splits a Yield NFT into multiple smaller NFTs.
+        /// This function checks the validity of the provided Yield NFT, splits it into the specified
+        /// number of smaller NFTs, updates the relevant databases, and emits an event for the split.
+        ///
+        /// # Arguments
+        /// * `yield_nft` - The original Yield NFT to be split.
+        /// * `number_of_splits` - The number of smaller NFTs to create.
+        ///
+        /// # Returns
+        /// A tuple containing:
+        /// * A `Bucket` with the first newly created NFT.
+        /// * A `Bucket` with the rest of the newly created NFTs.
         pub fn split_yield_nft(&mut self, yield_nft: NonFungibleBucket, number_of_splits: u64) -> (Bucket, Bucket) {
-            
+
+            // Ensure the provided NFT is a Yield NFT
             assert_eq!(
                 yield_nft.resource_address(),
                 self.sale_details.yield_nft_raddy,
                 "Please send yield nft"
             );
 
+            // Create a proof for the NFT and check it
             let nft_proof: NonFungibleProof = yield_nft.create_proof_of_all();
             let checked_nft: CheckedNonFungibleProof = nft_proof.check(self.sale_details.yield_nft_raddy);
 
+            // Get the time of minting and data from the NFT
             let time_of_mint: u64 = self.nft_local_id_to_u64(checked_nft.non_fungible_local_id());
             let data: YieldClaim = yield_nft.non_fungible().data();
 
+            // Ensure the NFT can be split into the specified number of parts
             assert!(
                 data.n_super_minted >= number_of_splits,
                 "Your max split is {}",
                 data.n_super_minted
             );
 
+            // Remove the yield generated for this NFT from the database
             let total_yield_generated: Decimal =
                 self.yield_generated_db.remove(&time_of_mint).unwrap();
 
             let mut created_nft_ids: Vec<u64> = Vec::new();
 
+            // Divide the SUPER and trust amounts for the splits
             let (super_first_nft, super_rest_nfts): (u64, u64) =
                 self.divide_integer_into_n_integers(data.n_super_minted, number_of_splits);
 
@@ -967,16 +1066,20 @@ mod super_iyo {
                     number_of_splits,
                 );
 
+            // Create the first split NFT
             let (first_nft, first_nft_local_id): (Bucket, u64) =
                 self.create_yield_nft(super_first_nft, trust_first_nft, time_of_mint, true);
 
+            // Update the yield generated database for the first NFT
             self.yield_generated_db
                 .insert(first_nft_local_id, yield_first_nft);
 
             created_nft_ids.insert(0, first_nft_local_id);
 
+            // Create a bucket to hold the rest of the split NFTs
             let mut split_nfts: Bucket = Bucket::new(yield_nft.resource_address());
 
+            // Create the rest of the split NFTs
             for split_number in 1..number_of_splits {
                 let new_time: u64 = &time_of_mint + split_number + 1;
 
@@ -997,8 +1100,10 @@ mod super_iyo {
                 }
             }
 
+            // Remove the original NFT data from the database
             let removed_data: YieldClaim = self.yield_nft_db.remove(&time_of_mint).unwrap();
 
+            // Ensure the original NFT data matches the removed data
             assert_eq!(
                 data.hour_of_mint, removed_data.hour_of_mint,
                 "nft data ain't matching broski"
@@ -1007,17 +1112,19 @@ mod super_iyo {
                 data.n_super_minted, removed_data.n_super_minted,
                 "nft data ain't matching broski"
             );
-            
-            
+
+            // Burn the original NFT
             checked_nft.drop();
             yield_nft.burn();
-            
+
+            // Get the IDs and data for the newly created NFTs
             let first_nft_id: NonFungibleLocalId = first_nft.as_non_fungible().non_fungible_local_id();
             let first_nft_data: YieldClaim = first_nft.as_non_fungible().non_fungible().data();
 
             let rest_nft_ids: Vec<NonFungibleLocalId> = split_nfts.as_non_fungible().non_fungible_local_ids().to_owned().into_iter().collect();
             let rest_nft_data: YieldClaim = split_nfts.as_non_fungible().non_fungibles().first().unwrap().data();
-            
+
+            // Emit an event for the split
             Runtime::emit_event(SplitNFTEvent {
                 burnt_nft_id: time_of_mint,
                 burnt_nft_data: data,
@@ -1027,6 +1134,7 @@ mod super_iyo {
                 rest_nft_data: rest_nft_data
             });
 
+            // Return NFTs
             (first_nft, split_nfts)
         }
 
@@ -1034,22 +1142,39 @@ mod super_iyo {
 
         //region Claiming Yield
 
+        /// Claims the yield for a Yield NFT by redeeming trust fund tokens and minting SUPERy tokens.
+        /// This function verifies the provided NFT and trust fund tokens, updates databases, redeems the trust fund tokens,
+        /// mints the yield tokens, and emits an event for the yield claim.
+        ///
+        /// # Arguments
+        /// * `nft` - The Yield NFT for which the yield is being claimed.
+        /// * `trust_fund_tokens` - A bucket containing the trust fund tokens for redemption.
+        ///
+        /// # Returns
+        /// A tuple containing:
+        /// * A `Bucket` with the newly minted SUPERy tokens.
+        /// * A `Bucket` with any remaining trust fund tokens.
         pub fn claim_yield(
             &mut self,
             nft: NonFungibleBucket,
             mut trust_fund_tokens: Bucket,
         ) -> (Bucket, Bucket) {
+
             //region Running all necessary checks (time, amount tokens, token_addy, nft_addy, nft_id, updating dbs)
 
+            // Update the databases to the current state
             self.update_dbs_to_now();
 
+            // Get the current time in hours since the sale started
             let now: u64 = self.hours_since_start();
 
+            // Ensure the yield can only be claimed after the sale finishes
             assert!(
                 now > SALE_DURATION_DAYS * 24,
                 "Please wait til after the sale finishes to claim yield"
             );
 
+            // Ensure the yield can only be claimed after the sale finishes
             assert_eq!(
                 trust_fund_tokens.resource_address(),
                 self.sale_details.super_t_raddy,
@@ -1058,21 +1183,27 @@ mod super_iyo {
 
             let trust_fund_amount: Decimal = trust_fund_tokens.amount();
 
+            // Check and burn the provided NFT
             let (nft_id, _nft_data, trust_amount_to_return): (u64, YieldClaim, Decimal) =
                 self.check_and_burn_nft(nft, trust_fund_amount);
 
             //endregion
 
+            // Get the amount of yield tokens to mint from the database
             let amount_to_mint: Decimal = *self.yield_generated_db.get(&nft_id).unwrap();
 
+            // Calculate the amount of trust fund tokens to return
             let return_trust_fund_tokens: Bucket = trust_fund_tokens.take(trust_amount_to_return);
 
+            // Redeem the provided trust fund tokens for XRD
             let trust_fund_redemption: Bucket = self.pool.redeem(trust_fund_tokens);
 
             let amount_trust_fund_redemption: Decimal = trust_fund_redemption.amount();
 
+            // Deposit the redeemed XRD into the vesting vault
             self.vesting_vault.put(trust_fund_redemption);
 
+            // Emit an event for the yield claim
             Runtime::emit_event(ClaimYieldEvent {
                 hour_of_claim: now,
                 super_y_minted: amount_to_mint,
@@ -1080,24 +1211,41 @@ mod super_iyo {
                 trust_fund_redemption_amount: amount_trust_fund_redemption,
             });
 
+            // Mint the yield tokens and return the minted tokens and any remaining trust fund tokens
             (
                 self.super_yield_manager.mint(amount_to_mint),
                 return_trust_fund_tokens,
             )
         }
 
+        /// Checks the validity of a Yield NFT and burns it.
+        /// This function verifies the provided NFT against the stored data, ensures that the trust fund amount is sufficient,
+        /// and then burns the NFT, emitting an event for the burn.
+        ///
+        /// # Arguments
+        /// * `nft` - The Yield NFT to check and burn.
+        /// * `trust_fund_amount_in` - The amount of trust fund tokens provided for the NFT.
+        ///
+        /// # Returns
+        /// A tuple containing:
+        /// * A `u64` representing the ID of the burned NFT.
+        /// * A `YieldClaim` struct with the data of the burned NFT.
+        /// * A `Decimal` representing the amount of trust fund tokens to return to the user.
         pub fn check_and_burn_nft(
             &self,
             nft: NonFungibleBucket,
             trust_fund_amount_in: Decimal,
         ) -> (u64, YieldClaim, Decimal) {
+
+            // Create a proof for the NFT and check it
             let nft_proof: NonFungibleProof = nft.create_proof_of_all();
             let checked_nft: CheckedNonFungibleProof = nft_proof.check(self.sale_details.yield_nft_raddy);
 
+            // Get the local ID and data from the NFT
             let local_id: u64 = self.nft_local_id_to_u64(checked_nft.non_fungible_local_id());
-
             let nft_data: YieldClaim = checked_nft.as_non_fungible().non_fungible().data();
 
+            // Retrieve the matching NFT data from the database
             let matching_nft: YieldClaim = match self.yield_nft_db.get(&local_id) {
                 Some(nft) => *nft,
                 None => panic!("Couldn't find NFT in db"),
@@ -1107,25 +1255,29 @@ mod super_iyo {
 
             //region asserting each value from db
 
+            // Ensure the trust fund amounts match
             assert_eq!(
                 matching_nft.n_trust_minted, nft_data.n_trust_minted,
                 "Mismatch in n_trust_minted values"
             );
 
+            // Ensure the provided trust fund amount is sufficient
             assert!(
                 trust_fund_amount_in >= nft_data.n_trust_minted,
                 "Amount of trust fund tokens ain't enough."
             );
 
+            // Ensure the SUPER amounts match
             assert_eq!(
                 matching_nft.n_super_minted, nft_data.n_super_minted,
                 "Mismatch in n_super_minted values"
             );
-            //time is checked when finding nft in the db,
+
+            // time is checked when finding nft in the db,
 
             //endregion
 
-            //Figuring out the number of trust_fund_tokens to return to user:
+            // Figuring out the number of trust_fund_tokens to return to user:
             let amount_trust_tokens_to_return: Decimal = trust_fund_amount_in
                 .checked_sub(trust_fund_amount_nft)
                 .unwrap();
@@ -1134,6 +1286,7 @@ mod super_iyo {
                 panic!("Send more SUPERt");
             };
 
+            // Emit an event for the NFT burn
             Runtime::emit_event(BurnYieldNFTEvent {
                 nft_id: local_id,
                 hour_of_mint: nft_data.hour_of_mint,
@@ -1141,9 +1294,11 @@ mod super_iyo {
                 n_trust_minted: nft_data.n_trust_minted,
             });
 
+            // Drop the checked proof and burn the NFT
             checked_nft.drop();
             nft.burn();
 
+            // Return the local ID, NFT data, and the amount of trust fund tokens to return
             (local_id, nft_data, amount_trust_tokens_to_return)
         }
 
@@ -1151,21 +1306,30 @@ mod super_iyo {
 
         //region Vested withdrawal functions
 
+        /// Processes a vested withdrawal from the vesting vault.
+        /// This function checks the vesting schedule, calculates the allowed withdrawals,
+        /// and withdraws the appropriate amount from the vesting vault.
+        ///
+        /// # Returns
+        /// A `Bucket` containing the withdrawn XRD.
         pub fn vested_withdraw(&mut self) -> Bucket {
+
+            // Ensure the token sale is complete before allowing withdrawals
             assert!(!self.sale_details.sale_completed, "Token Sale is not yet complete!");
 
-            self.update_dbs_with(None, None);
+            // Update the databases to the current state
+            self.update_dbs_to_now();
 
             let mut withdrawals_allowed: u64 = 0;
-
             let mut used_withdrawals: u64 = 0;
 
+            // Iterate through the vesting withdrawals database to determine allowed withdrawals
             for (withdraw_date, used, _) in self.vested_withdrawals_db.range(..) {
                 if (!used)
                     && (Clock::current_time_is_at_or_after(
-                        Instant::new(withdraw_date as i64),
-                        TimePrecision::Minute,
-                    ))
+                    Instant::new(withdraw_date as i64),
+                    TimePrecision::Minute,
+                ))
                 {
                     withdrawals_allowed += 1;
                 } else if used {
@@ -1173,15 +1337,19 @@ mod super_iyo {
                 }
             }
 
+            // Create a new bucket for the withdrawal
             let mut withdrawal: Bucket = Bucket::new(XRD);
 
+            // If all withdrawals have been used and no more are allowed, take all remaining funds
             if (used_withdrawals == WEEKS_VESTED) && (withdrawals_allowed == 0) {
                 withdrawal.put(self.vesting_vault.take_all());
             }
 
+            // Calculate the amount to withdraw based on allowed withdrawals
             let withdrawal_amount: Decimal =
                 Decimal::from(withdrawals_allowed) * self.vested_withdrawal_amount;
 
+            // Withdraw the calculated amount from the vesting vault
             withdrawal.put(self.vesting_vault.take(withdrawal_amount));
 
             withdrawal
@@ -1191,26 +1359,47 @@ mod super_iyo {
 
         //region AVL Tree Updaters
 
+        /// Updates the hourly SUPER minted data with the specified amount and hour.
+        /// This function updates the database with the amount of SUPER tokens minted for a specific hour.
+        /// If no amount or hour is provided, it defaults to 0 and the current hour since the sale started.
+        ///
+        /// # Arguments
+        /// * `amount` - An optional `u64` representing the amount of SUPER tokens minted.
+        /// * `hour` - An optional `u64` representing the number of hours since the sale started.
         pub fn update_dbs_with(&mut self, amount: Option<u64>, hour: Option<u64>) {
             let amount: u64 = amount.unwrap_or(0);
 
             let hours_elapsed: u64 = hour.unwrap_or_else(|| self.hours_since_start());
-            
-            // update_hourly_super_minted is called to update the
-            // new "amount fractions" that each NFT represents
+
+            // Update the hourly SUPER minted data
             self.update_hourly_super_minted(hours_elapsed, amount);
         }
 
+        /// Updates the databases to the current state.
+        /// This function ensures the databases are up-to-date by calling `update_dbs_with`
+        /// and `update_yield_generated` to update the hourly SUPER minted data and the yield generated.
         pub fn update_dbs_to_now(&mut self) {
-            
+
             //just in case a new nft was minted or burnt within the hour:
             self.update_dbs_with(None, None);
 
-            //once amount fractions are up to date, yield_generated can be calculated 
-            // and then updated in a seperate database using:
+            // Once amount fractions are up-to-date, yield_generated can be calculated 
+            // and then updated in a separate database using:
             self.update_yield_generated();
         }
 
+        /// Updates the hourly SUPER minted data.
+        /// This function updates the amount of SUPER tokens minted for the given hour.
+        /// If the hour is not already in the database, it fills in any missing hours
+        /// and sets the new total amount minted.
+        ///
+        /// # Note
+        /// There may be a memory issue with this function, since as the trees get longer it gets
+        /// more expensive to access them using .range(..).last()
+        ///
+        /// # Arguments
+        /// * `hours_since_start` - The number of hours since the sale started.
+        /// * `amount` - The amount of SUPER tokens minted in the current hour.
         pub fn update_hourly_super_minted(&mut self, hours_since_start: u64, amount: u64) {
             // If the key does not exist in the db, this will return None.
             if let Some(mut data_for_hour) = self.hourly_super_minted.get_mut(&hours_since_start) {
@@ -1223,60 +1412,74 @@ mod super_iyo {
             }
 
             // If a key does not exist for this hour, insert a new key-value pair with the given hour and amount.
-
+            /* OLD APPROACH
             let last_super_minted: (u64, u64, Option<u64>) = self
                 .hourly_super_minted
                 .range(..)
                 .last()
-                .unwrap_or((0, 0, None));
-
+                .unwrap_or((0, 0, None)); 
+                
             let last_hour_updated: u64 = last_super_minted.0;
 
             let total_amount: u64 = last_super_minted.1;
+            */
 
+            // Retrieve the last updated hour and total amount using a more efficient approach
+            let (last_hour_updated, total_amount) = match self.hourly_super_minted.range(..).last() {
+                Some((last_hour, total_amount, _)) => (last_hour, total_amount),
+                None => (0, 0),
+            };
+
+            // Insert the total amount for each hour up to the current hour
             for hour in last_hour_updated..=hours_since_start {
                 //info!("At hour {} total SUPER minted = {}", hour, total_amount);
                 self.hourly_super_minted.insert(hour, total_amount);
             }
 
+            // Calculate the new total amount and insert it for the current hour
             let new_total: u64 = total_amount + amount;
-
             self.hourly_super_minted
                 .insert(hours_since_start, new_total);
         }
 
-        /// Calculates and updates yield_per_super_db and yield_generated_db
-        /// for the hour BEFORE the current hour, which is passed in.
+        /// Calculates and updates the yield generated for each SUPER token.
+        /// This function updates the `yield_per_super_db` and `yield_generated_db` for the hour
+        /// before the current hour. It calculates the yield based on the yield curve and the amount of
+        /// SUPER tokens minted, then updates the yield generated for each NFT.
+        ///
+        /// # Note
+        /// This function iterates over the range of hours from the last updated hour to the current hour,
+        /// ensuring all intermediate hours are updated accordingly.
         pub fn update_yield_generated(&mut self) {
+
+            // Get the current hour since the sale started
             let now_hour: u64 = self.hours_since_start();
 
+            // Iterate through each hour from the last updated hour to the current hour
             for current_hour in self.dbs_updated_up_to_before_hour..=now_hour {
+
+                // Calculate the yield tokens minted for the current hour
                 let yield_tokens_minted: Decimal =
                     self.calculate_yield_curve_for_hour(current_hour);
 
-                //info!("----------------------Hour {}----------------------------",current_hour);
-
-                //info!("Yield Tokens minted: {}", yield_tokens_minted);
-
+                // Get the amount of SUPER minted in the current hour
                 let super_minted_in_hour: u64 =
                     *self.hourly_super_minted.get(&current_hour).unwrap();
 
-                //info!("super minted: {}", super_minted_in_hour);
-
+                // Calculate the yield per SUPER token for the current hour
                 let yield_per_super_for_hour: Decimal = yield_tokens_minted
                     .checked_div(super_minted_in_hour)
                     .unwrap();
 
-                //info!("yield per super: {}", yield_per_super_for_hour);
-
+                // Update the yield generated for each NFT
                 self.yield_generated_db.range_mut(..).for_each(
                     |(nft_id, yield_generated, next_nft_id): (&u64, &mut Decimal, Option<u64>)| {
-                        //info!("----------------------NFT ID {}----------------------------", nft_id);
 
                         let nft_data: YieldClaim = *self.yield_nft_db.get(nft_id).unwrap();
                         let hour_minted: u64 = nft_data.hour_of_mint;
                         let super_minted: u64 = nft_data.n_super_minted;
 
+                        // Update the yield generated for the current NFT if it was minted before the current hour
                         if current_hour >= hour_minted {
                             let yield_generated_this_hour: Decimal =
                                 yield_per_super_for_hour.checked_mul(super_minted).unwrap();
@@ -1293,6 +1496,7 @@ mod super_iyo {
                             //info!("Hour: {}, NFT: {}, Yield: {}", current_hour, nft_id, yield_generated);
                         }
 
+                        // Continue iterating or break if this is the last entry
                         match next_nft_id {
                             Some(_x) => scrypto_avltree::IterMutControl::Continue,
                             None => scrypto_avltree::IterMutControl::Break,
@@ -1301,6 +1505,7 @@ mod super_iyo {
                 );
             }
 
+            // Update the last updated hour and mark the hour as updated in the checklist
             self.dbs_updated_up_to_before_hour = now_hour + 1;
             self.hour_updated_checklist.insert(now_hour, true);
             //info!("Yield db Updated up to hour {}", self.dbs_updated_up_to_before_hour);
@@ -1311,14 +1516,17 @@ mod super_iyo {
             if (self.yield_curve_updated_to_before_hour > 2689
         }
         */
-        
+
         //endregion AVL Tree Updaters
 
         //region AVL Tree Viewers
 
+        /// Emits events to show the hourly SUPER minted data.
+        /// This function iterates through the `hourly_super_minted` database and emits an event
+        /// for each hour, showing the amount of SUPER tokens minted.
         pub fn show_hourly_super_minted(&mut self) {
             for (key, val, _next_key) in self.hourly_super_minted.range(..) {
-                //info!("at hour {}, hourly mint = {}", key, val);
+                // Emit an event for each hour with the amount of SUPER minted
                 Runtime::emit_event(ShowSuperMintedEvent {
                     time: key,
                     n_super: val,
@@ -1326,7 +1534,11 @@ mod super_iyo {
             }
         }
 
+        /// Emits events to show the hourly yield generated data.
+        /// This function iterates through the `yield_generated_db` database and emits an event
+        /// for each NFT, showing the yield generated up to the current hour.
         pub fn show_hourly_yield_generated(&mut self) {
+            // Emit an event for each NFT with the yield generated
             for (key, val, _next_key) in self.yield_generated_db.range(..) {
                 Runtime::emit_event(YieldUpdateEvent {
                     time: self.hours_since_start(),
@@ -1334,6 +1546,7 @@ mod super_iyo {
                     yield_generated: val,
                 });
 
+                // Log the yield generated for each NFT
                 info!("NFT ID {}, yield generated = {}", key, val);
             }
         }
@@ -1388,15 +1601,15 @@ mod super_iyo {
         /// Calculates the yield curve at a given time `t` using:
         /// ```rust, ignore
         ///
-        /// f(t) = et + [ (950864e) / (et + 1) ]
+        /// f(t) = πt + [ (807305e) / (et + 1) ]
         /// ```
         ///
         /// where:
         ///
         /// `f(t)` = yield at time `t`
         ///
-        /// `e` = Euler's number, 2.718...
-        ///
+        /// `e` = Euler's number, 2.718...  
+        /// `π` = Pi, 3.141...  
         /// `t` = time
         ///
         /// # Arguments
@@ -1407,14 +1620,14 @@ mod super_iyo {
         ///
         ///
         pub fn calculate_yield_curve_for_hour(&self, hour: u64) -> Decimal {
-            // f(x) =   et      +   [ (950150e) / (et + 1) ]
+            // f(t) =   πt      +   [ (807305e) / (et + 1) ]
             //      =   term_1  +   [ (term_2_numerator) / (term_2_denominator_1 + term_2_denominator_2) ]
             //      =   term_1  +   [ term_2_numerator / term_2_denominator ]
             //      =   term_1  +   [ term_2 ]
 
-            let term_1: Decimal = EULER.checked_mul(hour).unwrap();
+            let term_1: Decimal = PI.checked_mul(hour).unwrap();
 
-            let term_2_numerator: Decimal = EULER.checked_mul(950150).unwrap();
+            let term_2_numerator: Decimal = EULER.checked_mul(807305).unwrap();
 
             let term_2_denominator_1: Decimal = EULER.checked_mul(hour).unwrap();
             let term_2_denominator_2: Decimal = dec!("1.0");
@@ -1470,7 +1683,6 @@ mod super_iyo {
         }
 
         /// Divides a scrypto decimal into `n` almost equal parts.
-        /// I realized while making the docs that this function is unnecessary
         ///
         /// # Arguments
         /// * `number` - The `Decimal` number to be divided.
@@ -1578,6 +1790,8 @@ mod super_iyo {
 
                 }
         */
+
+        /// Converts a NonFungibleLocalID<Integer> to a u64 integer
         pub fn nft_local_id_to_u64(&self, nft_local_id: NonFungibleLocalId) -> u64 {
             nft_local_id
                 .to_string()

@@ -1,9 +1,9 @@
 import {createContext, useContext, useEffect, useState} from "react";
 import PropTypes from "prop-types";
-import {UpdateTriggerContext} from "../contexts.jsx";
+import {UpdateTriggerContext} from "../updateTriggerContext.jsx";
 import {getLatestSaleDetails} from "../../api/get.js";
 
-
+// Create a context for sale details
 export const SaleDetailsContext = createContext(null);
 
 
@@ -12,7 +12,7 @@ export const SaleDetailsProvider = ({ children }) => {
     const { trigger } = useContext(UpdateTriggerContext);
 
     useEffect(() => {
-        console.log("SaleDetailsProvider got shot, updating state");
+        // Function to fetch sale details
         const fetchSaleDetails = async () => {
             try {
                 const response = await getLatestSaleDetails();
@@ -23,14 +23,18 @@ export const SaleDetailsProvider = ({ children }) => {
         };
 
         fetchSaleDetails();
+
+        // Re-fetch sale details whenever the update trigger changes
     }, [trigger]);
 
     return (
+        // Provide the sale details to children components
         <SaleDetailsContext.Provider value={saleDetails}>
             {children}
         </SaleDetailsContext.Provider>
     );
 };
+
 SaleDetailsProvider.propTypes = {
     children: PropTypes.node.isRequired,
 };

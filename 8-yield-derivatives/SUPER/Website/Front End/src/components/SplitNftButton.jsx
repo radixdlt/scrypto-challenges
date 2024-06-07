@@ -1,4 +1,4 @@
-import { useSendTransaction } from "../hooks/useSendTransaction";
+import { useSendTransaction } from "../hooks/useSendTransaction.js";
 import PropTypes from "prop-types";
 import {useEffect, useState} from "react";
 import {useComponentAddy} from "../hooks/useComponentDetails.js";
@@ -38,7 +38,7 @@ function SplitNftButton(props) {
         await setReceipt(events);
     };
 
-    const SplitNFTEvent = useGetEventInReceipt(receipt, "CreateYieldNFTEvent");
+    const SplitNFTEvent = useGetEventInReceipt(receipt, "SplitNFTEvent");
 
     useEffect(() => {
         // Check if the receipt is not null and call the function

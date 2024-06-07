@@ -1,14 +1,13 @@
 import { useState } from 'react';
-import {UpdateTriggerContext} from '../contexts.jsx';
+import {UpdateTriggerContext} from "../updateTriggerContext.jsx";
+import PropTypes from "prop-types";
 
 
 // Provider component
-// eslint-disable-next-line react/prop-types
 export const UpdateTriggerProvider = ({ children }) => {
     const [trigger, setTrigger] = useState(0); // initial value 0
 
     const update = () => {
-        console.log("Update trigger pulled, bullet left the chamber");
         setTrigger(prev => prev + 1); // increment to trigger update
     };
 
@@ -17,4 +16,9 @@ export const UpdateTriggerProvider = ({ children }) => {
             {children}
         </UpdateTriggerContext.Provider>
     );
+};
+
+// Defining prop types for the component
+UpdateTriggerProvider.propTypes = {
+    children: PropTypes.node.isRequired,
 };

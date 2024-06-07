@@ -1,9 +1,8 @@
 import "./App.css";
-import HomePage from "./pages/HomePage"
-import DocsPage from "./pages/DocsPage"
-import BuySuperPage from "./pages/BuySuperPage";
+import HomePage from "./pages/HomePage/index.jsx"
+import DocsPage from "./pages/DocsPage/index.jsx"
+import BuySuperPage from "./pages/BuySuperPage/index.jsx";
 import OwnerPage from "./pages/DevPage/index.jsx";
-import ManageSuperPage from "./pages/ManageSuperPage/index.jsx";
 
 import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
 import SuperPage from "./pages/SuperPage/index.jsx";
@@ -20,8 +19,7 @@ function App() {
               <Route path="/super" element={<SuperPage />}>
                   <Route index element={<Navigate to="/super/buy" />} />
                   <Route path="buy" element={<BuySuperPage />} />
-                  <Route path="manage" element={<ManageSuperPage />} />
-                  <Route path="superv2" element={<ManageSuperPageV2/>}/>
+                  <Route path="manage" element={<ManageSuperPageV2/>}/>
               </Route>
               <Route path="DevsOnly" element={<OwnerPage/>}/>
           </Routes>

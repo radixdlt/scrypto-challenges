@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rules SYSTEM "https://resources.jetbrains.com/writerside/1.0/redirection-rules.dtd">
+<rules>
+    <!-- format is as follows
+    <rule id="<unique id>">
+        <accepts>page.html</accepts>
+    </rule>
+    -->
+    <rule id="6633f7b4">
+        <description>Created after removal of "Reference" from Initial Yield Offering</description>
+        <accepts>Reference.html</accepts>
+    </rule>
+    <rule id="30dd0bf">
+        <description>Created after removal of "Starter" from Initial Yield Offering</description>
+        <accepts>starter.html</accepts>
+    </rule>
+    <rule id="daab8c7">
+        <description>Created after removal of "Section Starting Page" from Initial Yield Offering</description>
+        <accepts>Section-Starting-Page.html</accepts>
+    </rule>
+    <rule id="56727d99">
+        <description>Created after removal of "Yield Curve Calculations" from Initial Yield Offering</description>
+        <accepts>YieldCurveCalculations1.html</accepts>
+    </rule>
+    <rule id="137fd8d1">
+        <description>Created after removal of "!pip install pandas sympy IPython matplotlib numpy seaborn scipy pprint"
+            from Initial Yield Offering
+        </description>
+        <accepts>YieldCurveCalculations1.html</accepts>
+    </rule>
+</rules>

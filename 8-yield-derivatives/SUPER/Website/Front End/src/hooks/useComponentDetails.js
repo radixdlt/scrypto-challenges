@@ -1,12 +1,12 @@
 import {useContext, useEffect, useMemo} from "react";
-import {XrdAddress} from "../context/contexts.jsx";
 
 //import { useSaleDetails } from "../context/SaleDetailProvider.jsx";
 import {useSaleDetails} from "./useSaleDetails.js"
 import {DappDefinitionCaddy} from "../context/fromEnv/DappDefinitionCaddy.jsx";
-import {saleLength} from "../context/fromEnv/saleLength.jsx";
+import {SaleLength} from "../context/fromEnv/SaleLength.jsx";
 import {packageAddy} from "../context/fromEnv/PackageAddy.jsx";
 import {newSuperTxID} from "../context/fromEnv/NewSuperTxID.jsx";
+import {XrdAddressContext} from "../context/xrdAddressContext.jsx";
 
 
 /*#region Constants from .env*/
@@ -16,7 +16,7 @@ export const useNewSuperTxID = () => {
 } 
 
 export const useSaleLength = () => {
-    return useContext(saleLength)
+    return useContext(SaleLength)
 }
 
 export const usePackageAddy = () => {
@@ -25,7 +25,7 @@ export const usePackageAddy = () => {
 };
 
 export const useXrdAddy = () => {
-    return useContext(XrdAddress);
+    return useContext(XrdAddressContext);
 }
 
 /*#endregion ComponentAddresses*/

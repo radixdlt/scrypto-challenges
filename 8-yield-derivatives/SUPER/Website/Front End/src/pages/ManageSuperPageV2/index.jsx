@@ -2,6 +2,7 @@ import SelectNftSection from "../../sections/SelectNFTSection.jsx";
 import {useEffect, useState} from "react";
 import {useAccount} from "../../hooks/useAccount.jsx";
 import {useYieldNftRaddy} from "../../hooks/useComponentDetails.js";
+import SplitNFTSectionV2 from "../../sections/SplitNFTSectionV2.jsx";
 
 const ManageSuperPage = () => {
     const { accounts } = useAccount();
@@ -22,11 +23,21 @@ const ManageSuperPage = () => {
         setEnableSelectNft(accounts.length > 0);
 
     }, [accounts]);
+
     // You might also manage other states related to specific functionalities on this page
+    useEffect(() => {
+        if (selectedNft && selectedAccount) {
+                setEnableInput(true)
+            } else {
+                setEnableInput(false)
+            }
+        }, [selectedNft, selectedAccount]);
 
     return (
         <div className="manage-super-page">
+
             <h1>Manage Your Super Assets</h1>
+
             <SelectNftSection
                 selectedAccount={selectedAccount}
                 setSelectedAccount={setSelectedAccount}
@@ -36,6 +47,14 @@ const ManageSuperPage = () => {
                 setSelectedNft={setSelectedNft}
                 setEnableInput={setEnableInput}
             />
+
+            <SplitNFTSectionV2
+                selectedAccount={selectedAccount}
+                selectedNft={selectedNft}
+                YieldNftRaddy={YieldNftRaddy}
+                enableInput = {enableInput}
+            />
+
             {/* Other sections or components related to managing super assets could also be added here */}
         </div>
     );

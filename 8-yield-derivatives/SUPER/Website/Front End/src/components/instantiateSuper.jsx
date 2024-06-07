@@ -1,4 +1,4 @@
-import { useSendTransaction } from "../hooks/useSendTransaction";
+import { useSendTransaction } from "../hooks/useSendTransaction.js";
 import PropTypes from "prop-types";
 import {newManifest} from "../manifests/newSuperManifest.js";
 import {usePackageAddy, useDappDefinitionCaddy, useSaleLength} from "../hooks/useComponentDetails.js";
