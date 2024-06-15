@@ -1,0 +1,4 @@
+CALL_METHOD
+    Address("component_tdx_2_1cq68aw56fc0ahw5w7mg65xktwr08kn9m43rp4rms8qwyy6fqdlgae4")
+    "get_market_implied_rate"
+;
