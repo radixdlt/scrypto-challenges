@@ -2,8 +2,8 @@
 > This is documentation for the frontend, of the SUPER DApp
 > - [How do I run the DApp?](../README.md)
 > - [What are you making?](../../README.md)
-> - [Scrypto Docs](../../Smart Contract/README.md)
-> - [Back End Docs](../Back End/Server/README.md)
+> - [Scrypto Docs](../../Smart%20Contract/README.md)
+> - [Back End Docs](../Back%20End/Server/README.md)
 
 # SUPER Frontend (Vanilla React + Vite)
 

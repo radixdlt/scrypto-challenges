@@ -2,8 +2,8 @@
 > This is documentation for the server used for the SUPER DApp
 > - [How do I run the DApp?](../../README.md)
 > - [What are you making?](../../../README.md)
-> - [Scrypto Docs](../../../Smart Contract/README.md)
-> - [Front End Docs](../../Front End/README.md)
+> - [Scrypto Docs](../../../Smart%20Contract/README.md)
+> - [Front End Docs](../../Front%20End/README.md)
 
 # SUPER Back End (_Express_)
 

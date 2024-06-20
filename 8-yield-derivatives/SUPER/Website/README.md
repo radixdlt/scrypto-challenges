@@ -1,9 +1,9 @@
 > [!NOTE]
 > This document explains how to run the DApp, by either using the frontend, backend, and Scrypto on Stokenet or using just the scrypto on `resim`
 > - [What am I running?](../README.md)
-> - [Scrypto Docs](../Smart Contract/README.md)
-> - [Front End Docs](./Front End/README.md)
-> - [Back End Docs](./Back End/Server/README.md)
+> - [Scrypto Docs](../Smart%20Contract/README.md)
+> - [Front End Docs](./Front%20End/README.md)
+> - [Back End Docs](./Back%20End/Server/README.md)
 
 
 # Run the SUPER DApp

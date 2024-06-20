@@ -2,7 +2,7 @@
 > This is documentation for the Scrypto Package
 > - [How do I run the DApp?](../Website/README.md)
 > - [What are you making?](../README.md)
-> - [Front End Docs](../Website/Front End/README.md)
+> - [Front End Docs](../Website/Front%20End/README.md)
 > - [Back End Docs](../Website/Back%20End/Server/README.md)
 
 # SUPER Scrypto Package Overview

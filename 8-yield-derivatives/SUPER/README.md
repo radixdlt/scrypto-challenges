@@ -1,9 +1,9 @@
 > [!NOTE]
 > This document explains the concept of the project.  
 > - [How do I run the DApp?](./Website/README.md)
-> - [Scrypto Docs](./Smart Contract/README.md)
-> - [Front End Docs](./Website/Front End/README.md)
-> - [Back End Docs](./Website/Back End/Server/README.md)  
+> - [Scrypto Docs](./Smart%20Contract/README.md)
+> - [Front End Docs](./Website/Front%20End/README.md)
+> - [Back End Docs](./Website/Back%20End/Server/README.md)  
 
 # What is an Initial Yield Offering?
 Over the years, raising capital in a decentralized manner has seen many iterations, such as:
