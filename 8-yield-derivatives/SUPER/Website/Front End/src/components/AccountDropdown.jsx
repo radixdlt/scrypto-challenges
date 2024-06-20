@@ -3,7 +3,18 @@ import PropTypes from "prop-types";
 import {useAccount} from "../hooks/useAccount.jsx";
 
 
-
+/**
+ * AccountDropdown component that provides a dropdown menu for selecting an account.
+ * It is designed to be used in parts of the application where users need to select an
+ * account for various operations. The dropdown adapts its styling and behavior based
+ * on the number of available accounts and whether the dropdown is enabled or disabled.
+ *
+ * @param {object} props - Component props
+ * @param {string} props.selectedAccount - The currently selected account
+ * @param {Function} props.setSelectedAccount - Function to update the selected account
+ * @param {boolean} props.enableDropdown - Flag to enable or disable interaction with the dropdown
+ * @returns {JSX.Element} The rendered AccountDropdown component.
+ */
 const AccountDropdown = (props) => {
     const { selectedAccount, setSelectedAccount, enableDropdown } = props;
 
@@ -24,6 +35,7 @@ const AccountDropdown = (props) => {
     const [active, setActive] = React.useState(false);
 
     useEffect(() => {
+        // Automatically select the account if only one is available
         if (accounts.length === 1) {
             setSelectedAccount(accounts[0].address);
             handleSelectAccount(accounts[0])
@@ -31,10 +43,12 @@ const AccountDropdown = (props) => {
     }, [accounts, setSelectedAccount]);
 
     const toggleDropdown = () => {
+        // Toggle the dropdown open/closed state
         setActive(!active);
         setDropdownOpen(!dropdownOpen);
     };
 
+    // Handle selecting an account from the dropdown
     const handleSelectAccount = (account) => {
         setSelectedAccount(account.address);
         setSelectStyle({
@@ -46,6 +60,7 @@ const AccountDropdown = (props) => {
         setDropdownOpen(false);
     };
 
+    // Render a label for the account
     const renderAccountLabel = (account) => {
         const shortAddress = `${account.address.slice(0, 4)}...${account.address.slice(-6)}`;
         return `${account.label || "Account"} ${shortAddress}`;

@@ -1,5 +1,11 @@
 import { NavLink } from 'react-router-dom';
 
+/**
+ * SecondaryNavbar component that provides the secondary navigation bar for the DApp.
+ * It includes links to the "Buy" and "Manage" pages within the "SUPER" section.
+ *
+ * @returns {JSX.Element} The rendered SecondaryNavbar component.
+ */
 const SecondaryNavbar = () => {
     return (
         <div id="secondary-navbar">
@@ -15,4 +21,3 @@ const SecondaryNavbar = () => {
 };
 
 export default SecondaryNavbar;
-//       //"#/assets/images/logo/transparent/white/floww.svg" alt="dev mode setup" 

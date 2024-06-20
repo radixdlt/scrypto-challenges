@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
 import {useEndTimeUnix, useSaleCompleted} from "../hooks/useComponentDetails.js";
 
+/**
+ * EndCountdown component provides a countdown timer that shows the time remaining until the end of a sale.
+ * It uses custom hooks to fetch the sale end time and sale completion status, and updates the countdown every second.
+ *
+ * @returns {JSX.Element|null} The rendered EndCountdown component or null if the sale is completed or time is up.
+ */
 function EndCountdown() {
+    const endUnix = useEndTimeUnix(); // Hook to get the Unix timestamp of the sale end time
+    const saleCompleted = useSaleCompleted(); // Hook to get the sale completion status
+    const [timeLeft, setTimeLeft] = useState(''); // State to store the remaining time
 
-    const endUnix = useEndTimeUnix();
-
-    const saleCompleted = useSaleCompleted();
-
-    const [timeLeft, setTimeLeft] = useState('');
-
+    // Update the countdown every second
     useEffect(() => {
         // Update the countdown every second
         const timer = setInterval(() => {
@@ -35,6 +39,7 @@ function EndCountdown() {
         return () => clearInterval(timer);
     }, [endUnix]); // Only rerun the effect if endDateUnix changes
 
+    // Return null if there is no end time, time is up, or the sale is completed
     if (!endUnix || timeLeft === 'Time is up!' || timeLeft==='' || saleCompleted) {
         return null;
     }

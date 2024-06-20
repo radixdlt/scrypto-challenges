@@ -2,9 +2,21 @@ import {useCallback, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {useCombinedNftData} from "../hooks/useCombinedNftData.jsx";
 
-
+/**
+ * YieldNFTDropdown component provides a dropdown menu for selecting a SUPER Yield NFT
+ * associated with a selected account. It utilizes the `useCombinedNftData` hook to fetch
+ * NFT data and updates the selection state accordingly.
+ *
+ * @param {object} props - Component props
+ * @param {string} props.selectedAccount - The currently selected account
+ * @param {boolean} props.enableSelectNft - Flag to enable or disable the NFT selection dropdown
+ * @param {string} props.YieldNftRaddy - The resource address of the yield NFT
+ * @param {Function} props.setSelectedNft - Function to update the selected NFT
+ * @param {Function} props.setEnableInput - Function to enable or disable input fields based on NFT selection
+ * @returns {JSX.Element} The rendered YieldNFTDropdown component.
+ */
 const YieldNFTDropdown = ({ selectedAccount, enableSelectNft, YieldNftRaddy, setSelectedNft, setEnableInput }) => {
-
+    // Fetch combined NFT data for all connected accounts
     const AccountNftsWithData = useCombinedNftData(YieldNftRaddy)
 
     if (AccountNftsWithData.length > 0 && enableSelectNft) {
@@ -18,16 +30,14 @@ const YieldNFTDropdown = ({ selectedAccount, enableSelectNft, YieldNftRaddy, set
 
             const nftsForSelectedAccount = AccountNftsWithData.filter(address => address.address === selectedAccount);
             if (nftsForSelectedAccount) {
-                setSelectedAccountNfts(nftsForSelectedAccount[0]); // Assuming you want the first match or handle multiple matches appropriately
+                setSelectedAccountNfts(nftsForSelectedAccount[0]);
                 console.log("selectedAccountNfts",selectedAccountNfts);
             }
         } else {
             setSelectedAccountNfts([]); // Reset when selected account is not defined
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedAccount]);  // Ensure AccountNftsWithData is in the dependency array
-
-
+    }, [selectedAccount]);
 
     const [selectedNFT, setSelectedNFT] = useState(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);

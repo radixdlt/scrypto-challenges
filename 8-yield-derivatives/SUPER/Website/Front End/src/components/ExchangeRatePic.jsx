@@ -1,5 +1,17 @@
+/**
+ * ExchangeRatePic component visually represents the exchange rate formula for converting XRD
+ * to SUPER tokens and SUPER NFTs. It includes sub-components to display the Radix token,
+ * SUPER token, SUPERt token, and SUPER Yield NFT.
+ *
+ * @returns {JSX.Element} The rendered ExchangeRatePic component.
+ */
 function ExchangeRatePic() {
-    const RadixLogo = () => {
+
+    /**
+     * RadixLogo component displays the Radix token image and its value.
+     *
+     * @returns {JSX.Element} The rendered RadixLogo component.
+     */    const RadixLogo = () => {
         return (
             <span className='exchange-amount-container'>
 
@@ -14,6 +26,11 @@ function ExchangeRatePic() {
         );
     };
 
+    /**
+     * SuperYieldNFTLogo component displays the SUPER Yield NFT image and its value.
+     *
+     * @returns {JSX.Element} The rendered SuperYieldNFTLogo component.
+     */
     const SuperYieldNFTLogo = () => {
         return (
             <span className='exchange-amount-container'>
@@ -29,6 +46,11 @@ function ExchangeRatePic() {
         )
     }
 
+    /**
+     * SuperLogo component displays the SUPER token image and its value.
+     *
+     * @returns {JSX.Element} The rendered SuperLogo component.
+     */
     const SuperLogo = () => {
         return (
             <span className='exchange-amount-container'>
@@ -44,6 +66,11 @@ function ExchangeRatePic() {
         )
     }
 
+    /**
+     * SuperTrustLogo component displays the SUPERt token image and its value.
+     *
+     * @returns {JSX.Element} The rendered SuperTrustLogo component.
+     */
     const SuperTrustLogo = () => {
         return (
             <span className='exchange-amount-container'>

@@ -10,8 +10,7 @@ import {SaleDetailsProvider} from "./context/providers/SaleDetailProvider.jsx";
 import {UpdateTriggerProvider} from "./context/providers/UpdateTriggerProvider.jsx";
 
 
-// You can create a dApp definition in the dev console at https://stokenet-console.radixdlt.com/configure-metadata
-// then use that account for your dAppId
+// Import dApp ID from environment variables
 const dAppId = import.meta.env.VITE_DAPP_ID;
 
 // Initialize the Gateway API for network queries and the Radix Dapp Toolkit for connect button and wallet usage.
@@ -37,6 +36,7 @@ const rdt = RadixDappToolkit({
 
 console.log("dApp Toolkit: ", rdt);
 
+// Render the React application and provide context providers
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
         <GatewayApiProvider value={gatewayApi}>

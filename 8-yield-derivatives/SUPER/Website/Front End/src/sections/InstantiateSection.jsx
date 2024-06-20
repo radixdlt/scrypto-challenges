@@ -1,6 +1,13 @@
 import InstantiateSuper from "../components/instantiateSuper.jsx";
 import PropTypes from "prop-types";
 
+/**
+ * InstantiateSection component that provides a section for users to instantiate a SUPER component.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.selectedAccount - The currently selected account.
+ * @returns {JSX.Element} The rendered "Instantiate SUPER" section component.
+ */
 const InstantiateSection = ({ selectedAccount }) => {
 
     return (

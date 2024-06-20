@@ -3,6 +3,13 @@ import BuySuper from "../components/BuySuper.jsx";
 import { } from "react";
 import {useAccount} from "../hooks/useAccount.jsx";
 
+/**
+ * DevSection component that provides a section for developers to interact with the DApp.
+ * This section includes a custom account selection dropdown, an input field for entering XRD amounts,
+ * and a button to initiate the purchase of SUPER. It requires the user to have an Owner Badge to interact with the page.
+ *
+ * @returns {JSX.Element} The rendered "Developer Page" section component.
+ */
 const DevSection = () => {
 
     const { accounts, selectedAccount, setSelectedAccount } = useAccount();
@@ -25,6 +32,7 @@ const DevSection = () => {
     const [active, setActive] = useState(false);
 
     useEffect(() => {
+        // Enable or disable buttons based on account availability
         if (accounts.length > 0) {
             setEnableButtons(true);
         } else {

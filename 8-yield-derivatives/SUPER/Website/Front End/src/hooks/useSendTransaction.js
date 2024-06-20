@@ -2,6 +2,11 @@ import { useCallback } from "react";
 import { useRdt } from "./useRdt.js";
 import { useGatewayApi } from "./useGatewayApi.js";
 
+/**
+ * Custom hook to send transactions and fetch transaction details.
+ *
+ * @returns {Function} A function to send transactions and retrieve transaction details.
+ */
 export const useSendTransaction = () => {
   const rdt = useRdt();
   const gatewayApi = useGatewayApi();

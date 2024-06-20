@@ -4,18 +4,20 @@ import {useAccount} from "../../hooks/useAccount.jsx";
 import {useYieldNftRaddy} from "../../hooks/useComponentDetails.js";
 import SplitNFTSectionV2 from "../../sections/SplitNFTSectionV2.jsx";
 
+/**
+ * ManageSuperPage component that serves as a page for managing the SUPER yield NFT.
+ *
+ * @returns {JSX.Element} The rendered "Manage Super" page component.
+ */
 const ManageSuperPage = () => {
     const { accounts } = useAccount();
-    // State to manage the selected account and NFT-related options
-    const [selectedAccount, setSelectedAccount] = useState(null);
-    // eslint-disable-next-line no-unused-vars
-    const [enableSelectNft, setEnableSelectNft] = useState(true); // Assuming this might be toggled based on some conditions
-    // eslint-disable-next-line no-unused-vars
-    const [selectedNft, setSelectedNft] = useState(null);
-    // eslint-disable-next-line no-unused-vars
-    const [enableInput, setEnableInput] = useState(false);
-    const [enableButtons, setEnableButtons] = useState(false);
-    const YieldNftRaddy = useYieldNftRaddy();
+    const [selectedAccount, setSelectedAccount] = useState(null); // State to manage the selected account
+    const [enableSelectNft, setEnableSelectNft] = useState(true); // State to enable/disable NFT selection
+    const [selectedNft, setSelectedNft] = useState(null); // State to manage the selected NFT
+    const [enableInput, setEnableInput] = useState(false); // State to enable/disable inputs
+    const [enableButtons, setEnableButtons] = useState(false); // State to enable/disable buttons
+    const YieldNftRaddy = useYieldNftRaddy(); // Fetch the resource address of the yield NFT
+
 
     useEffect(() => {
         // Automatically enable buttons if accounts are available
@@ -24,8 +26,8 @@ const ManageSuperPage = () => {
 
     }, [accounts]);
 
-    // You might also manage other states related to specific functionalities on this page
     useEffect(() => {
+        // Enable input fields if both an account and an NFT are selected
         if (selectedNft && selectedAccount) {
                 setEnableInput(true)
             } else {
@@ -43,7 +45,7 @@ const ManageSuperPage = () => {
                 setSelectedAccount={setSelectedAccount}
                 enableButtons={enableButtons}
                 enableSelectNft={enableSelectNft}
-                YieldNftRaddy={YieldNftRaddy} // This would be dynamically fetched or set based on your application's logic
+                YieldNftRaddy={YieldNftRaddy}
                 setSelectedNft={setSelectedNft}
                 setEnableInput={setEnableInput}
             />
@@ -55,7 +57,6 @@ const ManageSuperPage = () => {
                 enableInput = {enableInput}
             />
 
-            {/* Other sections or components related to managing super assets could also be added here */}
         </div>
     );
 };

@@ -1,3 +1,11 @@
+
+/**
+ * DevModeInstruction component that provides step-by-step instructions for entering Dev Mode
+ * in the Radix Wallet. This is crucial for testing the SUPER functionality in the DApp.
+ * The component includes headings, instructional steps, and a gif demonstrating the setup process.
+ *
+ * @returns {JSX.Element} The rendered DevModeInstruction component.
+ */
 const DevModeInstruction = () => {
   return (
     <>

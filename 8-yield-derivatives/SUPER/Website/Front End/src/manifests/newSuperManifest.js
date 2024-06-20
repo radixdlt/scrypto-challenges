@@ -1,18 +1,19 @@
 export const newManifest = (
     ownerAddress,
     DappDefinition,
-    PackageAddy,
-    testMode
+    PackageAddy
 ) => `
 CALL_FUNCTION
 Address("${PackageAddy}")
 "Super"
 "new"
 Address("${DappDefinition}")
-${testMode}u32
 ;
 CALL_METHOD
 Address("${ownerAddress}")
-"deposit_batch"
+"try_deposit_batch_or_refund"
 Expression("ENTIRE_WORKTOP")
-;`;
+Enum<0u8>()
+;
+`;
+

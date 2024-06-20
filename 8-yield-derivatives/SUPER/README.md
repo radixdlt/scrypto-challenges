@@ -42,8 +42,8 @@ The Initial Yield Offering has been built with the following four actors in mind
 ## The SUPER Tokens
 Super uses 4 tokens, SUPER, SUPERt, SUPERy, and SUPER Yield NFT. All fungible tokens start with an initial supply of 0.
 
-| Token       | Symbol   | Icon                                              | Type     | Max Supply                               |
-|-------------|----------|---------------------------------------------------|----------|------------------------------------------|
+| Token       | Symbol   | Icon                                                             | Type     | Max Supply                               |
+|-------------|----------|------------------------------------------------------------------|----------|------------------------------------------|
 | SUPER       | SUPER    | <img height="50" src="img/tokens/svg/super.svg" width="50"/>     | Fungible | <tooltip term="infinite">**∞**</tooltip> |
 | SUPER Trust | SUPERt   | <img height="50" src="img/tokens/svg/super_t.svg" width="50"/>   | Fungible | <tooltip term="infinite">**∞**</tooltip> |
 | SUPER Yield | SUPERy   | <img height="50" src="img/tokens/svg/super_y.svg" width="50"/>   | Fungible | 20 Million                               |

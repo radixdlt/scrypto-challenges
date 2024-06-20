@@ -3,8 +3,15 @@ import { useRdt } from "./useRdt.js";
 import { useAccount } from "./useAccount.jsx";
 import {getNftDataFromMongo} from "../api/get.js";
 
-
+/**
+ * Custom hook to fetch and process NFT data for all accounts connected to the frontend.
+ *
+ * @param {string} YieldNftRaddy - The resource address of the yield NFT.
+ * @returns {Array} The combined NFT data.
+ */
 export const useCombinedNftData = (YieldNftRaddy) => {
+
+    // State to hold the enhanced NFT data
     const [enhancedNfts, setEnhancedNfts] = useState([]);
     const { accounts } = useAccount();
     const gatewayApi = useRdt().gatewayApi;
@@ -17,7 +24,10 @@ export const useCombinedNftData = (YieldNftRaddy) => {
             }
 
             try {
+                // Get addresses from accounts
                 const addresses = accounts.map(account => account.address);
+
+                // Fetch account details from the Gateway API
                 const accountInfos = await gatewayApi.state.getEntityDetailsVaultAggregated(addresses, {
                     nonFungibleIncludeNfids: true
                 });
@@ -29,6 +39,7 @@ export const useCombinedNftData = (YieldNftRaddy) => {
                         non_fungible_resources: account.non_fungible_resources
                     }));
 
+                    // Process each account to fetch NFT data and combine with backend-fetched data
                     const processedAccounts = await Promise.all(preProcessedAccounts.map(async (account) => {
                         const nfts = account.non_fungible_resources.items
                             .filter(item => item.resource_address === YieldNftRaddy)
@@ -43,6 +54,7 @@ export const useCombinedNftData = (YieldNftRaddy) => {
                                     : []
                             );
 
+                        // Fetch additional data from backend for each NFT
                         const nftsWithData = await Promise.all(
                             nfts.map(async nft => {
                                 const additionalData = await getNftDataFromMongo(nft.label);

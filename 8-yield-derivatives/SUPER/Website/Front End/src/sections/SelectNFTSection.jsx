@@ -2,6 +2,21 @@ import PropTypes from 'prop-types';
 import AccountDropdown from '../components/AccountDropdown.jsx';
 import YieldNFTDropdown from '../components/YieldNFTDropdown.jsx';
 
+/**
+ * SelectNftSection allows users to select an account and the SUPER Yield NFT they want to manage.
+ * This section is commonly used in parts of the application that require the user to operate
+ * under an account with they Yield  NFTs.
+ *
+ * @param {object} props - Component props
+ * @param {string} props.selectedAccount - Currently selected account
+ * @param {Function} props.setSelectedAccount - Function to update the selected account
+ * @param {boolean} props.enableButtons - Flag to enable interaction with the account dropdown
+ * @param {boolean} props.enableSelectNft - Flag to enable interaction with the NFT dropdown
+ * @param {string} props.YieldNftRaddy - The resource address of the yield NFT
+ * @param {Function} props.setSelectedNft - Function to update the selected NFT
+ * @param {Function} props.setEnableInput - Function to enable or disable input fields based on the selected account and NFT
+ * @returns {JSX.Element} The rendered "Select Account and NFT" section component.
+ */
 const SelectNftSection = ({ selectedAccount, setSelectedAccount, enableButtons, enableSelectNft, YieldNftRaddy, setSelectedNft, setEnableInput }) => {
     return (
         <>
@@ -16,7 +31,7 @@ const SelectNftSection = ({ selectedAccount, setSelectedAccount, enableButtons, 
                     <AccountDropdown
                         selectedAccount={selectedAccount}
                         setSelectedAccount={setSelectedAccount}
-                        enableDropdown={enableButtons} // Assuming this prop controls dropdown enable state
+                        enableDropdown={enableButtons}
                     />
                 </div>
 

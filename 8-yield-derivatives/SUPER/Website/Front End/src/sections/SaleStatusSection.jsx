@@ -5,6 +5,13 @@ import SaleActiveStatus from "../components/SaleActiveStatus.jsx";
 import EndSale from "../components/EndSale.jsx";
 import EndCountdown from "../components/EndCountdown.jsx";
 
+/**
+ * SaleStatusSection component that provides a section for managing and viewing the status of a sale.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.selectedAccount - The currently selected account.
+ * @returns {JSX.Element} The rendered "Sale Details" section component.
+ */
 const SaleStatusSection = ({ selectedAccount }) => {
     const [error, /*setError*/] = useState('');
 

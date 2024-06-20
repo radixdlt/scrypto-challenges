@@ -12,24 +12,38 @@ StartSale.propTypes = {
     selectedAccount: PropTypes.string,
 };
 
+/**
+ * StartSale component provides functionality for initiating a sale.
+ * It includes a button to start the sale, and upon clicking the button,
+ * it constructs a transaction manifest and sends it using the sendTransaction function.
+ * It also handles the validation to ensure a user account is selected before attempting the transaction.
+ * Upon successful transaction, it logs the transaction events and updates sale details in MongoDB.
+ *
+ * @param {object} props - Component props
+ * @param {string} props.selectedAccount - The currently selected account
+ * @returns {JSX.Element} The rendered StartSale component.
+ */
 function StartSale(props) {
+    const { selectedAccount } = props;
+    const sendTransaction = useSendTransaction(); // Hook to send transaction manifests
+    const xrdAddy = useXrdAddy(); // Hook to get the XRD resource address
+    const componentAddress = useComponentAddy(); // Hook to get the component address
+    const ownerBadgeAddress = useOwnerBadgeRaddy(); // Hook to get the owner badge resource address
 
-    const {selectedAccount} = props;
+    const [receipt, setReceipt] = useState(null); // State to store the transaction receipt
 
-    const sendTransaction = useSendTransaction();
-    const xrdAddy = useXrdAddy();
-    const componentAddress = useComponentAddy();
-    const ownerBadgeAddress = useOwnerBadgeRaddy();
-
-    const [receipt, setReceipt] = useState(null);
-
+    /**
+     * Handles the action to start the sale by constructing and sending the transaction manifest.
+     */
     const handleStartSuper = async () => {
         if (!selectedAccount) {
             alert("Please select an account first.");
             return;
         }
 
-        const manifest = startSaleManifest(selectedAccount, componentAddress, xrdAddy, ownerBadgeAddress);
+        const account = selectedAccount;
+
+        const manifest = startSaleManifest(account, componentAddress, xrdAddy, ownerBadgeAddress);
 
         console.log("manifest", manifest);
 
@@ -52,7 +66,7 @@ function StartSale(props) {
         }
     }, [receipt, SaleDetailEvent]); // This hook will re-run whenever receipt changes
 
-    useUpdateSaleDetails()
+    useUpdateSaleDetails(); // Hook to update sale details
 
     return (
         <div>

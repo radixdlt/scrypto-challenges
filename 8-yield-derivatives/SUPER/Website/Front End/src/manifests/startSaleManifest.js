@@ -3,35 +3,37 @@ export const startSaleManifest = (
     componentAddress,
     xrdAddress,
     ownerBadgeAddress,
-) => String.raw`
-    
+) => String.raw` 
 CALL_METHOD
-    Address("${accountAddress}")
-    "create_proof_of_non_fungibles"
-    Address("${ownerBadgeAddress}")
-    Array<NonFungibleLocalId>(
-        NonFungibleLocalId("#0#")
-    )
+Address("${accountAddress}")
+"create_proof_of_non_fungibles"
+Address("${ownerBadgeAddress}")
+Array<NonFungibleLocalId>(
+    NonFungibleLocalId("#0#")
+)
 ;
 CALL_METHOD
-    Address("${accountAddress}")
-    "withdraw"
-    Address("${xrdAddress}")
-    Decimal("1")
+Address("${accountAddress}")
+"withdraw"
+Address("${xrdAddress}")
+Decimal("1")
 ;
 TAKE_FROM_WORKTOP
-    Address("${xrdAddress}")
-    Decimal("1")
-    Bucket("bucket1")
+Address("${xrdAddress}")
+Decimal("1")
+Bucket("bucket1")
 ;
 CALL_METHOD
-    Address("${componentAddress}")
-    "start_sale"
-    Bucket("bucket1")
+Address("${componentAddress}")
+"start_sale"
+Bucket("bucket1")
 ;
 CALL_METHOD
-    Address("${accountAddress}")
-    "deposit_batch"
-    Expression("ENTIRE_WORKTOP")
+Address("${accountAddress}")
+"try_deposit_batch_or_refund"
+Expression("ENTIRE_WORKTOP")
+Enum<0u8>()
 ;
 `;
+
+

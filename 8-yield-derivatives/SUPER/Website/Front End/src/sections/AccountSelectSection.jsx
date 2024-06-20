@@ -1,6 +1,18 @@
 import AccountDropdown from "../components/AccountDropdown.jsx";
 import PropTypes from "prop-types";  // Ensure the path is correct
 
+
+/**
+ * AccountSelectSection allows users to select an account that they'll interact with the DApp with.
+ * This section is commonly used in parts of the application that require the user to operate
+ * under an account with specific assets.
+ *
+ * @param {object} props - Component props
+ * @param {string} props.selectedAccount - Currently selected account
+ * @param {Function} props.setSelectedAccount - Function to update the selected account
+ * @param {boolean} props.enableButtons - Flag to enable interaction with the dropdown
+ * @returns {JSX.Element} The rendered "Select Account to Manage" section component.
+ */
 const AccountSelectSection = (props) => {
     const { selectedAccount, setSelectedAccount, enableButtons } = props;
 

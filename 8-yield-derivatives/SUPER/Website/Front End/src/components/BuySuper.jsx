@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import {useComponentAddy, useXrdAddy} from "../hooks/useComponentDetails.js";
 import useGetEventInReceipt from "../hooks/useGetEventInReceipt.js";
 import {SendNewNftToMongo} from "../api/posts.js";
+import {buyManifest} from "../manifests/buyManifest.js";
 
 
 BuySuper.propTypes = {
@@ -13,6 +14,20 @@ BuySuper.propTypes = {
     error: PropTypes.string,
 };
 
+/**
+ * BuySuper component that provides functionality for purchasing SUPER tokens.
+ * It includes a button to initiate the purchase, which triggers a transaction using
+ * the Radix dApp Toolkit.
+ * Upon successful transaction, it logs the transaction events
+ * and sends new NFT data to MongoDB.
+ *
+ * @param {object} props - Component props
+ * @param {string} props.selectedAccount - The currently selected account
+ * @param {boolean} props.enableButtons - Flag to enable or disable the button
+ * @param {string} props.xrdAmount - The amount of XRD to be used in the transaction
+ * @param {string} props.error - Error message to display if there's an issue with the input
+ * @returns {JSX.Element} The rendered BuySuper component.
+ */
 function BuySuper(props) {
     const [receipt, setReceipt] = useState(null);
 
@@ -35,44 +50,24 @@ function BuySuper(props) {
         }
 
         const accountAddress = selectedAccount;
-
-        let manifest = `
-            CALL_METHOD
-                Address("${accountAddress}")
-                "withdraw"
-                Address("${xrdAddy}")
-                Decimal("${xrdAmount}");
-            
-            TAKE_FROM_WORKTOP
-                Address("${xrdAddy}")
-                Decimal("${xrdAmount}")
-                Bucket("bucket1");
-            
-            CALL_METHOD
-                Address("${componentAddy}")
-                "deposit"
-                Bucket("bucket1");
-            
-            CALL_METHOD
-                Address("${accountAddress}")
-                "deposit_batch"
-                Expression("ENTIRE_WORKTOP");
-            `;
+        let manifest = buyManifest(accountAddress, componentAddy, xrdAddy, xrdAmount)
 
         console.log("manifest", manifest);
 
+        // Send the transaction and get the result and events
         // eslint-disable-next-line no-unused-vars
         const { TxnResult, events } = await sendTransaction(manifest);
         await setReceipt(events);
     };
 
+    // Extract the CreateYieldNFTEvent from the receipt
     const CreateYieldNFTEvent = useGetEventInReceipt(receipt, "CreateYieldNFTEvent");
 
     useEffect(() => {
         // Check if the receipt is not null and call the function
         if (receipt) {
             if(CreateYieldNFTEvent) {
-                // Call the function when receipt is updated
+                // Send the new NFT data to MongoDB
                 SendNewNftToMongo(CreateYieldNFTEvent)
             }
         }

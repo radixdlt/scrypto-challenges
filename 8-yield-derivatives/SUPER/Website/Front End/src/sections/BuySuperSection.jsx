@@ -4,13 +4,17 @@ import ExchangeRatePic from "../components/ExchangeRatePic.jsx";
 import AccountDropdown from "../components/AccountDropdown.jsx";
 import {useAccount} from "../hooks/useAccount.jsx";
 
-
+/**
+ * BuySuperSection component that provides a section for users to purchase SUPER.
+ *
+ * @returns {JSX.Element} The rendered "Buy Super" section component.
+ */
 const BuySuperSection = () => {
   const { accounts } = useAccount();
-  const [selectedAccount, setSelectedAccount] = useState(null);
-  const [enableButtons, setEnableButtons] = useState(false);
-  const [xrdAmount, setXrdAmount] = useState('');
-  const [error, setError] = useState('');
+  const [selectedAccount, setSelectedAccount] = useState(null); // State to manage the selected account
+  const [enableButtons, setEnableButtons] = useState(false); // State to enable/disable buttons
+  const [xrdAmount, setXrdAmount] = useState(''); // State to manage the XRD amount input
+  const [error, setError] = useState(''); // State to manage input errors
 
   useEffect(() => {
     // Automatically enable buttons if accounts are available
@@ -18,15 +22,17 @@ const BuySuperSection = () => {
   }, [accounts]);
 
   useEffect(() => {
+    // Enable or disable buttons based on account availability
     if (accounts.length > 0) {
       setEnableButtons(true);
     } else {
       setEnableButtons(false);
     }
-  }, [accounts]); // Only re-run the effect if count changes
+  }, [accounts]);
 
-
+// Helper function to check if a value is numeric
   const isNumeric = num => !isNaN(num);
+
   const handleChange = (e) => {
     const val = e.target.value.trim();
     if (val === '' || (isNumeric(val))) {

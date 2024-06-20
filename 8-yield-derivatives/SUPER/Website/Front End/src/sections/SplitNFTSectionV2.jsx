@@ -2,14 +2,26 @@ import React, {useEffect, useState} from "react";
 import PropTypes from "prop-types";
 import SplitNftButton from "../components/SplitNftButton.jsx";
 
+
+/**
+ * Handles the logic for splitting a selected NFT into multiple parts.
+ * Users can specify the number of parts to split the NFT into, given that
+ * the input is a numeric value and does not exceed 50.
+ *
+ * @param {string} selectedAccount The current user's account address.
+ * @param {object} selectedNft Details of the selected NFT.
+ * @param {string} YieldNftRaddy The resource address of the NFT.
+ * @param {boolean} enableInput Controls if the input field is enabled.
+ */
 const SplitNftSectionV2 = ({ selectedAccount, selectedNft, YieldNftRaddy, enableInput }) => {
 
-    const [numSplits, setNumSplits] = useState(0);
-    const [error, setError] = useState('');
-    const [enableButton, setEnableButton] = useState(false);
-    const [input, setInput] = useState(""); // Changed to use state
-    const [nftLabel, setNftLabel] = useState("")
+    const [numSplits, setNumSplits] = useState(0); // Tracks the number of splits specified by the user.
+    const [error, setError] = useState(''); // Stores error messages related to user input.
+    const [enableButton, setEnableButton] = useState(false); // Controls the activation state of the split button.
+    const [input, setInput] = useState(""); // Holds the current value of the input field.
+    const [nftLabel, setNftLabel] = useState(""); // Displays the label of the selected NFT.
 
+    // Updates the NFT label whenever the selected NFT changes.
     useEffect(() => {
         if (selectedNft) {
             setNftLabel(selectedNft.label)
@@ -19,10 +31,12 @@ const SplitNftSectionV2 = ({ selectedAccount, selectedNft, YieldNftRaddy, enable
         }
     }, [selectedNft]);
 
+    // Utilities to check inputted values
     const isNumeric = num => !isNaN(num);
     const isInteger = num => Number.isInteger(num);
     const isLowerThan50 = num => num <= 50;
 
+    // Validates the user input and updates relevant states accordingly.
     useEffect(() => {
         if (input !== "") {
             const val = parseFloat(input);

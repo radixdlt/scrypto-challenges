@@ -1,3 +1,9 @@
+
+/**
+ * DocumentationSection component that provides links to external documentation resources.
+ *
+ * @returns {JSX.Element} The rendered documentation section component.
+ */
 function DocumentationSection() {
 
     return (

@@ -11,7 +11,7 @@ For the sake of this example, the other 60 million don't matter.
 
 ![floww detailed tokenomics](simple_tokenomics.svg)
 
-> [!TIP]
+>[!TIP]
 > The exchange rate for SUPER:FLOWW will vary on the number of SUPER sold, while SUPERy will be exchanged at a rate of 1:1.  
 > For more info, see ****NAME****
 ## What is an Initial Yield Offering?
@@ -53,12 +53,12 @@ The Initial Yield Offering has been built with the following four actors in mind
 
 SUPER uses 4 tokens: SUPER, SUPERt, SUPERy, and SUPER Yield NFT. All fungible tokens start with an initial supply of 0.
 
-| Token       | Symbol   | Icon                                              | Type     | Max Supply                                                               |
-|-------------|----------|---------------------------------------------------|----------|--------------------------------------------------------------------------|
+| Token       | Symbol   | Icon                                                                                   | Type     | Max Supply                                                                   |
+|-------------|----------|----------------------------------------------------------------------------------------|----------|------------------------------------------------------------------------------|
 | SUPER       | SUPER    | <img height="50" src="../Docs/Writerside/images/tokens/png/super.png" width="50"/>     | Fungible | <span title="Max Supply is limited by SUPER Sale Duration (7 days)">∞</span> |
 | SUPER Trust | SUPERt   | <img height="50" src="../Docs/Writerside/images/tokens/svg/super_t.svg" width="50"/>   | Fungible | <span title="Max Supply is limited by SUPER Sale Duration (7 days)">∞</span> |
-| SUPER Yield | SUPERy   | <img height="50" src="../Docs/Writerside/images/tokens/svg/super_y.svg" width="50"/>   | Fungible | 20 Million                                                               |
-| SUPER NFT   | SUPERnft | <img height="50" src="../Docs/Writerside/images/tokens/svg/yield_nft.svg" width="50"/> | NFT      | ∞                                                                        |
+| SUPER Yield | SUPERy   | <img height="50" src="../Docs/Writerside/images/tokens/svg/super_y.svg" width="50"/>   | Fungible | 20 Million                                                                   |
+| SUPER NFT   | SUPERnft | <img height="50" src="../Docs/Writerside/images/tokens/svg/yield_nft.svg" width="50"/> | NFT      | ∞                                                                            |
 
 ## How do I get all the SUPER tokens?
 
@@ -94,12 +94,12 @@ When you purchase SUPER, the amount you purchased and the <span title="The hour 
 
 The SUPER NFT contains four metadata fields:
 
-| NFT Metadata Field | Description                                                                                     |
-|--------------------|-------------------------------------------------------------------------------------------------|
+| NFT Metadata Field | Description                                                                                                                                                                                                           |
+|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ID                 | The ID of the NFT, related to the <span title="The second since the start of the token sale, if the token sale begins on June 30 at midnight, 1 day later, second = 24 * 60 * 60">second</span> the NFT was minted at |
-| HOUR_OF_MINT       | <span title="The hour since the start of the token sale, if the token sale begins on June 30 at midnight, 1 day later, hour = 24">Hour</span> of purchase                                                 |
-| N_SUPER_MINTED     | Amount of SUPER purchased                                                                       |
-| N_TRUST_MINTED     | Amount of SUPERt purchased should be 60% of N_SUPER_MINTED                                      |
+| HOUR_OF_MINT       | <span title="The hour since the start of the token sale, if the token sale begins on June 30 at midnight, 1 day later, hour = 24">Hour</span> of purchase                                                             |
+| N_SUPER_MINTED     | Amount of SUPER purchased                                                                                                                                                                                             |
+| N_TRUST_MINTED     | Amount of SUPERt purchased should be 60% of N_SUPER_MINTED                                                                                                                                                            |
 
 Yield generates on your SUPER NFT from the <span title="The hour since the start of the token sale, if the token sale begins on June 30 at midnight, 1 day later, hour = 24">hour</span> of your purchase to the <span title="The hour since the start of the token sale, if the token sale begins on June 30 at midnight, 1 day later, hour = 24">hour</span> that you claim, or the end of the <span title='Time over which FLOWW is developed, and yield is generated, FLOWW development period = 16 weeks.'>development period</span>, whichever comes first.
 
@@ -1874,3 +1874,31 @@ Converts a NonFungibleLocalID::Integer to an u64 integer
                 .expect("Failed to get non fungible local id")
         }
 ```
+
+## License
+
+The Radix Scrypto Challenges code is released under Radix Modified MIT License.
+
+    Copyright 2024 Radix Publishing Ltd
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal in
+    the Software for non-production informational and educational purposes without
+    restriction, including without limitation the rights to use, copy, modify,
+    merge, publish, distribute, sublicense, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    This notice shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE HAS BEEN CREATED AND IS PROVIDED FOR NON-PRODUCTION, INFORMATIONAL
+    AND EDUCATIONAL PURPOSES ONLY.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+    FOR A PARTICULAR PURPOSE, ERROR-FREE PERFORMANCE AND NONINFRINGEMENT. IN NO
+    EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES,
+    COSTS OR OTHER LIABILITY OF ANY NATURE WHATSOEVER, WHETHER IN AN ACTION OF
+    CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE, MISUSE OR OTHER DEALINGS IN THE SOFTWARE. THE AUTHORS SHALL
+    OWE NO DUTY OF CARE OR FIDUCIARY DUTIES TO USERS OF THE SOFTWARE.
