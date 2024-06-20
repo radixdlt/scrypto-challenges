@@ -1,9 +1,9 @@
 > [!NOTE]
 > This is documentation for the Scrypto Package
-> - [How do I run the DApp?](Website%2FREADME.md)
-> - [What are you making?](Smart%20Contract%2FREADME.md)
-> - [Front End Docs](Website%2FFront%20End%2FREADME.md)
-> - [Back End Docs](Website%2FBack%20End%2FServer%2FREADME.md)
+> - [How do I run the DApp?](../Website/README.md)
+> - [What are you making?](../README.md)
+> - [Front End Docs](../Website/Front End/README.md)
+> - [Back End Docs](../Website/Back%20End/Server/README.md)
 
 # SUPER Scrypto Package Overview
 
@@ -214,7 +214,7 @@ pub struct SplitNFTEvent {
 
 ## Main Library File
 
-##
+## <!-- Instantiation -->
 <details>
 <summary style="font-size: 1.4em; font-weight: bold;">Instantiation Function</summary>
 
@@ -524,7 +524,7 @@ pub fn new(dapp_definition_addy: ComponentAddress)
 }
 ```
 
-##
+## <!-- Starting -->
 </details>
 <details>
 <summary style="font-size: 1.4em; font-weight: bold;">Starting Token Sale Functions</summary>
@@ -613,7 +613,7 @@ pub fn calculate_withdrawal_epochs(&mut self) {
 }
 ```
 
-##
+## <!-- Token Metadata Updater -->
 </details>
 <details>
 <summary style="font-size: 1.4em; font-weight: bold;">Token Metadata Updater Functions</summary>
@@ -743,7 +743,7 @@ pub fn update_nft_manager_metadata(&mut self) {
 
 ```
 
-##
+## <!-- Ending -->
 </details>
 <details>
 <summary style="font-size: 1.4em; font-weight: bold;">Ending Token Sale Functions</summary>
@@ -803,7 +803,7 @@ pub fn check_if_sale_complete(&mut self) {
 }
 ```
 
-##
+## <!-- Buying -->
 </details>
 <details>
 <summary style="font-size: 1.4em; font-weight: bold;">Buying Functions </summary>
@@ -1047,7 +1047,7 @@ pub fn add_receipt_to_db(&mut self, nft_id: u64, nft_data: YieldClaim) -> u64 {
 }
 ```
 
-##
+## <!-- Splitting -->
 </details>
 <details>
 <summary style="font-size: 1.4em; font-weight: bold;">Split Yield NFTs Functions </summary>
@@ -1180,7 +1180,7 @@ pub fn split_yield_nft(&mut self, yield_nft: NonFungibleBucket, number_of_splits
 }
 ```
 
-##
+## <!-- Claiming -->
 </details>
 <details>
 <summary style="font-size: 1.4em; font-weight: bold;">Claiming Yield  Functions </summary>
@@ -1334,7 +1334,7 @@ pub fn check_and_burn_nft(
 }
 ```
 
-##
+## <!-- Vested W/drawal -->
 </details>
 <details>
 <summary style="font-size: 1.4em; font-weight: bold;">Vested Withdrawal Functions</summary>
@@ -1388,7 +1388,7 @@ pub fn vested_withdraw(&mut self) -> Bucket {
 }
 ```
 
-##
+## <!-- Update databases -->
 </details>
 <details>
 <summary style="font-size: 1.4em; font-weight: bold;">Database Update Functions</summary>
@@ -1544,7 +1544,7 @@ ensuring all intermediate hours are updated accordingly.
         }
 ```
 
-##
+## <!-- View DB -->
 </details>
 <details>
 <summary style="font-size: 1.4em; font-weight: bold;">View Database Functions</summary>
@@ -1585,7 +1585,7 @@ for each NFT, showing the yield generated up to the current hour.
         }
 ```
 
-##
+## <!-- Helpers -->
 </details>
 <details>
 <summary style="font-size: 1.4em; font-weight: bold;">Helper Functions</summary>
