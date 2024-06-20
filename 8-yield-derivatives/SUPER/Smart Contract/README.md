@@ -1,213 +1,6 @@
-# SUPER Initial Yield Offering
+# SUPER Scrypto Package Overview
 
-## FLOWW
-FLOWW is the token funded in the SUPER IYO. It's functionality doesn't matter. 
-  
-What matters is the tokenomics.  
-
-There are 100 million total tokens, and 40 million of them will be distributed 
-in the IYO. The 40 million is distributed 20,000,000 each for both SUPER and SUPERy holders.
-For the sake of this example, the other 60 million don't matter.
-
-![floww detailed tokenomics](simple_tokenomics.svg)
-
->[!TIP]
-> The exchange rate for SUPER:FLOWW will vary on the number of SUPER sold, while SUPERy will be exchanged at a rate of 1:1.  
-> For more info, see ****NAME****
-## What is an Initial Yield Offering?
-
-Over the years, raising capital in a decentralized manner has seen many iterations, such as:
-
-- **ICO** (Initial Coin Offering)
-- **IEO** (Initial Exchange Offering)
-- **IFO** (Initial Farm Offering)
-
-A shortfall with the above is that after the token sale is complete, developers no longer have an incentive to maintain trust with investors, incentivizing scammers to do whatever they want. The Initial Yield Offering (IYO) attempts to solve this issue by leveraging the capabilities of the Radix Wallet to maintain trust with investors.
-
-Introducing the <span title="Initial Yield Offering">IYO</span>, a unique way for developers to raise capital while simultaneously exposing early supporters to yield derivatives, the latest invention in decentralized finance.
-
-### Strategy
-
-The strategy for raising capital through an Initial Yield Offering revolves around the idea of:
-
-- Opportunity cost
-- Establishing trust between users and developers, trustlessly
-- Active Yield management strategies
-
-### Participants
-
-The Initial Yield Offering has been built with the following four actors in mind:
-
-**Participants / People / You / Users**: A market participant in the Initial Yield Offering
-
-> All names used in examples come from the [most common names in the world](https://x.com/TheGlobal_Index/status/1670344326130565121)
-> Topics with questions using "I" refers to this group of people
-
-**Owner / Developer**: Although the smart contract has only 1 owner, it can be easily configured for [multiple developers](https://github.com/radixdlt/scrypto-examples/blob/5b8454df9b8c80fef92b7bca79733c218be9228b/core/vesting/README.md#L21).
-
-**Component**: The Initial Yield Offering component itself, which manages state.
-
-**Database Updater**: A bot that works on behalf of the component to keep component state up to date, built with the Radix Engine Toolkit (RET).
-
-### The SUPER Tokens
-
-SUPER uses 4 tokens: SUPER, SUPERt, SUPERy, and SUPER Yield NFT. All fungible tokens start with an initial supply of 0.
-
-| Token       | Symbol   | Icon                                                                                   | Type     | Max Supply                                                                   |
-|-------------|----------|----------------------------------------------------------------------------------------|----------|------------------------------------------------------------------------------|
-| SUPER       | SUPER    | <img height="50" src="../Docs/Writerside/images/tokens/png/super.png" width="50"/>     | Fungible | <span title="Max Supply is limited by SUPER Sale Duration (7 days)">∞</span> |
-| SUPER Trust | SUPERt   | <img height="50" src="../Docs/Writerside/images/tokens/svg/super_t.svg" width="50"/>   | Fungible | <span title="Max Supply is limited by SUPER Sale Duration (7 days)">∞</span> |
-| SUPER Yield | SUPERy   | <img height="50" src="../Docs/Writerside/images/tokens/svg/super_y.svg" width="50"/>   | Fungible | 20 Million                                                                   |
-| SUPER NFT   | SUPERnft | <img height="50" src="../Docs/Writerside/images/tokens/svg/yield_nft.svg" width="50"/> | NFT      | ∞                                                                            |
-
-## How do I get all the SUPER tokens?
-
-<procedure title="Go SUPER">
-
-<step>
-Open the [DApp](https://www.super.floww.fi) and navigate to _SUPER_ > _BUY_.
-</step>
-
-<step>
-Enter an XRD amount, which will be rounded down to the nearest multiple of 10. 
-For example, 119 XRD rounds to 110 XRD, and 9 XRD is returned to you.
-</step>
-
-<step>
-For every 10 XRD sent, you receive 10 SUPER, 6 SUPERt, and 1 SUPER NFT. Following the above example with 119 XRD, 
-you receive back 9 XRD, 110 SUPER, 66 SUPERt and 1 SUPER NFT.
-</step>
-
-</procedure>
-
-### How do I get SUPERy?
-
-The number of SUPERy you receive is re-calculated every hour and is based on 3 key factors:
-
-- Amount of SUPER purchased
-- <span title="The hour since the start of the token sale, if the token sale begins on June 30 at midnight, 1 day later, hour = 24">Hour</span> of purchase
-- <span title="The hour since the start of the token sale, if the token sale begins on June 30 at midnight, 1 day later, hour = 24">Hour</span> when SUPERy is claimed
-
-When you purchase SUPER, the amount you purchased and the <span title="The hour since the start of the token sale, if the token sale begins on June 30 at midnight, 1 day later, hour = 24">hour</span> of purchase are recorded within the DApp and in your SUPER NFT.
-
-#### The SUPER NFT
-
-The SUPER NFT contains four metadata fields:
-
-| NFT Metadata Field | Description                                                                                                                                                                                                           |
-|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ID                 | The ID of the NFT, related to the <span title="The second since the start of the token sale, if the token sale begins on June 30 at midnight, 1 day later, second = 24 * 60 * 60">second</span> the NFT was minted at |
-| HOUR_OF_MINT       | <span title="The hour since the start of the token sale, if the token sale begins on June 30 at midnight, 1 day later, hour = 24">Hour</span> of purchase                                                             |
-| N_SUPER_MINTED     | Amount of SUPER purchased                                                                                                                                                                                             |
-| N_TRUST_MINTED     | Amount of SUPERt purchased should be 60% of N_SUPER_MINTED                                                                                                                                                            |
-
-Yield generates on your SUPER NFT from the <span title="The hour since the start of the token sale, if the token sale begins on June 30 at midnight, 1 day later, hour = 24">hour</span> of your purchase to the <span title="The hour since the start of the token sale, if the token sale begins on June 30 at midnight, 1 day later, hour = 24">hour</span> that you claim, or the end of the <span title='Time over which FLOWW is developed, and yield is generated, FLOWW development period = 16 weeks.'>development period</span>, whichever comes first.
-
-![SUPERy Yield Curve](hourly_yield.svg)
-
-The yield generated by your NFT is a function of:
-
-- The fraction of SUPER you purchased to the amount of SUPER all participants purchased
-- The yield curve above.
-
-#### How do I claim yield?
-
-<procedure title="Claim SUPERy">
-
-<step>
-Open the [DApp](https://www.super.floww.fi) and navigate to _SUPER_ > _MANAGE_.
-</step>
-
-<step>
-Choose the NFT you want to claim yield for.
-</step>
-
-<step>
-Ensure that you have enough SUPERt to claim yield on your chosen NFT. 
-This will be the n_trust_minted field in your NFT's metadata.
-</step>
-
-<step>
-Press the 'Claim Yield' button. Note: This will exchange your SUPER NFT + SUPERt for the appropriate amount of SUPERy generated.
-</step>
-
-</procedure>
-
-## How does SUPERt create trust?
-
-The SUPER Trust token leverages [Native Pool Blueprints](https://www.radixdlt.com/blog/using-native-pools-and-pool-units-for-intuitive-liquidity-provider-ux) to guarantee a partial refund of committed XRD.  
-When users purchase SUPER with their XRD, 40% is linearly vested over 16 weeks, while 60% of it is placed in a [`OneResourcePool`](https://docs.rs/radix-engine/latest/radix_engine/blueprints/pool/v1/substates/one_resource_pool/index.html).
-
-The amount committed to the `OneResourcePool` is **guaranteed** by the Radix Wallet to return 60% of the XRD you originally committed by exchanging your SUPERt against it.
-
-Once the project is complete, you trade your SUPER NFT with its corresponding amount of SUPERt in for SUPERy, giving up your claim to the 60% of funds in the pool, signaling your satisfaction with the project's development.
-
-If you aren't satisfied with the project's development, or just want a refund, your refund is guaranteed by the Radix Wallet.
-
-## What do I do with my SUPER and SUPERy?
-
-Once the <span title='Time over which FLOWW is developed, and yield is generated, FLOWW development period = 16 weeks.'>development period</span> ends, your SUPER and SUPERy can be exchanged for FLOWW.
-
-### FLOWW
-
-You're funding the development of the first decentralized stablecoin on Radix, [FLOWW](FLOWW.md).
-
-40 million FLOWW tokens will be distributed at the end of the **development period** in two pools, which we'll refer to as **FLOWW Pool A** and **FLOWW Pool B**.
-
-| Pool | # of tokens | Received when   | Burn Exchange Rate |
-|------|-------------|-----------------|--------------------|
-| A    | 20,000,000  | SUPER is burnt  | Variable           |
-| B    | 20,000,000  | SUPERy is burnt | 1 SUPERy : 1 FLOWW |
-
-![floww tokenomics](simple_tokenomics.png)
-
-The above pie chart is simplified to explain FLOWW Pools A and B. For detailed tokenomics information, see [floww tokenomics](FLOWW.md#floww_tokenomics)
-
-By purchasing SUPER during the token sale duration, you automatically qualify to receive tokens from both FLOWW Pool A and FLOWW Pool B, provided you keep all the tokens you receive.
-
-_Examples are given at the end._
-
-### How do the FLOWW Pools work?
-
-FLOWW Pools A and B have separate claim functionality, explained below.
-
-#### FLOWW Pool A
-
-SUPER can only be minted during the 7-day token sale. After this period, no more SUPER can EVER be created. Each SUPER is assigned a weight to the total and the tokens in Pool A are distributed to everyone as a fraction of the SUPER they own.
-
-**Pool A - Example**
-
-1. The following participants purchase SUPER (S):
-
-   - Moe (M) purchases 10 SUPER: $S_M = 10$
-   - Nushi (N) purchases 20 SUPER: $S_N = 20$
-   - Jose (J) purchases 30 SUPER: $S_J = 30$
-   - Wei (W) purchases 40 SUPER: $S_W = 40$
-
-2. The total SUPER purchased is:
-
-   $$
-   S_{\text{total}} = S_M + S_N + S_J + S_W = 10 + 20 + 30 + 40 = 100 \text{ SUPER}
-   $$
-
-3. Once the token sale ends, each participant's fraction of total SUPER is calculated:
-
-   - Moe: $f_M = \frac{S_M}{S_{\text{total}}} = \frac{10}{100} = 0.1$
-   - Nushi: $f_N = \frac{S_N}{S_{\text{total}}} = \frac{20}{100} = 0.2$
-   - Jose: $f_J = \frac{S_J}{S_{\text{total}}} = \frac{30}{100} = 0.3$
-   - Wei: $f_W = \frac{S_W}{S_{\text{total}}} = \frac{40}{100} = 0.4$
-
-4. Pool A contains 20,000,000 FLOWW (F), so each participant receives:
-
-   - Moe: $F_M = f_M \times F_{\text{total}} = 0.1 \times 20,000,000 = 2,000,000 \text{ FLOWW}$
-   - Nushi: $F_N = f_N \times F_{\text{total}} = 0.2 \times 20,000,000 = 4,000,000 \text{ FLOWW}$
-   - Jose: $F_J = f_J \times F_{\text{total}} = 0.3 \times 20,000,000 = 6,000,000 \text{ FLOWW}$
-   - Wei: $F_W = f_W \times F_{\text{total}} = 0.4 \times 20,000,000 = 8,000,000 \text{ FLOWW}$
-
-
-# IYO Scrypto Package Overview
-
-This Scrypto package contains a single ```Super``` blueprint which uses the following crates:
+This Scrypto package contains a single ```Super``` blueprint which uses the following crates:  
 | Crate                                                                    | Type            | Functionality                                                                                                                                                                                                                                     |
 |--------------------------------------------------------------------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [constants.rs](#constants-constants-rs)                                  | Internal Module | Defines economical and time constants                                                                                                                                                                                                            |
@@ -230,32 +23,33 @@ It is defined in `lib.rs` but understanding what it contains before everything e
 
 
 ```rust
+/// Defines the detailed claim data stored within each Super Yield NFT.
 #[derive(NonFungibleData, ScryptoSbor, Clone, Copy, PartialEq, Eq)]
 pub struct YieldClaim {
-    /// The hour relative to the start of the token sale when the NFT 
-    /// was minted.
-    pub hour_of_mint: u64,
-    /// Indicates the amount of SUPER tokens that were minted with 
-    /// this NFT.
-    pub n_super_minted: u64,
-    /// Indicates the amount of SUPERt tokens that were minted with 
-    /// this NFT, these tokens represent 
-    /// a share of XRD stored within the component's Native Pool.
-    pub n_trust_minted: Decimal,
+   /// The hour relative to the start of the token sale when the NFT was minted.
+   pub hour_of_mint: u64,
+   /// Indicates the amount of SUPER tokens that were minted with this NFT.
+   pub n_super_minted: u64,
+   /// Indicates the amount of SUPERt tokens that were minted with this NFT, these tokens represent a share of XRD stored within the component's Native Pool.
+   pub n_trust_minted: Decimal,
 }
+
 impl fmt::Display for YieldClaim {
-    fn fmt(&amp;self, f: &amp;mut fmt::Formatter) -&gt; fmt::Result {
-        write!(
-            f,
-            &quot;YieldClaim {{hour_of_mint: {}, n_super_minted: {}, n_trust_minted: {} }}&quot;,
-            self.hour_of_mint, self.n_super_minted, self.n_trust_minted
-        )
-    }
+   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(
+         f,
+         "YieldClaim {{hour_of_mint: {}, n_super_minted: {}, n_trust_minted: {} }}",
+         self.hour_of_mint, self.n_super_minted, self.n_trust_minted
+      )
+   }
 }
 ```
 
+##
+<details>
+<summary style="font-size: 1.8em; font-weight: bold;">Constants (<code>constants.rs</code>)</summary>
 
-## Constants (`constants.rs`) 
+## Constants
 
 | Constant              | Type    | Value    | Description                                                                                                                                            |
 |-----------------------|---------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -269,40 +63,48 @@ impl fmt::Display for YieldClaim {
 | EULER                 | Decimal | 2.718... | Euler's number, accurate to 18 decimal places.                                                                                                         |
 | PI                    | Decimal | 3.141... | π (pi), accurate to 18 decimal places                                                                                                                  |
 
-## Events (`events.rs`) 
+##
+</details>
 
-#### SaleDetailEvent 
+<details>
+<summary style="font-size: 1.8em; font-weight: bold;">Events (<code>events.rs</code>)</summary>
+
+## Events
+
+### SaleDetailEvent 
 Used to communicate changes within the component.  
 A version of this is stored in the component itself, it's updated whenever necessary but must be defined as both an 
 event and a struct in order for the component to emit its state effectively.
 ```rust
 #[derive(ScryptoSbor, ScryptoEvent, Clone)]
 pub struct SaleDetailEvent {
-    pub dapp_definition_caddy: Vec&ltGlobalAddress&gt,
-    pub component_caddy: ComponentAddress,
-    pub pool_caddy: ComponentAddress,
 
-    pub owner_badge_raddy: ResourceAddress,
-    pub component_badge_raddy: ResourceAddress,
-    pub db_updater_raddy: ResourceAddress,
+   pub dapp_definition_caddy: Vec<GlobalAddress>,
+   pub component_caddy: ComponentAddress,
+   pub pool_caddy: ComponentAddress,
 
-    pub super_raddy: ResourceAddress,
-    pub super_y_raddy: ResourceAddress,
-    pub super_t_raddy: ResourceAddress,
-    pub yield_nft_raddy: ResourceAddress,
+   pub owner_badge_raddy: ResourceAddress,
+   pub component_badge_raddy: ResourceAddress,
+   pub db_updater_raddy: ResourceAddress,
 
-    pub sale_started: bool,
-    pub sale_completed: bool,
+   pub super_raddy: ResourceAddress,
+   pub super_y_raddy: ResourceAddress,
+   pub super_t_raddy: ResourceAddress,
+   pub yield_nft_raddy: ResourceAddress,
 
-    pub sale_start_time_unix: i64,
-    pub sale_start_time_utc: String,
+   pub sale_started: bool,
+   pub sale_completed: bool,
 
-    pub sale_end_time_unix: i64,
-    pub sale_end_time_utc: String,
+   pub sale_start_time_unix: i64,
+   pub sale_start_time_utc: String,
+
+   pub sale_end_time_unix: i64,
+   pub sale_end_time_utc: String,
+
 }
 ```
 
-#### CreateYieldNFTEvent 
+### CreateYieldNFTEvent 
 This event is emitted when a new Yield NFT is created. It contains the NFT's ID, the hour of minting, the amount of 
 SUPER tokens minted, and the amount of trust tokens (SUPERt) minted.
 ```rust
@@ -315,7 +117,7 @@ pub struct CreateYieldNFTEvent {
 }
 ```
 
-#### BurnYieldNFTEvent 
+### BurnYieldNFTEvent 
 This event is emitted when a Yield NFT is burned. It contains the burnt NFT's ID, the hour of minting, the amount 
 of SUPER tokens that were minted, and the amount of trust tokens (SUPERt) minted with the NFT.
 ```rust
@@ -328,17 +130,17 @@ pub struct BurnYieldNFTEvent {
 }
 ```
 
-#### WithdrawalCalculationEvent 
+### WithdrawalCalculationEvent 
 This event is emitted when the withdrawal epochs are calculated. It contains a vector of strings representing the 
 epochs at which withdrawals from the vested XRD (the XRD governed by the constant `FRACTION_VESTED`) are scheduled.
 ```rust
 #[derive(ScryptoSbor, ScryptoEvent)]
 pub struct WithdrawalCalculationEvent {
-    pub withdraw_epochs: Vec&ltString&gt,
+    pub withdraw_epochs: Vec<String>,
 }
 ```
 
-#### ClaimYieldEvent 
+### ClaimYieldEvent 
 This event is emitted when yield is claimed. It contains the hour of the claim, the amount of SUPERy tokens minted,
 the NFT's ID used for the claim, and the amount of trust fund tokens (SUPERt) redeemed.
 ```rust
@@ -351,7 +153,7 @@ pub struct ClaimYieldEvent {
 }
 ```
 
-#### ShowSuperMintedEvent 
+### ShowSuperMintedEvent 
 This event is emitted to show the amount of SUPER tokens minted at a specific time. It contains the time of the update
 and the number of SUPER tokens minted. This event is used by the `show_hourly_super_minted` function.
 ```rust
@@ -362,7 +164,7 @@ pub struct ShowSuperMintedEvent {
 }
 ```
 
-#### YieldUpdateEvent: 
+### YieldUpdateEvent: 
 This event is used by the show_hourly_yield_generated function to emit information about the yield generated for each NFT at each recorded hour.
 ```rust
 #[derive(ScryptoSbor, ScryptoEvent)]
@@ -373,7 +175,7 @@ pub struct YieldUpdateEvent {
 }
 ```
 
-#### SplitNFTEvent 
+### SplitNFTEvent 
 This event is emitted when a Yield NFT is split into multiple NFTs. It contains the ID and data of
 the burned NFT, the ID and data of the first newly created NFT, and a vector of IDs and data for the
 rest of the newly created NFTs. This event is used by the `split_yield_nft` function.
@@ -389,14 +191,29 @@ pub struct SplitNFTEvent {
 }
 ```  
 
-## Icons (`icon_urls.rs`) 
+##
+</details>
 
-## Main Library File (`lib.rs`) 
+<details>
+<summary style="font-size: 1.8em; font-weight: bold;">Icons (<code>icon_urls.rs</code>)</summary>
 
-### Instantiation Function 
+## Icons
+
+##
+</details>
+
+<details>
+<summary style="font-size: 1.8em; font-weight: bold;">Main Library File (<code>lib.rs</code>) </summary>
+
+## Main Library File
+
+##
+<details>
+<summary style="font-size: 1.4em; font-weight: bold;">Instantiation Function</summary>
+
 This section contains the function used to instantiate the DApp
 
-#### new()
+### `new()`
 Initializes and returns a new instance of the Super component. This function sets up the initial state, including 
 badges, resource managers, and databases required for the component's operation.
 ```rust
@@ -700,11 +517,15 @@ pub fn new(dapp_definition_addy: ComponentAddress)
 }
 ```
 
-### Starting Token Sale 
+##
+</details>
+<details>
+<summary style="font-size: 1.4em; font-weight: bold;">Starting Token Sale Functions</summary>
+
 This section contains various functions for starting the token sale, as well as any 
 functions used by the start_sale function.
 
-#### start_sale()
+### `start_sale()`
 Initiates the token sale and configures the necessary parameters and schedules. This function marks 
 the start of the token sale by setting up the trust fund metadata with the provided fee, 
 initializing the start and end times of the sale, and preparing the withdrawal epochs based on the 
@@ -754,7 +575,7 @@ pub fn start_sale(&mut self, fee: Bucket) -> Bucket {
 }
 ```
 
-#### calculate_withdrawal_epochs
+### `calculate_withdrawal_epochs()`
 Calculates and schedules the withdrawal epochs based on the token sale start time.
 
 This function iterates through the specified number of vesting weeks and calculates the specific 
@@ -785,13 +606,17 @@ pub fn calculate_withdrawal_epochs(&mut self) {
 }
 ```
 
-### Token Metadata Updaters 
+##
+</details>
+<details>
+<summary style="font-size: 1.4em; font-weight: bold;">Token Metadata Updater Functions</summary>
+
 This section contains various funcitons used for updating the metadata for the various tokens. 
 `set_trustfund_metadata` sets up the initial state of the SUPERt token, since accessing metadata for 
 tokens from a `OneResourcePool` is different from the rest. The rest of the `update` functions have
 very similar functionality.
 
-#### set_trustfund_metadata()
+### `set_trustfund_metadata()`
 Sets **initial metadata** for the trust fund.
 
 This function configures the metadata for the trust fund pool using the specified fee. It sets up 
@@ -831,7 +656,7 @@ pub fn set_trustfund_metadata(&mut self, fee: Bucket) -> Bucket {
 }
 ```
 
-#### update_super_metadata()
+### `update_super_metadata()`
 Updates the metadata of the SUPER token.
   
 This function modifies the metadata entry specified by `entry_to_update` with the new value `value_to_update_to`.
@@ -853,7 +678,7 @@ pub fn update_super_metadata(
 }
 ```
 
-#### update_trust_metadata()
+### `update_trust_metadata()`
 Updates the metadata of the SUPERt token.
 
 This function modifies the metadata entry specified by `entry_to_update` with the new value `value_to_update_to`.
@@ -879,7 +704,7 @@ pub fn update_trust_metadata(
 }
 ```
 
-#### update_nft_manager_metadata()
+### `update_nft_manager_metadata()`
 Updates the metadata of the SUPERy token.
 This function modifies the metadata entry specified by `entry_to_update` with the new value `value_to_update_to`.
 If the entry is for "icon_url" or "info_url", it treats the value as a URL; otherwise, it treats it as a string.
@@ -911,11 +736,15 @@ pub fn update_nft_manager_metadata(&mut self) {
 
 ```
 
-### Ending Token Sale 
+##
+</details>
+<details>
+<summary style="font-size: 1.4em; font-weight: bold;">Ending Token Sale Functions</summary>
+
 This section contains various functions for ending the token sale, as well as any
 functions used by the end_sale function.
 
-#### end_sale()
+### `end_sale()`
 Ends the token sale and finalizes the sale details.
 This function sets the SUPER token to non-mintable, marks the sale as completed,
 calculates the vested withdrawal amount, and emits the updated sale details event.
@@ -943,7 +772,7 @@ pub fn end_sale(&mut self) {
 }
 ```
 
-#### check_if_sale_complete()
+### `check_if_sale_complete()`
 Checks if the token sale is complete and ends the sale if it is.
 
 This function compares the current time with the sale end time and calls `end_sale` if the current 
@@ -967,10 +796,14 @@ pub fn check_if_sale_complete(&mut self) {
 }
 ```
 
-### Buying Functions 
+##
+</details>
+<details>
+<summary style="font-size: 1.4em; font-weight: bold;">Buying Functions </summary>
+
 Contains functions related to participating in the token sale.
 
-#### deposit()
+### `deposit()`
 Processes a deposit during the token sale.
 This function handles the payment, splits it into vested and trust fund amounts,
 mints SUPER tokens, creates a Yield NFT, and updates the relevant vaults and pools.
@@ -1063,7 +896,7 @@ pub fn deposit(&mut self, mut payment: Bucket) -> (Bucket, Bucket, Bucket, Bucke
 }
 ```
 
-#### create_yield_nft()
+### `create_yield_nft()`
 Creates a Yield NFT with the specified parameters.
 This function mints a new Yield NFT with the provided SUPER and trust amounts,
 records the NFT details in the database, and emits an event indicating the creation.
@@ -1152,7 +985,7 @@ pub fn create_yield_nft(
 }
 ```
 
-#### get_checked_nft_id()
+### `get_checked_nft_id()`
 Ensures the NFT ID is unique by checking against existing IDs in the database.
 This function increments the provided NFT ID until a unique ID is found that does not
 already exist in the `yield_nft_db` database.
@@ -1176,7 +1009,7 @@ pub fn get_checked_nft_id(&mut self, nft_id: u64) -> u64 {
 }
 ```
 
-#### add_receipt_to_db()
+### `add_receipt_to_db()`
 Adds a new YieldClaim entry to the database, ensuring a unique key is used.
 This function checks the provided NFT ID for uniqueness, increments it if necessary,
 and then inserts the YieldClaim data into the `yield_nft_db` and `yield_generated_db` databases.
@@ -1207,9 +1040,12 @@ pub fn add_receipt_to_db(&mut self, nft_id: u64, nft_data: YieldClaim) -> u64 {
 }
 ```
 
-### Split Yield NFTs 
+##
+</details>
+<details>
+<summary style="font-size: 1.4em; font-weight: bold;">Split Yield NFTs Functions </summary>
 
-#### split_yield_nft()
+### `split_yield_nft()`
 Splits a Yield NFT into multiple smaller NFTs.
 This function checks the validity of the provided Yield NFT, splits it into the specified
 number of smaller NFTs, updates the relevant databases, and emits an event for the split.
@@ -1337,10 +1173,14 @@ pub fn split_yield_nft(&mut self, yield_nft: NonFungibleBucket, number_of_splits
 }
 ```
 
-### Claiming Yield 
+##
+</details>
+<details>
+<summary style="font-size: 1.4em; font-weight: bold;">Claiming Yield  Functions </summary>
+
 Contains functions related to claiming yield generated on Yield NFTs.
 
-#### claim_yield()
+### `claim_yield()`
 Claims the yield for a Yield NFT by redeeming trust fund tokens and minting SUPERy tokens.
 This function verifies the provided NFT and trust fund tokens, updates databases, redeems the trust fund tokens,
 mints the yield tokens, and emits an event for the yield claim.
@@ -1410,7 +1250,7 @@ pub fn claim_yield(
 }
 ```
 
-#### check_and_burn_nft()
+### `check_and_burn_nft()`
 Checks the validity of a Yield NFT and burns it.
 This function verifies the provided NFT against the stored data, ensures that the trust fund amount is sufficient,
 and then burns the NFT, emitting an event for the burn.
@@ -1487,9 +1327,12 @@ pub fn check_and_burn_nft(
 }
 ```
 
-### Vested Withdrawal Functions 
+##
+</details>
+<details>
+<summary style="font-size: 1.4em; font-weight: bold;">Vested Withdrawal Functions</summary>
 
-#### vested_withdraw()
+### `vested_withdraw()`
 Processes a vested withdrawal from the vesting vault.
 This function checks the vesting schedule, calculates the allowed withdrawals,
 and withdraws the appropriate amount from the vesting vault.
@@ -1538,9 +1381,12 @@ pub fn vested_withdraw(&mut self) -> Bucket {
 }
 ```
 
-### Database Update Functions
+##
+</details>
+<details>
+<summary style="font-size: 1.4em; font-weight: bold;">Database Update Functions</summary>
 
-#### update_dbs_with()
+### `update_dbs_with()`
 Updates the hourly SUPER minted data with the specified amount and hour.
 This function updates the database with the amount of SUPER tokens minted for a specific hour.
 If no amount or hour is provided, it defaults to 0 and the current hour since the sale started.
@@ -1555,7 +1401,7 @@ pub fn update_dbs_with(&mut self, amount: Option<u64>, hour: Option<u64>) {
 }
 ```
 
-#### update_dbs_to_now()
+### `update_dbs_to_now()`
 Updates the databases to the current state. This function ensures the databases are up-to-date by 
 calling `update_dbs_with` and `update_yield_generated` to update the hourly SUPER minted data and 
 the yield generated.
@@ -1571,7 +1417,7 @@ pub fn update_dbs_to_now(&mut self) {
 }
 ```
 
-#### update_hourly_super_minted()
+### `update_hourly_super_minted()`
 Updates the hourly SUPER minted data. This function updates the amount of SUPER tokens minted for 
 the given hour. If the hour is not already in the database, it fills in any missing hours and sets 
 the new total amount minted.
@@ -1619,7 +1465,7 @@ pub fn update_hourly_super_minted(&mut self, hours_since_start: u64, amount: u64
 }
 ```
 
-#### update_yield_generated()
+### `update_yield_generated()`
 Calculates and updates the yield generated for each SUPER token.
 This function updates the `yield_per_super_db` and `yield_generated_db` for the hour
 before the current hour. It calculates the yield based on the yield curve and the amount of
@@ -1691,9 +1537,12 @@ ensuring all intermediate hours are updated accordingly.
         }
 ```
 
-### View Database Functions 
+##
+</details>
+<details>
+<summary style="font-size: 1.4em; font-weight: bold;">View Database Functions</summary>
 
-#### show_hourly_super_minted()
+### `show_hourly_super_minted()`
 Emits events to show the hourly SUPER minted data.
 This function iterates through the `hourly_super_minted` database and emits an event 
 for each hour, showing the amount of SUPER tokens minted.
@@ -1709,7 +1558,7 @@ for each hour, showing the amount of SUPER tokens minted.
         }
 ```
 
-#### show_hourly_yield_generated()
+### `show_hourly_yield_generated()`
 Emits events to show the hourly yield generated data.
 This function iterates through the `yield_generated_db` database and emits an event
 for each NFT, showing the yield generated up to the current hour.
@@ -1729,9 +1578,12 @@ for each NFT, showing the yield generated up to the current hour.
         }
 ```
 
-### Helper Functions 
+##
+</details>
+<details>
+<summary style="font-size: 1.4em; font-weight: bold;">Helper Functions</summary>
 
-#### find_positive_non_zero_multiple_of_10()
+### `find_positive_non_zero_multiple_of_10()`
 Ensures that a given decimal is a positive non-zero multiple of 10.
 ```rust
         pub fn find_positive_non_zero_multiple_of_10(&self, number: Decimal) -> Decimal {
@@ -1751,7 +1603,7 @@ Ensures that a given decimal is a positive non-zero multiple of 10.
 
 ```
 
-#### hours_since_start()
+### `hours_since_start()`
 Calculates the number of hours elapsed since the start of a sale.
 
 This function computes the difference between the current time and the sale start time,
@@ -1765,7 +1617,7 @@ before the calculation to ensure consistency.
         }
 ```
 
-#### calculate_yield_curve_for_hour()
+### `calculate_yield_curve_for_hour()`
 Calculates the yield curve at a given time `t` using:
 ```tex
 f(t) = \pi t + \left( \frac{807305e}{et + 1} \right)
@@ -1806,7 +1658,7 @@ t &= time
 
 ```
 
-#### divide_integer_into_n_integers()
+### `divide_integer_into_n_integers()`
 Divides an integer into `n` almost equal parts.
 ```rust
         pub fn divide_integer_into_n_integers(&self, number: u64, n: u64) -> (u64, u64) {
@@ -1829,7 +1681,7 @@ Divides an integer into `n` almost equal parts.
 
 ```
 
-#### divide_decimal_into_n_weighted_decimals()
+### `divide_decimal_into_n_weighted_decimals()`
 Divides a scrypto decimal into `n` almost equal parts.
 ```rust
         pub fn divide_decimal_into_n_weighted_decimals(
@@ -1861,7 +1713,7 @@ Divides a scrypto decimal into `n` almost equal parts.
 
 ```
 
-#### nft_local_id_to_u64()
+### `nft_local_id_to_u64()`
 Converts a NonFungibleLocalID::Integer to an u64 integer
 ```rust
         pub fn nft_local_id_to_u64(&self, nft_local_id: NonFungibleLocalId) -> u64 {
@@ -1874,6 +1726,10 @@ Converts a NonFungibleLocalID::Integer to an u64 integer
                 .expect("Failed to get non fungible local id")
         }
 ```
+
+##
+</details>
+</details>
 
 ## License
 
