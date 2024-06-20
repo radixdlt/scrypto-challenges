@@ -1,11 +1,18 @@
+> [!NOTE]
+> This is documentation for the Scrypto Package
+> - [How do I run the DApp?](Website%2FREADME.md)
+> - [What are you making?](Smart%20Contract%2FREADME.md)
+> - [Front End Docs](Website%2FFront%20End%2FREADME.md)
+> - [Back End Docs](Website%2FBack%20End%2FServer%2FREADME.md)
+
 # SUPER Scrypto Package Overview
 
 This Scrypto package contains a single ```Super``` blueprint which uses the following crates:  
 | Crate                                                                    | Type            | Functionality                                                                                                                                                                                                                                     |
 |--------------------------------------------------------------------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [constants.rs](#constants-constants-rs)                                  | Internal Module | Defines economical and time constants                                                                                                                                                                                                            |
-| [events.rs](#events-events-rs)                                           | Internal Module | Defines a series of [ScryptoEvents](https://docs.radixdlt.com/docs/scrypto-events) related to sales, withdrawals, NFT creations, and yield management. These events are parsed from receipts of users' transactions and are used to update the backend, so that although ledger state exists on-chain, it also exists off-chain, making the DApp not fully dependent on the Gateway API. |
-| icon_urls.rs                                                             | Internal Module | Includes multiple representations of each icon, categorized by color and background settings, ensuring that icons can be dynamically adapted to different UI contexts and branding requirements.                                                                                         |
+| [constants.rs](#constants)                                  | Internal Module | Defines economical and time constants                                                                                                                                                                                                            |
+| [events.rs](#events)                                           | Internal Module | Defines a series of [ScryptoEvents](https://docs.radixdlt.com/docs/scrypto-events) related to sales, withdrawals, NFT creations, and yield management. These events are parsed from receipts of users' transactions and are used to update the backend, so that although ledger state exists on-chain, it also exists off-chain, making the DApp not fully dependent on the Gateway API. |
+| [icon_urls.rs](#icons)                                                             | Internal Module | Includes multiple representations of each icon, categorized by color and background settings, ensuring that icons can be dynamically adapted to different UI contexts and branding requirements.                                                                                         |
 | [scrypto_avltree](https://github.com/ociswap/scrypto-avltree/tree/main)  | External Crate  | Utilized to efficiently manage data structures for various elements of the application, such as yield claims and updates, withdrawals, and minting activities to prevent [state explosion](https://docs.radixdlt.com/docs/code-hardening).                                              |
 
 
