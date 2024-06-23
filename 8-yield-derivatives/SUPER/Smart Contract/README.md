@@ -1425,9 +1425,21 @@ pub fn update_dbs_to_now(&mut self) {
 ```
 
 ### `update_hourly_super_minted()`
+
+> [!CAUTION]
+> Due to the way that this function retrieves the last updated hour:
+> ```rust
+> let (last_hour_updated, total_amount) = match self.hourly_super_minted.range(..).last()
+> ```
+> we run into a condition of state-explosion around the three-month mark, where no more updates can be made
+> because the AVLTree `self.hourly_super_minted` is too large and accessing it how it's done here consumes
+> too much gas. I believe this happens because by calling .range(..).last() I access the entire tree, and
+> then find the last one, so I have to deal with 99% useless values.
+
 Updates the hourly SUPER minted data. This function updates the amount of SUPER tokens minted for 
 the given hour. If the hour is not already in the database, it fills in any missing hours and sets 
 the new total amount minted.
+
 ```rust
 pub fn update_hourly_super_minted(&mut self, hours_since_start: u64, amount: u64) {
     // If the key does not exist in the db, this will return None.
