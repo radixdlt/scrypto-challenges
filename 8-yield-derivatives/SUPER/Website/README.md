@@ -4,6 +4,7 @@
 > - [Scrypto Docs](../Smart%20Contract/README.md)
 > - [Front End Docs](./Front%20End/README.md)
 > - [Back End Docs](./Back%20End/Server/README.md)
+> - [Try out the DApp on Stokenet](https://testnet.floww.fi)
 
 
 # Run the SUPER DApp

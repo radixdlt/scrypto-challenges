@@ -4,6 +4,7 @@
 > - [What are you making?](../README.md)
 > - [Front End Docs](../Website/Front%20End/README.md)
 > - [Back End Docs](../Website/Back%20End/Server/README.md)
+> - [Try out the DApp on Stokenet](https://testnet.floww.fi)
 
 # SUPER Scrypto Package Overview
 

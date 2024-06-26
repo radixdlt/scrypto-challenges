@@ -4,6 +4,7 @@
 > - [What are you making?](../../../README.md)
 > - [Scrypto Docs](../../../Smart%20Contract/README.md)
 > - [Front End Docs](../../Front%20End/README.md)
+> - [Try out the DApp on Stokenet](https://testnet.floww.fi)
 
 # SUPER Back End (_Express_)
 

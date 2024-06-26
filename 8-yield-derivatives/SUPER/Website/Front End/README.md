@@ -4,6 +4,7 @@
 > - [What are you making?](../../README.md)
 > - [Scrypto Docs](../../Smart%20Contract/README.md)
 > - [Back End Docs](../Back%20End/Server/README.md)
+> - [Try out the DApp on Stokenet](https://testnet.floww.fi)
 
 # SUPER Frontend (Vanilla React + Vite)
 

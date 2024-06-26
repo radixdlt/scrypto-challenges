@@ -4,6 +4,7 @@
 > - [Scrypto Docs](./Smart%20Contract/README.md)
 > - [Front End Docs](./Website/Front%20End/README.md)
 > - [Back End Docs](./Website/Back%20End/Server/README.md)  
+> - [Try out the DApp on Stokenet](https://testnet.floww.fi)
 
 # What is an Initial Yield Offering?
 Over the years, raising capital in a decentralized manner has seen many iterations, such as:
