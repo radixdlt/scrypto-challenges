@@ -262,7 +262,26 @@ The Owner Badge has higher "permission levels" than the Database Updater Badge a
 > resim call-method $sale_details["component_caddy"] claim_yield $full_nft_id_1 ${super_t_raddy}:60
 > ```
 
-# Deploy the website to interact with the DApp on Stokenet
+# Interact with the DApp on Stokenet
+To interact with the DApp on Stokenet, some important addresses are required:
+> #### DApp Definition Address
+> ```
+> account_tdx_2_1286nhpzlgc0pr3jw39lrtxprq8ak3ysnmgj7j4qruvlje76zqya4p8
+> ```
+>
+> #### Package Address
+> ```
+> package_tdx_2_1pkyhnqljlxs6jxz3wut9talyyflamz3r9kll7ak7f0n0sj4a2sr6dh 
+> ```
+> 
+> #### Package Address Publish TxID
+> ```
+> package_tdx_2_1pkyhnqljlxs6jxz3wut9talyyflamz3r9kll7ak7f0n0sj4a2sr6dh
+> ```
+> 
+
+## Use transaction manifests to interact with the DApp.
+Transaction Manifest can be found in [Smart Contracts/manifests](..%2FSmart%20Contract%2Fmanifests)
 
 ## Prerequisites
 - A MongoDB account (Make sure you set up permissions to access from your IP)
@@ -292,13 +311,14 @@ Example:
 VITE_BACKEND_BASE_URL=http://localhost:8080
 
 # Package address
-VITE_PKG_ADDY=package_tdx_2_1pknesjtssk4vql0aqeap7tgzrdv4vsq745zk0nn6u8xu79e0zwvmyz
+VITE_PKG_ADDY=package_tdx_2_1pkyhnqljlxs6jxz3wut9talyyflamz3r9kll7ak7f0n0sj4a2sr6dh
 
 # Publish transaction ID
-VITE_PUBLISH_TX_ID=txid_tdx_2_1wenp0l6vdkv5fmwaxv552e0p4a8aff9am7sgftp7cm44t0sgujlqpr5l3w
+VITE_PUBLISH_TX_ID=package_tdx_2_1pkyhnqljlxs6jxz3wut9talyyflamz3r9kll7ak7f0n0sj4a2sr6dh
 
-# DApp Definition Address.
-VITE_DAPP_ID=account_tdx_2_129f8pjvtzz7hsmaex30z0mtw43yz5l46ccpasy50pra0sd2stv56ws
+# DApp account ID
+VITE_DAPP_ID=account_tdx_2_1286nhpzlgc0pr3jw39lrtxprq8ak3ysnmgj7j4qruvlje76zqya4p8
+
 ```
 
 ## Setup and Run the Backend Server

@@ -5,27 +5,24 @@ CALL_METHOD
 ;
 CALL_METHOD
     Address("account_sim1c956qr3kxlgypxwst89j9yf24tjc7zxd4up38x37zr6q4jxdx9rhma")
-    "create_proof_of_non_fungibles"
-    Address("resource_sim1nt0fzfanrvjucld6yr798c52zxcpmcvz9aqmm75t2r9kzzwy4wyqpe")
+    "withdraw_non_fungibles"
+    Address("resource_sim1ngqnc0uvp3e4q3yr6atqp0ls07lj34kwna4yt4g7ryj4qdm8npq740")
     Array<NonFungibleLocalId>(
-        NonFungibleLocalId("#0#")
+        NonFungibleLocalId("#1#")
     )
 ;
-CALL_METHOD
-    Address("account_sim1c956qr3kxlgypxwst89j9yf24tjc7zxd4up38x37zr6q4jxdx9rhma")
-    "withdraw"
-    Address("resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3")
-    Decimal("1")
-;
-TAKE_FROM_WORKTOP
-    Address("resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3")
-    Decimal("1")
+TAKE_NON_FUNGIBLES_FROM_WORKTOP
+    Address("resource_sim1ngqnc0uvp3e4q3yr6atqp0ls07lj34kwna4yt4g7ryj4qdm8npq740")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("#1#")
+    )
     Bucket("bucket1")
 ;
 CALL_METHOD
     Address("component_sim1cpwu4wc6rg0am8l9prnh2lzqkk6hue6stzqhdx48rzvek2mmm5vp0p")
-    "start_sale"
+    "split_yield_nft"
     Bucket("bucket1")
+    2u64
 ;
 CALL_METHOD
     Address("account_sim1c956qr3kxlgypxwst89j9yf24tjc7zxd4up38x37zr6q4jxdx9rhma")

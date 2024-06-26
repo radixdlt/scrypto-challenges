@@ -200,7 +200,7 @@ mod super_iyo {
 
             let logos: Icons = Icons::new();
 
-            let current_colors: IconUrls = logos.black.clone();
+            let current_colors: IconUrls = logos.bg.clone();
 
             //region Component Rules and address reservations
 
@@ -480,7 +480,7 @@ mod super_iyo {
                 init {
                     "name" => "SUPER_IYO", updatable;
                     "dapp_definition" => dapp_definition_addy_vec.to_owned(), updatable;
-                    "icon_url" => current_colors.ww.clone().to_owned(), updatable;
+                    "icon_url" => current_colors.super_s.clone().to_owned(), updatable;
                 }
             ))
                 .globalize();
