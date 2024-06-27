@@ -63,7 +63,7 @@ const DevModeInstruction = () => {
 
           <div className="dev-mode-gif-container">
             <div className="dev-mode-gif">
-              <img src="src/assets/dev-mode-setup.gif" alt="dev mode setup" />
+              <img src="https://www.assets.floww.fi/images/pages/dev-mode-setup.gif" alt="dev mode setup" />
             </div>
           </div>
 

@@ -167,7 +167,7 @@ mod super_iyo {
         // AVLTree
         yield_nft_db: AvlTree<u64, YieldClaim>, // <nft_local_addy, nft_data>
         yield_generated_db: AvlTree<u64, Decimal>, // <nft_local_addy, yield_generated_so_far>
-        vested_withdrawals_db: AvlTree<u64, bool>, // <hour_of_withdrawal, withdrawal_used>
+        vested_withdrawals_db: AvlTree<i64, bool>, // <hour_of_withdrawal, withdrawal_used>
         hourly_super_minted: AvlTree<u64, u64>, // <hour, total_n_super>
         hour_updated_checklist: AvlTree<u64, bool>,
 
@@ -175,6 +175,8 @@ mod super_iyo {
         time_sale_start: Instant,
         time_sale_end: Instant,
         dbs_updated_up_to_before_hour: u64,
+        length_hourly_super_minted: u64,
+        total_super_minted: u64,
         sale_details: SaleDetailEvent,
     }
 
@@ -256,7 +258,7 @@ mod super_iyo {
 
             //region Creating a AVLTree that contains all epochs where vested funds will partially unlock
 
-            let withdrawal_epochs: AvlTree<u64, bool> = AvlTree::new();
+            let withdrawal_epochs: AvlTree<i64, bool> = AvlTree::new();
 
             //endregion
 
@@ -468,6 +470,8 @@ mod super_iyo {
                 time_sale_start: Instant::new(0),
                 time_sale_end: Instant::new(0),
                 dbs_updated_up_to_before_hour: 0,
+                length_hourly_super_minted: 0,
+                total_super_minted: 0,
                 sale_details: new_super_event.to_owned(),
             }
                 .instantiate()
@@ -554,17 +558,17 @@ mod super_iyo {
         pub fn calculate_withdrawal_epochs(&mut self) {
             let mut withdrawal_epoch_vector: Vec<String> = Vec::new();
 
-            for i in 0..WEEKS_VESTED {
-                let epoch: u64 = self
+            for i in 0..(WEEKS_VESTED as i64) {
+                let epoch: i64 = self
                     .time_sale_start
                     .to_owned()
-                    .add_days((i * DAYS_PER_VEST_PERIOD) as i64)
+                    .add_days(i * (DAYS_PER_VEST_PERIOD as i64))
                     .unwrap()
-                    .seconds_since_unix_epoch as u64;
+                    .seconds_since_unix_epoch;
 
-                self.vested_withdrawals_db.insert(epoch.clone(), false);
+                self.vested_withdrawals_db.insert(epoch, false);
 
-                withdrawal_epoch_vector.insert(i as usize, epoch.clone().to_string());
+                withdrawal_epoch_vector.insert(i as usize, epoch.to_string());
             }
 
             Runtime::emit_event(WithdrawalCalculationEvent {
@@ -1315,7 +1319,7 @@ mod super_iyo {
         pub fn vested_withdraw(&mut self) -> Bucket {
 
             // Ensure the token sale is complete before allowing withdrawals
-            assert!(!self.sale_details.sale_completed, "Token Sale is not yet complete!");
+            assert!(self.sale_details.sale_completed, "Token Sale is not yet complete!");
 
             // Update the databases to the current state
             self.update_dbs_to_now();
@@ -1327,8 +1331,8 @@ mod super_iyo {
             for (withdraw_date, used, _) in self.vested_withdrawals_db.range(..) {
                 if (!used)
                     && (Clock::current_time_is_at_or_after(
-                    Instant::new(withdraw_date as i64),
-                    TimePrecision::Minute,
+                    Instant::new(withdraw_date),
+                    TimePrecision::Second,
                 ))
                 {
                     withdrawals_allowed += 1;
@@ -1339,19 +1343,21 @@ mod super_iyo {
 
             // Create a new bucket for the withdrawal
             let mut withdrawal: Bucket = Bucket::new(XRD);
-
-            // If all withdrawals have been used and no more are allowed, take all remaining funds
-            if (used_withdrawals == WEEKS_VESTED) && (withdrawals_allowed == 0) {
-                withdrawal.put(self.vesting_vault.take_all());
-            }
-
+            
             // Calculate the amount to withdraw based on allowed withdrawals
             let withdrawal_amount: Decimal =
-                Decimal::from(withdrawals_allowed) * self.vested_withdrawal_amount;
+                self.vested_withdrawal_amount
+                    .checked_mul(withdrawals_allowed)
+                    .unwrap();
 
             // Withdraw the calculated amount from the vesting vault
             withdrawal.put(self.vesting_vault.take(withdrawal_amount));
-
+            
+            // If all withdrawals have been used and no more are allowed, take all remaining funds
+            if used_withdrawals == WEEKS_VESTED {
+                withdrawal.put(self.vesting_vault.take_all());
+            }
+            
             withdrawal
         }
 
@@ -1379,6 +1385,11 @@ mod super_iyo {
         /// This function ensures the databases are up-to-date by calling `update_dbs_with`
         /// and `update_yield_generated` to update the hourly SUPER minted data and the yield generated.
         pub fn update_dbs_to_now(&mut self) {
+            
+            if !self.sale_details.sale_completed {
+                self.check_if_sale_complete();
+            }
+            
 
             //just in case a new nft was minted or burnt within the hour:
             self.update_dbs_with(None, None);
@@ -1401,6 +1412,7 @@ mod super_iyo {
         /// * `hours_since_start` - The number of hours since the sale started.
         /// * `amount` - The amount of SUPER tokens minted in the current hour.
         pub fn update_hourly_super_minted(&mut self, hours_since_start: u64, amount: u64) {
+            
             // If the key does not exist in the db, this will return None.
             if let Some(mut data_for_hour) = self.hourly_super_minted.get_mut(&hours_since_start) {
                 {
@@ -1411,35 +1423,23 @@ mod super_iyo {
                 return;
             }
 
-            // If a key does not exist for this hour, insert a new key-value pair with the given hour and amount.
-            /* OLD APPROACH
-            let last_super_minted: (u64, u64, Option<u64>) = self
-                .hourly_super_minted
-                .range(..)
-                .last()
-                .unwrap_or((0, 0, None)); 
-                
-            let last_hour_updated: u64 = last_super_minted.0;
-
-            let total_amount: u64 = last_super_minted.1;
-            */
-
-            // Retrieve the last updated hour and total amount using a more efficient approach
-            let (last_hour_updated, total_amount) = match self.hourly_super_minted.range(..).last() {
-                Some((last_hour, total_amount, _)) => (last_hour, total_amount),
-                None => (0, 0),
-            };
+            let last_hour_updated: &u64 = &self.length_hourly_super_minted;
+            let total_amount: &u64 = &self.total_super_minted;
 
             // Insert the total amount for each hour up to the current hour
-            for hour in last_hour_updated..=hours_since_start {
+            for hour in *last_hour_updated..hours_since_start {
                 //info!("At hour {} total SUPER minted = {}", hour, total_amount);
-                self.hourly_super_minted.insert(hour, total_amount);
+                self.hourly_super_minted.insert(hour, *total_amount);
             }
 
             // Calculate the new total amount and insert it for the current hour
             let new_total: u64 = total_amount + amount;
             self.hourly_super_minted
                 .insert(hours_since_start, new_total);
+            
+            self.length_hourly_super_minted = hours_since_start;
+            self.total_super_minted = new_total;
+            
         }
 
         /// Calculates and updates the yield generated for each SUPER token.
@@ -1456,15 +1456,15 @@ mod super_iyo {
             let now_hour: u64 = self.hours_since_start();
 
             // Iterate through each hour from the last updated hour to the current hour
-            for current_hour in self.dbs_updated_up_to_before_hour..=now_hour {
+            for hour in self.dbs_updated_up_to_before_hour..=now_hour {
 
                 // Calculate the yield tokens minted for the current hour
                 let yield_tokens_minted: Decimal =
-                    self.calculate_yield_curve_for_hour(current_hour);
+                    self.calculate_yield_curve_for_hour(hour);
 
                 // Get the amount of SUPER minted in the current hour
                 let super_minted_in_hour: u64 =
-                    *self.hourly_super_minted.get(&current_hour).unwrap();
+                    *self.hourly_super_minted.get(&hour).unwrap();
 
                 // Calculate the yield per SUPER token for the current hour
                 let yield_per_super_for_hour: Decimal = yield_tokens_minted
@@ -1480,20 +1480,17 @@ mod super_iyo {
                         let super_minted: u64 = nft_data.n_super_minted;
 
                         // Update the yield generated for the current NFT if it was minted before the current hour
-                        if current_hour >= hour_minted {
+                        if hour >= hour_minted {
                             let yield_generated_this_hour: Decimal =
                                 yield_per_super_for_hour.checked_mul(super_minted).unwrap();
 
-                            //info!("Yield_generated updated from {}", yield_generated);
 
                             {
                                 *yield_generated = yield_generated
                                     .checked_add(yield_generated_this_hour)
                                     .unwrap();
                             }
-
-                            //info!("to {}", yield_generated);
-                            //info!("Hour: {}, NFT: {}, Yield: {}", current_hour, nft_id, yield_generated);
+                            
                         }
 
                         // Continue iterating or break if this is the last entry
@@ -1508,7 +1505,7 @@ mod super_iyo {
             // Update the last updated hour and mark the hour as updated in the checklist
             self.dbs_updated_up_to_before_hour = now_hour + 1;
             self.hour_updated_checklist.insert(now_hour, true);
-            //info!("Yield db Updated up to hour {}", self.dbs_updated_up_to_before_hour);
+
         }
 
         /*
@@ -1624,6 +1621,11 @@ mod super_iyo {
             //      =   term_1  +   [ (term_2_numerator) / (term_2_denominator_1 + term_2_denominator_2) ]
             //      =   term_1  +   [ term_2_numerator / term_2_denominator ]
             //      =   term_1  +   [ term_2 ]
+
+            if hour > WEEKS_VESTED * TIME_HOURS_PER_WEEK {
+                return dec!("0");
+            }
+            
 
             let term_1: Decimal = PI.checked_mul(hour).unwrap();
 
@@ -1804,3 +1806,4 @@ mod super_iyo {
         //endregion Helper functions
     }
 }
+

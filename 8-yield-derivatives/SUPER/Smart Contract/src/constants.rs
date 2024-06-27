@@ -16,7 +16,7 @@ pub const WEEKS_VESTED: u64 = 16;
 pub const TIME_SECONDS_PER_HOUR: u64 = 60 * 60;
 
 ///Number of hours in a week. 
-pub const _TIME_HOURS_PER_WEEK: u64 = 7 * 24;
+pub const TIME_HOURS_PER_WEEK: u64 = 7 * 24;
 
 ///Number of days per vesting period, each period unlocks an equal fraction of the tokens locked within the component from the fraction `FRACTION_VESTED`
 pub const DAYS_PER_VEST_PERIOD: u64 = 7;

@@ -65,7 +65,7 @@ impl fmt::Display for YieldClaim {
 | FRACTION_TRUST_FUND   | Decimal | 0.6      | Fraction of XRD paid by user to place in `OneResourcePool` and mint `SUPERt` against                                                                   |
 | WEEKS_VESTED          | u64     | 16       | May also be referred to as the development period, weeks over which SUPERy is generated                                                                |
 | TIME_SECONDS_PER_HOUR | u64     | 60 * 60  | Number of seconds in an hour.                                                                                                                          |
-| _TIME_HOURS_PER_WEEK  | u64     | 7 * 24   | Number of hours in a week.                                                                                                                             |
+| TIME_HOURS_PER_WEEK   | u64     | 7 * 24   | Number of hours in a week.                                                                                                                             |
 | DAYS_PER_VEST_PERIOD  | u64     | 7        | Number of days per vesting period, each period unlocks an equal fraction of the tokens locked within the component from the fraction `FRACTION_VESTED` |
 | SALE_DURATION_DAYS    | u64     | 7        | Duration of the sale in days.                                                                                                                          |
 | EULER                 | Decimal | 2.718... | Euler's number, accurate to 18 decimal places.                                                                                                         |
@@ -207,6 +207,70 @@ pub struct SplitNFTEvent {
 
 ## Icons
 
+### Structs
+
+#### `IconUrls`
+
+This struct holds URLs for different icon types.
+
+##### Fields
+
+- `floww: UncheckedUrl`
+- `super_s: UncheckedUrl`
+- `super_t: UncheckedUrl`
+- `super_y: UncheckedUrl`
+- `w: UncheckedUrl`
+- `nft: UncheckedUrl`
+
+#### `Icons`
+
+This struct contains two `IconUrls` objects, representing different formats of icons.
+
+##### Fields
+
+- `tp: IconUrls` - Holds URLs for transparent icons.
+- `bg: IconUrls` - Holds URLs for icons with backgrounds.
+
+### Implementation
+
+#### `Icons::new() -> Self`
+
+The `new` function initializes the `Icons` struct with predefined URLs for both transparent and background icons. 
+It constructs the URLs based on a base URL.
+
+##### Example
+
+```rust
+impl Icons {
+pub fn new() -> Self {
+let base_url: String = String::from("https://assets.floww.fi/images/logo/png/");
+
+        let set: Icons = Icons {
+            tp: IconUrls {
+                floww: Url::of(&format!("{}tp/floww.png", base_url)),
+                super_s: Url::of(&format!("{}tp/super_s.png", base_url)),
+                super_t: Url::of(&format!("{}tp/super_t.png", base_url)),
+                super_y: Url::of(&format!("{}tp/super_y.png", base_url)),
+                w: Url::of(&format!("{}tp/W.png", base_url)),
+                nft: Url::of(&format!("{}tp/yield_nft.png", base_url)),
+            },
+            bg: IconUrls {
+                floww: Url::of(&format!("{}bg/floww.png", base_url)),
+                super_s: Url::of(&format!("{}bg/super_s.png", base_url)),
+                super_t: Url::of(&format!("{}bg/super_t.png", base_url)),
+                super_y: Url::of(&format!("{}bg/super_y.png", base_url)),
+                w: Url::of(&format!("{}bg/W.png", base_url)),
+                nft: Url::of(&format!("{}bg/yield_nft.png", base_url)),
+            },
+        };
+        return set;
+    }
+}
+```
+
+The `new` method constructs the URLs dynamically using the base URL and predefined paths for each icon type. 
+It then returns an instance of the `Icons` struct with these URLs.
+
 ##
 </details>
 
@@ -225,15 +289,16 @@ This section contains the function used to instantiate the DApp
 Initializes and returns a new instance of the Super component. This function sets up the initial state, including 
 badges, resource managers, and databases required for the component's operation.
 ```rust
-pub fn new(dapp_definition_addy: ComponentAddress) 
--> (NonFungibleBucket, Global<Super>, NonFungibleBucket) {
+        pub fn new(
+    dapp_definition_addy: ComponentAddress,
+) -> (NonFungibleBucket, Global<Super>, NonFungibleBucket) {
 
     let dapp_definition_addy_vec: Vec<GlobalAddress> =
         vec![GlobalAddress::new_or_panic(dapp_definition_addy.into())];
 
     let logos: Icons = Icons::new();
 
-    let current_colors: IconUrls = logos.black.clone();
+    let current_colors: IconUrls = logos.bg.clone();
 
     //region Component Rules and address reservations
 
@@ -257,15 +322,15 @@ pub fn new(dapp_definition_addy: ComponentAddress)
     let badge_owner: NonFungibleBucket =
         ResourceBuilder::new_integer_non_fungible(owner_role_component.clone())
             .metadata(metadata!(
-            init {
-                "name" => "SUPER Owner Badge".to_owned(), locked;
-                "key_image_url" => current_colors.nft.to_owned(), updatable;
-                "dapp_definitions" => dapp_definition_addy_vec.to_owned(), updatable;
-            }))
+                    init {
+                        "name" => "SUPER Owner Badge".to_owned(), locked;
+                        "key_image_url" => current_colors.nft.to_owned(), updatable;
+                        "dapp_definitions" => dapp_definition_addy_vec.to_owned(), updatable;
+                    }))
             .mint_roles(mint_roles!(
-            minter => access_rule_component.clone();
-            minter_updater => access_rule_component.clone();
-            ))
+                    minter => access_rule_component.clone();
+                    minter_updater => access_rule_component.clone();
+                    ))
             .mint_initial_supply(vec![(
                 0u64.into(),
                 OwnerBadgeData {
@@ -279,9 +344,9 @@ pub fn new(dapp_definition_addy: ComponentAddress)
         NonFungibleGlobalId::global_caller_badge(badge_owner_addy);
 
     let access_component_or_owner_badge: AccessRule = rule!(require_any_of(vec![
-        owner_badge_global_id.clone(),
-        global_component_caller_badge.clone()
-    ]));
+                owner_badge_global_id.clone(),
+                global_component_caller_badge.clone()
+            ]));
     let owner_component_or_owner_badge: OwnerRole =
         OwnerRole::Fixed(access_component_or_owner_badge.clone());
 
@@ -289,7 +354,7 @@ pub fn new(dapp_definition_addy: ComponentAddress)
 
     //region Creating a AVLTree that contains all epochs where vested funds will partially unlock
 
-    let withdrawal_epochs: AvlTree<u64, bool> = AvlTree::new();
+    let withdrawal_epochs: AvlTree<i64, bool> = AvlTree::new();
 
     //endregion
 
@@ -317,28 +382,28 @@ pub fn new(dapp_definition_addy: ComponentAddress)
     let super_manager: ResourceManager =
         ResourceBuilder::new_fungible(owner_component_or_owner_badge.clone())
             .metadata(metadata! {
-                roles {
-                    metadata_locker => access_rule_component.clone();
-                    metadata_locker_updater => access_rule_component.clone();
-                    metadata_setter => access_rule_component.clone();
-                    metadata_setter_updater => access_rule_component.clone();
-                },
-                init {
-                    "name" => "SUPER".to_owned(), locked;
-                    "symbol" => "SUPER".to_owned(), locked;
-                    "icon_url" => current_colors.super_s.to_owned(), updatable;
-                    "dapp_definitions" => dapp_definition_addy_vec.to_owned(), updatable;
-                }
-            })
+                        roles {
+                            metadata_locker => access_rule_component.clone();
+                            metadata_locker_updater => access_rule_component.clone();
+                            metadata_setter => access_rule_component.clone();
+                            metadata_setter_updater => access_rule_component.clone();
+                        },
+                        init {
+                            "name" => "SUPER".to_owned(), locked;
+                            "symbol" => "SUPER".to_owned(), locked;
+                            "icon_url" => current_colors.super_s.to_owned(), updatable;
+                            "dapp_definitions" => dapp_definition_addy_vec.to_owned(), updatable;
+                        }
+                    })
             .mint_roles(mint_roles!(
-                minter => rule!(require(global_caller(component_addy)));
-                minter_updater => rule!(require(global_caller(component_addy)));
-            ))
+                        minter => rule!(require(global_caller(component_addy)));
+                        minter_updater => rule!(require(global_caller(component_addy)));
+                    ))
             .divisibility(0)
             .burn_roles(burn_roles!(
-            burner => rule!(require(global_caller(component_addy)));
-            burner_updater => rule!(require(global_caller(component_addy)));
-            ))
+                    burner => rule!(require(global_caller(component_addy)));
+                    burner_updater => rule!(require(global_caller(component_addy)));
+                    ))
             .create_with_no_initial_supply();
 
     let super_empty_bucket: Bucket = super_manager.create_empty_bucket();
@@ -348,30 +413,30 @@ pub fn new(dapp_definition_addy: ComponentAddress)
     let super_yield_manager: ResourceManager = ResourceBuilder::new_fungible(
         owner_component_or_owner_badge.clone(),
     )
-    .metadata(metadata! {
-        roles {
-            metadata_locker => access_rule_component.clone();
-            metadata_locker_updater => access_rule_component.clone();
-            metadata_setter => access_rule_component.clone();
-            metadata_setter_updater => access_rule_component.clone();
-        },
-        init {
-                "name" => "SUPER Yield Token".to_owned(), locked;
-                "symbol" => "SUPERy".to_owned(), locked;
-                "icon_url" => current_colors.super_y.to_owned(), updatable;
-                "dapp_definitions" => dapp_definition_addy_vec.to_owned(), updatable;
-            }
-    })
-    .mint_roles(mint_roles!(
-        minter => rule!(require(global_caller(component_addy)));
-        minter_updater => rule!(require(global_caller(component_addy)));
-    ))
-    .divisibility(DIVISIBILITY_MAXIMUM)
-    .burn_roles(burn_roles!(
-    burner => rule!(require(global_caller(component_addy)));
-    burner_updater => rule!(require(global_caller(component_addy)));
-    ))
-    .create_with_no_initial_supply();
+        .metadata(metadata! {
+                roles {
+                    metadata_locker => access_rule_component.clone();
+                    metadata_locker_updater => access_rule_component.clone();
+                    metadata_setter => access_rule_component.clone();
+                    metadata_setter_updater => access_rule_component.clone();
+                },
+                init {
+                        "name" => "SUPER Yield Token".to_owned(), locked;
+                        "symbol" => "SUPERy".to_owned(), locked;
+                        "icon_url" => current_colors.super_y.to_owned(), updatable;
+                        "dapp_definitions" => dapp_definition_addy_vec.to_owned(), updatable;
+                    }
+            })
+        .mint_roles(mint_roles!(
+                minter => rule!(require(global_caller(component_addy)));
+                minter_updater => rule!(require(global_caller(component_addy)));
+            ))
+        .divisibility(DIVISIBILITY_MAXIMUM)
+        .burn_roles(burn_roles!(
+            burner => rule!(require(global_caller(component_addy)));
+            burner_updater => rule!(require(global_caller(component_addy)));
+            ))
+        .create_with_no_initial_supply();
 
     let super_yield_empty_bucket: Bucket = super_yield_manager.create_empty_bucket();
     let super_yield_resource_addy: ResourceAddress =
@@ -385,36 +450,36 @@ pub fn new(dapp_definition_addy: ComponentAddress)
     let nft_manager: ResourceManager = ResourceBuilder::new_integer_non_fungible::<
         YieldClaim,
     >(owner_component_or_owner_badge.clone())
-    .metadata(metadata!(
-        roles {
-            metadata_setter => access_rule_component.clone();
-            metadata_setter_updater => access_rule_component.clone();
-            metadata_locker => access_rule_component.clone();
-            metadata_locker_updater => access_rule_component.clone();
-        },
-        init {
-            "name" => "SUPER Yield NFT".to_owned(), locked;
-            "Current Hour" => 0u64.to_owned(), updatable;
-            "Current Time" => 0u64.to_owned(), updatable;
-            "Total Amount" => dec!("0.0").to_owned(), updatable;
-            "dapp_definitions" => dapp_definition_addy_vec.to_owned(), updatable;
-            "icon_url" => current_colors.nft.to_owned(), updatable;
-            "key_image_url" => current_colors.nft.to_owned(), updatable;
-        }
-    ))
-    .mint_roles(mint_roles!(
-        minter => access_rule_component.clone();
-        minter_updater => access_rule_component.clone();
-    ))
-    .non_fungible_data_update_roles(non_fungible_data_update_roles!(
-        non_fungible_data_updater => access_rule_component.clone();
-        non_fungible_data_updater_updater => rule!(deny_all);
-    ))
-    .burn_roles(burn_roles!(
-        burner => access_rule_component.clone();
-        burner_updater => rule!(deny_all);
-    ))
-    .create_with_no_initial_supply();
+        .metadata(metadata!(
+                roles {
+                    metadata_setter => access_rule_component.clone();
+                    metadata_setter_updater => access_rule_component.clone();
+                    metadata_locker => access_rule_component.clone();
+                    metadata_locker_updater => access_rule_component.clone();
+                },
+                init {
+                    "name" => "SUPER Yield NFT".to_owned(), locked;
+                    "Current Hour" => 0u64.to_owned(), updatable;
+                    "Current Time" => 0u64.to_owned(), updatable;
+                    "Total Amount" => dec!("0.0").to_owned(), updatable;
+                    "dapp_definitions" => dapp_definition_addy_vec.to_owned(), updatable;
+                    "icon_url" => current_colors.nft.to_owned(), updatable;
+                    "key_image_url" => current_colors.nft.to_owned(), updatable;
+                }
+            ))
+        .mint_roles(mint_roles!(
+                minter => access_rule_component.clone();
+                minter_updater => access_rule_component.clone();
+            ))
+        .non_fungible_data_update_roles(non_fungible_data_update_roles!(
+                non_fungible_data_updater => access_rule_component.clone();
+                non_fungible_data_updater_updater => rule!(deny_all);
+            ))
+        .burn_roles(burn_roles!(
+                burner => access_rule_component.clone();
+                burner_updater => rule!(deny_all);
+            ))
+        .create_with_no_initial_supply();
 
     let nft_empty_bucket: Bucket = nft_manager.create_empty_bucket();
     let nft_resource_addy: ResourceAddress = nft_empty_bucket.resource_address();
@@ -422,21 +487,20 @@ pub fn new(dapp_definition_addy: ComponentAddress)
 
     //endregion
 
-    //region Creating Yield NFT db and db_updater badge, that will be sent to off-ledger 
-    // automated wallet who will activate it once per hour
+    //region Creating Yield NFT db and db_updater badge, that will be sent to off-ledger automated wallet who will activate it once per hour
 
     let badge_db_updater: NonFungibleBucket =
         ResourceBuilder::new_integer_non_fungible(owner_role_component.clone())
             .metadata(metadata!(
-                init {
-                    "name" => "SUPER Updater Badge".to_owned(), locked;
-                    "key_image_url" => current_colors.nft.to_owned(), updatable;
-                    "dapp_definitions" => dapp_definition_addy_vec.to_owned(), updatable;
-                }))
+                        init {
+                            "name" => "SUPER Updater Badge".to_owned(), locked;
+                            "key_image_url" => current_colors.nft.to_owned(), updatable;
+                            "dapp_definitions" => dapp_definition_addy_vec.to_owned(), updatable;
+                        }))
             .mint_roles(mint_roles!(
-                minter => access_rule_component.clone();
-                minter_updater => access_rule_component.clone();
-            ))
+                        minter => access_rule_component.clone();
+                        minter_updater => access_rule_component.clone();
+                    ))
             .mint_initial_supply(vec![(
                 0u64.into(),
                 OwnerBadgeData {
@@ -502,27 +566,30 @@ pub fn new(dapp_definition_addy: ComponentAddress)
         time_sale_start: Instant::new(0),
         time_sale_end: Instant::new(0),
         dbs_updated_up_to_before_hour: 0,
+        length_hourly_super_minted: 0,
+        total_super_minted: 0,
         sale_details: new_super_event.to_owned(),
     }
-    .instantiate()
-    .prepare_to_globalize(OwnerRole::Fixed(rule!(require(badge_owner_addy))))
-    .roles(roles! {
-        db_updater => rule!(require(db_updater_resource_addy));
-    })
-    .with_address(addy_reservation)
-    .metadata(metadata!(
-        init {
-            "name" => "SUPER_IYO", updatable;
-            "dapp_definition" => dapp_definition_addy_vec.to_owned(), updatable;
-            "icon_url" => current_colors.ww.clone().to_owned(), updatable;
-        }
-    ))
-    .globalize();
+        .instantiate()
+        .prepare_to_globalize(OwnerRole::Fixed(rule!(require(badge_owner_addy))))
+        .roles(roles! {
+                db_updater => rule!(require(db_updater_resource_addy));
+            })
+        .with_address(addy_reservation)
+        .metadata(metadata!(
+                init {
+                    "name" => "SUPER_IYO", updatable;
+                    "dapp_definition" => dapp_definition_addy_vec.to_owned(), updatable;
+                    "icon_url" => current_colors.super_s.clone().to_owned(), updatable;
+                }
+            ))
+        .globalize();
 
     Runtime::emit_event(new_super_event.to_owned());
 
     (badge_owner, component, badge_db_updater)
 }
+
 ```
 
 ## <!-- Starting -->
@@ -592,20 +659,20 @@ calculated by adding a multiple of the vesting period in days to the sale start 
 stored in the vested withdrawals db with an initial state set to false, indicating that the funds 
 for that epoch are not yet withdrawn.
 ```rust
-pub fn calculate_withdrawal_epochs(&mut self) {
+        pub fn calculate_withdrawal_epochs(&mut self) {
     let mut withdrawal_epoch_vector: Vec<String> = Vec::new();
 
-    for i in 0..WEEKS_VESTED {
-        let epoch: u64 = self
+    for i in 0..(WEEKS_VESTED as i64) {
+        let epoch: i64 = self
             .time_sale_start
             .to_owned()
-            .add_days((i * DAYS_PER_VEST_PERIOD) as i64)
+            .add_days(i * (DAYS_PER_VEST_PERIOD as i64))
             .unwrap()
-            .seconds_since_unix_epoch as u64;
+            .seconds_since_unix_epoch;
 
-        self.vested_withdrawals_db.insert(epoch.clone(), false);
+        self.vested_withdrawals_db.insert(epoch, false);
 
-        withdrawal_epoch_vector.insert(i as usize, epoch.clone().to_string());
+        withdrawal_epoch_vector.insert(i as usize, epoch.to_string());
     }
 
     Runtime::emit_event(WithdrawalCalculationEvent {
@@ -1437,12 +1504,13 @@ pub fn update_dbs_to_now(&mut self) {
 > too much gas. I believe this happens because by calling .range(..).last() I access the entire tree, and
 > then find the last one, so I have to deal with 99% useless values.
 
-Updates the hourly SUPER minted data. This function updates the amount of SUPER tokens minted for 
+Updates the hourly SUPER minted data. This function updates the number of SUPER tokens minted for 
 the given hour. If the hour is not already in the database, it fills in any missing hours and sets 
 the new total amount minted.
 
 ```rust
-pub fn update_hourly_super_minted(&mut self, hours_since_start: u64, amount: u64) {
+        pub fn update_hourly_super_minted(&mut self, hours_since_start: u64, amount: u64) {
+
     // If the key does not exist in the db, this will return None.
     if let Some(mut data_for_hour) = self.hourly_super_minted.get_mut(&hours_since_start) {
         {
@@ -1453,36 +1521,25 @@ pub fn update_hourly_super_minted(&mut self, hours_since_start: u64, amount: u64
         return;
     }
 
-    // If a key does not exist for this hour, insert a new key-value pair with the given hour and amount.
-    /* OLD APPROACH
-    let last_super_minted: (u64, u64, Option<u64>) = self
-        .hourly_super_minted
-        .range(..)
-        .last()
-        .unwrap_or((0, 0, None)); 
-        
-    let last_hour_updated: u64 = last_super_minted.0;
-
-    let total_amount: u64 = last_super_minted.1;
-    */
-
-    // Retrieve the last updated hour and total amount using a more efficient approach
-    let (last_hour_updated, total_amount) = match self.hourly_super_minted.range(..).last() {
-        Some((last_hour, total_amount, _)) => (last_hour, total_amount),
-        None => (0, 0),
-    };
+    let last_hour_updated: &u64 = &self.length_hourly_super_minted;
+    let total_amount: &u64 = &self.total_super_minted;
 
     // Insert the total amount for each hour up to the current hour
-    for hour in last_hour_updated..=hours_since_start {
+    for hour in *last_hour_updated..hours_since_start {
         //info!("At hour {} total SUPER minted = {}", hour, total_amount);
-        self.hourly_super_minted.insert(hour, total_amount);
+        self.hourly_super_minted.insert(hour, *total_amount);
     }
 
     // Calculate the new total amount and insert it for the current hour
     let new_total: u64 = total_amount + amount;
     self.hourly_super_minted
         .insert(hours_since_start, new_total);
+
+    self.length_hourly_super_minted = hours_since_start;
+    self.total_super_minted = new_total;
+
 }
+
 ```
 
 ### `update_yield_generated()`

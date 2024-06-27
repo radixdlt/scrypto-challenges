@@ -36,7 +36,7 @@ const PrimaryNavbar = () => {
 
                 <div id="navbar-container">
 
-                    <img src="http://www.assets.floww.fi/images/logo/svg/tp/white/floww.svg" alt="floww logo"/>
+                    <img src="https://assets.floww.fi/images/logo/svg/tp/FLOWW_BLUE.svg" alt="floww logo"/>
 
                     <div id="connect-btn">
                         <radix-connect-button/>
@@ -63,7 +63,7 @@ const PrimaryNavbar = () => {
             <div id="navbar">
 
 
-                <img src="http://www.assets.floww.fi/images/logo/svg/tp/white/floww.svg" alt="floww logo"/>
+                <img src="https://assets.floww.fi/images/logo/svg/tp/FLOWW_WHITE.svg" alt="floww logo"/>
 
                 <div id="navbar-link-container">
                     <ul id="navbar-links">

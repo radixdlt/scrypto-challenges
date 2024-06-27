@@ -16,12 +16,18 @@ configurations, necessary environment variables, and steps to get everything run
 > For my own sanity, I refer to both functions and methods as functions.
 
 ## Table of Contents
-
-1. [Folder Structure](#folder-structure)
-2. [Environment Variables](#environment-variables)
-3. [Setup and Run the Backend Server](#setup-and-run-the-backend-server)
-4. [Setup and Run the Frontend](#setup-and-run-the-frontend)
-5. [Common Issues and Troubleshooting](#common-issues-and-troubleshooting)
+1. [Functions used to interact with the SUPER DApp](#functions-used-to-interact-with-the-super-dapp)
+2. [Public Functions](#public-functions)
+3. [Functions requiring elevated permissions (badges)](#functions-requiring-elevated-permissions-badges)
+4. [General DApp Function Flow](#general-dapp-function-flow)
+   - [Owner Function Flow](#owner-function-flow)
+   - [Public Function Flow](#public-function-flow)
+5. [Run the DApp locally using `resim`](#run-the-dapp-locally-using-resim)
+6. [Interact with the DApp on Stokenet](#interact-with-the-dapp-on-stokenet)
+   - [Use transaction manifests to interact with the DApp](#use-transaction-manifests-to-interact-with-the-dapp)
+   - [Use the website to interact with the DApp on stokenet](#use-the-website-to-interact-with-the-dapp-on-stokenet)
+7. [Common Issues and Troubleshooting](#common-issues-and-troubleshooting)
+8. [License](#license)
 
 ## Functions used to interact with the SUPER DApp
 Regardless of which method you choose to interact with the SUPER DApp, you can only interact with it using a few functions.
@@ -58,7 +64,7 @@ The Owner Badge has higher "permission levels" than the Database Updater Badge a
 2. Immediately after they have minted their SUPER NFT, they can call the `split_nft()` method.
 3. Once the token sale ends, (After 7 days) participants with a SUPER NFT may `claim_yield()`
 
-## Run the DApp locally using `resim` (Without frontend/backend)
+## Run the DApp locally using `resim`
 
 > #### 1. Reset Resim
 > ```powershell
@@ -120,6 +126,7 @@ The Owner Badge has higher "permission levels" than the Database Updater Badge a
 > Write-Output "
 > "
 > ```
+> 
 > This will create the following fields within `$sale_details` (the addresses I got may be different from yours):
 >> - **Sale Time and Status Variables**
 >>   - `sale_start_time_utc`: "Sale hasn't begun"
@@ -263,34 +270,37 @@ The Owner Badge has higher "permission levels" than the Database Updater Badge a
 > resim call-method $sale_details["component_caddy"] claim_yield $full_nft_id_1 ${super_t_raddy}:60
 > ```
 
-# Interact with the DApp on Stokenet
+## Interact with the DApp on Stokenet
 To interact with the DApp on Stokenet, some important addresses are required:
-> #### DApp Definition Address
-> ```
-> account_tdx_2_1286nhpzlgc0pr3jw39lrtxprq8ak3ysnmgj7j4qruvlje76zqya4p8
-> ```
->
-> #### Package Address
-> ```
-> package_tdx_2_1pkyhnqljlxs6jxz3wut9talyyflamz3r9kll7ak7f0n0sj4a2sr6dh 
-> ```
-> 
-> #### Package Address Publish TxID
-> ```
-> package_tdx_2_1pkyhnqljlxs6jxz3wut9talyyflamz3r9kll7ak7f0n0sj4a2sr6dh
-> ```
-> 
+#### DApp Definition Address
+```
+account_tdx_2_1286nhpzlgc0pr3jw39lrtxprq8ak3ysnmgj7j4qruvlje76zqya4p8
+```
 
-## Use transaction manifests to interact with the DApp.
+#### Package Address
+```
+package_tdx_2_1pkyhnqljlxs6jxz3wut9talyyflamz3r9kll7ak7f0n0sj4a2sr6dh 
+```
+
+#### Package Address Publish TxID
+```
+package_tdx_2_1pkyhnqljlxs6jxz3wut9talyyflamz3r9kll7ak7f0n0sj4a2sr6dh
+```
+
+
+### Use transaction manifests to interact with the DApp
 Transaction Manifest can be found in [Smart Contracts/manifests](..%2FSmart%20Contract%2Fmanifests)
 
-## Prerequisites
+### Use the website to interact with the DApp on stokenet
+
+#### Prerequisites
 - A MongoDB account (Make sure you set up permissions to access from your IP)
 - `npm`
 
-## Environment Variables
+#### Environment Variables
 There are variables stored in both the front end and the back end.
-### Backend Environment Variables [(`Back End/Server/.env`)]
+
+##### Backend Environment Variables (`Back End/Server/.env`)
 
 - **`ENV_ATLAS_URI`**: The MongoDB connection URI.
 
@@ -299,7 +309,7 @@ Example:
 ENV_ATLAS_URI=mongodb+srv://user:password@yoo.brtac38.mongodb.net/?retryWrites=true&w=majority&appName=Yoo
 ```
 
-### Frontend Environment Variables [(`Front End/.env`)]
+##### Frontend Environment Variables (`Front End/.env`)
 
 - **`VITE_BACKEND_BASE_URL`**: The base URL of the backend server.
 - **`VITE_PKG_ADDY`**: Package address.
@@ -322,7 +332,7 @@ VITE_DAPP_ID=account_tdx_2_1286nhpzlgc0pr3jw39lrtxprq8ak3ysnmgj7j4qruvlje76zqya4
 
 ```
 
-## Setup and Run the Backend Server
+#### Setup and Run the Backend Server
 
 1. **Navigate to the Backend Server Directory:**
    ```sh
@@ -345,7 +355,7 @@ VITE_DAPP_ID=account_tdx_2_1286nhpzlgc0pr3jw39lrtxprq8ak3ysnmgj7j4qruvlje76zqya4
 
    The backend server should now be running on `http://localhost:8080`.
 
-## Setup and Run the Frontend
+#### Setup and Run the Frontend
 
 1. **Navigate to the Frontend Directory:**
    ```sh
@@ -385,26 +395,26 @@ VITE_DAPP_ID=account_tdx_2_1286nhpzlgc0pr3jw39lrtxprq8ak3ysnmgj7j4qruvlje76zqya4
 
 The Radix Scrypto Challenges code is released under Radix Modified MIT License.
 
-    Copyright 2024 Radix Publishing Ltd
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software for non-production informational and educational purposes without
-    restriction, including without limitation the rights to use, copy, modify,
-    merge, publish, distribute, sublicense, and to permit persons to whom the
-    Software is furnished to do so, subject to the following conditions:
-
-    This notice shall be included in all copies or substantial portions of the
-    Software.
-
-    THE SOFTWARE HAS BEEN CREATED AND IS PROVIDED FOR NON-PRODUCTION, INFORMATIONAL
-    AND EDUCATIONAL PURPOSES ONLY.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-    FOR A PARTICULAR PURPOSE, ERROR-FREE PERFORMANCE AND NONINFRINGEMENT. IN NO
-    EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES,
-    COSTS OR OTHER LIABILITY OF ANY NATURE WHATSOEVER, WHETHER IN AN ACTION OF
-    CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-    SOFTWARE OR THE USE, MISUSE OR OTHER DEALINGS IN THE SOFTWARE. THE AUTHORS SHALL
-    OWE NO DUTY OF CARE OR FIDUCIARY DUTIES TO USERS OF THE SOFTWARE.
+      Copyright 2024 Radix Publishing Ltd
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of
+      this software and associated documentation files (the "Software"), to deal in
+      the Software for non-production informational and educational purposes without
+      restriction, including without limitation the rights to use, copy, modify,
+      merge, publish, distribute, sublicense, and to permit persons to whom the
+      Software is furnished to do so, subject to the following conditions:
+      
+      This notice shall be included in all copies or substantial portions of the
+      Software.
+      
+      THE SOFTWARE HAS BEEN CREATED AND IS PROVIDED FOR NON-PRODUCTION, INFORMATIONAL
+      AND EDUCATIONAL PURPOSES ONLY.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+      FOR A PARTICULAR PURPOSE, ERROR-FREE PERFORMANCE AND NONINFRINGEMENT. IN NO
+      EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES,
+      COSTS OR OTHER LIABILITY OF ANY NATURE WHATSOEVER, WHETHER IN AN ACTION OF
+      CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+      SOFTWARE OR THE USE, MISUSE OR OTHER DEALINGS IN THE SOFTWARE. THE AUTHORS SHALL
+      OWE NO DUTY OF CARE OR FIDUCIARY DUTIES TO USERS OF THE SOFTWARE.

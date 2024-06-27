@@ -36,7 +36,7 @@ function ExchangeRatePic() {
             <span className='exchange-amount-container'>
 
                 <img
-                    src="https://assets.floww.fi/images/logo/png/tp/white/yield_nft.png"
+                    src="https://assets.floww.fi/images/logo/png/bg/yield_nft.png"
                     alt="SuperYield"
                 />
 
@@ -56,7 +56,7 @@ function ExchangeRatePic() {
             <span className='exchange-amount-container'>
 
                 <img
-                    src="https://assets.floww.fi/images/logo/svg/bg/white/super_s.svg"
+                    src="https://assets.floww.fi/images/logo/svg/bg/super_s.svg"
                     alt="SuperYieldNFT"
                 />
 
@@ -76,7 +76,7 @@ function ExchangeRatePic() {
             <span className='exchange-amount-container'>
 
                 <img
-                    src="https://assets.floww.fi/images/logo/svg/bg/white/super_t.svg"
+                    src="https://assets.floww.fi/images/logo/svg/bg/super_t.svg"
                     alt="SuperYield"
                 />
 

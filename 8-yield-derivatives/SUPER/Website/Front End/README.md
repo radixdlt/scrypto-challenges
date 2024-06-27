@@ -9,10 +9,11 @@
 # SUPER Frontend (Vanilla React + Vite)
 
 This frontend uses the ReactJS template provided [here](https://github.com/radixdlt/official-examples/tree/main/getting-started/react-js-dapp).
-It utilizes the Radix dApp Toolkit to interact with the Radix Ledger via the Gateway API and the Radix Wallet. It also uses an express backend to
+It uses the Radix dApp Toolkit to interact with the Radix Ledger via the Gateway API and the Radix Wallet.
+It also uses an express backend to
 store data for faster fetching as opposed to relying entirely on the GatewayAPI.
 
-In the `react-js-dapp` directory: run `npm install` to install the dependencies
+In the `Front End` directory: run `npm install` to install the dependencies
 and then `npm run dev` to start the development server.
 
 ## What is Included

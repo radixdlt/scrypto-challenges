@@ -325,8 +325,8 @@ body, html {
 #navbar img {
   align-items: flex-start;
   background: var(--grey-2);
-  height: 2.875rem;
-  width: 11rem;
+  height: 3.5rem;
+  width: auto;
 }
 #navbar-container {
   display: flex;
