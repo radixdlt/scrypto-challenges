@@ -16,6 +16,9 @@ This Scrypto package contains a single ```Super``` blueprint which uses the foll
 | [icon_urls.rs](#icons)                                                             | Internal Module | Includes multiple representations of each icon, categorized by color and background settings, ensuring that icons can be dynamically adapted to different UI contexts and branding requirements.                                                                                         |
 | [scrypto_avltree](https://github.com/ociswap/scrypto-avltree/tree/main)  | External Crate  | Utilized to efficiently manage data structures for various elements of the application, such as yield claims and updates, withdrawals, and minting activities to prevent [state explosion](https://docs.radixdlt.com/docs/code-hardening).                                              |
 
+> [!TIP]
+> For information regarding running the DApp on `resim`,
+> please go [here](../Website/README.md#run-the-dapp-locally-using-resim-with-or-without-transaction-manifests)
 
 ## Slang 
 The term "addy" is used as shorthand for address, the following are variations of "addy"
