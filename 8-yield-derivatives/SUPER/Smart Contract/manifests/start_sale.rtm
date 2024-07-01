@@ -1,0 +1,30 @@
+CALL_METHOD
+    Address("<OWNER_ADDRESS>")
+    "create_proof_of_non_fungibles"
+    Address("<OWNER_BADGE_ADDRESS>")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("#0#")
+    )
+;
+CALL_METHOD
+    Address("<OWNER_ADDRESS>")
+    "withdraw"
+    Address("<XRD_ADDRESS>")
+    Decimal("1")
+;
+TAKE_FROM_WORKTOP
+    Address("<XRD_ADDRESS>")
+    Decimal("1")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("<COMPONENT_ADDRESS>")
+    "start_sale"
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("<OWNER_ADDRESS>")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;

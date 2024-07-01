@@ -1,0 +1,78 @@
+/radixdlt-scrypto
+./radixdlt-scrypto
+/Docs
+Docs/*
+Website/Back End/Updater Bot
+Website/Back End/Updater Bot/*
+Website/Back End/Server/assets.html
+Website/Back End/Server/IMPORTANT!!!!!!
+Website/Back End/Server/IMPORTANT!!!!!!/*
+
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependency directories
+Website/Front End/node_modules
+Website/Back End/Server/node_modules
+Smart Contract/target
+
+# Build directories
+dist
+dist-ssr
+
+# Local environment files
+*.local
+.env
+*.env
+*/Cargo.lock
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+Website/Front End/public
+
+
+# OS-specific files
+Thumbs.db  # Windows thumbnail cache
+ehthumbs.db  # Windows Media Player thumbnail cache
+Desktop.ini  # Windows desktop icon settings
+*.cab  # Windows cabinet file
+*.msi  # Windows installer package
+*.msm  # Windows installer merge module
+*.msp  # Windows installer patch
+
+# IDE-specific files
+*.iml
+*.ipr
+*.iws
+
+# Dependency directories and files for various package managers
+.pnpm
+.pnp.js
+.pnp.cjs
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.yarn/patches
+
+# Backup files
+*.bak
+
+# Miscellaneous
+*.tmp
+
