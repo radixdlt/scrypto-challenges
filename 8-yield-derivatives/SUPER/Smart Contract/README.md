@@ -18,7 +18,7 @@ This Scrypto package contains a single ```Super``` blueprint which uses the foll
 
 > [!TIP]
 > For information regarding running the DApp on `resim`,
-> please go [here](../Website/README.md#run-the-dapp-locally-using-resim-with-or-without-transaction-manifests)
+> please go [here](../Website/README.md#run-the-dapp-locally-using-resim)
 
 ## Slang 
 The term "addy" is used as shorthand for address, the following are variations of "addy"

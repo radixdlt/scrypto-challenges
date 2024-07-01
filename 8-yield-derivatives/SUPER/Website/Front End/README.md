@@ -186,7 +186,7 @@ function App() {
 Contexts (created using React's `createContext`) and providers that fill in
 those contexts' values.
 
-### [AccountContext.jsx](src%2FAccountContext.jsx)
+### [AccountContext.jsx](src/AccountContext.jsx)
 The AccountProvider component is a React context provider that manages
 account-related state and functionality using the useRdt hook to interact
 with the Radix Dapp Toolkit. It initializes accounts and selectedAccount
@@ -239,7 +239,7 @@ const AccountProvider = ({ children }) => {
 };
 ```
 
-### [src/context/xrdAddressContext.jsx](src%2Fcontext%2FxrdAddressContext.jsx)
+### [src/context/xrdAddressContext.jsx](src/context/xrdAddressContext.jsx)
 Defines a context for the XRD Address using React's `createContext` hook.
 ```javascript
 export const XrdAddressContext = createContext("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc");
@@ -247,16 +247,16 @@ export const XrdAddressContext = createContext("resource_tdx_2_1tknxxxxxxxxxradx
 
 ### `null` contexts
 The following files are initialized with a null value instead of the XRD Resource Address above:
-- [src/context/gatewayApiContext.jsx](src%2Fcontext%2FgatewayApiContext.jsx)
-- [src/context/updateTriggerContext.jsx](src%2Fcontext%2FupdateTriggerContext.jsx)
-- [src/context/rdtContext.jsx](src%2Fcontext%2FrdtContext.jsx)
+- [src/context/gatewayApiContext.jsx](src/context/gatewayApiContext.jsx)
+- [src/context/updateTriggerContext.jsx](src/context/updateTriggerContext.jsx)
+- [src/context/rdtContext.jsx](src/context/rdtContext.jsx)
 
 ### Contexts from Environment (`.env`) variables - `src/context/fromEnv/`
 This folder contains 4 files:
-- [DappDefinitionCaddy.jsx](src%2Fcontext%2FfromEnv%2FDappDefinitionCaddy.jsx)
-- [NewSuperTxID.jsx](src%2Fcontext%2FfromEnv%2FNewSuperTxID.jsx)
-- [PackageAddy.jsx](src%2Fcontext%2FfromEnv%2FPackageAddy.jsx)
-- [SaleLength.jsx](src%2Fcontext%2FfromEnv%2FsaleLength.jsx)
+- [DappDefinitionCaddy.jsx](src/context/fromEnv/DappDefinitionCaddy.jsx)
+- [NewSuperTxID.jsx](src/context/fromEnv/NewSuperTxID.jsx)
+- [PackageAddy.jsx](src/context/fromEnv/PackageAddy.jsx)
+- [SaleLength.jsx](src/context/fromEnv/SaleLength.jsx)
 
 All 4 take variables from the .env file and export them as contexts using the  
 React `createContext` hook, so they can be used throughout the entire code.
@@ -269,7 +269,7 @@ export const DappDefinitionCaddy = createContext(import.meta.env.VITE_DAPP_ID);
 This folder contains various provider components that wrap their children components,
 allowing them to access the context values.
 
-### [src/context/providers/RdtProvider.jsx](src%2Fcontext%2Fproviders%2FRdtProvider.jsx)
+### [src/context/providers/RdtProvider.jsx](src/context/providers/RdtProvider.jsx)
 Uses the RdtContext from nullContexts.jsx to provide a React context. RdtProvider takes
 a value prop and wraps its children components, allowing them to access the context's value.
 ```javascript
@@ -280,7 +280,7 @@ export const RdtProvider = ({ value, children }) => (
 )
 ```
 
-### [src/context/providers/GatewayApiProvider.jsx](src%2Fcontext%2Fproviders%2FGatewayApiProvider.jsx)
+### [src/context/providers/GatewayApiProvider.jsx](src/context/providers/GatewayApiProvider.jsx)
 It uses the RdtContext from GatewayApiContext.jsx to provide a React context.
 GatewayApiProvider takes a value prop and wraps its children components, allowing them
 to access the context's value.
@@ -294,7 +294,7 @@ export const GatewayApiProvider = ({ value, children }) => (
 );
 ```
 
-### [src/context/providers/SaleDetailProvider.jsx](src%2Fcontext%2Fproviders%2FSaleDetailProvider.jsx)
+### [src/context/providers/SaleDetailProvider.jsx](src/context/providers/SaleDetailProvider.jsx)
 It uses the SaleDetailContext from rdtContext.jsx to provide a React context.
 SaleDetailProvider takes a value prop and wraps its children components, allowing them
 to access the context's value.
@@ -329,7 +329,7 @@ export const SaleDetailsProvider = ({ children }) => {
 };
 ```
 
-### [UpdateTriggerProvider.jsx](src%2Fcontext%2Fproviders%2FUpdateTriggerProvider.jsx)
+### [UpdateTriggerProvider.jsx](src/context/providers/UpdateTriggerProvider.jsx)
 The UpdateTriggerProvider component provides the UpdateTriggerContext with a trigger state
 and an update function that increments the trigger state. It ensures that any component
 consuming this context can access and update the trigger value, thereby facilitating
@@ -365,7 +365,7 @@ export const UpdateTriggerProvider = ({ children }) => {
 ## API (`src/api`)
 API Opener Para
 
-### [get.js](src%2Fapi%2Fget.js)
+### [get.js](src/api/get.js)
 This file contains functions to fetch data from the backend using HTTP GET requests. It utilizes the `axios` library for making these requests.
 
 #### Environment Variables
@@ -412,7 +412,7 @@ export const getNftDataFromMongo = async (id) => {
 ```
 
 
-### [posts.js](src%2Fapi%2Fposts.js)
+### [posts.js](src/api/posts.js)
 
 This file contains functions to send data to the backend using HTTP POST requests. The backend then processes the data and sends it to MongoDB. It utilizes the `axios` library for making these requests.
 
@@ -502,7 +502,7 @@ The manifest is a string template filled with the provided parameters.
 The manifests folder is currently (2024-06-08) incomplete, as there are
 functions it should have manifests for but currently don't exist.
 
-### [endSaleManifest.js](src%2Fmanifests%2FendSaleManifest.js)
+### [endSaleManifest.js](src/manifests/endSaleManifest.js)
 Generates a manifest for ending a token sale.
 
 ```javascript
@@ -533,7 +533,7 @@ export const endSaleManifest = (
 `;}
 ```
 
-### [newSuperManifest.js](src%2Fmanifests%2FnewSuperManifest.js)
+### [newSuperManifest.js](src/manifests/newSuperManifest.js)
 This file exports a function that generates a manifest for instantiating a SUPER component.
 The manifest is a string template filled with the provided parameters.
 Generates a manifest for instantiating a SUPER component.
@@ -560,7 +560,7 @@ export const newManifest = (
 ;
 ```
 
-### [splitNftManifest.js](src%2Fmanifests%2FsplitNftManifest.js)
+### [splitNftManifest.js](src/manifests/splitNftManifest.js)
 This file exports a function that generates a manifest for splitting an NFT.
 The manifest is a string template filled with the provided parameters.
 ```javascript
@@ -601,7 +601,7 @@ export const splitNftManifest = (
 `;}
 ```
 
-### [startSaleManifest.js](src%2Fmanifests%2FstartSaleManifest.js)
+### [startSaleManifest.js](src/manifests/startSaleManifest.js)
 This file exports a function that generates a manifest for starting a sale.
 The manifest is a string template filled with the provided parameters.
 
@@ -656,7 +656,7 @@ This folder contains custom hooks that encapsulate reusable logic,
 making it easier to manage state and side effects in your React components.
 These hooks help streamline interaction with contexts and other shared functionalities.
 
-### [useGatewayApi.js](src%2Fhooks%2FuseGatewayApi.js)
+### [useGatewayApi.js](src/hooks/useGatewayApi.js)
 This hook provides access to the gateway API,
 allowing components to consume the Gateway API-related state and functionality provided by GatewayApiProvider.
 
@@ -672,7 +672,7 @@ import {gatewayApiContext} from "../context/gatewayApiContext.jsx";
 export const useGatewayApi = () => useContext(gatewayApiContext);
 ```
 
-### [useRdt.js](src%2Fhooks%2FuseRdt.js)
+### [useRdt.js](src/hooks/useRdt.js)
 This hook provides access to Radix Dapp Toolkit through`RdtContext`, allowing components to consume the
 RDT-related state and functionality provided by `RdtProvider`.
 
@@ -688,7 +688,7 @@ import { RdtContext } from "../context/rdtContext.jsx";
 export const useRdt = () => useContext(RdtContext);
 ```
 
-### [useAccount.jsx](src%2Fhooks%2FuseAccount.jsx)
+### [useAccount.jsx](src/hooks/useAccount.jsx)
 Provides access to the `AccountContext`,
 allowing components to consume the account-related state and functionality provided by `AccountProvider`.
 
@@ -699,7 +699,7 @@ import {AccountContext} from "../AccountContext.jsx";
 export const useAccount = () => useContext(AccountContext);
 ```
 
-### [useSaleDetails.js](src%2Fhooks%2FuseSaleDetails.js)
+### [useSaleDetails.js](src/hooks/useSaleDetails.js)
 This hook provides access to the `SaleDetailsContext`,
 allowing components to consume the sale details state and functionality provided by `SaleDetailsProvider`.
 
@@ -710,7 +710,7 @@ import {SaleDetailsContext} from "../context/providers/SaleDetailProvider.jsx"
 export const useSaleDetails = () => useContext(SaleDetailsContext);
 ```
 
-### [useComponentDetails.js](src%2Fhooks%2FuseComponentDetails.js)
+### [useComponentDetails.js](src/hooks/useComponentDetails.js)
 This file creates hooks from both environment variables and sale details.
 #### Hooks from Environment Variables
 
@@ -780,7 +780,7 @@ export const useComponentAddy = () => {
 }
 ```
 
-### [useCombinedNftData.jsx](src%2Fhooks%2FuseCombinedNftData.jsx)
+### [useCombinedNftData.jsx](src/hooks/useCombinedNftData.jsx)
 Fetches and processes NFT data from the Radix Dapp Toolkit and the backend.
 ```javascript
 export const useCombinedNftData = (YieldNftRaddy) => {
@@ -863,7 +863,7 @@ export const useCombinedNftData = (YieldNftRaddy) => {
 };
 ```
 
-### [useSendTransaction.js](src%2Fhooks%2FuseSendTransaction.js)
+### [useSendTransaction.js](src/hooks/useSendTransaction.js)
 This hook provides a function to send transactions using the Radix Dapp Toolkit
 and fetch transaction details from the Gateway API. It allows components to
 initiate and manage blockchain transactions.
@@ -937,7 +937,7 @@ const sendTransaction = useCallback(
 );
 ```
 
-### [useGetEventInReceipt.js](src%2Fhooks%2FuseGetEventInReceipt.js)
+### [useGetEventInReceipt.js](src/hooks/useGetEventInReceipt.js)
 This hook is used to find an event in the events received from `useSendTransaction` by the name of the event.
 It extracts and filters events by name from the receipt events
 and optimizes performance using `useMemo` to avoid unnecessary computations.
@@ -974,7 +974,7 @@ const useGetEventInReceipt = (receipt, eventName) => {
 export default useGetEventInReceipt;
 ```
 
-### [useUpdateSaleDetails.js](src%2Fhooks%2FuseUpdateSaleDetails.js)
+### [useUpdateSaleDetails.js](src/hooks/useUpdateSaleDetails.js)
 This hook triggers an update of sale details using the `UpdateTriggerContext`.
 When the component using this hook is mounted, it automatically calls the `update`
 function from the context to refresh the sale details.
@@ -1031,7 +1031,7 @@ We'll follow the order of the `BrowserRouter` in `src/App.jsx`:
 </Router>
 ```
 
-### [HomePage](src%2Fpages%2FHomePage)
+### [HomePage](src/pages/HomePage)
 The `HomePage` component serves as the main landing page of the DApp.
 This page includes a primary navigation bar and a section that provides instructions to put the wallet in dev mode.
 
@@ -1054,7 +1054,7 @@ function HomePage() {
 export default HomePage;
 ```
 
-### [DocsPage](src%2Fpages%2FDocsPage)
+### [DocsPage](src/pages/DocsPage)
 This component renders the documentation page with a primary navigation bar and the documentation content section.
 
 <img src=https://www.assets.floww.fi/images/pages/docs_page.png width="800"/>
@@ -1074,7 +1074,7 @@ function DocsPage() {
 export default DocsPage;
 ```
 
-### [SuperPage](src%2Fpages%2FSuperPage)
+### [SuperPage](src/pages/SuperPage)
 The `SuperPage` component serves as a container for the `ManageSuperPage` and `BuySuperPage` sub-pages related to "Super" 
 functionality in the DApp. This page includes a primary navigation bar, a secondary navigation bar, 
 and a placeholder (`Outlet`) for rendering child routes.  
@@ -1105,7 +1105,7 @@ function SuperPage() {
 export default SuperPage;
 ```
 
-### [BuySuperPage](src%2Fpages%2FBuySuperPage)
+### [BuySuperPage](src/pages/BuySuperPage)
 The `BuySuperPage` serves as a page for purchasing SUPER tokens. 
 This page includes the `BuySuperSection` which contains the main content for buying SUPER tokens.
 
@@ -1125,7 +1125,7 @@ function BuySuperPage() {
 export default BuySuperPage;
 ```
 
-### [ManageSuperPage](src%2Fpages%2FManageSuperPage%2Findex.jsx)
+### [ManageSuperPage](src/pages/ManageSuperPage/index.jsx)
 `ManageSuperPage` component that serves as a page for managing the SUPER yield NFT.
 This page includes sections for selecting NFTs and splitting NFTs.
 
@@ -1186,7 +1186,7 @@ const ManageSuperPage = () => {
 export default ManageSuperPage;
 ```
 
-### [OwnerPage](src%2Fpages%2FDevPage)
+### [OwnerPage](src/pages/OwnerPage/index.jsx)
 The `OwnerPage` component is a page that combines several sections to provide functionality for the owner of the DApp.
 This page includes a primary navigation bar and three main sections: `SelectOwnerSection`, `InstantiateSection`, and `SaleStatusSection`.
 
@@ -1242,11 +1242,11 @@ export default OwnerPage;
 
 ## Sections (`src/sections`)
 
-### [DevModeInstruction.jsx](src%2Fsections%2FDevModeInstruction.jsx)
+### [DevModeInstruction.jsx](src/sections/DevModeInstruction.jsx)
 ![img.png](src/assets/components/dev_intructions.png)
 This component renders the instructions for setting up Dev Mode in the Radix Wallet, including step-by-step guidance and a visual gif.
 
-### [DocumentationSection.jsx](src%2Fsections%2FDocumentationSection.jsx)
+### [DocumentationSection.jsx](src/sections/DocumentationSection.jsx)
 The `DocumentationSection` component provides links to external documentation resources.
 This section includes a heading, a brief description,
 and buttons that direct users to the Radix and dApp Toolkit documentation.  
@@ -1289,7 +1289,7 @@ function DocumentationSection() {
 export default DocumentationSection;
 ```
 
-### [BuySuperSection.jsx](src%2Fsections%2FBuySuperSection.jsx)
+### [BuySuperSection.jsx](src/sections/BuySuperSection.jsx)
 The `BuySuperSection` component provides a section for users to purchase SUPER tokens.
 This section includes dropdowns for selecting an account, input fields for entering XRD amounts,
 and components to display exchange rates and handle the purchase process.
@@ -1394,7 +1394,7 @@ const BuySuperSection = () => {
 export default BuySuperSection;
 ```
 
-### [SelectNFTSection.jsx](src%2Fsections%2FSelectNFTSection.jsx)
+### [SelectNFTSection.jsx](src/sections/SelectNFTSection.jsx)
 
 The `SelectNftSection` component allows users to select an account and the SUPER Yield NFT they want to manage.
 This section is commonly used in parts of the application
@@ -1474,7 +1474,7 @@ export default SelectNftSection;
 
 ```
 
-### [SplitNFTSectionV2.jsx](src%2Fsections%2FSplitNFTSectionV2.jsx)
+### [SplitNFTSectionV2.jsx](src/sections/SplitNFTSectionV2.jsx)
 The `SplitNftSectionV2` component provides a section for users to split an NFT into multiple equivalent NFTs.
 This section includes input fields for specifying the number of splits,
 displaying the selected NFT label, and a button to initiate the split process.
@@ -1599,7 +1599,7 @@ const MemoizedSplitNftSection = React.memo(SplitNftSectionV2);
 export default MemoizedSplitNftSection;
 ```
 
-### [AccountSelectSection.jsx](src%2Fsections%2FAccountSelectSection.jsx)
+### [AccountSelectSection.jsx](src/sections/AccountSelectSection.jsx)
 The `AccountSelectSection` component allows users to select an account that holds SUPER Yield NFTs for management,
 or the account they want to buy SUPER with.
 This section is commonly used in parts of the application
@@ -1624,7 +1624,7 @@ section with functionalities for selecting the account with SUPER Yield NFTs.
 yo
 ```
 
-### [InstantiateSection.jsx](src%2Fsections%2FInstantiateSection.jsx)
+### [InstantiateSection.jsx](src/sections/InstantiateSection.jsx)
 The `InstantiateSection` component provides a section for users to instantiate a SUPER component.
 This section includes a heading, a brief description, and a button to initiate the instantiation process.
 
@@ -1676,7 +1676,7 @@ export default InstantiateSection;
 
 ```
 
-### [SaleStatusSection.jsx](src%2Fsections%2FSaleStatusSection.jsx)
+### [SaleStatusSection.jsx](src/sections/SaleStatusSection.jsx)
 The `SaleStatusSection` component provides a section for managing and viewing the status of a sale.
 This section includes information on whether a sale is active, the countdown to the end of the sale,
 and buttons to start or end the sale.
@@ -1733,7 +1733,7 @@ export default SaleStatusSection;
 
 ```
 
-### [SelectOwnerSection.jsx](src%2Fsections%2FSelectOwnerSection.jsx)
+### [SelectOwnerSection.jsx](src/sections/SelectOwnerSection.jsx)
 The `SelectOwnerSection` component allows users to select an account that holds the SUPER owner badge. This section is commonly used in parts of the application that require the user to operate under an account with specific permissions or roles.
 
 #### Components Used:
@@ -1786,7 +1786,7 @@ export default SelectOwnerSection;
 
 ```
 
-### [DevSection.jsx](src%2Fsections%2FDevSection.jsx)
+### [DevSection.jsx](src/sections/DevSection.jsx)
 Note: This code is too long to include here, please use the heading as a shortcut to it.
 
 The `DevSection` component provides a section for developers to interact with the DApp.
@@ -2002,7 +2002,7 @@ pages, which reside in `src/pages`.
 
 Below, we discuss the various components that constitute the DApp.
 
-### [PrimaryNavbar.jsx](src%2Fcomponents%2FPrimaryNavbar.jsx)
+### [PrimaryNavbar.jsx](src/components/PrimaryNavbar.jsx)
 The `PrimaryNavbar` component provides the primary navigation bar for the DApp.
 It includes links to different pages of the application and the`radix-connect-button` 
 for connecting to the Radix Wallet.
@@ -2094,7 +2094,7 @@ const PrimaryNavbar = () => {
 export default PrimaryNavbar;
 ```
 
-### [SecondaryNavBar.jsx](src%2Fcomponents%2FSecondaryNavBar.jsx)
+### [SecondaryNavBar.jsx](src/components/SecondaryNavBar.jsx)
 The `SecondaryNavbar` component provides the secondary navigation bar for the DApp, specifically for navigating within the "SUPER" section of the application. It includes links to the "Buy" and "Manage" pages.
 
 #### Components Used:
@@ -2122,7 +2122,7 @@ const SecondaryNavbar = () => {
 export default SecondaryNavbar;
 ```
 
-### [AccountDropdown.jsx](src%2Fcomponents%2FAccountDropdown.jsx)
+### [AccountDropdown.jsx](src/components/AccountDropdown.jsx)
 The `AccountDropdown` component provides a dropdown menu for selecting an account.
 It is designed to be used in parts of the application where users need to select an account for various operations.
 The dropdown adapts its styling and behavior based on the number of available accounts and whether the dropdown is enabled or disabled.
@@ -2258,7 +2258,7 @@ export default AccountDropdown;
 
 ```
 
-### [YieldNFTDropdown.jsx](src%2Fcomponents%2FYieldNFTDropdown.jsx)
+### [YieldNFTDropdown.jsx](src/components/YieldNFTDropdown.jsx)
 ![img.png](src/assets/components/nft_dropdown.png)
 
 The `YieldNFTDropdown` component provides a dropdown menu for selecting a SUPER Yield NFT associated with a selected account. It utilizes the `useCombinedNftData` hook to fetch NFT data and updates the selection state accordingly.
@@ -2440,7 +2440,7 @@ YieldNFTDropdown.propTypes = {
 
 ```
 
-### [BuySuper.jsx](src%2Fcomponents%2FBuySuper.jsx)
+### [BuySuper.jsx](src/components/BuySuper.jsx)
 The `BuySuper` component provides functionality for purchasing SUPER tokens.
 It includes a button to initiate the purchase,
 Upon clicking the button, it constructs a transaction
@@ -2532,7 +2532,7 @@ export default BuySuper;
 
 ```
 
-### [SplitNftButton.jsx](src%2Fcomponents%2FSplitNftButton.jsx)
+### [SplitNftButton.jsx](src/components/SplitNftButton.jsx)
 
 The `SplitNftButton` component provides functionality for splitting a SUPER Yield NFT into multiple NFTs.
 It includes a button to initiate the split process.
@@ -2613,7 +2613,7 @@ export default SplitNftButton;
 
 ```
 
-### [ExchangeRatePic.jsx](src%2Fcomponents%2FExchangeRatePic.jsx)
+### [ExchangeRatePic.jsx](src/components/ExchangeRatePic.jsx)
 
 The `ExchangeRatePic` component visually represents the exchange rate formula for converting XRD to SUPER tokens and SUPER NFTs. It includes sub-components to display the Radix token, SUPER token, SUPERt token, and SUPER Yield NFT.
 
@@ -2728,7 +2728,7 @@ function ExchangeRatePic() {
 
 ```
 
-### [SaleActiveStatus.jsx](src%2Fcomponents%2FSaleActiveStatus.jsx)
+### [SaleActiveStatus.jsx](src/components/SaleActiveStatus.jsx)
 
 The `SaleActiveStatus` component provides a visual indicator of the current sale status.
 It displays whether the sale is completed, active,
@@ -2789,7 +2789,7 @@ export default SaleActiveStatus;
 
 ```
 
-### [EndCountdown.jsx](src%2Fcomponents%2FEndCountdown.jsx)
+### [EndCountdown.jsx](src/components/EndCountdown.jsx)
 The `EndCountdown` component provides a countdown timer that shows the time remaining until the end of a sale.
 It uses custom hooks to fetch the sale end time and sale completion status, and updates the countdown every second.
 
@@ -2853,7 +2853,7 @@ function EndCountdown() {
 export default EndCountdown;
 ```
 
-### [StartSale.jsx](src%2Fcomponents%2FStartSale.jsx)
+### [StartSale.jsx](src/components/StartSale.jsx)
 The `StartSale` component provides functionality for initiating a sale.
 It includes a button to start the sale,
 and upon clicking the button, it constructs a transaction manifest and sends it using the `sendTransaction` function.
@@ -2941,7 +2941,7 @@ export default StartSale;
 
 ```
 
-### [EndSale.jsx](src%2Fcomponents%2FEndSale.jsx)
+### [EndSale.jsx](src/components/EndSale.jsx)
 The `EndSale` component provides functionality for ending a sale.
 It includes a button to end the sale,
 and upon clicking the button, it constructs a transaction manifest and sends it using the `sendTransaction` function.
@@ -3027,7 +3027,7 @@ export default EndSale;
 
 ```
 
-### [instantiateSuper.jsx](src%2Fcomponents%2FinstantiateSuper.jsx)
+### [instantiateSuper.jsx](src/components/instantiateSuper.jsx)
 The `InstantiateSuper` component provides functionality for instantiating a new SUPER component. It includes a button to initiate the instantiation, and upon clicking the button, it constructs a transaction manifest and sends it using the `sendTransaction` function. It also handles the validation to ensure a user account is selected before attempting the transaction. Upon successful transaction, it logs the transaction events and updates sale details in MongoDB.
 
 #### Hooks Used:

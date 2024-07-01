@@ -41,7 +41,7 @@ These are the functions that the public can access, although some functions beco
 - [`claim_yield()`](../Smart%20Contract/README.md#claim_yield)
 
 ## Functions requiring elevated permissions (badges)
-When the DApp is instantied using `new()`, two badges are created - the SUPER Owner Badge and SUPER DB Updater Badge.
+When the DApp is instantiated using `new()`, two badges are created—the SUPER Owner Badge and SUPER DB Updater Badge.
 The Owner Badge has higher "permission levels" than the Database Updater Badge and so can access any functions that the DB Updater can.
 - [`new()`](../Smart%20Contract/README.md#new)
   - Technically, this one doesn't require a badge, but it DOES create the badges the rest of the functions require.
@@ -64,7 +64,7 @@ The Owner Badge has higher "permission levels" than the Database Updater Badge a
 2. Immediately after they have minted their SUPER NFT, they can call the `split_nft()` method.
 3. Once the token sale ends, (After 7 days) participants with a SUPER NFT may `claim_yield()`
 
-## Run the DApp locally using `resim` (with or without transaction manifests)
+## Run the DApp locally using `resim`
 
 > #### 1. Reset Resim
 > ```powershell
@@ -192,7 +192,7 @@ The Owner Badge has higher "permission levels" than the Database Updater Badge a
 > ```
 
 > #### 8. Parse sale_detail_event_1
-> When the sale starts, some fields of saledetailevent must be updated, so we parse it again:
+> When the sale starts, some fields of saleDetailEvent must be updated, so we parse it again:
 > ```powershell
 > $sale_detail_event_1.Context.PostContext | ForEach-Object {
 >     if ($_ -match "\s*(\w+):\s+(.*)") {
@@ -385,7 +385,7 @@ package_tdx_2_1pkyhnqljlxs6jxz3wut9talyyflamz3r9kll7ak7f0n0sj4a2sr6dh
 
 
 ### Use transaction manifests to interact with the DApp
-Transaction Manifest can be found in [Smart Contracts/manifests](..%2FSmart%20Contract%2Fmanifests).
+Transaction Manifest can be found in [Smart Contracts/manifests](../Smart%20Contract/manifests).
 Using transaction manifests is shown above using `resim`.
 
 ### Use the website to interact with the DApp on stokenet
