@@ -1,0 +1,23 @@
+CALL_METHOD
+    Address("component_sim1cptxxxxxxxxxfaucetxxxxxxxxx000527798379xxxxxxxxxhkrefh")
+    "lock_fee"
+    Decimal("5000")
+;
+CALL_METHOD
+    Address("account_tdx_2_128qp5d27yepw44ftmq9wa9jzps7tf3y7r20xw0v6xz20wt54s7muwp")
+    "create_proof_of_amount"
+    Address("resource_tdx_2_1t5v99d0s7njg7qe65fggvhsj69n4qfukhnhd3egj3j9s0rg0yupp6e")
+    Decimal("1")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cq9kx6zhxwrnme6g08gkxnngq6hhsetv4u7z2y9t6pmp5t4xenlplg")
+    "add_new_asset"
+    Address("resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3")
+    Decimal("0.1")
+;
+CALL_METHOD
+    Address("account_tdx_2_128qp5d27yepw44ftmq9wa9jzps7tf3y7r20xw0v6xz20wt54s7muwp")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
