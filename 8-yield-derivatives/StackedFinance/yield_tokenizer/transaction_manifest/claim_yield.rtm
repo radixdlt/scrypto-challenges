@@ -1,0 +1,21 @@
+CALL_METHOD
+    Address("account_tdx_2_1c8m6h4yv2x9ca0wx5ddtl0nctqmjt2t740wfjgj9w8sdz82zyrnjm9")
+    "create_proof_of_non_fungibles"
+    Address("resource_tdx_2_1n235f4mhs5j263g0thta20ljztyjdp9gwdyzadp97txewfu5ha49nh")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("{080543fc9df9951d-47665df09b59e3f7-f3dd20c8834aa9dc-ef58e8ec309714a9}")
+    )
+;
+POP_FROM_AUTH_ZONE
+    Proof("YT Proof")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cqm9c9hnvap9rta4a7kkfq2qaex53kcf7mtjthpagf87mnlr3rumpk")
+    "claim_yield"
+    Proof("YT Proof")
+;
+CALL_METHOD
+    Address("account_tdx_2_1c8m6h4yv2x9ca0wx5ddtl0nctqmjt2t740wfjgj9w8sdz82zyrnjm9")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;

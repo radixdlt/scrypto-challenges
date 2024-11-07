@@ -1,0 +1,7 @@
+CALL_FUNCTION
+    Address("package_tdx_2_1p5g49dthgn56t5htw9fk72dav6jwrwavh22qkwwkaqzv8avmak0qyk")
+    "YieldTokenizer"
+    "instantiate_yield_tokenizer"
+    Enum<0u8>()
+    Address("resource_tdx_2_1thydcf5zxpp20us8jka3p02ryzudndm82603j306zry8gr23p2s3mu")
+;

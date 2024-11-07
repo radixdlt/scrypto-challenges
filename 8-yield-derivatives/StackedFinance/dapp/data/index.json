@@ -1,0 +1,18 @@
+[
+  {
+    "icon": "IMG",
+    "name": "Hermes Protocol",
+    "symbol": "HERMS",
+    "yield": "30%",
+    "price": "0.95",
+    "TVL": "$1,000,000"
+  },
+  {
+    "icon": "IMG",
+    "name": "BrasilBitcoin",
+    "symbol": "BRL",
+    "yield": "20%",
+    "price": "0.95",
+    "TVL": "$2,000,000"
+  }
+]
